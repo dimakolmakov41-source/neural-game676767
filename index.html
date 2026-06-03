@@ -20,16 +20,23 @@
             justify-content: center;
             align-items: center;
             padding: 10px;
+            color: white; /* базовый цвет текста белый */
         }
-        body.bg-morning { background: linear-gradient(145deg, #ffd89b, #c7e9fb); }
-        body.bg-day { background: linear-gradient(145deg, #4facfe, #00f2fe); }
-        body.bg-evening { background: linear-gradient(145deg, #f093fb, #f5576c); }
-        body.bg-night { background: linear-gradient(145deg, #0f172a, #1e1b4b); }
-        body.bg-space { background: radial-gradient(circle at 30% 10%, #0b0b2b, #000000); }
-        body.bg-city { background: linear-gradient(145deg, #2c3e50, #3498db); }
-        body.bg-desert { background: linear-gradient(145deg, #e2b87a, #d38312); }
-        body.bg-ocean { background: linear-gradient(145deg, #1c92d2, #f2fcfe); }
-        body.russia-day { background: linear-gradient(145deg, #ffffff, #0039a6, #d52b1e) !important; background-attachment: fixed; }
+        body.dark-mode {
+            background: #0a0a1a !important;
+        }
+        body.dark-mode .game-container {
+            background: rgba(0,0,0,0.9);
+        }
+        body.bg-morning { background: linear-gradient(145deg, #ffd89b, #c7e9fb); color: #333; }
+        body.bg-day { background: linear-gradient(145deg, #4facfe, #00f2fe); color: #fff; }
+        body.bg-evening { background: linear-gradient(145deg, #f093fb, #f5576c); color: #fff; }
+        body.bg-night { background: linear-gradient(145deg, #0f172a, #1e1b4b); color: #fff; }
+        body.bg-space { background: radial-gradient(circle at 30% 10%, #0b0b2b, #000000); color: #fff; }
+        body.bg-city { background: linear-gradient(145deg, #2c3e50, #3498db); color: #fff; }
+        body.bg-desert { background: linear-gradient(145deg, #e2b87a, #d38312); color: #fff; }
+        body.bg-ocean { background: linear-gradient(145deg, #1c92d2, #f2fcfe); color: #fff; }
+        body.russia-day { background: linear-gradient(145deg, #ffffff, #0039a6, #d52b1e) !important; color: #000; }
 
         .game-container {
             width: 100%;
@@ -111,6 +118,12 @@
             border: 2px solid #ffd966;
         }
 
+        .brain-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
         .brain {
             width: 170px;
             height: 170px;
@@ -179,8 +192,9 @@
         .pass-badge.completed { background: linear-gradient(145deg, #1a5a3a, #0a3a2a); border-color: #4caf50; }
         .pass-badge.available { background: linear-gradient(145deg, #ffd700, #ffaa00); color: #1a1a2e; animation: pulse 1s infinite; }
         @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        .pass-timer, .pass-end { text-align: center; font-size: 10px; color: #ffd700; margin-top: 5px; }
 
-        .quests-container { background: rgba(0, 0, 0, 0.5); border-radius: 30px; padding: 10px; margin: 10px 0; }
+        .quests-container { background: rgba(0,0,0,0.5); border-radius: 30px; padding: 10px; margin: 10px 0; }
         .quest-header { color: #ffd966; font-weight: bold; margin-bottom: 10px; text-align: center; }
         .quest-item { background: #2a4b6e; border-radius: 30px; padding: 10px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: white; flex-wrap: wrap; gap: 6px; }
         .quest-item.completed { background: #1a5a3a; opacity: 0.8; }
@@ -199,7 +213,7 @@
 
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: 0.2s; }
         .modal-overlay.show { opacity: 1; visibility: visible; }
-        .modal-content { background: linear-gradient(145deg, #1d3147, #112233); border-radius: 40px; padding: 20px; width: 90%; max-width: 350px; text-align: center; max-height: 80vh; overflow-y: auto; }
+        .modal-content { background: linear-gradient(145deg, #1d3147, #112233); border-radius: 40px; padding: 20px; width: 90%; max-width: 350px; text-align: center; max-height: 80vh; overflow-y: auto; color: white; }
         .modal-title { color: #d9b0ff; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
         .modal-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 30px; border: none; background: #2a4b6e; color: white; text-align: center; }
         .modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; font-weight: 700; margin: 5px; cursor: pointer; }
@@ -226,7 +240,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v9.0</div>
+            <div class="game-version" id="menuVersion">v9.1</div>
             <div class="menu-buttons-row"><div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div><div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="themeToggleBtn">🧺 СТИРАЛКА</div><div class="menu-btn" id="shopBtn">🛒 МАГАЗИН</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="dailyBonusBtn">🎁 БОНУС</div><div class="menu-btn" id="promoBtn">🎫 ПРОМОКОДЫ</div></div>
@@ -252,7 +266,12 @@
             
             <div class="boss-health" id="bossHealthBar">👾 БОСС: <span id="bossHp">0</span> HP</div>
             
-            <div class="brain-container"><div id="clickableObject" class="brain" style="background: radial-gradient(circle at 30% 30%, #ffaa00, #ff5500);"><span class="skin-emoji">🧠</span><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div></div></div>
+            <div class="brain-container">
+                <div id="clickableObject" class="brain" style="background: radial-gradient(circle at 30% 30%, #ffaa00, #ff5500);">
+                    <span class="skin-emoji">🧠</span>
+                    <div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>
+                </div>
+            </div>
             
             <div class="color-brain-btn" id="changeColorBtn">🎨 СМЕНИТЬ ЦВЕТ МОЗГА</div>
             
@@ -262,6 +281,7 @@
                 <div class="pass-header"><span>🎫 AI PASS СЕЗОН 3</span><span id="passTimer">10:00</span></div>
                 <div class="pass-levels" id="passLevels"></div>
                 <div class="pass-timer">✨ Награда каждые 10 минут</div>
+                <div class="pass-end" id="passEndTimer">⏳ AI Pass закончится: -- дн. -- ч. -- мин.</div>
             </div>
             
             <div class="quests-container" id="questsContainer">
@@ -285,10 +305,10 @@
     <div id="settingsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">⚙️ НАСТРОЙКИ</div><div class="color-picker-row" id="bgThemeList"></div><div class="setting-item"><span>🌙 Ночной режим</span><div class="toggle-switch" id="nightToggle"></div></div><div class="setting-item"><span>📳 Вибрация</span><div class="toggle-switch" id="vibroToggle"></div></div><div class="setting-item"><span>✨ Частицы</span><div class="toggle-switch" id="particlesToggle"></div></div><button class="modal-btn" id="closeSettings">ЗАКРЫТЬ</button><div class="reset-btn" id="resetGameBtn">⚠️ СБРОСИТЬ ВСЁ</div></div></div>
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
     <div id="dailyBonusModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div><div id="dailyBonusText"></div><button class="modal-btn" id="claimDailyBonusBtn">ЗАБРАТЬ</button><button class="modal-btn" id="closeDailyBonusBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v9.0: Музыка, статистика, смена цвета, фоны, AI Pass, босс, квесты, престиж!</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v9.1: Исправлен мозг по центру, таймер AI Pass, цвет текста. Музыка, статистика, смена цвета, фоны, AI Pass, босс, квесты, престиж!</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "9.0";
+        const GAME_VERSION = "9.1";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
         // === ПЕРЕМЕННЫЕ ===
@@ -368,9 +388,13 @@
 
         // === AI PASS ===
         let passLevels = [], passSeconds = 600, passInterval = null, passClaimCount = 0;
+        let passEndDate = new Date(2026, 5, 30, 23, 59, 59);
+        let passEndTimerInterval = null;
         for (let i = 1; i <= 20; i++) passLevels.push({ level: i, rewardPoints: Math.floor(i * 50), rewardDiamonds: Math.floor(i / 2) + 3, claimed: false });
         function renderPass() { const currentAvailable = passLevels.findIndex(l => !l.claimed); let html = ''; passLevels.forEach((level, idx) => { let statusClass = '', statusText = ''; if (level.claimed) { statusClass = 'completed'; statusText = '✅'; } else if (idx === currentAvailable && passSeconds <= 0) { statusClass = 'available'; statusText = `+${level.rewardPoints}🧠`; } else if (idx === currentAvailable && passSeconds > 0) { statusText = `${Math.ceil(passSeconds / 60)}м`; } else { statusText = '🔒'; } html += `<div class="pass-badge ${statusClass}" data-level="${level.level}">${level.level}<br>${statusText}</div>`; }); document.getElementById('passLevels').innerHTML = html; document.querySelectorAll('.pass-badge').forEach(badge => { badge.addEventListener('click', () => { const lvl = passLevels.find(l => l.level === parseInt(badge.dataset.level)); if (lvl && !lvl.claimed && passSeconds <= 0) { points += lvl.rewardPoints; diamonds += lvl.rewardDiamonds; totalDiamondsEarned += lvl.rewardDiamonds; lvl.claimed = true; passSeconds = 600; passClaimCount++; updateUI(); renderPass(); saveGame(); showToast(`🎉 Уровень ${lvl.level} получен!`); playBuySound(); } else if (passSeconds > 0) showToast(`⏱️ Подожди ${Math.ceil(passSeconds / 60)} мин`); }); }); }
         function startPassTimer() { if (passInterval) clearInterval(passInterval); passInterval = setInterval(() => { if (passSeconds > 0) { passSeconds--; const m = Math.floor(passSeconds / 60), s = passSeconds % 60; document.getElementById('passTimer').innerHTML = `${m}:${s.toString().padStart(2, '0')}`; if (passSeconds === 0) showToast("🎁 Награда AI PASS готова!"); renderPass(); saveGame(); } }, 1000); }
+        function updatePassEndTimer() { const now = new Date(); const diff = passEndDate - now; if (diff <= 0) { document.getElementById('passEndTimer').innerHTML = "⏳ AI PASS СЕЗОН 3 ЗАВЕРШЁН!"; if (passEndTimerInterval) clearInterval(passEndTimerInterval); return; } const days = Math.floor(diff / (1000 * 60 * 60 * 24)); const hours = Math.floor((diff % 86400000) / 3600000); const minutes = Math.floor((diff % 3600000) / 60000); document.getElementById('passEndTimer').innerHTML = `⏳ AI Pass закончится: ${days} дн. ${hours} ч. ${minutes} мин.`; }
+        function startPassEndTimer() { if (passEndTimerInterval) clearInterval(passEndTimerInterval); updatePassEndTimer(); passEndTimerInterval = setInterval(updatePassEndTimer, 60000); }
 
         // === БОСС ===
         function spawnBoss() { if (bossActive) return; bossActive = true; bossMaxHp = 100 + Math.floor(Math.random() * 150); bossCurrentHp = bossMaxHp; document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); showToast("👾 БОСС ПОЯВИЛСЯ!"); }
@@ -395,7 +419,7 @@
         function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
         function saveGame() { const save = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, godMode, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, robotSkins, currentRobotSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), passSeconds, passClaimCount, quests, clicksSinceLastBoss, bossActive, bossCurrentHp, bossMaxHp, isNeuralTheme, currentBrainColor }; localStorage.setItem('neuralEvoSave', JSON.stringify(save)); }
-        function loadGame() { const saved = localStorage.getItem('neuralEvoSave'); const savedSeason = localStorage.getItem('aiPassSeason'); if (savedSeason !== '3') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '3'); } if (saved) { try { const d = JSON.parse(saved); points = d.points || 100; diamonds = d.diamonds || 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; prestigeMulti = d.prestigeMulti || 1; prestigeCount = d.prestigeCount || 0; totalDiamondsEarned = d.totalDiamondsEarned || 0; bossKills = d.bossKills || 0; godMode = d.godMode || false; if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); if (d.skins) skins = d.skins; if (d.currentSkin) currentSkin = d.currentSkin; if (d.robotSkins) robotSkins = d.robotSkins; if (d.currentRobotSkin) currentRobotSkin = d.currentRobotSkin; if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); if (d.passSeconds) passSeconds = d.passSeconds; if (d.quests) quests = d.quests; clicksSinceLastBoss = d.clicksSinceLastBoss || 0; bossActive = d.bossActive || false; bossCurrentHp = d.bossCurrentHp || 0; bossMaxHp = d.bossMaxHp || 0; isNeuralTheme = d.isNeuralTheme !== undefined ? d.isNeuralTheme : true; currentBrainColor = d.currentBrainColor || colors[0]; document.getElementById('clickableObject').style.background = currentBrainColor; if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } purchasedCount = upgrades.filter(u => u.purchased).length; passClaimCount = passLevels.filter(l => l.claimed).length; } catch(e) {} } applyThemeUI(); updateUI(); renderShopNeurons(); renderShopSkins(); renderShopRobotSkins(); renderPass(); renderQuests(); updateStatsUI(); startPassTimer(); updateQuestsProgress(); }
+        function loadGame() { const saved = localStorage.getItem('neuralEvoSave'); const savedSeason = localStorage.getItem('aiPassSeason'); if (savedSeason !== '3') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '3'); } if (saved) { try { const d = JSON.parse(saved); points = d.points || 100; diamonds = d.diamonds || 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; prestigeMulti = d.prestigeMulti || 1; prestigeCount = d.prestigeCount || 0; totalDiamondsEarned = d.totalDiamondsEarned || 0; bossKills = d.bossKills || 0; godMode = d.godMode || false; if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); if (d.skins) skins = d.skins; if (d.currentSkin) currentSkin = d.currentSkin; if (d.robotSkins) robotSkins = d.robotSkins; if (d.currentRobotSkin) currentRobotSkin = d.currentRobotSkin; if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); if (d.passSeconds) passSeconds = d.passSeconds; if (d.quests) quests = d.quests; clicksSinceLastBoss = d.clicksSinceLastBoss || 0; bossActive = d.bossActive || false; bossCurrentHp = d.bossCurrentHp || 0; bossMaxHp = d.bossMaxHp || 0; isNeuralTheme = d.isNeuralTheme !== undefined ? d.isNeuralTheme : true; currentBrainColor = d.currentBrainColor || colors[0]; document.getElementById('clickableObject').style.background = currentBrainColor; if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } purchasedCount = upgrades.filter(u => u.purchased).length; passClaimCount = passLevels.filter(l => l.claimed).length; } catch(e) {} } applyThemeUI(); updateUI(); renderShopNeurons(); renderShopSkins(); renderShopRobotSkins(); renderPass(); renderQuests(); updateStatsUI(); startPassTimer(); startPassEndTimer(); updateQuestsProgress(); }
         function applyThemeUI() { const brainDiv = document.getElementById('clickableObject'); if (isNeuralTheme) { brainDiv.className = 'brain'; brainDiv.innerHTML = `<span class="skin-emoji">${currentSkin}</span><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>`; } else { brainDiv.className = 'washer'; brainDiv.innerHTML = currentRobotSkin; } }
         function toggleTheme() { isNeuralTheme = !isNeuralTheme; applyThemeUI(); saveGame(); showToast(isNeuralTheme ? "НЕЙРОСЕТИ" : "СТИРАЛКА"); }
 
@@ -408,7 +432,7 @@
 
         // === НАСТРОЙКИ ===
         let settings = { nightMode: localStorage.getItem('nightMode') === 'true', vibro: localStorage.getItem('vibro') !== 'false', particles: localStorage.getItem('particles') !== 'false' };
-        function applySettings() { if (settings.nightMode) document.body.style.filter = 'invert(1) hue-rotate(180deg)'; else document.body.style.filter = ''; document.getElementById('nightToggle')?.classList.toggle('active', settings.nightMode); document.getElementById('vibroToggle')?.classList.toggle('active', settings.vibro); document.getElementById('particlesToggle')?.classList.toggle('active', settings.particles); }
+        function applySettings() { if (settings.nightMode) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode'); document.getElementById('nightToggle')?.classList.toggle('active', settings.nightMode); document.getElementById('vibroToggle')?.classList.toggle('active', settings.vibro); document.getElementById('particlesToggle')?.classList.toggle('active', settings.particles); }
         function saveSettings() { localStorage.setItem('nightMode', settings.nightMode); localStorage.setItem('vibro', settings.vibro); localStorage.setItem('particles', settings.particles); applySettings(); }
 
         // === КЛИК ===
