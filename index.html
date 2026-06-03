@@ -246,7 +246,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v9.3</div>
+            <div class="game-version" id="menuVersion">v9.4</div>
             <div class="menu-buttons-row"><div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div><div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="themeToggleBtn">🧺 СТИРАЛКА</div><div class="menu-btn" id="shopBtn">🛒 МАГАЗИН</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="dailyBonusBtn">🎁 БОНУС</div><div class="menu-btn" id="promoBtn">🎫 ПРОМОКОДЫ</div></div>
@@ -260,7 +260,7 @@
             
             <div class="stats-panel-extended">
                 <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label">Всего кликов</div></div>
-                <div class="stat-card"><div class="stat-card-value" id="statTotalDiamonds">0</div><div class="stat-card-label">Всего алмазов</div></div>
+                <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label">Куплено нейросетей</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statBossKills">0</div><div class="stat-card-label">Убито боссов</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statPrestigeCount">0</div><div class="stat-card-label">Престижей</div></div>
             </div>
@@ -311,13 +311,12 @@
     <div id="settingsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">⚙️ НАСТРОЙКИ</div><div class="color-picker-row" id="bgThemeList"></div><div class="setting-item"><span>🌙 Ночной режим</span><div class="toggle-switch" id="nightToggle"></div></div><div class="setting-item"><span>📳 Вибрация</span><div class="toggle-switch" id="vibroToggle"></div></div><div class="setting-item"><span>✨ Частицы</span><div class="toggle-switch" id="particlesToggle"></div></div><button class="modal-btn" id="closeSettings">ЗАКРЫТЬ</button><div class="reset-btn" id="resetGameBtn">⚠️ СБРОСИТЬ ВСЁ</div></div></div>
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
     <div id="dailyBonusModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div><div id="dailyBonusText"></div><button class="modal-btn" id="claimDailyBonusBtn">ЗАБРАТЬ</button><button class="modal-btn" id="closeDailyBonusBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v9.3: Новая музыка! Бит, бас, мелодия. Web Audio без файлов. Мультитач работает.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v9.4: В статистике теперь показывается количество купленных нейросетей вместо алмазов.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "9.3";
+        const GAME_VERSION = "9.4";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
-        // === ПЕРЕМЕННЫЕ ===
         let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
         let totalDiamondsEarned = 0, bossKills = 0;
         let isNeuralTheme = true;
@@ -327,7 +326,6 @@
         let bossActive = false, bossCurrentHp = 0, bossMaxHp = 0;
         const BOSS_CLICKS_NEEDED = 5000;
         
-        // === ФОНЫ ===
         const bgThemes = { morning: "bg-morning", day: "bg-day", evening: "bg-evening", night: "bg-night", space: "bg-space", city: "bg-city", desert: "bg-desert", ocean: "bg-ocean" };
         function setBodyBg(theme) { document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-morning'); localStorage.setItem('selectedBg', theme); }
         function autoTimeBg() { const hour = new Date().getHours(); if (hour >= 6 && hour < 12) setBodyBg('morning'); else if (hour >= 12 && hour < 18) setBodyBg('day'); else if (hour >= 18 && hour < 24) setBodyBg('evening'); else setBodyBg('night'); }
@@ -335,195 +333,41 @@
         if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
         else autoTimeBg();
 
-        // === НОВАЯ МУЗЫКА (Web Audio) ===
         let audioCtx = null, musicScheduled = false, musicGain = null;
-        let nextNoteTime = 0;
         let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
         let musicInterval = null;
         
-        // Партитура: [нота, длительность] (длительность в секундах)
-        const melody = [
-            [130.81, 0.25], [130.81, 0.25], [146.83, 0.25], [146.83, 0.25], [164.81, 0.25], [164.81, 0.25], [174.61, 0.25], [174.61, 0.25],
-            [196.00, 0.25], [196.00, 0.25], [174.61, 0.25], [174.61, 0.25], [164.81, 0.25], [164.81, 0.25], [146.83, 0.5], [146.83, 0.5],
-            [130.81, 0.25], [130.81, 0.25], [146.83, 0.25], [146.83, 0.25], [164.81, 0.25], [164.81, 0.25], [174.61, 0.25], [174.61, 0.25],
-            [196.00, 0.25], [196.00, 0.25], [220.00, 0.25], [220.00, 0.25], [246.96, 0.5], [246.96, 0.5], [261.63, 0.5], [261.63, 1.0]
-        ];
-        
-        const bass = [
-            [65.41, 0.5], [0, 0.5], [65.41, 0.5], [0, 0.5], [65.41, 0.5], [0, 0.5], [65.41, 0.5], [0, 0.5],
-            [82.41, 0.5], [0, 0.5], [82.41, 0.5], [0, 0.5], [65.41, 1.0], [0, 1.0]
-        ];
-        
-        const beat = [
-            ['kick', 0.25], ['kick', 0.25], ['snare', 0.25], ['kick', 0.25],
-            ['kick', 0.25], ['kick', 0.25], ['snare', 0.25], ['kick', 0.25],
-            ['kick', 0.25], ['kick', 0.25], ['snare', 0.25], ['kick', 0.25],
-            ['kick', 0.25], ['kick', 0.25], ['snare', 0.25], ['kick', 0.5]
-        ];
-        
+        const melody = [[130.81,0.25],[130.81,0.25],[146.83,0.25],[146.83,0.25],[164.81,0.25],[164.81,0.25],[174.61,0.25],[174.61,0.25],[196.00,0.25],[196.00,0.25],[174.61,0.25],[174.61,0.25],[164.81,0.25],[164.81,0.25],[146.83,0.5],[146.83,0.5],[130.81,0.25],[130.81,0.25],[146.83,0.25],[146.83,0.25],[164.81,0.25],[164.81,0.25],[174.61,0.25],[174.61,0.25],[196.00,0.25],[196.00,0.25],[220.00,0.25],[220.00,0.25],[246.96,0.5],[246.96,0.5],[261.63,0.5],[261.63,1.0]];
+        const bass = [[65.41,0.5],[0,0.5],[65.41,0.5],[0,0.5],[65.41,0.5],[0,0.5],[65.41,0.5],[0,0.5],[82.41,0.5],[0,0.5],[82.41,0.5],[0,0.5],[65.41,1.0],[0,1.0]];
+        const beat = [['kick',0.25],['kick',0.25],['snare',0.25],['kick',0.25],['kick',0.25],['kick',0.25],['snare',0.25],['kick',0.25],['kick',0.25],['kick',0.25],['snare',0.25],['kick',0.25],['kick',0.25],['kick',0.25],['snare',0.25],['kick',0.5]];
         let melodyIndex = 0, bassIndex = 0, beatIndex = 0;
         
-        function initMusic() {
-            if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            musicGain = audioCtx.createGain();
-            musicGain.gain.value = 0.12;
-            musicGain.connect(audioCtx.destination);
-        }
-        
-        function playKick(time) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = "sine";
-            osc.frequency.value = 60;
-            gain.gain.value = 0.25;
-            gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.1);
-            osc.connect(gain);
-            gain.connect(musicGain);
-            osc.start(time);
-            osc.stop(time + 0.1);
-        }
-        
-        function playSnare(time) {
-            if (!audioCtx) return;
-            const noise = audioCtx.createBufferSource();
-            const gain = audioCtx.createGain();
-            const bufferSize = 4096;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-            noise.buffer = buffer;
-            gain.gain.value = 0.15;
-            gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.2);
-            noise.connect(gain);
-            gain.connect(musicGain);
-            noise.start(time);
-            noise.stop(time + 0.2);
-        }
-        
-        function playMelodyNote(freq, duration, time) {
-            if (!audioCtx || freq === 0) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = "triangle";
-            osc.frequency.value = freq;
-            gain.gain.value = 0.1;
-            gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-            osc.connect(gain);
-            gain.connect(musicGain);
-            osc.start(time);
-            osc.stop(time + duration);
-        }
-        
-        function playBassNote(freq, duration, time) {
-            if (!audioCtx || freq === 0) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = "sine";
-            osc.frequency.value = freq;
-            gain.gain.value = 0.08;
-            gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-            osc.connect(gain);
-            gain.connect(musicGain);
-            osc.start(time);
-            osc.stop(time + duration);
-        }
-        
-        function schedule() {
-            if (!audioCtx || !musicEnabled) return;
-            if (musicScheduled) return;
-            musicScheduled = true;
-            nextNoteTime = audioCtx.currentTime + 0.05;
-            
-            function playLoop() {
-                if (!musicEnabled || !audioCtx) {
-                    musicScheduled = false;
-                    if (musicInterval) clearTimeout(musicInterval);
-                    return;
-                }
-                const now = audioCtx.currentTime;
-                while (nextNoteTime < now + 0.2) {
-                    // Мелодия
-                    const m = melody[melodyIndex % melody.length];
-                    playMelodyNote(m[0], m[1], nextNoteTime);
-                    melodyIndex++;
-                    
-                    // Бас
-                    const b = bass[bassIndex % bass.length];
-                    playBassNote(b[0], b[1], nextNoteTime);
-                    bassIndex++;
-                    
-                    // Бит
-                    const bt = beat[beatIndex % beat.length];
-                    if (bt[0] === 'kick') playKick(nextNoteTime);
-                    else if (bt[0] === 'snare') playSnare(nextNoteTime);
-                    beatIndex++;
-                    
-                    nextNoteTime += 0.25;
-                }
-                musicInterval = setTimeout(playLoop, 50);
-            }
-            playLoop();
-        }
-        
-        function stopMusic() {
-            if (musicInterval) clearTimeout(musicInterval);
-            musicScheduled = false;
-            melodyIndex = 0;
-            bassIndex = 0;
-            beatIndex = 0;
-            if (audioCtx) {
-                // Не закрываем контекст, просто выключаем громкость
-                if (musicGain) musicGain.gain.value = 0;
-            }
-        }
-        
-        function startMusic() {
-            if (!musicEnabled) return;
-            if (!audioCtx) initMusic();
-            if (!audioCtx) return;
-            audioCtx.resume();
-            if (musicGain) musicGain.gain.value = 0.12;
-            schedule();
-        }
-        
+        function initMusic() { if (audioCtx) return; audioCtx = new (window.AudioContext || window.webkitAudioContext)(); musicGain = audioCtx.createGain(); musicGain.gain.value = 0.12; musicGain.connect(audioCtx.destination); }
+        function playKick(time) { if(!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "sine"; osc.frequency.value = 60; gain.gain.value = 0.25; gain.gain.exponentialRampToValueAtTime(0.0001, time+0.1); osc.connect(gain); gain.connect(musicGain); osc.start(time); osc.stop(time+0.1); }
+        function playSnare(time) { if(!audioCtx) return; const noise = audioCtx.createBufferSource(); const gain = audioCtx.createGain(); const bufferSize = 4096; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for(let i=0;i<bufferSize;i++) data[i]=Math.random()*2-1; noise.buffer=buffer; gain.gain.value=0.15; gain.gain.exponentialRampToValueAtTime(0.0001, time+0.2); noise.connect(gain); gain.connect(musicGain); noise.start(time); noise.stop(time+0.2); }
+        function playMelodyNote(freq,duration,time){ if(!audioCtx||freq===0) return; const osc=audioCtx.createOscillator(); const gain=audioCtx.createGain(); osc.type="triangle"; osc.frequency.value=freq; gain.gain.value=0.1; gain.gain.exponentialRampToValueAtTime(0.0001, time+duration); osc.connect(gain); gain.connect(musicGain); osc.start(time); osc.stop(time+duration); }
+        function playBassNote(freq,duration,time){ if(!audioCtx||freq===0) return; const osc=audioCtx.createOscillator(); const gain=audioCtx.createGain(); osc.type="sine"; osc.frequency.value=freq; gain.gain.value=0.08; gain.gain.exponentialRampToValueAtTime(0.0001, time+duration); osc.connect(gain); gain.connect(musicGain); osc.start(time); osc.stop(time+duration); }
+        function schedule() { if(!audioCtx||!musicEnabled) return; if(musicScheduled) return; musicScheduled=true; nextNoteTime=audioCtx.currentTime+0.05; function playLoop(){ if(!musicEnabled||!audioCtx){ musicScheduled=false; if(musicInterval) clearTimeout(musicInterval); return; } const now=audioCtx.currentTime; while(nextNoteTime<now+0.2){ const m=melody[melodyIndex%melody.length]; playMelodyNote(m[0],m[1],nextNoteTime); melodyIndex++; const b=bass[bassIndex%bass.length]; playBassNote(b[0],b[1],nextNoteTime); bassIndex++; const bt=beat[beatIndex%beat.length]; if(bt[0]==='kick') playKick(nextNoteTime); else if(bt[0]==='snare') playSnare(nextNoteTime); beatIndex++; nextNoteTime+=0.25; } musicInterval=setTimeout(playLoop,50); } playLoop(); }
+        function stopMusic(){ if(musicInterval) clearTimeout(musicInterval); musicScheduled=false; melodyIndex=0; bassIndex=0; beatIndex=0; if(musicGain) musicGain.gain.value=0; }
+        function startMusic(){ if(!musicEnabled) return; if(!audioCtx) initMusic(); if(!audioCtx) return; audioCtx.resume(); if(musicGain) musicGain.gain.value=0.12; schedule(); }
         document.getElementById('musicToggle').innerText = musicEnabled ? '🔊' : '🔇';
-        document.getElementById('musicToggle').onclick = () => {
-            musicEnabled = !musicEnabled;
-            localStorage.setItem('musicEnabled', musicEnabled);
-            document.getElementById('musicToggle').innerText = musicEnabled ? '🔊' : '🔇';
-            if (musicEnabled) {
-                startMusic();
-            } else {
-                stopMusic();
-                if (musicGain) musicGain.gain.value = 0;
-            }
-        };
-        
-        if (musicEnabled) {
-            initMusic();
-            document.body.addEventListener('click', () => {
-                if (musicEnabled && audioCtx) {
-                    audioCtx.resume();
-                    startMusic();
-                }
-            }, { once: true });
+        document.getElementById('musicToggle').onclick = () => { musicEnabled = !musicEnabled; localStorage.setItem('musicEnabled', musicEnabled); document.getElementById('musicToggle').innerText = musicEnabled ? '🔊' : '🔇'; if(musicEnabled) startMusic(); else stopMusic(); };
+        if(musicEnabled){ initMusic(); document.body.addEventListener('click',()=>{ if(musicEnabled && audioCtx){ audioCtx.resume(); startMusic(); } },{once:true}); }
+
+        document.querySelectorAll('.menu-btn').forEach((btn,i)=>{ btn.style.animationDelay=`${i*0.05}s`; });
+
+        function updateStatsUI() { 
+            document.getElementById('statTotalClicks').innerText = totalClicks; 
+            document.getElementById('statNeuronsBought').innerText = purchasedCount; 
+            document.getElementById('statBossKills').innerText = bossKills; 
+            document.getElementById('statPrestigeCount').innerText = prestigeCount; 
         }
 
-        // === АНИМАЦИЯ КНОПОК ===
-        document.querySelectorAll('.menu-btn').forEach((btn, i) => { btn.style.animationDelay = `${i * 0.05}s`; });
-
-        // === СТАТИСТИКА ===
-        function updateStatsUI() { document.getElementById('statTotalClicks').innerText = totalClicks; document.getElementById('statTotalDiamonds').innerText = totalDiamondsEarned; document.getElementById('statBossKills').innerText = bossKills; document.getElementById('statPrestigeCount').innerText = prestigeCount; }
-
-        // === СМЕНА ЦВЕТА ===
         const colors = ["radial-gradient(circle at 30% 30%, #ffaa00, #ff5500)","radial-gradient(circle at 30% 30%, #ff4444, #880000)","radial-gradient(circle at 30% 30%, #44ff44, #008800)","radial-gradient(circle at 30% 30%, #4488ff, #0044aa)","radial-gradient(circle at 30% 30%, #ff44ff, #880088)","radial-gradient(circle at 30% 30%, #ffffff, #aaaaaa)"];
         let colorIndex = 0;
-        function changeBrainColor() { colorIndex = (colorIndex + 1) % colors.length; currentBrainColor = colors[colorIndex]; document.getElementById('clickableObject').style.background = currentBrainColor; showToast(`🎨 Цвет изменён!`); }
+        function changeBrainColor() { colorIndex = (colorIndex + 1) % colors.length; currentBrainColor = colors[colorIndex]; document.getElementById('clickableObject').style.background = currentBrainColor; showToast(`Цвет изменён!`); }
         document.getElementById('changeColorBtn')?.addEventListener('click', changeBrainColor);
 
-        // === 1000 НЕЙРОСЕТЕЙ ===
         const neuralNames = ["Перцептрон","Нейро-искра","Сверточная","Рекуррентная","Трансформер","Квантовая","GPT-клик","Автокодировщик","DALL-E","Глубокий мозг","Gemini","Нейро-интерфейс","Claude 3","Мультивселенная","Midjourney","Легендарная","Сингулярность","Божественный ИИ","Нейро-Земля","ИИ-Солнце","Галактическая","Космическая","Сверхразум","ДНК-бота","Бесконечность"];
         let upgrades = [];
         for (let i = 0; i < 1000; i++) { const power = i === 0 ? 1 : 1 + Math.floor(i / 10); const price = i === 0 ? 20 : Math.floor(20 * Math.pow(1.18, i)); const name = i < neuralNames.length ? neuralNames[i] : `Нейросеть #${i + 1}`; upgrades.push({ id: i, name, power, price, purchased: i === 0 }); }
@@ -541,21 +385,18 @@
         }
         function buyUpgrade(id) { const u = upgrades[id]; if (!u.purchased && points >= u.price) { points -= u.price; u.purchased = true; purchasedCount++; updateUI(); renderShopNeurons(); saveGame(); showToast(`✅ ${u.name} куплена!`); playBuySound(); } else showToast("❌ Не хватает"); }
 
-        // === СКИНЫ МОЗГА ===
         let skins = [{ id: 1, name: "Классический", emoji: "🧠", price: 0, owned: true },{ id: 2, name: "Огненный", emoji: "🔥", price: 50, owned: false },{ id: 3, name: "Ледяной", emoji: "❄️", price: 80, owned: false },{ id: 4, name: "Алмазный", emoji: "💎", price: 150, owned: false },{ id: 5, name: "Королевский", emoji: "👑", price: 300, owned: false },{ id: 6, name: "Робот", emoji: "🤖", price: 200, owned: false },{ id: 7, name: "Инопланетный", emoji: "👾", price: 250, owned: false },{ id: 8, name: "Звёздный", emoji: "⭐", price: 100, owned: false },{ id: 9, name: "Радужный", emoji: "🌈", price: 180, owned: false },{ id: 10, name: "Хэллоуин", emoji: "🎃", price: 120, owned: false }];
         let currentSkin = "🧠";
         function renderShopSkins() { let html = ''; skins.forEach(skin => { let status = skin.owned ? (currentSkin === skin.emoji ? "✅ НАДЕТ" : "ВЛАДЕЛЕЦ") : `💰 ${skin.price}💎`; html += `<div class="shop-item"><span style="font-size:24px;">${skin.emoji}</span><span>${skin.name}</span><span>${status}</span><button class="skin-act" data-id="${skin.id}" data-action="${skin.owned ? 'equip' : 'buy'}">${skin.owned ? (currentSkin === skin.emoji ? "НАДЕТ" : "НАДЕТЬ") : "КУПИТЬ"}</button></div>`; }); document.getElementById('shopSkins').innerHTML = html; document.querySelectorAll('.skin-act').forEach(btn => { btn.addEventListener('click', () => { const id = parseInt(btn.dataset.id); if (btn.dataset.action === 'buy') buySkin(id); else equipSkin(id); }); }); }
         function buySkin(id) { const s = skins.find(x => x.id === id); if (s && !s.owned && diamonds >= s.price) { diamonds -= s.price; totalDiamondsEarned += s.price; s.owned = true; saveGame(); renderShopSkins(); showToast(`✅ Скин ${s.name} куплен!`); playBuySound(); } else showToast("❌ Не хватает алмазов"); }
         function equipSkin(id) { const s = skins.find(x => x.id === id); if (s && s.owned) { currentSkin = s.emoji; document.querySelector('#clickableObject .skin-emoji').innerText = currentSkin; saveGame(); renderShopSkins(); showToast(`🎨 Скин ${s.name} надет!`); } }
 
-        // === СКИНЫ РОБОТА ===
         let robotSkins = [{ id: 1, name: "🤖 Обычный", emoji: "🤖", price: 0, owned: true },{ id: 2, name: "✨ Золотой", emoji: "🌟", price: 100, owned: false },{ id: 3, name: "💎 Алмазный", emoji: "💎", price: 200, owned: false },{ id: 4, name: "🔥 Огненный", emoji: "🔥", price: 150, owned: false },{ id: 5, name: "❄️ Ледяной", emoji: "❄️", price: 150, owned: false }];
         let currentRobotSkin = "🤖";
         function renderShopRobotSkins() { let html = ''; robotSkins.forEach(skin => { let status = skin.owned ? (currentRobotSkin === skin.emoji ? "✅ НАДЕТ" : "ВЛАДЕЛЕЦ") : `💰 ${skin.price}💎`; html += `<div class="shop-item"><span style="font-size:24px;">${skin.emoji}</span><span>${skin.name}</span><span>${status}</span><button class="robot-skin-act" data-id="${skin.id}" data-action="${skin.owned ? 'equip' : 'buy'}">${skin.owned ? (currentRobotSkin === skin.emoji ? "НАДЕТ" : "НАДЕТЬ") : "КУПИТЬ"}</button></div>`; }); document.getElementById('shopRobotSkins').innerHTML = html; document.querySelectorAll('.robot-skin-act').forEach(btn => { btn.addEventListener('click', () => { const id = parseInt(btn.dataset.id); if (btn.dataset.action === 'buy') buyRobotSkin(id); else equipRobotSkin(id); }); }); }
         function buyRobotSkin(id) { const s = robotSkins.find(x => x.id === id); if (s && !s.owned && diamonds >= s.price) { diamonds -= s.price; totalDiamondsEarned += s.price; s.owned = true; saveGame(); renderShopRobotSkins(); showToast(`✅ Скин робота ${s.name} куплен!`); playBuySound(); } else showToast("❌ Не хватает алмазов"); }
         function equipRobotSkin(id) { const s = robotSkins.find(x => x.id === id); if (s && s.owned) { currentRobotSkin = s.emoji; saveGame(); renderShopRobotSkins(); showToast(`🎨 Скин робота ${s.name} надет!`); } }
 
-        // === AI PASS ===
         let passLevels = [], passSeconds = 600, passInterval = null, passClaimCount = 0;
         let passEndDate = new Date(2026, 5, 30, 23, 59, 59);
         let passEndTimerInterval = null;
@@ -565,25 +406,20 @@
         function updatePassEndTimer() { const now = new Date(); const diff = passEndDate - now; if (diff <= 0) { document.getElementById('passEndTimer').innerHTML = "⏳ AI PASS СЕЗОН 3 ЗАВЕРШЁН!"; if (passEndTimerInterval) clearInterval(passEndTimerInterval); return; } const days = Math.floor(diff / (1000 * 60 * 60 * 24)); const hours = Math.floor((diff % 86400000) / 3600000); const minutes = Math.floor((diff % 3600000) / 60000); document.getElementById('passEndTimer').innerHTML = `⏳ AI Pass закончится: ${days} дн. ${hours} ч. ${minutes} мин.`; }
         function startPassEndTimer() { if (passEndTimerInterval) clearInterval(passEndTimerInterval); updatePassEndTimer(); passEndTimerInterval = setInterval(updatePassEndTimer, 60000); }
 
-        // === БОСС ===
         function spawnBoss() { if (bossActive) return; bossActive = true; bossMaxHp = 100 + Math.floor(Math.random() * 150); bossCurrentHp = bossMaxHp; document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); showToast("👾 БОСС ПОЯВИЛСЯ!"); }
         function hitBoss(damage) { if (!bossActive) return false; bossCurrentHp -= damage; document.getElementById('bossHp').innerText = Math.max(0, bossCurrentHp); if (bossCurrentHp <= 0) { bossActive = false; const reward = 30 + Math.floor(Math.random() * 70); diamonds += reward; totalDiamondsEarned += reward; bossKills++; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); showToast(`👾 БОСС ПОВЕРЖЕН! +${reward}💎`); updateStatsUI(); saveGame(); } return true; }
 
-        // === КВЕСТЫ 11 ИЮНЯ ===
         function isRussiaDay() { const now = new Date(); return now.getDate() === 11 && (now.getMonth() + 1) === 6; }
         function applyRussiaDay() { if (isRussiaDay()) { document.body.classList.add('russia-day'); const bonusGiven = localStorage.getItem('russiaDayBonus'); if (!bonusGiven) { diamonds += 50; totalDiamondsEarned += 50; localStorage.setItem('russiaDayBonus', 'true'); showToast("🇷🇺 С Днём России! +50 алмазов!"); updateUI(); saveGame(); } } }
         let quests = [{ id: 1, name: "Сделать 100 кликов", target: 100, progress: 0, rewardDiamonds: 50, rewardPoints: 1000, completed: false, claimed: false },{ id: 2, name: "Купить 10 нейросетей", target: 10, progress: 0, rewardDiamonds: 100, rewardPoints: 5000, completed: false, claimed: false },{ id: 3, name: "Убить босса", target: 1, progress: 0, rewardDiamonds: 200, rewardPoints: 10000, completed: false, claimed: false }];
         function renderQuests() { const container = document.getElementById('questsList'); if (!container) return; const available = isRussiaDay(); let html = ''; for (let q of quests) { let statusText = '', statusClass = ''; if (!available) { statusClass = 'locked'; statusText = '🔒 11 июня'; } else if (q.claimed) { statusClass = 'completed'; statusText = '✅ ЗАБРАНО'; } else if (q.completed) { statusClass = 'completed'; statusText = `<button class="quest-claim" data-id="${q.id}">ЗАБРАТЬ</button>`; } else { statusText = `${q.progress}/${q.target}`; } html += `<div class="quest-item ${statusClass}"><span>📜 ${q.name}</span><span class="quest-reward">+${q.rewardDiamonds}💎 +${q.rewardPoints}🧠</span><span>${statusText}</span></div>`; } container.innerHTML = html; document.querySelectorAll('.quest-claim').forEach(btn => { btn.addEventListener('click', () => { const q = quests.find(qq => qq.id === parseInt(btn.dataset.id)); if (q && q.completed && !q.claimed) { points += q.rewardPoints; diamonds += q.rewardDiamonds; totalDiamondsEarned += q.rewardDiamonds; q.claimed = true; updateUI(); saveGame(); renderQuests(); showToast(`🎉 Квест выполнен!`); playBuySound(); } }); }); }
         function updateQuestsProgress() { if (!isRussiaDay()) return; if (!quests[0].completed && quests[0].progress < quests[0].target) { quests[0].progress = totalClicks; if (quests[0].progress >= quests[0].target) quests[0].completed = true; } if (!quests[1].completed && quests[1].progress < quests[1].target) { quests[1].progress = purchasedCount; if (quests[1].progress >= quests[1].target) quests[1].completed = true; } if (!quests[2].completed && quests[2].progress < quests[2].target) { quests[2].progress = bossKills; if (quests[2].progress >= quests[2].target) quests[2].completed = true; } renderQuests(); saveGame(); }
 
-        // === ПРЕСТИЖ ===
         function performPrestige() { const allSkinsOwned = skins.every(s => s.owned); const allRobotSkinsOwned = robotSkins.every(s => s.owned); if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } if (!allSkinsOwned) { showToast("❌ Нужны все скины мозга"); return; } if (!allRobotSkinsOwned) { showToast("❌ Нужны все скины робота"); return; } if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { prestigeMulti *= 2; prestigeCount++; points = 100; diamonds = 0; totalClicks = 0; purchasedCount = 1; clicksSinceLastBoss = 0; bossActive = false; upgrades.forEach((u, i) => u.purchased = (i === 0)); passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; skins.forEach(s => { if (s.id !== 1) s.owned = false; }); robotSkins.forEach(s => { if (s.id !== 1) s.owned = false; }); currentSkin = "🧠"; currentRobotSkin = "🤖"; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); saveGame(); updateUI(); renderShopNeurons(); renderShopSkins(); renderShopRobotSkins(); renderPass(); document.getElementById('prestigeMulti').innerText = prestigeMulti; showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); playBuySound(); } }
 
-        // === ЗВУКИ ===
         function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "sine"; osc.frequency.value = 880; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); } }
         function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "triangle"; osc.frequency.value = 523.25; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } }
 
-        // === ЧАСТИЦЫ ===
         function createParticles(x, y) {
             if (!settings.particles) return;
             const emojis = ['✨', '⚡', '💎', '🧠', '🔥', '⭐'];
@@ -604,7 +440,6 @@
             }
         }
 
-        // === ОБЩИЕ ФУНКЦИИ ===
         function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
         function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
@@ -613,19 +448,16 @@
         function applyThemeUI() { const brainDiv = document.getElementById('clickableObject'); if (isNeuralTheme) { brainDiv.className = 'brain'; brainDiv.innerHTML = `<span class="skin-emoji">${currentSkin}</span><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>`; } else { brainDiv.className = 'washer'; brainDiv.innerHTML = currentRobotSkin; } }
         function toggleTheme() { isNeuralTheme = !isNeuralTheme; applyThemeUI(); saveGame(); showToast(isNeuralTheme ? "НЕЙРОСЕТИ" : "СТИРАЛКА"); }
 
-        // === ЭКСПОРТ/ИМПОРТ ===
         function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, robotSkins, currentRobotSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), quests }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
         function importProgress(file) { const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); localStorage.setItem('neuralEvoSave', JSON.stringify(data)); showToast("📂 Прогресс загружен! Перезагрузи страницу."); setTimeout(() => location.reload(), 1500); } catch(error) { showToast("❌ Ошибка загрузки"); } }; reader.readAsText(file); }
         const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
         document.getElementById('exportSaveBtn')?.addEventListener('click', exportProgress);
         document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
 
-        // === НАСТРОЙКИ ===
         let settings = { nightMode: localStorage.getItem('nightMode') === 'true', vibro: localStorage.getItem('vibro') !== 'false', particles: localStorage.getItem('particles') !== 'false' };
         function applySettings() { if (settings.nightMode) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode'); document.getElementById('nightToggle')?.classList.toggle('active', settings.nightMode); document.getElementById('vibroToggle')?.classList.toggle('active', settings.vibro); document.getElementById('particlesToggle')?.classList.toggle('active', settings.particles); }
         function saveSettings() { localStorage.setItem('nightMode', settings.nightMode); localStorage.setItem('vibro', settings.vibro); localStorage.setItem('particles', settings.particles); applySettings(); }
 
-        // === КЛИК (МУЛЬТИТАЧ) ===
         function processSingleClick(gain, x, y) {
             if (bossActive) {
                 const damage = Math.max(1, Math.floor(gain / 2));
@@ -684,7 +516,6 @@
             }
         }
 
-        // === ИНИЦИАЛИЗАЦИЯ ===
         const clickable = document.getElementById('clickableObject');
         clickable.addEventListener('touchstart', handleMultiTouch, { passive: false });
         clickable.addEventListener('mousedown', handleMouseClick);
@@ -722,7 +553,6 @@
 
         loadGame(); applySettings(); applyRussiaDay(); renderQuests();
         
-        // Запускаем музыку если включена
         if (musicEnabled && audioCtx) {
             document.body.addEventListener('click', () => {
                 if (musicEnabled && audioCtx) {
