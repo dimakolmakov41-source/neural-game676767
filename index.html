@@ -20,14 +20,10 @@
             justify-content: center;
             align-items: center;
             padding: 10px;
-            color: white; /* базовый цвет текста белый */
+            color: white;
         }
-        body.dark-mode {
-            background: #0a0a1a !important;
-        }
-        body.dark-mode .game-container {
-            background: rgba(0,0,0,0.9);
-        }
+        body.dark-mode { background: #0a0a1a !important; }
+        body.dark-mode .game-container { background: rgba(0,0,0,0.9); }
         body.bg-morning { background: linear-gradient(145deg, #ffd89b, #c7e9fb); color: #333; }
         body.bg-day { background: linear-gradient(145deg, #4facfe, #00f2fe); color: #fff; }
         body.bg-evening { background: linear-gradient(145deg, #f093fb, #f5576c); color: #fff; }
@@ -68,9 +64,7 @@
             transform: translateY(30px);
             animation: btnFlyIn 0.4s forwards;
         }
-        @keyframes btnFlyIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes btnFlyIn { to { opacity: 1; transform: translateY(0); } }
         .menu-buttons-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
         .game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00; animation: glitch 3s infinite; }
         @keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00; } 50% { text-shadow: -2px 0 red, 2px 0 blue; } }
@@ -232,6 +226,18 @@
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #ffaa00, #ff5500); color: white; padding: 6px 12px; border-radius: 40px; font-weight: 700; z-index: 2000; animation: fadeOut 3s forwards; font-size: 11px; }
         @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
         .save-badge { text-align: center; color: #a0ffc0; font-size: 9px; margin-top: 8px; }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            font-size: 20px;
+            animation: particleFly 0.8s ease-out forwards;
+        }
+        @keyframes particleFly {
+            0% { opacity: 1; transform: scale(1) translate(0,0); }
+            100% { opacity: 0; transform: scale(0.5) translate(var(--dx), var(--dy)); }
+        }
     </style>
 </head>
 <body class="bg-morning">
@@ -240,7 +246,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v9.1</div>
+            <div class="game-version" id="menuVersion">v9.3</div>
             <div class="menu-buttons-row"><div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div><div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="themeToggleBtn">🧺 СТИРАЛКА</div><div class="menu-btn" id="shopBtn">🛒 МАГАЗИН</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="dailyBonusBtn">🎁 БОНУС</div><div class="menu-btn" id="promoBtn">🎫 ПРОМОКОДЫ</div></div>
@@ -305,10 +311,10 @@
     <div id="settingsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">⚙️ НАСТРОЙКИ</div><div class="color-picker-row" id="bgThemeList"></div><div class="setting-item"><span>🌙 Ночной режим</span><div class="toggle-switch" id="nightToggle"></div></div><div class="setting-item"><span>📳 Вибрация</span><div class="toggle-switch" id="vibroToggle"></div></div><div class="setting-item"><span>✨ Частицы</span><div class="toggle-switch" id="particlesToggle"></div></div><button class="modal-btn" id="closeSettings">ЗАКРЫТЬ</button><div class="reset-btn" id="resetGameBtn">⚠️ СБРОСИТЬ ВСЁ</div></div></div>
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
     <div id="dailyBonusModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div><div id="dailyBonusText"></div><button class="modal-btn" id="claimDailyBonusBtn">ЗАБРАТЬ</button><button class="modal-btn" id="closeDailyBonusBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v9.1: Исправлен мозг по центру, таймер AI Pass, цвет текста. Музыка, статистика, смена цвета, фоны, AI Pass, босс, квесты, престиж!</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v9.3: Новая музыка! Бит, бас, мелодия. Web Audio без файлов. Мультитач работает.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "9.1";
+        const GAME_VERSION = "9.3";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
         // === ПЕРЕМЕННЫЕ ===
@@ -329,18 +335,181 @@
         if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
         else autoTimeBg();
 
-        // === МУЗЫКА ===
-        let audioCtx = null, musicPlaying = false, musicGain = null;
-        function initMusic() { if (audioCtx) return; audioCtx = new (window.AudioContext || window.webkitAudioContext)(); musicGain = audioCtx.createGain(); musicGain.gain.value = 0.15; musicGain.connect(audioCtx.destination); }
-        function playMusic() { if (!audioCtx) initMusic(); if (musicPlaying) return; audioCtx.resume(); function playNote(freq, start, dur) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "sine"; osc.frequency.value = freq; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, start + dur); osc.connect(gain); gain.connect(musicGain); osc.start(start); osc.stop(start + dur); }
-            const now = audioCtx.currentTime;
-            playNote(523.25, now, 0.4); playNote(587.33, now+0.4, 0.4); playNote(659.25, now+0.8, 0.4); playNote(523.25, now+1.2, 0.8); playNote(783.99, now+2, 0.6); playNote(698.46, now+2.6, 0.6); playNote(659.25, now+3.2, 0.4); playNote(587.33, now+3.6, 1);
-            musicPlaying = true; setTimeout(() => { musicPlaying = false; if (document.getElementById('musicToggle').innerText === '🔊') playMusic(); }, 5000);
-        }
+        // === НОВАЯ МУЗЫКА (Web Audio) ===
+        let audioCtx = null, musicScheduled = false, musicGain = null;
+        let nextNoteTime = 0;
         let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
+        let musicInterval = null;
+        
+        // Партитура: [нота, длительность] (длительность в секундах)
+        const melody = [
+            [130.81, 0.25], [130.81, 0.25], [146.83, 0.25], [146.83, 0.25], [164.81, 0.25], [164.81, 0.25], [174.61, 0.25], [174.61, 0.25],
+            [196.00, 0.25], [196.00, 0.25], [174.61, 0.25], [174.61, 0.25], [164.81, 0.25], [164.81, 0.25], [146.83, 0.5], [146.83, 0.5],
+            [130.81, 0.25], [130.81, 0.25], [146.83, 0.25], [146.83, 0.25], [164.81, 0.25], [164.81, 0.25], [174.61, 0.25], [174.61, 0.25],
+            [196.00, 0.25], [196.00, 0.25], [220.00, 0.25], [220.00, 0.25], [246.96, 0.5], [246.96, 0.5], [261.63, 0.5], [261.63, 1.0]
+        ];
+        
+        const bass = [
+            [65.41, 0.5], [0, 0.5], [65.41, 0.5], [0, 0.5], [65.41, 0.5], [0, 0.5], [65.41, 0.5], [0, 0.5],
+            [82.41, 0.5], [0, 0.5], [82.41, 0.5], [0, 0.5], [65.41, 1.0], [0, 1.0]
+        ];
+        
+        const beat = [
+            ['kick', 0.25], ['kick', 0.25], ['snare', 0.25], ['kick', 0.25],
+            ['kick', 0.25], ['kick', 0.25], ['snare', 0.25], ['kick', 0.25],
+            ['kick', 0.25], ['kick', 0.25], ['snare', 0.25], ['kick', 0.25],
+            ['kick', 0.25], ['kick', 0.25], ['snare', 0.25], ['kick', 0.5]
+        ];
+        
+        let melodyIndex = 0, bassIndex = 0, beatIndex = 0;
+        
+        function initMusic() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            musicGain = audioCtx.createGain();
+            musicGain.gain.value = 0.12;
+            musicGain.connect(audioCtx.destination);
+        }
+        
+        function playKick(time) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = 60;
+            gain.gain.value = 0.25;
+            gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.1);
+            osc.connect(gain);
+            gain.connect(musicGain);
+            osc.start(time);
+            osc.stop(time + 0.1);
+        }
+        
+        function playSnare(time) {
+            if (!audioCtx) return;
+            const noise = audioCtx.createBufferSource();
+            const gain = audioCtx.createGain();
+            const bufferSize = 4096;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            noise.buffer = buffer;
+            gain.gain.value = 0.15;
+            gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.2);
+            noise.connect(gain);
+            gain.connect(musicGain);
+            noise.start(time);
+            noise.stop(time + 0.2);
+        }
+        
+        function playMelodyNote(freq, duration, time) {
+            if (!audioCtx || freq === 0) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "triangle";
+            osc.frequency.value = freq;
+            gain.gain.value = 0.1;
+            gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+            osc.connect(gain);
+            gain.connect(musicGain);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+        
+        function playBassNote(freq, duration, time) {
+            if (!audioCtx || freq === 0) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            gain.gain.value = 0.08;
+            gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+            osc.connect(gain);
+            gain.connect(musicGain);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+        
+        function schedule() {
+            if (!audioCtx || !musicEnabled) return;
+            if (musicScheduled) return;
+            musicScheduled = true;
+            nextNoteTime = audioCtx.currentTime + 0.05;
+            
+            function playLoop() {
+                if (!musicEnabled || !audioCtx) {
+                    musicScheduled = false;
+                    if (musicInterval) clearTimeout(musicInterval);
+                    return;
+                }
+                const now = audioCtx.currentTime;
+                while (nextNoteTime < now + 0.2) {
+                    // Мелодия
+                    const m = melody[melodyIndex % melody.length];
+                    playMelodyNote(m[0], m[1], nextNoteTime);
+                    melodyIndex++;
+                    
+                    // Бас
+                    const b = bass[bassIndex % bass.length];
+                    playBassNote(b[0], b[1], nextNoteTime);
+                    bassIndex++;
+                    
+                    // Бит
+                    const bt = beat[beatIndex % beat.length];
+                    if (bt[0] === 'kick') playKick(nextNoteTime);
+                    else if (bt[0] === 'snare') playSnare(nextNoteTime);
+                    beatIndex++;
+                    
+                    nextNoteTime += 0.25;
+                }
+                musicInterval = setTimeout(playLoop, 50);
+            }
+            playLoop();
+        }
+        
+        function stopMusic() {
+            if (musicInterval) clearTimeout(musicInterval);
+            musicScheduled = false;
+            melodyIndex = 0;
+            bassIndex = 0;
+            beatIndex = 0;
+            if (audioCtx) {
+                // Не закрываем контекст, просто выключаем громкость
+                if (musicGain) musicGain.gain.value = 0;
+            }
+        }
+        
+        function startMusic() {
+            if (!musicEnabled) return;
+            if (!audioCtx) initMusic();
+            if (!audioCtx) return;
+            audioCtx.resume();
+            if (musicGain) musicGain.gain.value = 0.12;
+            schedule();
+        }
+        
         document.getElementById('musicToggle').innerText = musicEnabled ? '🔊' : '🔇';
-        document.getElementById('musicToggle').onclick = () => { musicEnabled = !musicEnabled; localStorage.setItem('musicEnabled', musicEnabled); document.getElementById('musicToggle').innerText = musicEnabled ? '🔊' : '🔇'; if (musicEnabled && audioCtx) playMusic(); };
-        if (musicEnabled) { initMusic(); document.body.addEventListener('click', () => { if (musicEnabled && !musicPlaying && audioCtx) playMusic(); }, { once: true }); }
+        document.getElementById('musicToggle').onclick = () => {
+            musicEnabled = !musicEnabled;
+            localStorage.setItem('musicEnabled', musicEnabled);
+            document.getElementById('musicToggle').innerText = musicEnabled ? '🔊' : '🔇';
+            if (musicEnabled) {
+                startMusic();
+            } else {
+                stopMusic();
+                if (musicGain) musicGain.gain.value = 0;
+            }
+        };
+        
+        if (musicEnabled) {
+            initMusic();
+            document.body.addEventListener('click', () => {
+                if (musicEnabled && audioCtx) {
+                    audioCtx.resume();
+                    startMusic();
+                }
+            }, { once: true });
+        }
 
         // === АНИМАЦИЯ КНОПОК ===
         document.querySelectorAll('.menu-btn').forEach((btn, i) => { btn.style.animationDelay = `${i * 0.05}s`; });
@@ -414,6 +583,27 @@
         function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "sine"; osc.frequency.value = 880; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); } }
         function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "triangle"; osc.frequency.value = 523.25; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } }
 
+        // === ЧАСТИЦЫ ===
+        function createParticles(x, y) {
+            if (!settings.particles) return;
+            const emojis = ['✨', '⚡', '💎', '🧠', '🔥', '⭐'];
+            for (let i = 0; i < 8; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 80 + 40;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed - 20;
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.left = (x - 10) + 'px';
+                p.style.top = (y - 10) + 'px';
+                p.style.setProperty('--dx', vx + 'px');
+                p.style.setProperty('--dy', vy + 'px');
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 800);
+            }
+        }
+
         // === ОБЩИЕ ФУНКЦИИ ===
         function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
         function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; }
@@ -435,11 +625,70 @@
         function applySettings() { if (settings.nightMode) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode'); document.getElementById('nightToggle')?.classList.toggle('active', settings.nightMode); document.getElementById('vibroToggle')?.classList.toggle('active', settings.vibro); document.getElementById('particlesToggle')?.classList.toggle('active', settings.particles); }
         function saveSettings() { localStorage.setItem('nightMode', settings.nightMode); localStorage.setItem('vibro', settings.vibro); localStorage.setItem('particles', settings.particles); applySettings(); }
 
-        // === КЛИК ===
-        function handleClick(e) { e.preventDefault(); const gain = getClickPower(); if (bossActive) { const damage = Math.max(1, Math.floor(gain / 2)); hitBoss(damage); playClickSound(); if (settings.vibro && navigator.vibrate) navigator.vibrate(30); return; } points += gain; totalClicks++; clicksSinceLastBoss++; playClickSound(); if (Math.random() < 0.01) { diamonds++; totalDiamondsEarned++; showToast("💎 АЛМАЗ!"); playBuySound(); } const brain = document.getElementById('clickableObject'); brain.style.transform = 'scale(0.92)'; setTimeout(() => brain.style.transform = '', 120); if (settings.vibro && navigator.vibrate) navigator.vibrate(20); updateUI(); saveGame(); updateQuestsProgress(); if (clicksSinceLastBoss >= BOSS_CLICKS_NEEDED && !bossActive) { clicksSinceLastBoss = 0; spawnBoss(); } }
+        // === КЛИК (МУЛЬТИТАЧ) ===
+        function processSingleClick(gain, x, y) {
+            if (bossActive) {
+                const damage = Math.max(1, Math.floor(gain / 2));
+                hitBoss(damage);
+                playClickSound();
+                if (settings.vibro && navigator.vibrate) navigator.vibrate(30);
+                if (settings.particles) createParticles(x, y);
+                return;
+            }
+            points += gain;
+            totalClicks++;
+            clicksSinceLastBoss++;
+            playClickSound();
+            if (Math.random() < 0.01) {
+                diamonds++;
+                totalDiamondsEarned++;
+                showToast("💎 АЛМАЗ!");
+                playBuySound();
+            }
+            if (settings.particles) createParticles(x, y);
+            if (settings.vibro && navigator.vibrate) navigator.vibrate(20);
+        }
+
+        function handleMultiTouch(e) {
+            e.preventDefault();
+            const gain = getClickPower();
+            for (let i = 0; i < e.touches.length; i++) {
+                const touch = e.touches[i];
+                processSingleClick(gain, touch.clientX, touch.clientY);
+            }
+            const brain = document.getElementById('clickableObject');
+            brain.style.transform = 'scale(0.92)';
+            setTimeout(() => brain.style.transform = '', 120);
+            updateUI();
+            saveGame();
+            updateQuestsProgress();
+            if (clicksSinceLastBoss >= BOSS_CLICKS_NEEDED && !bossActive) {
+                clicksSinceLastBoss = 0;
+                spawnBoss();
+            }
+        }
+
+        function handleMouseClick(e) {
+            e.preventDefault();
+            const gain = getClickPower();
+            processSingleClick(gain, e.clientX, e.clientY);
+            const brain = document.getElementById('clickableObject');
+            brain.style.transform = 'scale(0.92)';
+            setTimeout(() => brain.style.transform = '', 120);
+            updateUI();
+            saveGame();
+            updateQuestsProgress();
+            if (clicksSinceLastBoss >= BOSS_CLICKS_NEEDED && !bossActive) {
+                clicksSinceLastBoss = 0;
+                spawnBoss();
+            }
+        }
 
         // === ИНИЦИАЛИЗАЦИЯ ===
-        document.getElementById('clickableObject')?.addEventListener('click', handleClick);
+        const clickable = document.getElementById('clickableObject');
+        clickable.addEventListener('touchstart', handleMultiTouch, { passive: false });
+        clickable.addEventListener('mousedown', handleMouseClick);
+        
         document.getElementById('playBtn')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('gameInterface').classList.remove('hidden'); });
         document.getElementById('backToMenu')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('gameInterface').classList.add('hidden'); });
         document.getElementById('shopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
@@ -472,6 +721,16 @@
         setInterval(saveGame, 10000);
 
         loadGame(); applySettings(); applyRussiaDay(); renderQuests();
+        
+        // Запускаем музыку если включена
+        if (musicEnabled && audioCtx) {
+            document.body.addEventListener('click', () => {
+                if (musicEnabled && audioCtx) {
+                    audioCtx.resume();
+                    startMusic();
+                }
+            }, { once: true });
+        }
     </script>
 </body>
 </html>
