@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🧠 Кликер: Эволюция нейросетей</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🧠 Кликер: Эволюция Нейросетей</title>
     <style>
         * {
             margin: 0;
@@ -69,105 +69,6 @@
         .game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00; animation: glitch 3s infinite; }
         @keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00; } 50% { text-shadow: -2px 0 red, 2px 0 blue; } }
 
-        /* Стили для модального окна телепорта (режим 1.0) */
-        .teleport-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.98);
-            z-index: 3000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.2s;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        .teleport-modal.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .teleport-content {
-            width: 100%;
-            max-width: 420px;
-            background: linear-gradient(145deg, #0b1729 0%, #1b2f47 100%);
-            border-radius: 48px;
-            padding: 20px;
-            border: 2px solid #ffaa00;
-            box-shadow: 0 0 30px #ffaa0055;
-        }
-        .teleport-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .teleport-title {
-            color: #ffd966;
-            font-size: 20px;
-            font-weight: 800;
-        }
-        .teleport-close {
-            background: #ff4444;
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 40px;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        .stats-panel-v1 {
-            background: rgba(0, 10, 20, 0.7);
-            border-radius: 60px;
-            padding: 18px 16px;
-            margin-bottom: 18px;
-        }
-        .neuron-points {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        .points-icon { background: #00c3ff; width: 48px; height: 48px; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
-        .points-value { font-size: 42px; font-weight: 800; color: #ffd966; }
-        .generation-info { display: flex; justify-content: space-between; color: #aac8f0; background: #0a1b2e; padding: 12px 16px; border-radius: 40px; }
-        .brain-clicker-v1 { margin: 15px 0 25px; display: flex; justify-content: center; }
-        .click-button-v1 {
-            width: 200px; height: 200px;
-            background: radial-gradient(circle at 30% 30%, #5aa9ff, #0f4c81);
-            border-radius: 100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 15px 0 #06314e, 0 20px 30px #00000099;
-            transition: 0.06s;
-            cursor: pointer;
-        }
-        .click-button-v1:active { transform: translateY(12px); box-shadow: 0 5px 0 #06314e, 0 20px 30px #00000099; }
-        .brain-emoji-v1 { font-size: 70px; }
-        .click-hint-v1 { background: #00000060; color: white; padding: 5px 20px; border-radius: 40px; font-size: 18px; }
-        .upgrades-grid-v1 { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-        .upgrade-card-v1 {
-            background: linear-gradient(145deg, #1a3149, #0f1f30);
-            border-radius: 60px;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #3182bd;
-            cursor: pointer;
-        }
-        .upgrade-card-v1.disabled { opacity: 0.45; pointer-events: none; }
-        .upgrade-name-v1 { font-size: 18px; font-weight: 700; color: #c1e4ff; }
-        .upgrade-price-v1 { background: #2b425b; padding: 6px 14px; border-radius: 40px; color: #ffd966; }
-        .reset-btn-v1 { background: #2a3f54; border: 1px solid #a1c6ff; color: #d4e6ff; padding: 12px 30px; border-radius: 50px; text-align: center; margin-top: 20px; cursor: pointer; }
-
         .stats-panel-extended {
             background: rgba(0,0,0,0.6);
             border-radius: 30px;
@@ -211,65 +112,133 @@
             border: 2px solid #ffd966;
         }
 
-        .brain-container { display: flex; justify-content: center; margin: 20px 0; }
-        .brain {
-            width: 170px; height: 170px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.08s; box-shadow: 0 15px 0 #aa4400, 0 0 20px #ffaa00; border: 3px solid #ffffaa;
-            position: relative; animation: brainFloat 2s ease-in-out infinite;
+        .brain-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
         }
-        .brain:active { transform: scale(0.96); box-shadow: 0 8px 0 #aa4400; }
+        .brain {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.08s;
+            background: #2a2a2a;
+            box-shadow: 0 15px 0 #1a1a1a, 0 0 20px rgba(255,255,255,0.2);
+            border: 2px solid #555;
+            position: relative;
+            animation: brainFloat 2s ease-in-out infinite;
+        }
+        .brain:active { transform: scale(0.96); box-shadow: 0 8px 0 #1a1a1a; }
         @keyframes brainFloat { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
-        .brain .skin-emoji { font-size: 70px; }
-        .brain .eyes { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 30px; }
+        .brain .skin-emoji { font-size: 70px; z-index: 2; transition: color 0.2s, filter 0.2s; }
+        .brain .eyes { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 30px; pointer-events: none; }
         .eye { width: 22px; height: 22px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .pupil { width: 10px; height: 10px; background: black; border-radius: 50%; transition: transform 0.05s; }
 
-        .washer { width: 170px; height: 170px; background: radial-gradient(#88aadd, #335588); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 70px; border: 4px solid white; }
-        .risk-btn { background: linear-gradient(145deg, #ff4444, #aa0000); border: 2px solid #ffaaaa; color: white; padding: 10px; border-radius: 60px; text-align: center; cursor: pointer; margin: 10px 0; }
+        .washer {
+            width: 170px;
+            height: 170px;
+            background: radial-gradient(circle at 30% 30%, #88aadd, #335588);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.08s;
+            box-shadow: 0 15px 0 #1a3355, 0 0 30px #88ccff;
+            border: 4px solid #ffffff;
+            font-size: 70px;
+        }
+        .washer:active { transform: translateY(6px); box-shadow: 0 8px 0 #1a3355; }
+
+        .risk-btn { background: linear-gradient(145deg, #ff4444, #aa0000); border: 2px solid #ffaaaa; color: white; padding: 10px; border-radius: 60px; font-size: 16px; font-weight: 800; text-align: center; cursor: pointer; margin: 10px 0; animation: riskPulse 2s infinite; }
+        @keyframes riskPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+
         .boss-health { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 4px 8px; margin: 5px auto; text-align: center; width: fit-content; font-size: 12px; color: #ff6666; display: none; }
         .boss-health.show { display: block; }
-        .pass-container { background: linear-gradient(145deg, #1a1a2e, #0a0a1a); border: 2px solid #ffd700; border-radius: 30px; padding: 10px; margin: 10px 0; }
-        .pass-header { display: flex; justify-content: space-between; color: #ffd700; font-size: 12px; margin-bottom: 10px; }
+
+        .pass-container {
+            background: linear-gradient(145deg, #1a1a2e, #0a0a1a);
+            border: 2px solid #ffd700;
+            border-radius: 30px;
+            padding: 10px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .pass-header { display: flex; justify-content: space-between; color: #ffd700; font-weight: bold; font-size: 12px; margin-bottom: 10px; }
         .pass-levels { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-        .pass-badge { background: linear-gradient(145deg, #2a4b6e, #1a3150); border: 1px solid #ffd700; border-radius: 30px; padding: 4px 8px; font-size: 10px; color: white; text-align: center; min-width: 45px; cursor: pointer; }
+        .pass-badge {
+            background: linear-gradient(145deg, #2a4b6e, #1a3150);
+            border: 1px solid #ffd700;
+            border-radius: 30px;
+            padding: 4px 8px;
+            font-size: 10px;
+            color: white;
+            text-align: center;
+            min-width: 45px;
+            cursor: pointer;
+        }
         .pass-badge.completed { background: linear-gradient(145deg, #1a5a3a, #0a3a2a); border-color: #4caf50; }
         .pass-badge.available { background: linear-gradient(145deg, #ffd700, #ffaa00); color: #1a1a2e; animation: pulse 1s infinite; }
         @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
         .pass-timer, .pass-end { text-align: center; font-size: 10px; color: #ffd700; margin-top: 5px; }
+
         .quests-container { background: rgba(0,0,0,0.5); border-radius: 30px; padding: 10px; margin: 10px 0; }
-        .quest-header { color: #ffd966; text-align: center; margin-bottom: 10px; }
-        .quest-item { background: #2a4b6e; border-radius: 30px; padding: 10px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 11px; flex-wrap: wrap; }
+        .quest-header { color: #ffd966; font-weight: bold; margin-bottom: 10px; text-align: center; }
+        .quest-item { background: #2a4b6e; border-radius: 30px; padding: 10px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: white; flex-wrap: wrap; gap: 6px; }
+        .quest-item.completed { background: #1a5a3a; opacity: 0.8; }
+        .quest-item.locked { background: #4a4a4a; opacity: 0.6; }
+        .quest-reward { background: #ffaa00; color: #1a1a2e; padding: 2px 8px; border-radius: 20px; font-weight: bold; }
+
         .shop-panel { background: rgba(0,0,0,0.95); border-radius: 30px; padding: 10px; margin: 10px 0; display: none; }
         .shop-panel.show { display: block; }
-        .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; }
+        .shop-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
         .shop-tab { background: #2a4b6e; padding: 8px; border-radius: 30px; text-align: center; cursor: pointer; flex: 1; color: white; font-size: 12px; }
         .shop-tab.active { background: #ffaa00; color: #1a1a2e; }
         .shop-list { max-height: 300px; overflow-y: auto; }
-        .shop-item { background: #1a3150; border-radius: 30px; padding: 8px 12px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; cursor: pointer; }
+        .shop-item { background: #1a3150; border-radius: 30px; padding: 8px 12px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center; color: white; flex-wrap: wrap; gap: 8px; cursor: pointer; }
         .pagination { display: flex; justify-content: center; gap: 15px; margin: 10px 0; }
-        .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; cursor: pointer; }
+        .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: 0.2s; }
         .modal-overlay.show { opacity: 1; visibility: visible; }
-        .modal-content { background: linear-gradient(145deg, #1d3147, #112233); border-radius: 40px; padding: 20px; width: 90%; max-width: 350px; text-align: center; color: white; }
+        .modal-content { background: linear-gradient(145deg, #1d3147, #112233); border-radius: 40px; padding: 20px; width: 90%; max-width: 350px; text-align: center; max-height: 80vh; overflow-y: auto; color: white; }
         .modal-title { color: #d9b0ff; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
         .modal-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 30px; border: none; background: #2a4b6e; color: white; text-align: center; }
-        .modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; margin: 5px; cursor: pointer; }
-        .reset-btn { background: linear-gradient(145deg, #aa3300, #661100); border: 2px solid #ff6644; color: white; padding: 12px; border-radius: 60px; text-align: center; margin-top: 15px; cursor: pointer; }
+        .modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; font-weight: 700; margin: 5px; cursor: pointer; }
+        .reset-btn { background: linear-gradient(145deg, #aa3300, #661100); border: 2px solid #ff6644; color: white; padding: 12px; border-radius: 60px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 15px; }
         .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; }
-        .toggle-switch { width: 50px; height: 24px; background: #333; border-radius: 30px; cursor: pointer; position: relative; }
+        .toggle-switch { width: 50px; height: 24px; background: #333; border-radius: 30px; cursor: pointer; position: relative; transition: 0.2s; }
         .toggle-switch.active { background: #4caf50; }
         .toggle-switch::after { content: ""; width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 4px; transition: 0.2s; }
         .toggle-switch.active::after { left: 26px; }
         .color-picker-row { display: flex; gap: 8px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
         .color-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid white; }
-        .top-bar, .diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+
+        .top-bar, .diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; }
         .prestige-display { background: #ffaa00; color: #1a1a2e; padding: 4px 12px; border-radius: 40px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px; }
         .timers { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 8px; margin-bottom: 10px; text-align: center; font-size: 12px; color: #aaffdd; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #ffaa00, #ff5500); color: white; padding: 6px 12px; border-radius: 40px; font-weight: 700; z-index: 2000; animation: fadeOut 3s forwards; font-size: 11px; }
         @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
         .save-badge { text-align: center; color: #a0ffc0; font-size: 9px; margin-top: 8px; }
-        .particle { position: fixed; pointer-events: none; z-index: 1000; font-size: 20px; animation: particleFly 0.8s ease-out forwards; }
-        @keyframes particleFly { 0% { opacity: 1; transform: scale(1) translate(0,0); } 100% { opacity: 0; transform: scale(0.5) translate(var(--dx), var(--dy)); } }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            font-size: 20px;
+            animation: particleFly 0.8s ease-out forwards;
+        }
+        @keyframes particleFly {
+            0% { opacity: 1; transform: scale(1) translate(0,0); }
+            100% { opacity: 0; transform: scale(0.5) translate(var(--dx), var(--dy)); }
+        }
     </style>
 </head>
 <body class="bg-morning">
@@ -278,7 +247,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v10.0</div>
+            <div class="game-version" id="menuVersion">v9.5</div>
             <div class="menu-buttons-row"><div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div><div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="themeToggleBtn">🧺 СТИРАЛКА</div><div class="menu-btn" id="shopBtn">🛒 МАГАЗИН</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="dailyBonusBtn">🎁 БОНУС</div><div class="menu-btn" id="promoBtn">🎫 ПРОМОКОДЫ</div></div>
@@ -305,7 +274,7 @@
             <div class="boss-health" id="bossHealthBar">👾 БОСС: <span id="bossHp">0</span> HP</div>
             
             <div class="brain-container">
-                <div id="clickableObject" class="brain" style="background: radial-gradient(circle at 30% 30%, #ffaa00, #ff5500);">
+                <div id="clickableObject" class="brain">
                     <span class="skin-emoji">🧠</span>
                     <div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>
                 </div>
@@ -340,50 +309,18 @@
         </div>
     </div>
 
-    <!-- Модальное окно телепорта в версию 1.0 -->
-    <div id="teleportModal" class="teleport-modal">
-        <div class="teleport-content">
-            <div class="teleport-header">
-                <span class="teleport-title">🕰️ КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ v1.0</span>
-                <button class="teleport-close" id="teleportCloseBtn">✖</button>
-            </div>
-            <div class="stats-panel-v1">
-                <div class="neuron-points">
-                    <span class="points-icon">🧠</span>
-                    <span class="points-value" id="v1PointsDisplay">0</span>
-                </div>
-                <div class="generation-info">
-                    <span>🧬 Поколение</span>
-                    <span id="v1GenDisplay">1</span>
-                </div>
-            </div>
-            <div class="brain-clicker-v1">
-                <div class="click-button-v1" id="v1ClickButton">
-                    <span class="brain-emoji-v1" id="v1BrainEmoji">🧠</span>
-                    <span class="click-hint-v1" id="v1ClickHint">+1</span>
-                </div>
-            </div>
-            <div class="upgrades-title" style="color:white; margin-top:10px;">⚡ Эволюция сетей</div>
-            <div class="upgrades-grid-v1" id="v1UpgradesContainer"></div>
-            <div class="reset-btn-v1" id="v1ResetBtn">⟲ Новая эволюция</div>
-            <footer style="text-align:center; color:#30658a; margin-top:15px; font-size:12px;">👇 жми на мозг — прокачай архитектуру</footer>
-        </div>
-    </div>
-
     <div id="settingsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">⚙️ НАСТРОЙКИ</div><div class="color-picker-row" id="bgThemeList"></div><div class="setting-item"><span>🌙 Ночной режим</span><div class="toggle-switch" id="nightToggle"></div></div><div class="setting-item"><span>📳 Вибрация</span><div class="toggle-switch" id="vibroToggle"></div></div><div class="setting-item"><span>✨ Частицы</span><div class="toggle-switch" id="particlesToggle"></div></div><button class="modal-btn" id="closeSettings">ЗАКРЫТЬ</button><div class="reset-btn" id="resetGameBtn">⚠️ СБРОСИТЬ ВСЁ</div></div></div>
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
     <div id="dailyBonusModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div><div id="dailyBonusText"></div><button class="modal-btn" id="claimDailyBonusBtn">ЗАБРАТЬ</button><button class="modal-btn" id="closeDailyBonusBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.0: Добавлен телепорт в версию 1.0! Нажми кнопку в главном меню, чтобы вернуться к истокам.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v9.5: Кнопка «Сменить цвет мозга» теперь меняет цвет эмодзи 🧠, а не кружка. Кружок стал тёмно-серым.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "10.0";
+        const GAME_VERSION = "9.5";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
-        // ========== ОСНОВНАЯ ИГРА (v10.0) ==========
         let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
         let totalDiamondsEarned = 0, bossKills = 0;
         let isNeuralTheme = true;
-        let currentBrainColor = "radial-gradient(circle at 30% 30%, #ffaa00, #ff5500)";
         let godMode = false;
         let clicksSinceLastBoss = 0;
         let bossActive = false, bossCurrentHp = 0, bossMaxHp = 0;
@@ -426,9 +363,17 @@
             document.getElementById('statPrestigeCount').innerText = prestigeCount; 
         }
 
-        const colors = ["radial-gradient(circle at 30% 30%, #ffaa00, #ff5500)","radial-gradient(circle at 30% 30%, #ff4444, #880000)","radial-gradient(circle at 30% 30%, #44ff44, #008800)","radial-gradient(circle at 30% 30%, #4488ff, #0044aa)","radial-gradient(circle at 30% 30%, #ff44ff, #880088)","radial-gradient(circle at 30% 30%, #ffffff, #aaaaaa)"];
-        let colorIndex = 0;
-        function changeBrainColor() { colorIndex = (colorIndex + 1) % colors.length; currentBrainColor = colors[colorIndex]; document.getElementById('clickableObject').style.background = currentBrainColor; showToast(`Цвет изменён!`); }
+        // Новая логика смены цвета мозга (меняет эмодзи)
+        const brainColors = ["#ffaa00", "#ff4444", "#44ff44", "#4488ff", "#ff44ff", "#ffffff", "#00ffff", "#ff6600"];
+        let brainColorIndex = 0;
+        function changeBrainColor() { 
+            brainColorIndex = (brainColorIndex + 1) % brainColors.length; 
+            const newColor = brainColors[brainColorIndex];
+            const brainEmoji = document.querySelector('#clickableObject .skin-emoji');
+            brainEmoji.style.color = newColor;
+            brainEmoji.style.filter = `drop-shadow(0 0 5px ${newColor})`;
+            showToast(`Цвет мозга изменён!`); 
+        }
         document.getElementById('changeColorBtn')?.addEventListener('click', changeBrainColor);
 
         const neuralNames = ["Перцептрон","Нейро-искра","Сверточная","Рекуррентная","Трансформер","Квантовая","GPT-клик","Автокодировщик","DALL-E","Глубокий мозг","Gemini","Нейро-интерфейс","Claude 3","Мультивселенная","Midjourney","Легендарная","Сингулярность","Божественный ИИ","Нейро-Земля","ИИ-Солнце","Галактическая","Космическая","Сверхразум","ДНК-бота","Бесконечность"];
@@ -506,9 +451,9 @@
         function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
         function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
-        function saveGame() { const save = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, godMode, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, robotSkins, currentRobotSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), passSeconds, passClaimCount, quests, clicksSinceLastBoss, bossActive, bossCurrentHp, bossMaxHp, isNeuralTheme, currentBrainColor }; localStorage.setItem('neuralEvoSave', JSON.stringify(save)); }
-        function loadGame() { const saved = localStorage.getItem('neuralEvoSave'); const savedSeason = localStorage.getItem('aiPassSeason'); if (savedSeason !== '3') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '3'); } if (saved) { try { const d = JSON.parse(saved); points = d.points || 100; diamonds = d.diamonds || 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; prestigeMulti = d.prestigeMulti || 1; prestigeCount = d.prestigeCount || 0; totalDiamondsEarned = d.totalDiamondsEarned || 0; bossKills = d.bossKills || 0; godMode = d.godMode || false; if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); if (d.skins) skins = d.skins; if (d.currentSkin) currentSkin = d.currentSkin; if (d.robotSkins) robotSkins = d.robotSkins; if (d.currentRobotSkin) currentRobotSkin = d.currentRobotSkin; if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); if (d.passSeconds) passSeconds = d.passSeconds; if (d.quests) quests = d.quests; clicksSinceLastBoss = d.clicksSinceLastBoss || 0; bossActive = d.bossActive || false; bossCurrentHp = d.bossCurrentHp || 0; bossMaxHp = d.bossMaxHp || 0; isNeuralTheme = d.isNeuralTheme !== undefined ? d.isNeuralTheme : true; currentBrainColor = d.currentBrainColor || colors[0]; document.getElementById('clickableObject').style.background = currentBrainColor; if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } purchasedCount = upgrades.filter(u => u.purchased).length; passClaimCount = passLevels.filter(l => l.claimed).length; } catch(e) {} } applyThemeUI(); updateUI(); renderShopNeurons(); renderShopSkins(); renderShopRobotSkins(); renderPass(); renderQuests(); updateStatsUI(); startPassTimer(); startPassEndTimer(); updateQuestsProgress(); }
-        function applyThemeUI() { const brainDiv = document.getElementById('clickableObject'); if (isNeuralTheme) { brainDiv.className = 'brain'; brainDiv.innerHTML = `<span class="skin-emoji">${currentSkin}</span><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>`; } else { brainDiv.className = 'washer'; brainDiv.innerHTML = currentRobotSkin; } }
+        function saveGame() { const save = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, godMode, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, robotSkins, currentRobotSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), passSeconds, passClaimCount, quests, clicksSinceLastBoss, bossActive, bossCurrentHp, bossMaxHp, isNeuralTheme, brainColorIndex }; localStorage.setItem('neuralEvoSave', JSON.stringify(save)); }
+        function loadGame() { const saved = localStorage.getItem('neuralEvoSave'); const savedSeason = localStorage.getItem('aiPassSeason'); if (savedSeason !== '3') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '3'); } if (saved) { try { const d = JSON.parse(saved); points = d.points || 100; diamonds = d.diamonds || 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; prestigeMulti = d.prestigeMulti || 1; prestigeCount = d.prestigeCount || 0; totalDiamondsEarned = d.totalDiamondsEarned || 0; bossKills = d.bossKills || 0; godMode = d.godMode || false; if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); if (d.skins) skins = d.skins; if (d.currentSkin) currentSkin = d.currentSkin; if (d.robotSkins) robotSkins = d.robotSkins; if (d.currentRobotSkin) currentRobotSkin = d.currentRobotSkin; if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); if (d.passSeconds) passSeconds = d.passSeconds; if (d.quests) quests = d.quests; clicksSinceLastBoss = d.clicksSinceLastBoss || 0; bossActive = d.bossActive || false; bossCurrentHp = d.bossCurrentHp || 0; bossMaxHp = d.bossMaxHp || 0; isNeuralTheme = d.isNeuralTheme !== undefined ? d.isNeuralTheme : true; brainColorIndex = d.brainColorIndex || 0; if (brainColorIndex > 0) { const brainEmoji = document.querySelector('#clickableObject .skin-emoji'); brainEmoji.style.color = brainColors[brainColorIndex % brainColors.length]; brainEmoji.style.filter = `drop-shadow(0 0 5px ${brainColors[brainColorIndex % brainColors.length]})`; } if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } purchasedCount = upgrades.filter(u => u.purchased).length; passClaimCount = passLevels.filter(l => l.claimed).length; } catch(e) {} } applyThemeUI(); updateUI(); renderShopNeurons(); renderShopSkins(); renderShopRobotSkins(); renderPass(); renderQuests(); updateStatsUI(); startPassTimer(); startPassEndTimer(); updateQuestsProgress(); }
+        function applyThemeUI() { const brainDiv = document.getElementById('clickableObject'); if (isNeuralTheme) { brainDiv.className = 'brain'; brainDiv.innerHTML = `<span class="skin-emoji">${currentSkin}</span><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>`; if (brainColorIndex > 0) { const brainEmoji = document.querySelector('#clickableObject .skin-emoji'); brainEmoji.style.color = brainColors[brainColorIndex % brainColors.length]; brainEmoji.style.filter = `drop-shadow(0 0 5px ${brainColors[brainColorIndex % brainColors.length]})`; } } else { brainDiv.className = 'washer'; brainDiv.innerHTML = currentRobotSkin; } }
         function toggleTheme() { isNeuralTheme = !isNeuralTheme; applyThemeUI(); saveGame(); showToast(isNeuralTheme ? "НЕЙРОСЕТИ" : "СТИРАЛКА"); }
 
         function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, robotSkins, currentRobotSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), quests }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
@@ -624,105 +569,6 @@
                 }
             }, { once: true });
         }
-
-        // ========== ТЕЛЕПОРТ В VERSION 1.0 ==========
-        // Состояние для версии 1.0
-        let v1Points = 0;
-        let v1ClickPower = 1;
-        let v1Generation = 1;
-        const v1Upgrades = [
-            { id: 'up1', name: '🤖 Перцептрон', desc: '+1', price: 20, effect: () => { v1ClickPower += 1; }, purchased: false, basePrice: 20 },
-            { id: 'up2', name: '🧬 Сверточная', desc: '+3', price: 80, effect: () => { v1ClickPower += 3; }, purchased: false, basePrice: 80 },
-            { id: 'up3', name: '⚙️ Трансформер', desc: '+8', price: 250, effect: () => { v1ClickPower += 8; }, purchased: false, basePrice: 250 },
-            { id: 'up4', name: '🧪 GPT-клик', desc: '+20', price: 700, effect: () => { v1ClickPower += 20; }, purchased: false, basePrice: 700 }
-        ];
-
-        function updateV1UI() {
-            document.getElementById('v1PointsDisplay').innerText = v1Points;
-            document.getElementById('v1GenDisplay').innerText = v1Generation;
-            document.getElementById('v1ClickHint').innerText = `+${v1ClickPower}`;
-            const brainEmoji = document.getElementById('v1BrainEmoji');
-            if (v1ClickPower >= 30) brainEmoji.innerText = '🦾';
-            else if (v1ClickPower >= 15) brainEmoji.innerText = '🧠⚡';
-            else if (v1ClickPower >= 5) brainEmoji.innerText = '🧠';
-            else brainEmoji.innerText = '🧫';
-        }
-
-        function renderV1Upgrades() {
-            let html = '';
-            v1Upgrades.forEach(up => {
-                const canAfford = v1Points >= up.price;
-                const disabledClass = (!canAfford || up.purchased) ? 'disabled' : '';
-                const priceDisplay = up.purchased ? '✅ куплено' : `💰 ${up.price}`;
-                html += `
-                    <div class="upgrade-card-v1 ${disabledClass}" data-id="${up.id}">
-                        <div class="upgrade-name-v1">${up.name} ${up.desc}</div>
-                        <div class="upgrade-price-v1">${priceDisplay}</div>
-                    </div>
-                `;
-            });
-            document.getElementById('v1UpgradesContainer').innerHTML = html;
-        }
-
-        function purchaseV1Upgrade(id) {
-            const up = v1Upgrades.find(u => u.id === id);
-            if (!up || up.purchased || v1Points < up.price) return false;
-            v1Points -= up.price;
-            up.effect();
-            up.purchased = true;
-            v1Generation++;
-            updateV1UI();
-            renderV1Upgrades();
-            return true;
-        }
-
-        function resetV1Game() {
-            v1Points = 0;
-            v1ClickPower = 1;
-            v1Generation = 1;
-            v1Upgrades.forEach(up => {
-                up.purchased = false;
-                up.price = up.basePrice;
-            });
-            updateV1UI();
-            renderV1Upgrades();
-        }
-
-        function handleV1Click(e) {
-            e.preventDefault();
-            v1Points += v1ClickPower;
-            const btn = document.getElementById('v1ClickButton');
-            btn.style.transform = 'translateY(12px)';
-            btn.style.boxShadow = '0 5px 0 #06314e, 0 20px 30px #00000099';
-            setTimeout(() => {
-                btn.style.transform = '';
-                btn.style.boxShadow = '';
-            }, 90);
-            updateV1UI();
-            renderV1Upgrades();
-        }
-
-        function initTeleportModal() {
-            updateV1UI();
-            renderV1Upgrades();
-            document.getElementById('v1ClickButton')?.addEventListener('click', handleV1Click);
-            document.getElementById('v1ClickButton')?.addEventListener('touchstart', (e) => { e.preventDefault(); handleV1Click(e); }, { passive: false });
-            document.getElementById('v1UpgradesContainer')?.addEventListener('click', (e) => {
-                const card = e.target.closest('.upgrade-card-v1');
-                if (card && !card.classList.contains('disabled')) {
-                    purchaseV1Upgrade(card.dataset.id);
-                }
-            });
-            document.getElementById('v1ResetBtn')?.addEventListener('click', () => resetV1Game());
-        }
-
-        document.getElementById('teleportBtn')?.addEventListener('click', () => {
-            initTeleportModal();
-            document.getElementById('teleportModal').classList.add('show');
-        });
-        document.getElementById('teleportCloseBtn')?.addEventListener('click', () => {
-            document.getElementById('teleportModal').classList.remove('show');
-        });
     </script>
 </body>
 </html>
