@@ -65,7 +65,6 @@
             animation: btnFlyIn 0.4s forwards;
             transition: 0.1s;
         }
-        /* подсветка кнопок (п. 42) */
         .menu-btn:hover, .action-btn:hover {
             background: linear-gradient(145deg, #3a6b8e, #2a4160);
             box-shadow: 0 0 10px #7aa5d9;
@@ -108,7 +107,8 @@
 
         .brain-container {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             margin: 20px 0;
             position: relative;
         }
@@ -127,46 +127,31 @@
             position: relative;
             animation: brainFloat 2s ease-in-out infinite;
         }
-        /* спящий мозг */
-        .brain.sleep .skin-emoji {
-            animation: none;
-            filter: grayscale(0.5);
-            transform: scale(0.95);
-        }
-        .brain.sleep .eyes {
-            animation: blink 2s infinite;
-        }
-        .brain.sleep .eye {
-            background: #aaa;
-        }
-        .brain.sleep .pupil {
-            display: none;
-        }
-        @keyframes blink {
-            0%,100% { transform: scaleY(1); }
-            45%,55% { transform: scaleY(0.1); }
-        }
         .brain:active { transform: scale(0.96); box-shadow: 0 8px 0 #aa4400; }
         @keyframes brainFloat { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
         .brain .skin-emoji { font-size: 70px; z-index: 2; }
         .brain .eyes { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 30px; pointer-events: none; }
         .eye { width: 22px; height: 22px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .pupil { width: 10px; height: 10px; background: black; border-radius: 50%; transition: transform 0.05s; }
-        .zzz {
+
+        .brain .sleep-msg {
             position: absolute;
-            bottom: -20px;
+            top: -40px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 20px;
-            color: white;
-            text-shadow: 0 0 5px black;
+            background: rgba(0,0,0,0.8);
+            color: #ffaa00;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
             white-space: nowrap;
-            animation: zzzFloat 1.5s infinite;
         }
-        @keyframes zzzFloat {
-            0% { opacity: 0; transform: translateX(-50%) translateY(0); }
-            50% { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        .brain .sleep-msg.show {
+            opacity: 1;
         }
 
         .washer {
@@ -283,7 +268,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v10.0</div>
+            <div class="game-version" id="menuVersion">v10.2</div>
             <div class="menu-buttons-row"><div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div><div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="themeToggleBtn">🧺 СТИРАЛКА</div><div class="menu-btn" id="shopBtn">🛒 МАГАЗИН</div></div>
             <div class="menu-buttons-row"><div class="menu-btn" id="dailyBonusBtn">🎁 БОНУС</div><div class="menu-btn" id="promoBtn">🎫 ПРОМОКОДЫ</div></div>
@@ -314,6 +299,7 @@
                 <div id="clickableObject" class="brain">
                     <span class="skin-emoji">🧠</span>
                     <div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>
+                    <div class="sleep-msg" id="sleepMsg">😴 Спишь?</div>
                 </div>
             </div>
             
@@ -347,10 +333,10 @@
     <div id="settingsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">⚙️ НАСТРОЙКИ</div><div class="color-picker-row" id="bgThemeList"></div><div class="setting-item"><span>🌙 Ночной режим</span><div class="toggle-switch" id="nightToggle"></div></div><div class="setting-item"><span>📳 Вибрация</span><div class="toggle-switch" id="vibroToggle"></div></div><div class="setting-item"><span>✨ Частицы</span><div class="toggle-switch" id="particlesToggle"></div></div><button class="modal-btn" id="closeSettings">ЗАКРЫТЬ</button><div class="reset-btn" id="resetGameBtn">⚠️ СБРОСИТЬ ВСЁ</div></div></div>
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
     <div id="dailyBonusModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div><div id="dailyBonusText"></div><button class="modal-btn" id="claimDailyBonusBtn">ЗАБРАТЬ</button><button class="modal-btn" id="closeDailyBonusBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.0: Новые скины (Неон, Робот 2.0, Золотой, Хаос, Космос, Майнкрафт, Пиксель, Киберпанк). Таймер игры. Подсветка кнопок. Кнопка "Поделиться прогрессом". Мозг засыпает если долго не кликать.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.2: 🔥 Классный клик (x2 очков с шансом 5%) и 😴 Насмешка «Спишь?» если не кликать 45 секунд.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "10.0";
+        const GAME_VERSION = "10.2";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
         let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
@@ -361,15 +347,15 @@
         let bossActive = false, bossCurrentHp = 0, bossMaxHp = 0;
         const BOSS_CLICKS_NEEDED = 5000;
         
-        // таймер игры (п.57)
+        // таймер игры
         let gameStartTime = Date.now();
         let playtimeInterval = null;
         
-        // таймер для сна мозга (п.80)
-        let sleepTimer = null;
-        let brainSleeping = false;
+        // таймер для насмешки (п.5)
+        let sleepMsgTimer = null;
+        let sleepMsgShowing = false;
         
-        // скины новые (п.30-38)
+        // скины новые (v10.2)
         const newSkins = [
             { id: 11, name: "Неон", emoji: "🟢", price: 200, owned: false },
             { id: 12, name: "Робот 2.0", emoji: "🤖", price: 250, owned: false },
@@ -418,43 +404,32 @@
             document.getElementById('statPrestigeCount').innerText = prestigeCount; 
         }
         
-        // обновление таймера игры
         function updatePlaytime() {
             let seconds = Math.floor((Date.now() - gameStartTime) / 1000);
             let minutes = Math.floor(seconds / 60);
             document.getElementById('playtime').innerText = minutes;
         }
         
-        // мозг засыпает (п.80)
-        function startSleepTimer() {
-            if (brainSleeping) return;
-            if (sleepTimer) clearTimeout(sleepTimer);
-            sleepTimer = setTimeout(() => {
-                if (!brainSleeping && isNeuralTheme) {
-                    brainSleeping = true;
-                    const brainDiv = document.getElementById('clickableObject');
-                    brainDiv.classList.add('sleep');
-                    const zzz = document.createElement('div');
-                    zzz.className = 'zzz';
-                    zzz.innerText = 'Zzz';
-                    brainDiv.appendChild(zzz);
+        // насмешка "Спишь?" (п.5)
+        function startSleepMsgTimer() {
+            if (sleepMsgTimer) clearTimeout(sleepMsgTimer);
+            sleepMsgTimer = setTimeout(() => {
+                if (!sleepMsgShowing) {
+                    sleepMsgShowing = true;
+                    document.getElementById('sleepMsg').classList.add('show');
                 }
-            }, 30000);
+            }, 45000);
         }
         
-        function wakeBrain() {
-            if (sleepTimer) clearTimeout(sleepTimer);
-            if (brainSleeping) {
-                brainSleeping = false;
-                const brainDiv = document.getElementById('clickableObject');
-                brainDiv.classList.remove('sleep');
-                const zzz = brainDiv.querySelector('.zzz');
-                if (zzz) zzz.remove();
+        function hideSleepMsg() {
+            if (sleepMsgTimer) clearTimeout(sleepMsgTimer);
+            if (sleepMsgShowing) {
+                sleepMsgShowing = false;
+                document.getElementById('sleepMsg').classList.remove('show');
             }
-            startSleepTimer();
+            startSleepMsgTimer();
         }
-        
-        // поделиться прогрессом (п.67)
+
         function shareProgress() {
             const text = `🧠 Мой прогресс в игре "Кликер: Эволюция Нейросетей":
 🧠 Очки: ${Math.floor(points)}
@@ -467,7 +442,7 @@
 🎨 Скинов: ${skins.filter(s=>s.owned).length + newSkins.filter(s=>s.owned).length}
 📅 Версия ${GAME_VERSION}`;
             navigator.clipboard.writeText(text);
-            showToast("✅ Прогресс скопирован в буфер обмена! Можно вставить в чат.");
+            showToast("✅ Прогресс скопирован в буфер обмена!");
         }
 
         // расширенный массив скинов (старые + новые)
@@ -604,9 +579,9 @@
             applyThemeUI(); updateUI(); renderShopNeurons(); renderShopSkins(); renderShopRobotSkins(); renderPass(); renderQuests(); updateStatsUI(); startPassTimer(); startPassEndTimer(); updateQuestsProgress(); 
             if (playtimeInterval) clearInterval(playtimeInterval);
             playtimeInterval = setInterval(() => updatePlaytime(), 60000);
-            startSleepTimer();
+            startSleepMsgTimer();
         }
-        function applyThemeUI() { const brainDiv = document.getElementById('clickableObject'); if (isNeuralTheme) { brainDiv.className = 'brain'; brainDiv.innerHTML = `<span class="skin-emoji">${currentSkin}</span><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>`; wakeBrain(); } else { brainDiv.className = 'washer'; brainDiv.innerHTML = currentRobotSkin; } }
+        function applyThemeUI() { const brainDiv = document.getElementById('clickableObject'); if (isNeuralTheme) { brainDiv.className = 'brain'; brainDiv.innerHTML = `<span class="skin-emoji">${currentSkin}</span><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div><div class="sleep-msg" id="sleepMsg">😴 Спишь?</div>`; } else { brainDiv.className = 'washer'; brainDiv.innerHTML = currentRobotSkin; } }
         function toggleTheme() { isNeuralTheme = !isNeuralTheme; applyThemeUI(); saveGame(); showToast(isNeuralTheme ? "НЕЙРОСЕТИ" : "СТИРАЛКА"); }
 
         function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, robotSkins, currentRobotSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), quests }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
@@ -620,16 +595,24 @@
         function saveSettings() { localStorage.setItem('nightMode', settings.nightMode); localStorage.setItem('vibro', settings.vibro); localStorage.setItem('particles', settings.particles); applySettings(); }
 
         function processSingleClick(gain, x, y) {
-            wakeBrain();
+            hideSleepMsg();
+            // Классный клик (п.2) — 5% шанс на x2 очков
+            let isCool = Math.random() < 0.05;
+            let finalGain = gain;
+            if (isCool) {
+                finalGain = gain * 2;
+                showToast("🔥 КЛАССНЫЙ КЛИК! x2!");
+                playCritSound();
+            }
             if (bossActive) {
-                const damage = Math.max(1, Math.floor(gain / 2));
+                const damage = Math.max(1, Math.floor(finalGain / 2));
                 hitBoss(damage);
                 playClickSound();
                 if (settings.vibro && navigator.vibrate) navigator.vibrate(30);
                 if (settings.particles) createParticles(x, y);
                 return;
             }
-            points += gain;
+            points += finalGain;
             totalClicks++;
             clicksSinceLastBoss++;
             playClickSound();
