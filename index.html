@@ -21,19 +21,20 @@
             align-items: center;
             padding: 10px;
             color: white;
+            text-shadow: 0 0 5px black, 0 0 10px black;
         }
         body.dark-mode { background: #1a1a1a !important; }
         body.dark-mode .game-container { background: rgba(0,0,0,0.9); }
 
         /* Осенние фоны */
-        body.bg-early-autumn { background: linear-gradient(145deg, #f5e6b0, #d4a373); color: #333; }
-        body.bg-golden { background: linear-gradient(145deg, #f6c56e, #d98c2e); color: #333; }
-        body.bg-rainy { background: linear-gradient(145deg, #6b7b8d, #3a4a5a); color: #fff; }
-        body.bg-late { background: linear-gradient(145deg, #8b6b4f, #4d2e1b); color: #fff; }
-        body.bg-forest { background: linear-gradient(145deg, #6a8d4e, #2f4a1f); color: #fff; }
-        body.bg-park { background: linear-gradient(145deg, #b5a07a, #7a6545); color: #fff; }
-        body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); color: #fff; }
-        body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); color: #fff; }
+        body.bg-early-autumn { background: linear-gradient(145deg, #f5e6b0, #d4a373); }
+        body.bg-golden { background: linear-gradient(145deg, #f6c56e, #d98c2e); }
+        body.bg-rainy { background: linear-gradient(145deg, #6b7b8d, #3a4a5a); }
+        body.bg-late { background: linear-gradient(145deg, #8b6b4f, #4d2e1b); }
+        body.bg-forest { background: linear-gradient(145deg, #6a8d4e, #2f4a1f); }
+        body.bg-park { background: linear-gradient(145deg, #b5a07a, #7a6545); }
+        body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); }
+        body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 
         .game-container {
             width: 100%;
@@ -44,6 +45,8 @@
             border: 1px solid rgba(100, 180, 255, 0.3);
             padding: 20px 16px;
             margin: 0 auto;
+            color: white;
+            text-shadow: 0 0 5px black;
         }
 
         .main-menu { text-align: center; }
@@ -65,6 +68,7 @@
             transform: translateY(30px);
             animation: btnFlyIn 0.4s forwards;
             transition: 0.1s;
+            text-shadow: 0 0 5px black;
         }
         .menu-btn:hover, .action-btn:hover {
             background: linear-gradient(145deg, #3a6b8e, #2a4160);
@@ -73,8 +77,8 @@
         }
         @keyframes btnFlyIn { to { opacity: 1; transform: translateY(0); } }
         .menu-buttons-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
-        .game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00; animation: glitch 3s infinite; }
-        @keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00; } 50% { text-shadow: -2px 0 red, 2px 0 blue; } }
+        .game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00, 0 0 40px black; animation: glitch 3s infinite; }
+        @keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00, 0 0 40px black; } 50% { text-shadow: -2px 0 red, 2px 0 blue, 0 0 20px black; } }
 
         .stats-panel-extended {
             background: rgba(0,0,0,0.6);
@@ -86,8 +90,8 @@
             gap: 8px;
         }
         .stat-card { background: #0a1b2e; border-radius: 20px; padding: 5px; text-align: center; }
-        .stat-card-value { color: #ffd966; font-size: 16px; font-weight: 800; }
-        .stat-card-label { color: #aac8f0; font-size: 9px; }
+        .stat-card-value { color: #ffd966; font-size: 16px; font-weight: 800; text-shadow: 0 0 5px black; }
+        .stat-card-label { color: #aac8f0; font-size: 9px; text-shadow: 0 0 5px black; }
 
         .music-toggle {
             position: fixed;
@@ -150,29 +154,14 @@
             transition: opacity 0.3s;
             pointer-events: none;
             white-space: nowrap;
+            text-shadow: 0 0 5px black;
         }
         .brain .sleep-msg.show { opacity: 1; }
 
-        .washer {
-            width: 170px;
-            height: 170px;
-            background: radial-gradient(circle at 30% 30%, #88aadd, #335588);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.08s;
-            box-shadow: 0 15px 0 #1a3355, 0 0 30px #88ccff;
-            border: 4px solid #ffffff;
-            font-size: 70px;
-        }
-        .washer:active { transform: translateY(6px); box-shadow: 0 8px 0 #1a3355; }
-
-        .risk-btn { background: linear-gradient(145deg, #ff4444, #aa0000); border: 2px solid #ffaaaa; color: white; padding: 10px; border-radius: 60px; font-size: 16px; font-weight: 800; text-align: center; cursor: pointer; margin: 10px 0; animation: riskPulse 2s infinite; }
+        .risk-btn { background: linear-gradient(145deg, #ff4444, #aa0000); border: 2px solid #ffaaaa; color: white; padding: 10px; border-radius: 60px; font-size: 16px; font-weight: 800; text-align: center; cursor: pointer; margin: 10px 0; animation: riskPulse 2s infinite; text-shadow: 0 0 5px black; }
         @keyframes riskPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
 
-        .boss-health { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 4px 8px; margin: 5px auto; text-align: center; width: fit-content; font-size: 12px; color: #ff6666; display: none; }
+        .boss-health { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 4px 8px; margin: 5px auto; text-align: center; width: fit-content; font-size: 12px; color: #ff6666; display: none; text-shadow: 0 0 5px black; }
         .boss-health.show { display: block; }
 
         .pass-container {
@@ -184,7 +173,7 @@
             position: relative;
             overflow: hidden;
         }
-        .pass-header { display: flex; justify-content: space-between; color: #ffd700; font-weight: bold; font-size: 12px; margin-bottom: 10px; }
+        .pass-header { display: flex; justify-content: space-between; color: #ffd700; font-weight: bold; font-size: 12px; margin-bottom: 10px; text-shadow: 0 0 5px black; }
         .pass-levels { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
         .pass-badge {
             background: linear-gradient(145deg, #2a4b6e, #1a3150);
@@ -196,30 +185,31 @@
             text-align: center;
             min-width: 45px;
             cursor: pointer;
+            text-shadow: 0 0 5px black;
         }
         .pass-badge.completed { background: linear-gradient(145deg, #1a5a3a, #0a3a2a); border-color: #4caf50; }
         .pass-badge.available { background: linear-gradient(145deg, #ffd700, #ffaa00); color: #1a1a2e; animation: pulse 1s infinite; }
         @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-        .pass-timer, .pass-end { text-align: center; font-size: 10px; color: #ffd700; margin-top: 5px; }
+        .pass-timer, .pass-end { text-align: center; font-size: 10px; color: #ffd700; margin-top: 5px; text-shadow: 0 0 5px black; }
 
         .quests-container { background: rgba(0,0,0,0.5); border-radius: 30px; padding: 10px; margin: 10px 0; }
-        .quest-header { color: #ffd966; font-weight: bold; margin-bottom: 10px; text-align: center; }
-        .quest-item { background: #2a4b6e; border-radius: 30px; padding: 10px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: white; flex-wrap: wrap; gap: 6px; }
+        .quest-header { color: #ffd966; font-weight: bold; margin-bottom: 10px; text-align: center; text-shadow: 0 0 5px black; }
+        .quest-item { background: #2a4b6e; border-radius: 30px; padding: 10px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: white; flex-wrap: wrap; gap: 6px; text-shadow: 0 0 5px black; }
         .quest-item.completed { background: #1a5a3a; opacity: 0.8; }
         .quest-item.locked { background: #4a4a4a; opacity: 0.6; }
-        .quest-reward { background: #ffaa00; color: #1a1a2e; padding: 2px 8px; border-radius: 20px; font-weight: bold; }
+        .quest-reward { background: #ffaa00; color: #1a1a2e; padding: 2px 8px; border-radius: 20px; font-weight: bold; text-shadow: 0 0 5px black; }
 
         .shop-panel { background: rgba(0,0,0,0.95); border-radius: 30px; padding: 10px; margin: 10px 0; display: none; }
         .shop-panel.show { display: block; }
         .shop-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-        .shop-tab { background: #2a4b6e; padding: 8px; border-radius: 30px; text-align: center; cursor: pointer; flex: 1; color: white; font-size: 12px; transition: 0.1s; }
+        .shop-tab { background: #2a4b6e; padding: 8px; border-radius: 30px; text-align: center; cursor: pointer; flex: 1; color: white; font-size: 12px; transition: 0.1s; text-shadow: 0 0 5px black; }
         .shop-tab.active { background: #ffaa00; color: #1a1a2e; }
         .shop-tab:hover { background: #3a6b8e; transform: scale(1.02); }
         .shop-list { max-height: 300px; overflow-y: auto; }
-        .shop-item { background: #1a3150; border-radius: 30px; padding: 8px 12px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center; color: white; flex-wrap: wrap; gap: 8px; cursor: pointer; transition: 0.1s; }
+        .shop-item { background: #1a3150; border-radius: 30px; padding: 8px 12px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center; color: white; flex-wrap: wrap; gap: 8px; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
         .shop-item:hover { background: #2a4160; transform: scale(1.01); }
         .pagination { display: flex; justify-content: center; gap: 15px; margin: 10px 0; }
-        .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.1s; }
+        .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
         .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
 
         .modal-overlay {
@@ -249,12 +239,13 @@
             max-height: 80vh;
             overflow-y: auto;
             color: white;
+            text-shadow: 0 0 5px black;
         }
-        .modal-title { color: #d9b0ff; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
+        .modal-title { color: #d9b0ff; font-size: 20px; font-weight: 800; margin-bottom: 15px; text-shadow: 0 0 5px black; }
         .modal-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 30px; border: none; background: #2a4b6e; color: white; text-align: center; }
-        .modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; font-weight: 700; margin: 5px; cursor: pointer; transition: 0.1s; }
+        .modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; font-weight: 700; margin: 5px; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
         .modal-btn:hover { background: #a07ce0; transform: scale(1.02); }
-        .reset-btn { background: linear-gradient(145deg, #aa3300, #661100); border: 2px solid #ff6644; color: white; padding: 12px; border-radius: 60px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 15px; transition: 0.1s; }
+        .reset-btn { background: linear-gradient(145deg, #aa3300, #661100); border: 2px solid #ff6644; color: white; padding: 12px; border-radius: 60px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 15px; transition: 0.1s; text-shadow: 0 0 5px black; }
         .reset-btn:hover { background: #cc4400; transform: scale(1.01); }
         .setting-item {
             display: flex;
@@ -265,6 +256,7 @@
             color: white;
             flex-wrap: wrap;
             gap: 8px;
+            text-shadow: 0 0 5px black;
         }
         .toggle-switch { width: 50px; height: 24px; background: #333; border-radius: 30px; cursor: pointer; position: relative; transition: 0.2s; }
         .toggle-switch.active { background: #4caf50; }
@@ -274,13 +266,13 @@
         .color-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid white; transition: 0.1s; }
         .color-dot:hover { transform: scale(1.1); }
 
-        .top-bar, .diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; }
-        .prestige-display { background: #ffaa00; color: #1a1a2e; padding: 4px 12px; border-radius: 40px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px; transition: 0.1s; }
+        .top-bar, .diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
+        .prestige-display { background: #ffaa00; color: #1a1a2e; padding: 4px 12px; border-radius: 40px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px; transition: 0.1s; text-shadow: 0 0 5px black; }
         .prestige-display:hover { background: #ffcc44; transform: scale(1.01); }
-        .timers { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 8px; margin-bottom: 10px; text-align: center; font-size: 12px; color: #aaffdd; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #ffaa00, #ff5500); color: white; padding: 6px 12px; border-radius: 40px; font-weight: 700; z-index: 2000; animation: fadeOut 3s forwards; font-size: 11px; }
+        .timers { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 8px; margin-bottom: 10px; text-align: center; font-size: 12px; color: #aaffdd; text-shadow: 0 0 5px black; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #ffaa00, #ff5500); color: white; padding: 6px 12px; border-radius: 40px; font-weight: 700; z-index: 2000; animation: fadeOut 3s forwards; font-size: 11px; text-shadow: 0 0 5px black; }
         @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
-        .save-badge { text-align: center; color: #a0ffc0; font-size: 9px; margin-top: 8px; }
+        .save-badge { text-align: center; color: #a0ffc0; font-size: 9px; margin-top: 8px; text-shadow: 0 0 5px black; }
 
         .particle {
             position: fixed;
@@ -301,7 +293,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v10.3</div>
+            <div class="game-version" id="menuVersion">v10.4</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -357,10 +349,12 @@
             </div>
             
             <div class="shop-panel" id="shopPanel">
-                <div class="shop-tabs"><div class="shop-tab active" data-tab="neurons">🧠 НЕЙРОСЕТИ</div><div class="shop-tab" data-tab="skins">🎨 СКИНЫ МОЗГА</div><div class="shop-tab" data-tab="robotSkins">🤖 СКИНЫ РОБОТА</div></div>
+                <div class="shop-tabs">
+                    <div class="shop-tab active" data-tab="neurons">🧠 НЕЙРОСЕТИ</div>
+                    <div class="shop-tab" data-tab="skins">🎨 СКИНЫ МОЗГА</div>
+                </div>
                 <div id="shopNeurons" class="shop-list"></div>
                 <div id="shopSkins" class="shop-list" style="display:none;"></div>
-                <div id="shopRobotSkins" class="shop-list" style="display:none;"></div>
                 <div class="action-btn" id="closeShopBtn">ЗАКРЫТЬ</div>
             </div>
             
@@ -369,7 +363,7 @@
         </div>
     </div>
 
-    <!-- Окно настроек (расширенное) -->
+    <!-- Окно настроек -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title">⚙️ НАСТРОЙКИ</div>
@@ -386,11 +380,6 @@
                     <button class="modal-btn" id="bgMountains">Горы</button>
                     <button class="modal-btn" id="bgVillage">Деревня</button>
                 </div>
-            </div>
-
-            <div class="setting-item">
-                <span>🧺 Тема: Нейросети / Стиралка</span>
-                <button class="modal-btn" id="themeToggleBtn">Переключить</button>
             </div>
 
             <div class="setting-item">
@@ -432,15 +421,14 @@
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
     <div id="dailyBonusModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div><div id="dailyBonusText"></div><button class="modal-btn" id="claimDailyBonusBtn">ЗАБРАТЬ</button><button class="modal-btn" id="closeDailyBonusBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.3: Осенние фоны, AI PASS 4 (до 10 сентября), настройки объединены, смена звука клика.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.4: Текст всегда белый, удалены режим «Стиралка» и скины на робота.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "10.3";
+        const GAME_VERSION = "10.4";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
         let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
         let totalDiamondsEarned = 0, bossKills = 0;
-        let isNeuralTheme = true;
         let godMode = false;
         let clicksSinceLastBoss = 0;
         let bossActive = false, bossCurrentHp = 0, bossMaxHp = 0;
@@ -475,16 +463,15 @@
         if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
         else setBodyBg('early_autumn');
 
-        // Новые скины
+        // Новые скины (без робота)
         const newSkins = [
             { id: 11, name: "Неон", emoji: "🟢", price: 200, owned: false },
-            { id: 12, name: "Робот 2.0", emoji: "🤖", price: 250, owned: false },
-            { id: 13, name: "Золотой мозг", emoji: "🏆", price: 500, owned: false },
-            { id: 14, name: "Хаос", emoji: "🌀", price: 300, owned: false },
-            { id: 15, name: "Космос", emoji: "🌌", price: 350, owned: false },
-            { id: 16, name: "Майнкрафт", emoji: "🪓", price: 280, owned: false },
-            { id: 17, name: "Пиксель", emoji: "👾", price: 220, owned: false },
-            { id: 18, name: "Киберпанк", emoji: "🤖", price: 400, owned: false }
+            { id: 12, name: "Золотой мозг", emoji: "🏆", price: 500, owned: false },
+            { id: 13, name: "Хаос", emoji: "🌀", price: 300, owned: false },
+            { id: 14, name: "Космос", emoji: "🌌", price: 350, owned: false },
+            { id: 15, name: "Майнкрафт", emoji: "🪓", price: 280, owned: false },
+            { id: 16, name: "Пиксель", emoji: "👾", price: 220, owned: false },
+            { id: 17, name: "Киберпанк", emoji: "🤖", price: 400, owned: false }
         ];
 
         let skins = [
@@ -493,11 +480,10 @@
             { id: 3, name: "Ледяной", emoji: "❄️", price: 80, owned: false },
             { id: 4, name: "Алмазный", emoji: "💎", price: 150, owned: false },
             { id: 5, name: "Королевский", emoji: "👑", price: 300, owned: false },
-            { id: 6, name: "Робот", emoji: "🤖", price: 200, owned: false },
-            { id: 7, name: "Инопланетный", emoji: "👾", price: 250, owned: false },
-            { id: 8, name: "Звёздный", emoji: "⭐", price: 100, owned: false },
-            { id: 9, name: "Радужный", emoji: "🌈", price: 180, owned: false },
-            { id: 10, name: "Хэллоуин", emoji: "🎃", price: 120, owned: false },
+            { id: 6, name: "Инопланетный", emoji: "👾", price: 250, owned: false },
+            { id: 7, name: "Звёздный", emoji: "⭐", price: 100, owned: false },
+            { id: 8, name: "Радужный", emoji: "🌈", price: 180, owned: false },
+            { id: 9, name: "Хэллоуин", emoji: "🎃", price: 120, owned: false },
             ...newSkins
         ];
         let currentSkin = "🧠";
@@ -623,15 +609,9 @@
         }
         function buyUpgrade(id) { const u = upgrades[id]; if (!u.purchased && points >= u.price) { points -= u.price; u.purchased = true; purchasedCount++; updateUI(); renderShopNeurons(); saveGame(); showToast(`✅ ${u.name} куплена!`); playBuySound(); } else showToast("❌ Не хватает"); }
 
-        let robotSkins = [{ id: 1, name: "🤖 Обычный", emoji: "🤖", price: 0, owned: true },{ id: 2, name: "✨ Золотой", emoji: "🌟", price: 100, owned: false },{ id: 3, name: "💎 Алмазный", emoji: "💎", price: 200, owned: false },{ id: 4, name: "🔥 Огненный", emoji: "🔥", price: 150, owned: false },{ id: 5, name: "❄️ Ледяной", emoji: "❄️", price: 150, owned: false }];
-        let currentRobotSkin = "🤖";
-        function renderShopRobotSkins() { let html = ''; robotSkins.forEach(skin => { let status = skin.owned ? (currentRobotSkin === skin.emoji ? "✅ НАДЕТ" : "ВЛАДЕЛЕЦ") : `💰 ${skin.price}💎`; html += `<div class="shop-item"><span style="font-size:24px;">${skin.emoji}</span><span>${skin.name}</span><span>${status}</span><button class="robot-skin-act" data-id="${skin.id}" data-action="${skin.owned ? 'equip' : 'buy'}">${skin.owned ? (currentRobotSkin === skin.emoji ? "НАДЕТ" : "НАДЕТЬ") : "КУПИТЬ"}</button></div>`; }); document.getElementById('shopRobotSkins').innerHTML = html; document.querySelectorAll('.robot-skin-act').forEach(btn => { btn.addEventListener('click', () => { const id = parseInt(btn.dataset.id); if (btn.dataset.action === 'buy') buyRobotSkin(id); else equipRobotSkin(id); }); }); }
-        function buyRobotSkin(id) { const s = robotSkins.find(x => x.id === id); if (s && !s.owned && diamonds >= s.price) { diamonds -= s.price; totalDiamondsEarned += s.price; s.owned = true; saveGame(); renderShopRobotSkins(); showToast(`✅ Скин робота ${s.name} куплен!`); playBuySound(); } else showToast("❌ Не хватает алмазов"); }
-        function equipRobotSkin(id) { const s = robotSkins.find(x => x.id === id); if (s && s.owned) { currentRobotSkin = s.emoji; saveGame(); renderShopRobotSkins(); showToast(`🎨 Скин робота ${s.name} надет!`); } }
-
         // AI PASS 4
         let passLevels = [], passSeconds = 600, passInterval = null, passClaimCount = 0;
-        let passEndDate = new Date(2026, 8, 10, 23, 59, 59); // 10 сентября 2026
+        let passEndDate = new Date(2026, 8, 10, 23, 59, 59);
         let passEndTimerInterval = null;
         for (let i = 1; i <= 20; i++) passLevels.push({ level: i, rewardPoints: Math.floor(i * 50) + 20, rewardDiamonds: Math.floor(i / 2) + 4, claimed: false });
         function renderPass() { const currentAvailable = passLevels.findIndex(l => !l.claimed); let html = ''; passLevels.forEach((level, idx) => { let statusClass = '', statusText = ''; if (level.claimed) { statusClass = 'completed'; statusText = '✅'; } else if (idx === currentAvailable && passSeconds <= 0) { statusClass = 'available'; statusText = `+${level.rewardPoints}🧠`; } else if (idx === currentAvailable && passSeconds > 0) { statusText = `${Math.ceil(passSeconds / 60)}м`; } else { statusText = '🔒'; } html += `<div class="pass-badge ${statusClass}" data-level="${level.level}">${level.level}<br>${statusText}</div>`; }); document.getElementById('passLevels').innerHTML = html; document.querySelectorAll('.pass-badge').forEach(badge => { badge.addEventListener('click', () => { const lvl = passLevels.find(l => l.level === parseInt(badge.dataset.level)); if (lvl && !lvl.claimed && passSeconds <= 0) { points += lvl.rewardPoints; diamonds += lvl.rewardDiamonds; totalDiamondsEarned += lvl.rewardDiamonds; lvl.claimed = true; passSeconds = 600; passClaimCount++; updateUI(); renderPass(); saveGame(); showToast(`🎉 Уровень ${lvl.level} получен!`); playBuySound(); } else if (passSeconds > 0) showToast(`⏱️ Подожди ${Math.ceil(passSeconds / 60)} мин`); }); }); }
@@ -648,9 +628,8 @@
         function renderQuests() { const container = document.getElementById('questsList'); if (!container) return; const available = isRussiaDay(); let html = ''; for (let q of quests) { let statusText = '', statusClass = ''; if (!available) { statusClass = 'locked'; statusText = '🔒 11 июня'; } else if (q.claimed) { statusClass = 'completed'; statusText = '✅ ЗАБРАНО'; } else if (q.completed) { statusClass = 'completed'; statusText = `<button class="quest-claim" data-id="${q.id}">ЗАБРАТЬ</button>`; } else { statusText = `${q.progress}/${q.target}`; } html += `<div class="quest-item ${statusClass}"><span>📜 ${q.name}</span><span class="quest-reward">+${q.rewardDiamonds}💎 +${q.rewardPoints}🧠</span><span>${statusText}</span></div>`; } container.innerHTML = html; document.querySelectorAll('.quest-claim').forEach(btn => { btn.addEventListener('click', () => { const q = quests.find(qq => qq.id === parseInt(btn.dataset.id)); if (q && q.completed && !q.claimed) { points += q.rewardPoints; diamonds += q.rewardDiamonds; totalDiamondsEarned += q.rewardDiamonds; q.claimed = true; updateUI(); saveGame(); renderQuests(); showToast(`🎉 Квест выполнен!`); playBuySound(); } }); }); }
         function updateQuestsProgress() { if (!isRussiaDay()) return; if (!quests[0].completed && quests[0].progress < quests[0].target) { quests[0].progress = totalClicks; if (quests[0].progress >= quests[0].target) quests[0].completed = true; } if (!quests[1].completed && quests[1].progress < quests[1].target) { quests[1].progress = purchasedCount; if (quests[1].progress >= quests[1].target) quests[1].completed = true; } if (!quests[2].completed && quests[2].progress < quests[2].target) { quests[2].progress = bossKills; if (quests[2].progress >= quests[2].target) quests[2].completed = true; } renderQuests(); saveGame(); }
 
-        function performPrestige() { const allSkinsOwned = skins.every(s => s.owned); const allRobotSkinsOwned = robotSkins.every(s => s.owned); if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } if (!allSkinsOwned) { showToast("❌ Нужны все скины мозга"); return; } if (!allRobotSkinsOwned) { showToast("❌ Нужны все скины робота"); return; } if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { prestigeMulti *= 2; prestigeCount++; points = 100; diamonds = 0; totalClicks = 0; purchasedCount = 1; clicksSinceLastBoss = 0; bossActive = false; upgrades.forEach((u, i) => u.purchased = (i === 0)); passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; skins.forEach(s => { if (s.id !== 1) s.owned = false; }); newSkins.forEach(s => s.owned = false); robotSkins.forEach(s => { if (s.id !== 1) s.owned = false; }); currentSkin = "🧠"; currentRobotSkin = "🤖"; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); saveGame(); updateUI(); renderShopNeurons(); renderShopSkins(); renderShopRobotSkins(); renderPass(); document.getElementById('prestigeMulti').innerText = prestigeMulti; showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); playBuySound(); } }
+        function performPrestige() { const allSkinsOwned = skins.every(s => s.owned); if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } if (!allSkinsOwned) { showToast("❌ Нужны все скины мозга"); return; } if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { prestigeMulti *= 2; prestigeCount++; points = 100; diamonds = 0; totalClicks = 0; purchasedCount = 1; clicksSinceLastBoss = 0; bossActive = false; upgrades.forEach((u, i) => u.purchased = (i === 0)); passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; skins.forEach(s => { if (s.id !== 1) s.owned = false; }); newSkins.forEach(s => s.owned = false); currentSkin = "🧠"; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); saveGame(); updateUI(); renderShopNeurons(); renderShopSkins(); renderPass(); document.getElementById('prestigeMulti').innerText = prestigeMulti; showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); playBuySound(); } }
 
-        // Звук клика с выбором профиля
         function playClickSound() { 
             if (!audioCtx) initMusic(); 
             if (audioCtx) { 
@@ -693,23 +672,20 @@
         function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
         function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; updatePlaytime(); }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
-        function saveGame() { const save = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, godMode, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, robotSkins, currentRobotSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), passSeconds, passClaimCount, quests, clicksSinceLastBoss, bossActive, bossCurrentHp, bossMaxHp, isNeuralTheme, gameStartTime, currentSoundProfile }; localStorage.setItem('neuralEvoSave', JSON.stringify(save)); }
+        function saveGame() { const save = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, godMode, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), passSeconds, passClaimCount, quests, clicksSinceLastBoss, bossActive, bossCurrentHp, bossMaxHp, gameStartTime, currentSoundProfile }; localStorage.setItem('neuralEvoSave', JSON.stringify(save)); }
         function loadGame() { 
             const saved = localStorage.getItem('neuralEvoSave'); 
             const savedSeason = localStorage.getItem('aiPassSeason'); 
             if (savedSeason !== '4') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '4'); } 
-            if (saved) { try { const d = JSON.parse(saved); points = d.points || 100; diamonds = d.diamonds || 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; prestigeMulti = d.prestigeMulti || 1; prestigeCount = d.prestigeCount || 0; totalDiamondsEarned = d.totalDiamondsEarned || 0; bossKills = d.bossKills || 0; godMode = d.godMode || false; if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); if (d.skins) skins = d.skins; if (d.currentSkin) currentSkin = d.currentSkin; if (d.robotSkins) robotSkins = d.robotSkins; if (d.currentRobotSkin) currentRobotSkin = d.currentRobotSkin; if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); if (d.passSeconds) passSeconds = d.passSeconds; if (d.quests) quests = d.quests; clicksSinceLastBoss = d.clicksSinceLastBoss || 0; bossActive = d.bossActive || false; bossCurrentHp = d.bossCurrentHp || 0; bossMaxHp = d.bossMaxHp || 0; isNeuralTheme = d.isNeuralTheme !== undefined ? d.isNeuralTheme : true; if (d.gameStartTime) gameStartTime = d.gameStartTime; else gameStartTime = Date.now(); if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } purchasedCount = upgrades.filter(u => u.purchased).length; passClaimCount = passLevels.filter(l => l.claimed).length; } catch(e) {} } 
-            applyThemeUI(); updateUI(); renderShopNeurons(); renderShopSkins(); renderShopRobotSkins(); renderPass(); renderQuests(); updateStatsUI(); startPassTimer(); startPassEndTimer(); updateQuestsProgress(); 
+            if (saved) { try { const d = JSON.parse(saved); points = d.points || 100; diamonds = d.diamonds || 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; prestigeMulti = d.prestigeMulti || 1; prestigeCount = d.prestigeCount || 0; totalDiamondsEarned = d.totalDiamondsEarned || 0; bossKills = d.bossKills || 0; godMode = d.godMode || false; if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); if (d.skins) skins = d.skins; if (d.currentSkin) currentSkin = d.currentSkin; if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); if (d.passSeconds) passSeconds = d.passSeconds; if (d.quests) quests = d.quests; clicksSinceLastBoss = d.clicksSinceLastBoss || 0; bossActive = d.bossActive || false; bossCurrentHp = d.bossCurrentHp || 0; bossMaxHp = d.bossMaxHp || 0; if (d.gameStartTime) gameStartTime = d.gameStartTime; else gameStartTime = Date.now(); if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } purchasedCount = upgrades.filter(u => u.purchased).length; passClaimCount = passLevels.filter(l => l.claimed).length; } catch(e) {} } 
+            updateUI(); renderShopNeurons(); renderShopSkins(); renderPass(); renderQuests(); updateStatsUI(); startPassTimer(); startPassEndTimer(); updateQuestsProgress(); 
             if (playtimeInterval) clearInterval(playtimeInterval);
             playtimeInterval = setInterval(() => updatePlaytime(), 60000);
             startSleepMsgTimer();
-            // Обновим текст кнопки звука
             document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
         }
-        function applyThemeUI() { const brainDiv = document.getElementById('clickableObject'); if (isNeuralTheme) { brainDiv.className = 'brain'; brainDiv.innerHTML = `<span class="skin-emoji">${currentSkin}</span><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div><div class="sleep-msg" id="sleepMsg">😴 Спишь?</div>`; } else { brainDiv.className = 'washer'; brainDiv.innerHTML = currentRobotSkin; } }
-        function toggleTheme() { isNeuralTheme = !isNeuralTheme; applyThemeUI(); saveGame(); showToast(isNeuralTheme ? "НЕЙРОСЕТИ" : "СТИРАЛКА"); }
 
-        function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, robotSkins, currentRobotSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), quests }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
+        function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), quests }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
         function importProgress(file) { const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); localStorage.setItem('neuralEvoSave', JSON.stringify(data)); showToast("📂 Прогресс загружен! Перезагрузи страницу."); setTimeout(() => location.reload(), 1500); } catch(error) { showToast("❌ Ошибка загрузки"); } }; reader.readAsText(file); }
         const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
@@ -810,14 +786,12 @@
         document.getElementById('bgMountains')?.addEventListener('click', () => setBodyBg('mountains'));
         document.getElementById('bgVillage')?.addEventListener('click', () => setBodyBg('village'));
 
-        document.getElementById('themeToggleBtn')?.addEventListener('click', toggleTheme);
         document.getElementById('exportSaveBtn')?.addEventListener('click', exportProgress);
         document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
         document.getElementById('promoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.add('show'));
         document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
         document.getElementById('activatePromoBtn')?.addEventListener('click', () => { const code = document.getElementById('promoInput').value.toLowerCase(); const promos = { dima: { points: 500, diamonds: 10 }, 'dima god': { points: 5000, diamonds: 100 }, start: { points: 100, diamonds: 5 }, neural: { points: 1000, diamonds: 50 } }; if (promos[code]) { points += promos[code].points; diamonds += promos[code].diamonds; totalDiamondsEarned += promos[code].diamonds; updateUI(); saveGame(); showToast("✅ Промокод активирован!"); } else showToast("❌ Неверный код"); document.getElementById('promoModal').classList.remove('show'); });
 
-        // Смена звука
         document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
             currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
             document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
@@ -833,9 +807,9 @@
         document.getElementById('particlesToggle')?.addEventListener('click', () => { settings.particles = !settings.particles; saveSettings(); });
         document.getElementById('shareBtn')?.addEventListener('click', shareProgress);
 
-        document.querySelectorAll('.shop-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); document.getElementById('shopNeurons').style.display = tab.dataset.tab === 'neurons' ? 'block' : 'none'; document.getElementById('shopSkins').style.display = tab.dataset.tab === 'skins' ? 'block' : 'none'; document.getElementById('shopRobotSkins').style.display = tab.dataset.tab === 'robotSkins' ? 'block' : 'none'; }); });
+        document.querySelectorAll('.shop-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); document.getElementById('shopNeurons').style.display = tab.dataset.tab === 'neurons' ? 'block' : 'none'; document.getElementById('shopSkins').style.display = tab.dataset.tab === 'skins' ? 'block' : 'none'; }); });
 
-        function moveEyes(e) { if (!isNeuralTheme) return; const x = e.touches ? e.touches[0].clientX : e.clientX; const y = e.touches ? e.touches[0].clientY : e.clientY; document.querySelectorAll('.pupil').forEach(p => { const rect = p.parentElement.parentElement.getBoundingClientRect(); const dx = x - (rect.left + rect.width / 2); const dy = y - (rect.top + rect.height / 2); const angle = Math.atan2(dy, dx); const dist = Math.min(4, Math.hypot(dx, dy) / 20); p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`; }); }
+        function moveEyes(e) { const x = e.touches ? e.touches[0].clientX : e.clientX; const y = e.touches ? e.touches[0].clientY : e.clientY; document.querySelectorAll('.pupil').forEach(p => { const rect = p.parentElement.parentElement.getBoundingClientRect(); const dx = x - (rect.left + rect.width / 2); const dy = y - (rect.top + rect.height / 2); const angle = Math.atan2(dy, dx); const dist = Math.min(4, Math.hypot(dx, dy) / 20); p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`; }); }
         document.addEventListener('mousemove', moveEyes); document.addEventListener('touchmove', moveEyes);
 
         let reloadSeconds = 300;
