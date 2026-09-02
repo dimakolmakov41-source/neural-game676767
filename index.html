@@ -79,7 +79,14 @@
         .game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00, 0 0 40px black; animation: glitch 3s infinite; }
         @keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00, 0 0 40px black; } 50% { text-shadow: -2px 0 red, 2px 0 blue, 0 0 20px black; } }
 
-        .game-version { color: #88aaff; font-size: 12px; margin-bottom: 15px; cursor: default; display: inline-block; text-shadow: 0 0 5px black; }
+        .game-version {
+            color: #88aaff;
+            font-size: 12px;
+            margin-bottom: 15px;
+            cursor: default;
+            display: inline-block;
+            text-shadow: 0 0 5px black;
+        }
 
         .stats-panel-extended {
             background: rgba(0,0,0,0.6);
@@ -87,7 +94,7 @@
             padding: 10px;
             margin: 10px 0;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
         }
         .stat-card { background: #0a1b2e; border-radius: 20px; padding: 5px; text-align: center; }
@@ -257,6 +264,7 @@
         .color-dot:hover { transform: scale(1.1); }
 
         .top-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
+        .diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
         .prestige-display { background: #ffaa00; color: #1a1a2e; padding: 4px 12px; border-radius: 40px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px; transition: 0.1s; text-shadow: 0 0 5px black; }
         .prestige-display:hover { background: #ffcc44; transform: scale(1.01); }
         .timers { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 8px; margin-bottom: 10px; text-align: center; font-size: 12px; color: #aaffdd; text-shadow: 0 0 5px black; }
@@ -298,7 +306,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v10.9</div>
+            <div class="game-version" id="menuVersion">v10.7</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -311,11 +319,13 @@
 
         <div id="gameInterface" class="game-interface hidden">
             <div class="top-bar"><div>🧠 <span id="points">100</span></div><div>⚡ <span id="power">1</span></div></div>
+            <div class="diamond-bar"><div>💎 <span id="diamonds">0</span></div><div>⏱️ <span id="playtime">0</span> мин</div></div>
             
             <div class="stats-panel-extended">
                 <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label">Всего кликов</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label">Куплено нейросетей</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statBossKills">0</div><div class="stat-card-label">Убито боссов</div></div>
+                <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label">Кликов за сессию</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statPrestigeCount">0</div><div class="stat-card-label">Престижей</div></div>
             </div>
 
@@ -407,29 +417,24 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.9: Исправлены AI Pass и магазин. Алмазов больше нет. Сброс прогресса.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.7: Убраны риск, бонусы, магазин скинов, админ-панель. Добавлены клики за сессию, автосохранение 5 сек, дождь из очков.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        // Полный сброс прогресса при первом запуске v10.9
-        localStorage.removeItem('neuralEvoSave');
-        localStorage.removeItem('aiPassSeason');
-
-        const GAME_VERSION = "10.9";
+        const GAME_VERSION = "10.7";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
-        let points = 100, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
-        let bossKills = 0;
+        let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
+        let totalDiamondsEarned = 0, bossKills = 0;
+        let sessionClicks = 0;
         let godMode = false;
         let clicksSinceLastBoss = 0;
         let bossActive = false, bossCurrentHp = 0, bossMaxHp = 0;
         const BOSS_CLICKS_NEEDED = 5000;
-        let showConvertMessage = true;
-
+        
         let gameStartTime = Date.now();
         let playtimeInterval = null;
         let sleepMsgTimer = null;
         let sleepMsgShowing = false;
-        let reloadSeconds = 300;
 
         const soundProfiles = [
             { name: "Обычный", freq: 880, type: "sine" },
@@ -452,6 +457,8 @@
         const savedBg = localStorage.getItem('selectedBg');
         if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
         else setBodyBg('early_autumn');
+
+        let currentSkin = "🧠";
 
         let audioCtx = null, musicScheduled = false, musicGain = null;
         let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
@@ -490,6 +497,7 @@
             document.getElementById('statNeuronsBought').innerText = purchasedCount; 
             document.getElementById('statBossKills').innerText = bossKills; 
             document.getElementById('statPrestigeCount').innerText = prestigeCount;
+            document.getElementById('statSessionClicks').innerText = sessionClicks;
         }
         function updatePlaytime() {
             let seconds = Math.floor((Date.now() - gameStartTime) / 1000);
@@ -518,6 +526,7 @@
         function shareProgress() {
             const text = `🧠 Мой прогресс в игре "Кликер: Эволюция Нейросетей":
 🧠 Очки: ${Math.floor(points)}
+💎 Алмазы: ${diamonds}
 🖱️ Всего кликов: ${totalClicks}
 🧬 Нейросетей: ${purchasedCount}/1000
 👾 Боссов убито: ${bossKills}
@@ -548,16 +557,17 @@
         let passLevels = [], passSeconds = 600, passInterval = null, passClaimCount = 0;
         let passEndDate = new Date(2026, 8, 10, 23, 59, 59);
         let passEndTimerInterval = null;
-        for (let i = 1; i <= 20; i++) passLevels.push({ level: i, rewardPoints: Math.floor(i * 50) + 20, claimed: false });
-        function renderPass() { const currentAvailable = passLevels.findIndex(l => !l.claimed); let html = ''; passLevels.forEach((level, idx) => { let statusClass = '', statusText = ''; if (level.claimed) { statusClass = 'completed'; statusText = '✅'; } else if (idx === currentAvailable && passSeconds <= 0) { statusClass = 'available'; statusText = `+${level.rewardPoints}🧠`; } else if (idx === currentAvailable && passSeconds > 0) { statusText = `${Math.ceil(passSeconds / 60)}м`; } else { statusText = '🔒'; } html += `<div class="pass-badge ${statusClass}" data-level="${level.level}">${level.level}<br>${statusText}</div>`; }); document.getElementById('passLevels').innerHTML = html; document.querySelectorAll('.pass-badge').forEach(badge => { badge.addEventListener('click', () => { const lvl = passLevels.find(l => l.level === parseInt(badge.dataset.level)); if (lvl && !lvl.claimed && passSeconds <= 0) { points += lvl.rewardPoints; lvl.claimed = true; passSeconds = 600; passClaimCount++; updateUI(); renderPass(); saveGame(); showToast(`🎉 Уровень ${lvl.level} получен!`); playBuySound(); } else if (passSeconds > 0) showToast(`⏱️ Подожди ${Math.ceil(passSeconds / 60)} мин`); }); }); }
+        for (let i = 1; i <= 20; i++) passLevels.push({ level: i, rewardPoints: Math.floor(i * 50) + 20, rewardDiamonds: Math.floor(i / 2) + 4, claimed: false });
+        function renderPass() { const currentAvailable = passLevels.findIndex(l => !l.claimed); let html = ''; passLevels.forEach((level, idx) => { let statusClass = '', statusText = ''; if (level.claimed) { statusClass = 'completed'; statusText = '✅'; } else if (idx === currentAvailable && passSeconds <= 0) { statusClass = 'available'; statusText = `+${level.rewardPoints}🧠 +${level.rewardDiamonds}💎`; } else if (idx === currentAvailable && passSeconds > 0) { statusText = `${Math.ceil(passSeconds / 60)}м`; } else { statusText = '🔒'; } html += `<div class="pass-badge ${statusClass}" data-level="${level.level}">${level.level}<br>${statusText}</div>`; }); document.getElementById('passLevels').innerHTML = html; document.querySelectorAll('.pass-badge').forEach(badge => { badge.addEventListener('click', () => { const lvl = passLevels.find(l => l.level === parseInt(badge.dataset.level)); if (lvl && !lvl.claimed && passSeconds <= 0) { points += lvl.rewardPoints; diamonds += lvl.rewardDiamonds; totalDiamondsEarned += lvl.rewardDiamonds; lvl.claimed = true; passSeconds = 600; passClaimCount++; updateUI(); renderPass(); saveGame(); showToast(`🎉 Уровень ${lvl.level} получен!`); playBuySound(); } else if (passSeconds > 0) showToast(`⏱️ Подожди ${Math.ceil(passSeconds / 60)} мин`); }); }); }
         function startPassTimer() { if (passInterval) clearInterval(passInterval); passInterval = setInterval(() => { if (passSeconds > 0) { passSeconds--; const m = Math.floor(passSeconds / 60), s = passSeconds % 60; document.getElementById('passTimer').innerHTML = `${m}:${s.toString().padStart(2, '0')}`; if (passSeconds === 0) showToast("🎁 Награда AI PASS готова!"); renderPass(); saveGame(); } }, 1000); }
         function updatePassEndTimer() { const now = new Date(); const diff = passEndDate - now; if (diff <= 0) { document.getElementById('passEndTimer').innerHTML = "⏳ AI PASS СЕЗОН 4 ЗАВЕРШЁН!"; if (passEndTimerInterval) clearInterval(passEndTimerInterval); return; } const days = Math.floor(diff / (1000 * 60 * 60 * 24)); const hours = Math.floor((diff % 86400000) / 3600000); const minutes = Math.floor((diff % 3600000) / 60000); document.getElementById('passEndTimer').innerHTML = `⏳ AI Pass закончится: ${days} дн. ${hours} ч. ${minutes} мин.`; }
         function startPassEndTimer() { if (passEndTimerInterval) clearInterval(passEndTimerInterval); updatePassEndTimer(); passEndTimerInterval = setInterval(updatePassEndTimer, 60000); }
 
         function spawnBoss() { if (bossActive) return; bossActive = true; bossMaxHp = 100 + Math.floor(Math.random() * 150); bossCurrentHp = bossMaxHp; document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); showToast("👾 БОСС ПОЯВИЛСЯ!"); }
-        function hitBoss(damage) { if (!bossActive) return false; bossCurrentHp -= damage; document.getElementById('bossHp').innerText = Math.max(0, bossCurrentHp); if (bossCurrentHp <= 0) { bossActive = false; bossKills++; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); showToast(`👾 БОСС ПОВЕРЖЕН!`); updateStatsUI(); saveGame(); } return true; }
+        function hitBoss(damage) { if (!bossActive) return false; bossCurrentHp -= damage; document.getElementById('bossHp').innerText = Math.max(0, bossCurrentHp); if (bossCurrentHp <= 0) { bossActive = false; const reward = 30 + Math.floor(Math.random() * 70); diamonds += reward; totalDiamondsEarned += reward; bossKills++; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); showToast(`👾 БОСС ПОВЕРЖЕН! +${reward}💎`); updateStatsUI(); saveGame(); } return true; }
 
-        function performPrestige() { if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { prestigeMulti *= 2; prestigeCount++; points = 100; totalClicks = 0; purchasedCount = 1; clicksSinceLastBoss = 0; bossActive = false; upgrades.forEach((u, i) => u.purchased = (i === 0)); passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); saveGame(); updateUI(); renderShopNeurons(); renderPass(); document.getElementById('prestigeMulti').innerText = prestigeMulti; showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); playBuySound(); } }
+        function performPrestige() { const allSkinsOwned = true; // скины убраны
+            if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { prestigeMulti *= 2; prestigeCount++; points = 100; diamonds = 0; totalClicks = 0; purchasedCount = 1; clicksSinceLastBoss = 0; bossActive = false; upgrades.forEach((u, i) => u.purchased = (i === 0)); passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); saveGame(); updateUI(); renderShopNeurons(); renderPass(); document.getElementById('prestigeMulti').innerText = prestigeMulti; showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); playBuySound(); } }
 
         function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { const profile = soundProfiles[currentSoundProfile]; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = profile.type; osc.frequency.value = profile.freq; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); } }
         function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "triangle"; osc.frequency.value = 523.25; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } }
@@ -584,30 +594,34 @@
         }
 
         function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
-        function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; updatePlaytime(); }
+        function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; updatePlaytime(); }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
 
         function saveGame() { 
             const save = { 
-                points, totalClicks, purchasedCount, prestigeMulti, prestigeCount, 
-                bossKills, godMode, 
+                points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, 
+                totalDiamondsEarned, bossKills, godMode, 
                 upgrades: upgrades.map(u => u.purchased), 
                 passLevels: passLevels.map(l => ({ claimed: l.claimed })), 
                 passSeconds, passClaimCount, 
                 clicksSinceLastBoss, bossActive, bossCurrentHp, bossMaxHp, 
-                gameStartTime, currentSoundProfile, reloadSeconds
+                gameStartTime, currentSoundProfile 
             }; 
             localStorage.setItem('neuralEvoSave', JSON.stringify(save)); 
         }
 
         function loadGame() { 
             const saved = localStorage.getItem('neuralEvoSave'); 
+            const savedSeason = localStorage.getItem('aiPassSeason'); 
+            if (savedSeason !== '4') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '4'); } 
             if (saved) { try { const d = JSON.parse(saved); 
                 points = d.points || 100; 
+                diamonds = d.diamonds || 0; 
                 totalClicks = d.totalClicks || 0; 
                 purchasedCount = d.purchasedCount || 1; 
                 prestigeMulti = d.prestigeMulti || 1; 
                 prestigeCount = d.prestigeCount || 0; 
+                totalDiamondsEarned = d.totalDiamondsEarned || 0; 
                 bossKills = d.bossKills || 0; 
                 godMode = d.godMode || false; 
                 if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); 
@@ -618,8 +632,7 @@
                 bossCurrentHp = d.bossCurrentHp || 0; 
                 bossMaxHp = d.bossMaxHp || 0; 
                 if (d.gameStartTime) gameStartTime = d.gameStartTime; else gameStartTime = Date.now(); 
-                if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile;
-                if (d.reloadSeconds !== undefined) reloadSeconds = d.reloadSeconds;
+                if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; 
                 if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } 
                 purchasedCount = upgrades.filter(u => u.purchased).length; 
                 passClaimCount = passLevels.filter(l => l.claimed).length; 
@@ -631,7 +644,7 @@
             document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
         }
 
-        function exportProgress() { const saveData = { points, totalClicks, purchasedCount, prestigeMulti, prestigeCount, bossKills, upgrades: upgrades.map(u => u.purchased), passLevels: passLevels.map(l => ({ claimed: l.claimed })) }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
+        function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), passLevels: passLevels.map(l => ({ claimed: l.claimed })) }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
         function importProgress(file) { const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); localStorage.setItem('neuralEvoSave', JSON.stringify(data)); showToast("📂 Прогресс загружен! Перезагрузи страницу."); setTimeout(() => location.reload(), 1500); } catch(error) { showToast("❌ Ошибка загрузки"); } }; reader.readAsText(file); }
         const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
@@ -661,8 +674,16 @@
             }
             points += finalGain;
             totalClicks++;
+            sessionClicks++;
             clicksSinceLastBoss++;
             playClickSound();
+            if (Math.random() < 0.01) {
+                diamonds++;
+                totalDiamondsEarned++;
+                showToast("💎 АЛМАЗ!");
+                playBuySound();
+                spawnFloatText(x, y-30, "💎");
+            }
             if (settings.particles) createParticles(x, y);
             if (settings.vibro && navigator.vibrate) navigator.vibrate(20);
         }
@@ -704,14 +725,7 @@
         clickable.addEventListener('touchstart', handleMultiTouch, { passive: false });
         clickable.addEventListener('mousedown', handleMouseClick);
         
-        document.getElementById('playBtn')?.addEventListener('click', () => {
-            if (showConvertMessage) {
-                showToast("💵 Ваши алмазы конвертированы в деньги");
-                showConvertMessage = false;
-            }
-            document.getElementById('mainMenu').classList.add('hidden');
-            document.getElementById('gameInterface').classList.remove('hidden');
-        });
+        document.getElementById('playBtn')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('gameInterface').classList.remove('hidden'); });
         document.getElementById('backToMenu')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('gameInterface').classList.add('hidden'); });
         document.getElementById('openShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
         document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
@@ -735,7 +749,7 @@
         document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
         document.getElementById('promoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.add('show'));
         document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
-        document.getElementById('activatePromoBtn')?.addEventListener('click', () => { const code = document.getElementById('promoInput').value.toLowerCase(); const promos = { dima: { points: 500 }, 'dima god': { points: 5000 }, start: { points: 100 }, neural: { points: 1000 } }; if (promos[code]) { points += promos[code].points; updateUI(); saveGame(); showToast("✅ Промокод активирован!"); } else showToast("❌ Неверный код"); document.getElementById('promoModal').classList.remove('show'); });
+        document.getElementById('activatePromoBtn')?.addEventListener('click', () => { const code = document.getElementById('promoInput').value.toLowerCase(); const promos = { dima: { points: 500, diamonds: 10 }, 'dima god': { points: 5000, diamonds: 100 }, start: { points: 100, diamonds: 5 }, neural: { points: 1000, diamonds: 50 } }; if (promos[code]) { points += promos[code].points; diamonds += promos[code].diamonds; totalDiamondsEarned += promos[code].diamonds; updateUI(); saveGame(); showToast("✅ Промокод активирован!"); } else showToast("❌ Неверный код"); document.getElementById('promoModal').classList.remove('show'); });
 
         document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
             currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
@@ -752,6 +766,7 @@
         function moveEyes(e) { const x = e.touches ? e.touches[0].clientX : e.clientX; const y = e.touches ? e.touches[0].clientY : e.clientY; document.querySelectorAll('.pupil').forEach(p => { const rect = p.parentElement.parentElement.getBoundingClientRect(); const dx = x - (rect.left + rect.width / 2); const dy = y - (rect.top + rect.height / 2); const angle = Math.atan2(dy, dx); const dist = Math.min(4, Math.hypot(dx, dy) / 20); p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`; }); }
         document.addEventListener('mousemove', moveEyes); document.addEventListener('touchmove', moveEyes);
 
+        let reloadSeconds = 300;
         setInterval(() => { 
             if (reloadSeconds > 0) { 
                 reloadSeconds--; 
