@@ -84,14 +84,9 @@
             color: #88aaff;
             font-size: 12px;
             margin-bottom: 15px;
-            cursor: pointer;
+            cursor: default;
             display: inline-block;
             text-shadow: 0 0 5px black;
-            transition: 0.1s;
-        }
-        .game-version:hover {
-            color: #ffaa00;
-            transform: scale(1.05);
         }
 
         .stats-panel-extended {
@@ -172,9 +167,6 @@
         }
         .brain .sleep-msg.show { opacity: 1; }
 
-        .risk-btn { background: linear-gradient(145deg, #ff4444, #aa0000); border: 2px solid #ffaaaa; color: white; padding: 10px; border-radius: 60px; font-size: 16px; font-weight: 800; text-align: center; cursor: pointer; margin: 10px 0; animation: riskPulse 2s infinite; text-shadow: 0 0 5px black; }
-        @keyframes riskPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
-
         .boss-health { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 4px 8px; margin: 5px auto; text-align: center; width: fit-content; font-size: 12px; color: #ff6666; display: none; text-shadow: 0 0 5px black; }
         .boss-health.show { display: block; }
 
@@ -205,13 +197,6 @@
         .pass-badge.available { background: linear-gradient(145deg, #ffd700, #ffaa00); color: #1a1a2e; animation: pulse 1s infinite; }
         @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
         .pass-timer, .pass-end { text-align: center; font-size: 10px; color: #ffd700; margin-top: 5px; text-shadow: 0 0 5px black; }
-
-        .quests-container { background: rgba(0,0,0,0.5); border-radius: 30px; padding: 10px; margin: 10px 0; }
-        .quest-header { color: #ffd966; font-weight: bold; margin-bottom: 10px; text-align: center; text-shadow: 0 0 5px black; }
-        .quest-item { background: #2a4b6e; border-radius: 30px; padding: 10px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: white; flex-wrap: wrap; gap: 6px; text-shadow: 0 0 5px black; }
-        .quest-item.completed { background: #1a5a3a; opacity: 0.8; }
-        .quest-item.locked { background: #4a4a4a; opacity: 0.6; }
-        .quest-reward { background: #ffaa00; color: #1a1a2e; padding: 2px 8px; border-radius: 20px; font-weight: bold; text-shadow: 0 0 5px black; }
 
         .shop-panel { background: rgba(0,0,0,0.95); border-radius: 30px; padding: 10px; margin: 10px 0; display: none; }
         .shop-panel.show { display: block; }
@@ -300,63 +285,19 @@
             100% { opacity: 0; transform: scale(0.5) translate(var(--dx), var(--dy)); }
         }
 
-        /* Админ-панель (отдельное окно) */
-        .admin-panel {
+        .float-text {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.97);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 5000;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.2s;
-            padding: 20px;
-        }
-        .admin-panel.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .admin-panel h1 {
-            color: white;
-            font-size: 48px;
-            font-weight: 900;
-            margin-bottom: 40px;
-            text-shadow: 0 0 20px #ffaa00;
-            letter-spacing: 4px;
-        }
-        .admin-panel .admin-btn {
-            background: #2a2a2a;
-            border: none;
-            color: white;
+            pointer-events: none;
+            z-index: 1500;
             font-size: 28px;
-            font-weight: 700;
-            padding: 18px 60px;
-            margin: 10px 0;
-            border-radius: 60px;
-            cursor: pointer;
-            width: 100%;
-            max-width: 300px;
-            transition: 0.1s;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(255,255,255,0.1);
+            font-weight: 900;
+            color: #ffdd44;
+            text-shadow: 0 0 10px #ff8800, 0 0 20px #ff4400;
+            animation: floatUp 1s ease-out forwards;
         }
-        .admin-panel .admin-btn:hover {
-            background: #444;
-            transform: scale(1.03);
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
-        }
-        .admin-panel .admin-btn.exit {
-            background: #661100;
-            color: #ffaaaa;
-        }
-        .admin-panel .admin-btn.exit:hover {
-            background: #aa2200;
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
         }
     </style>
 </head>
@@ -366,14 +307,10 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion" ondblclick="openAdminPanel()">v10.6</div>
+            <div class="game-version" id="menuVersion">v10.7</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
-            </div>
-            <div class="menu-buttons-row">
-                <div class="menu-btn" id="shopBtn">🛒 МАГАЗИН</div>
-                <div class="menu-btn" id="dailyBonusBtn">🎁 БОНУС</div>
             </div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="newsBtn">📢 НОВОСТИ</div>
@@ -389,13 +326,12 @@
                 <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label">Всего кликов</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label">Куплено нейросетей</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statBossKills">0</div><div class="stat-card-label">Убито боссов</div></div>
+                <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label">Кликов за сессию</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statPrestigeCount">0</div><div class="stat-card-label">Престижей</div></div>
             </div>
 
             <div class="prestige-display" id="prestigeBtn">✨ ПРЕСТИЖ ✨ Множитель: x<span id="prestigeMulti">1</span></div>
             <div class="timers">🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">05:00</span></div>
-            
-            <div class="risk-btn" id="riskBtn">🎲 РИСК (x2 или x0.5)</div>
             
             <div class="boss-health" id="bossHealthBar">👾 БОСС: <span id="bossHp">0</span> HP</div>
             
@@ -416,32 +352,15 @@
                 <div class="pass-end" id="passEndTimer">⏳ AI Pass закончится: -- дн. -- ч. -- мин.</div>
             </div>
             
-            <div class="quests-container" id="questsContainer">
-                <div class="quest-header">📜 ЗАКРЫТЫЕ КВЕСТЫ (11 ИЮНЯ)</div>
-                <div id="questsList"></div>
-            </div>
-            
             <div class="shop-panel" id="shopPanel">
-                <div class="shop-tabs">
-                    <div class="shop-tab active" data-tab="neurons">🧠 НЕЙРОСЕТИ</div>
-                    <div class="shop-tab" data-tab="skins">🎨 СКИНЫ МОЗГА</div>
-                </div>
+                <div class="shop-tab active" data-tab="neurons">🧠 НЕЙРОСЕТИ</div>
                 <div id="shopNeurons" class="shop-list"></div>
-                <div id="shopSkins" class="shop-list" style="display:none;"></div>
                 <div class="action-btn" id="closeShopBtn">ЗАКРЫТЬ</div>
             </div>
             
             <div class="action-buttons"><div class="action-btn" id="backToMenu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn">🛒 МАГАЗИН</div></div>
             <div class="save-badge">💾 автосохранение</div>
         </div>
-    </div>
-
-    <!-- Админ-панель v2 -->
-    <div class="admin-panel" id="adminPanel">
-        <h1>АДМИН ПАНЕЛЬ v2</h1>
-        <button class="admin-btn" id="adminGame">Игра</button>
-        <button class="admin-btn" id="adminSettings">настройки</button>
-        <button class="admin-btn exit" id="adminExit">выйти</button>
     </div>
 
     <!-- Окно настроек -->
@@ -501,15 +420,15 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="dailyBonusModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div><div id="dailyBonusText"></div><button class="modal-btn" id="claimDailyBonusBtn">ЗАБРАТЬ</button><button class="modal-btn" id="closeDailyBonusBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.6: Добавлена админ-панель (открывается двойным кликом по версии). Три кнопки: Игра, настройки, выйти.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.7: Убраны риск, бонусы, магазин скинов, админ-панель. Исправлено сохранение AI Pass и нейросетей. Добавлены: клики за сессию, автосохранение каждые 5 сек, дождь из очков.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "10.6";
+        const GAME_VERSION = "10.7";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
         let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
         let totalDiamondsEarned = 0, bossKills = 0;
+        let sessionClicks = 0;
         let godMode = false;
         let clicksSinceLastBoss = 0;
         let bossActive = false, bossCurrentHp = 0, bossMaxHp = 0;
@@ -520,7 +439,6 @@
         let sleepMsgTimer = null;
         let sleepMsgShowing = false;
 
-        // Звуковые профили
         const soundProfiles = [
             { name: "Обычный", freq: 880, type: "sine" },
             { name: "Пиксельный", freq: 1200, type: "square" },
@@ -528,7 +446,6 @@
         ];
         let currentSoundProfile = 0;
 
-        // Осенние фоны
         const bgThemes = {
             early_autumn: "bg-early-autumn",
             golden: "bg-golden",
@@ -544,29 +461,7 @@
         if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
         else setBodyBg('early_autumn');
 
-        // Новые скины
-        const newSkins = [
-            { id: 11, name: "Неон", emoji: "🟢", price: 200, owned: false },
-            { id: 12, name: "Золотой мозг", emoji: "🏆", price: 500, owned: false },
-            { id: 13, name: "Хаос", emoji: "🌀", price: 300, owned: false },
-            { id: 14, name: "Космос", emoji: "🌌", price: 350, owned: false },
-            { id: 15, name: "Майнкрафт", emoji: "🪓", price: 280, owned: false },
-            { id: 16, name: "Пиксель", emoji: "👾", price: 220, owned: false },
-            { id: 17, name: "Киберпанк", emoji: "🤖", price: 400, owned: false }
-        ];
-
-        let skins = [
-            { id: 1, name: "Классический", emoji: "🧠", price: 0, owned: true },
-            { id: 2, name: "Огненный", emoji: "🔥", price: 50, owned: false },
-            { id: 3, name: "Ледяной", emoji: "❄️", price: 80, owned: false },
-            { id: 4, name: "Алмазный", emoji: "💎", price: 150, owned: false },
-            { id: 5, name: "Королевский", emoji: "👑", price: 300, owned: false },
-            { id: 6, name: "Инопланетный", emoji: "👾", price: 250, owned: false },
-            { id: 7, name: "Звёздный", emoji: "⭐", price: 100, owned: false },
-            { id: 8, name: "Радужный", emoji: "🌈", price: 180, owned: false },
-            { id: 9, name: "Хэллоуин", emoji: "🎃", price: 120, owned: false },
-            ...newSkins
-        ];
+        // Только мозг, без скинов
         let currentSkin = "🧠";
 
         let audioCtx = null, musicScheduled = false, musicGain = null;
@@ -591,35 +486,31 @@
 
         document.querySelectorAll('.menu-btn').forEach((btn,i)=>{ btn.style.animationDelay=`${i*0.05}s`; });
 
-        // Функции для админ-панели
-        function openAdminPanel() {
-            document.getElementById('adminPanel').classList.add('show');
+        // --- Дождь из очков ---
+        function spawnFloatText(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'float-text';
+            el.innerText = text;
+            el.style.left = (x - 20) + 'px';
+            el.style.top = (y - 10) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
         }
-        function closeAdminPanel() {
-            document.getElementById('adminPanel').classList.remove('show');
-        }
-        document.getElementById('adminExit').addEventListener('click', closeAdminPanel);
-        document.getElementById('adminGame').addEventListener('click', () => {
-            closeAdminPanel();
-            document.getElementById('mainMenu').classList.add('hidden');
-            document.getElementById('gameInterface').classList.remove('hidden');
-        });
-        document.getElementById('adminSettings').addEventListener('click', () => {
-            closeAdminPanel();
-            document.getElementById('settingsModal').classList.add('show');
-        });
 
+        // --- Статистика ---
         function updateStatsUI() { 
             document.getElementById('statTotalClicks').innerText = totalClicks; 
             document.getElementById('statNeuronsBought').innerText = purchasedCount; 
             document.getElementById('statBossKills').innerText = bossKills; 
-            document.getElementById('statPrestigeCount').innerText = prestigeCount; 
+            document.getElementById('statPrestigeCount').innerText = prestigeCount;
+            document.getElementById('statSessionClicks').innerText = sessionClicks;
         }
         function updatePlaytime() {
             let seconds = Math.floor((Date.now() - gameStartTime) / 1000);
             let minutes = Math.floor(seconds / 60);
             document.getElementById('playtime').innerText = minutes;
         }
+
         function startSleepMsgTimer() {
             if (sleepMsgTimer) clearTimeout(sleepMsgTimer);
             sleepMsgTimer = setTimeout(() => {
@@ -647,50 +538,12 @@
 👾 Боссов убито: ${bossKills}
 ✨ Престижей: ${prestigeCount} (множитель x${prestigeMulti})
 🎫 AI Pass уровней: ${passClaimCount}/20
-🎨 Скинов: ${skins.filter(s=>s.owned).length}
 📅 Версия ${GAME_VERSION}`;
             navigator.clipboard.writeText(text);
             showToast("✅ Прогресс скопирован в буфер обмена!");
         }
 
-        function renderShopSkins() { 
-            let html = ''; 
-            skins.forEach(skin => { 
-                let status = skin.owned ? (currentSkin === skin.emoji ? "✅ НАДЕТ" : "ВЛАДЕЛЕЦ") : `💰 ${skin.price}💎`; 
-                html += `<div class="shop-item"><span style="font-size:24px;">${skin.emoji}</span><span>${skin.name}</span><span>${status}</span><button class="skin-act" data-id="${skin.id}" data-action="${skin.owned ? 'equip' : 'buy'}">${skin.owned ? (currentSkin === skin.emoji ? "НАДЕТ" : "НАДЕТЬ") : "КУПИТЬ"}</button></div>`; 
-            }); 
-            document.getElementById('shopSkins').innerHTML = html; 
-            document.querySelectorAll('.skin-act').forEach(btn => { 
-                btn.addEventListener('click', () => { 
-                    const id = parseInt(btn.dataset.id); 
-                    if (btn.dataset.action === 'buy') buySkin(id); 
-                    else equipSkin(id); 
-                }); 
-            }); 
-        }
-        function buySkin(id) { 
-            const s = skins.find(x => x.id === id); 
-            if (s && !s.owned && diamonds >= s.price) { 
-                diamonds -= s.price; 
-                totalDiamondsEarned += s.price; 
-                s.owned = true; 
-                saveGame(); 
-                renderShopSkins(); 
-                showToast(`✅ Скин ${s.name} куплен!`); 
-                playBuySound(); 
-            } else showToast("❌ Не хватает алмазов"); 
-        }
-        function equipSkin(id) { 
-            const s = skins.find(x => x.id === id); 
-            if (s && s.owned) { 
-                currentSkin = s.emoji; 
-                document.querySelector('#clickableObject .skin-emoji').innerText = currentSkin; 
-                saveGame(); 
-                renderShopSkins(); 
-                showToast(`🎨 Скин ${s.name} надет!`); 
-            } 
-        }
-
+        // --- Нейросети ---
         const neuralNames = ["Перцептрон","Нейро-искра","Сверточная","Рекуррентная","Трансформер","Квантовая","GPT-клик","Автокодировщик","DALL-E","Глубокий мозг","Gemini","Нейро-интерфейс","Claude 3","Мультивселенная","Midjourney","Легендарная","Сингулярность","Божественный ИИ","Нейро-Земля","ИИ-Солнце","Галактическая","Космическая","Сверхразум","ДНК-бота","Бесконечность"];
         let upgrades = [];
         for (let i = 0; i < 1000; i++) { const power = i === 0 ? 1 : 1 + Math.floor(i / 10); const price = i === 0 ? 20 : Math.floor(20 * Math.pow(1.18, i)); const name = i < neuralNames.length ? neuralNames[i] : `Нейросеть #${i + 1}`; upgrades.push({ id: i, name, power, price, purchased: i === 0 }); }
@@ -708,7 +561,7 @@
         }
         function buyUpgrade(id) { const u = upgrades[id]; if (!u.purchased && points >= u.price) { points -= u.price; u.purchased = true; purchasedCount++; updateUI(); renderShopNeurons(); saveGame(); showToast(`✅ ${u.name} куплена!`); playBuySound(); } else showToast("❌ Не хватает"); }
 
-        // AI PASS 4
+        // --- AI PASS 4 (исправлено сохранение) ---
         let passLevels = [], passSeconds = 600, passInterval = null, passClaimCount = 0;
         let passEndDate = new Date(2026, 8, 10, 23, 59, 59);
         let passEndTimerInterval = null;
@@ -718,36 +571,19 @@
         function updatePassEndTimer() { const now = new Date(); const diff = passEndDate - now; if (diff <= 0) { document.getElementById('passEndTimer').innerHTML = "⏳ AI PASS СЕЗОН 4 ЗАВЕРШЁН!"; if (passEndTimerInterval) clearInterval(passEndTimerInterval); return; } const days = Math.floor(diff / (1000 * 60 * 60 * 24)); const hours = Math.floor((diff % 86400000) / 3600000); const minutes = Math.floor((diff % 3600000) / 60000); document.getElementById('passEndTimer').innerHTML = `⏳ AI Pass закончится: ${days} дн. ${hours} ч. ${minutes} мин.`; }
         function startPassEndTimer() { if (passEndTimerInterval) clearInterval(passEndTimerInterval); updatePassEndTimer(); passEndTimerInterval = setInterval(updatePassEndTimer, 60000); }
 
+        // --- Босс ---
         function spawnBoss() { if (bossActive) return; bossActive = true; bossMaxHp = 100 + Math.floor(Math.random() * 150); bossCurrentHp = bossMaxHp; document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); showToast("👾 БОСС ПОЯВИЛСЯ!"); }
         function hitBoss(damage) { if (!bossActive) return false; bossCurrentHp -= damage; document.getElementById('bossHp').innerText = Math.max(0, bossCurrentHp); if (bossCurrentHp <= 0) { bossActive = false; const reward = 30 + Math.floor(Math.random() * 70); diamonds += reward; totalDiamondsEarned += reward; bossKills++; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); showToast(`👾 БОСС ПОВЕРЖЕН! +${reward}💎`); updateStatsUI(); saveGame(); } return true; }
 
-        function isRussiaDay() { const now = new Date(); return now.getDate() === 11 && (now.getMonth() + 1) === 6; }
-        function applyRussiaDay() { if (isRussiaDay()) { document.body.classList.add('russia-day'); const bonusGiven = localStorage.getItem('russiaDayBonus'); if (!bonusGiven) { diamonds += 50; totalDiamondsEarned += 50; localStorage.setItem('russiaDayBonus', 'true'); showToast("🇷🇺 С Днём России! +50 алмазов!"); updateUI(); saveGame(); } } }
-        let quests = [{ id: 1, name: "Сделать 100 кликов", target: 100, progress: 0, rewardDiamonds: 50, rewardPoints: 1000, completed: false, claimed: false },{ id: 2, name: "Купить 10 нейросетей", target: 10, progress: 0, rewardDiamonds: 100, rewardPoints: 5000, completed: false, claimed: false },{ id: 3, name: "Убить босса", target: 1, progress: 0, rewardDiamonds: 200, rewardPoints: 10000, completed: false, claimed: false }];
-        function renderQuests() { const container = document.getElementById('questsList'); if (!container) return; const available = isRussiaDay(); let html = ''; for (let q of quests) { let statusText = '', statusClass = ''; if (!available) { statusClass = 'locked'; statusText = '🔒 11 июня'; } else if (q.claimed) { statusClass = 'completed'; statusText = '✅ ЗАБРАНО'; } else if (q.completed) { statusClass = 'completed'; statusText = `<button class="quest-claim" data-id="${q.id}">ЗАБРАТЬ</button>`; } else { statusText = `${q.progress}/${q.target}`; } html += `<div class="quest-item ${statusClass}"><span>📜 ${q.name}</span><span class="quest-reward">+${q.rewardDiamonds}💎 +${q.rewardPoints}🧠</span><span>${statusText}</span></div>`; } container.innerHTML = html; document.querySelectorAll('.quest-claim').forEach(btn => { btn.addEventListener('click', () => { const q = quests.find(qq => qq.id === parseInt(btn.dataset.id)); if (q && q.completed && !q.claimed) { points += q.rewardPoints; diamonds += q.rewardDiamonds; totalDiamondsEarned += q.rewardDiamonds; q.claimed = true; updateUI(); saveGame(); renderQuests(); showToast(`🎉 Квест выполнен!`); playBuySound(); } }); }); }
-        function updateQuestsProgress() { if (!isRussiaDay()) return; if (!quests[0].completed && quests[0].progress < quests[0].target) { quests[0].progress = totalClicks; if (quests[0].progress >= quests[0].target) quests[0].completed = true; } if (!quests[1].completed && quests[1].progress < quests[1].target) { quests[1].progress = purchasedCount; if (quests[1].progress >= quests[1].target) quests[1].completed = true; } if (!quests[2].completed && quests[2].progress < quests[2].target) { quests[2].progress = bossKills; if (quests[2].progress >= quests[2].target) quests[2].completed = true; } renderQuests(); saveGame(); }
+        // --- Престиж ---
+        function performPrestige() { if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { prestigeMulti *= 2; prestigeCount++; points = 100; diamonds = 0; totalClicks = 0; purchasedCount = 1; clicksSinceLastBoss = 0; bossActive = false; upgrades.forEach((u, i) => u.purchased = (i === 0)); passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); saveGame(); updateUI(); renderShopNeurons(); renderPass(); document.getElementById('prestigeMulti').innerText = prestigeMulti; showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); playBuySound(); } }
 
-        function performPrestige() { const allSkinsOwned = skins.every(s => s.owned); if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } if (!allSkinsOwned) { showToast("❌ Нужны все скины мозга"); return; } if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { prestigeMulti *= 2; prestigeCount++; points = 100; diamonds = 0; totalClicks = 0; purchasedCount = 1; clicksSinceLastBoss = 0; bossActive = false; upgrades.forEach((u, i) => u.purchased = (i === 0)); passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; skins.forEach(s => { if (s.id !== 1) s.owned = false; }); newSkins.forEach(s => s.owned = false); currentSkin = "🧠"; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); saveGame(); updateUI(); renderShopNeurons(); renderShopSkins(); renderPass(); document.getElementById('prestigeMulti').innerText = prestigeMulti; showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); playBuySound(); } }
-
-        function playClickSound() { 
-            if (!audioCtx) initMusic(); 
-            if (audioCtx) { 
-                const profile = soundProfiles[currentSoundProfile];
-                const osc = audioCtx.createOscillator(); 
-                const gain = audioCtx.createGain(); 
-                osc.type = profile.type; 
-                osc.frequency.value = profile.freq; 
-                gain.gain.value = 0.08; 
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); 
-                osc.connect(gain); 
-                gain.connect(audioCtx.destination); 
-                osc.start(); 
-                osc.stop(audioCtx.currentTime + 0.05); 
-            } 
-        }
+        // --- Звуки ---
+        function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { const profile = soundProfiles[currentSoundProfile]; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = profile.type; osc.frequency.value = profile.freq; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); } }
         function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "triangle"; osc.frequency.value = 523.25; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } }
         function playCritSound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "square"; osc.frequency.value = 1400; gain.gain.value = 0.1; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.2); } }
 
+        // --- Частицы ---
         function createParticles(x, y) {
             if (!settings.particles) return;
             const emojis = ['🍂', '🍁', '🌾', '🌻', '🧠', '⭐'];
@@ -768,30 +604,69 @@
             }
         }
 
+        // --- Основные функции ---
         function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
         function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; updatePlaytime(); }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
-        function saveGame() { const save = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, godMode, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), passSeconds, passClaimCount, quests, clicksSinceLastBoss, bossActive, bossCurrentHp, bossMaxHp, gameStartTime, currentSoundProfile }; localStorage.setItem('neuralEvoSave', JSON.stringify(save)); }
+
+        function saveGame() { 
+            const save = { 
+                points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, 
+                totalDiamondsEarned, bossKills, godMode, 
+                upgrades: upgrades.map(u => u.purchased), 
+                passLevels: passLevels.map(l => ({ claimed: l.claimed })), 
+                passSeconds, passClaimCount, 
+                clicksSinceLastBoss, bossActive, bossCurrentHp, bossMaxHp, 
+                gameStartTime, currentSoundProfile 
+            }; 
+            localStorage.setItem('neuralEvoSave', JSON.stringify(save)); 
+        }
+
         function loadGame() { 
             const saved = localStorage.getItem('neuralEvoSave'); 
             const savedSeason = localStorage.getItem('aiPassSeason'); 
             if (savedSeason !== '4') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '4'); } 
-            if (saved) { try { const d = JSON.parse(saved); points = d.points || 100; diamonds = d.diamonds || 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; prestigeMulti = d.prestigeMulti || 1; prestigeCount = d.prestigeCount || 0; totalDiamondsEarned = d.totalDiamondsEarned || 0; bossKills = d.bossKills || 0; godMode = d.godMode || false; if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); if (d.skins) skins = d.skins; if (d.currentSkin) currentSkin = d.currentSkin; if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); if (d.passSeconds) passSeconds = d.passSeconds; if (d.quests) quests = d.quests; clicksSinceLastBoss = d.clicksSinceLastBoss || 0; bossActive = d.bossActive || false; bossCurrentHp = d.bossCurrentHp || 0; bossMaxHp = d.bossMaxHp || 0; if (d.gameStartTime) gameStartTime = d.gameStartTime; else gameStartTime = Date.now(); if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } purchasedCount = upgrades.filter(u => u.purchased).length; passClaimCount = passLevels.filter(l => l.claimed).length; } catch(e) {} } 
-            updateUI(); renderShopNeurons(); renderShopSkins(); renderPass(); renderQuests(); updateStatsUI(); startPassTimer(); startPassEndTimer(); updateQuestsProgress(); 
+            if (saved) { try { const d = JSON.parse(saved); 
+                points = d.points || 100; 
+                diamonds = d.diamonds || 0; 
+                totalClicks = d.totalClicks || 0; 
+                purchasedCount = d.purchasedCount || 1; 
+                prestigeMulti = d.prestigeMulti || 1; 
+                prestigeCount = d.prestigeCount || 0; 
+                totalDiamondsEarned = d.totalDiamondsEarned || 0; 
+                bossKills = d.bossKills || 0; 
+                godMode = d.godMode || false; 
+                if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); 
+                if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); 
+                if (d.passSeconds) passSeconds = d.passSeconds; 
+                clicksSinceLastBoss = d.clicksSinceLastBoss || 0; 
+                bossActive = d.bossActive || false; 
+                bossCurrentHp = d.bossCurrentHp || 0; 
+                bossMaxHp = d.bossMaxHp || 0; 
+                if (d.gameStartTime) gameStartTime = d.gameStartTime; else gameStartTime = Date.now(); 
+                if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; 
+                if (bossActive) { document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); } 
+                purchasedCount = upgrades.filter(u => u.purchased).length; 
+                passClaimCount = passLevels.filter(l => l.claimed).length; 
+            } catch(e) {} } 
+            updateUI(); renderShopNeurons(); renderPass(); updateStatsUI(); startPassTimer(); startPassEndTimer(); 
             if (playtimeInterval) clearInterval(playtimeInterval);
             playtimeInterval = setInterval(() => updatePlaytime(), 60000);
             startSleepMsgTimer();
             document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
         }
 
-        function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), skins, currentSkin, passLevels: passLevels.map(l => ({ claimed: l.claimed })), quests }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
+        // --- Экспорт/импорт ---
+        function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), passLevels: passLevels.map(l => ({ claimed: l.claimed })) }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
         function importProgress(file) { const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); localStorage.setItem('neuralEvoSave', JSON.stringify(data)); showToast("📂 Прогресс загружен! Перезагрузи страницу."); setTimeout(() => location.reload(), 1500); } catch(error) { showToast("❌ Ошибка загрузки"); } }; reader.readAsText(file); }
         const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
+        // --- Настройки ---
         let settings = { nightMode: localStorage.getItem('nightMode') === 'true', vibro: localStorage.getItem('vibro') !== 'false', particles: localStorage.getItem('particles') !== 'false' };
         function applySettings() { if (settings.nightMode) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode'); document.getElementById('nightToggle')?.classList.toggle('active', settings.nightMode); document.getElementById('vibroToggle')?.classList.toggle('active', settings.vibro); document.getElementById('particlesToggle')?.classList.toggle('active', settings.particles); }
         function saveSettings() { localStorage.setItem('nightMode', settings.nightMode); localStorage.setItem('vibro', settings.vibro); localStorage.setItem('particles', settings.particles); applySettings(); }
 
+        // --- Клик ---
         function processSingleClick(gain, x, y) {
             hideSleepMsg();
             let isCool = Math.random() < 0.05;
@@ -800,6 +675,9 @@
                 finalGain = gain * 2;
                 showToast("🔥 КЛАССНЫЙ КЛИК! x2!");
                 playCritSound();
+                spawnFloatText(x, y, "x2!");
+            } else {
+                spawnFloatText(x, y, `+${finalGain}`);
             }
             if (bossActive) {
                 const damage = Math.max(1, Math.floor(finalGain / 2));
@@ -811,6 +689,7 @@
             }
             points += finalGain;
             totalClicks++;
+            sessionClicks++;
             clicksSinceLastBoss++;
             playClickSound();
             if (Math.random() < 0.01) {
@@ -818,6 +697,7 @@
                 totalDiamondsEarned++;
                 showToast("💎 АЛМАЗ!");
                 playBuySound();
+                spawnFloatText(x, y-30, "💎");
             }
             if (settings.particles) createParticles(x, y);
             if (settings.vibro && navigator.vibrate) navigator.vibrate(20);
@@ -835,7 +715,6 @@
             setTimeout(() => brain.style.transform = '', 120);
             updateUI();
             saveGame();
-            updateQuestsProgress();
             if (clicksSinceLastBoss >= BOSS_CLICKS_NEEDED && !bossActive) {
                 clicksSinceLastBoss = 0;
                 spawnBoss();
@@ -851,7 +730,6 @@
             setTimeout(() => brain.style.transform = '', 120);
             updateUI();
             saveGame();
-            updateQuestsProgress();
             if (clicksSinceLastBoss >= BOSS_CLICKS_NEEDED && !bossActive) {
                 clicksSinceLastBoss = 0;
                 spawnBoss();
@@ -862,20 +740,19 @@
         clickable.addEventListener('touchstart', handleMultiTouch, { passive: false });
         clickable.addEventListener('mousedown', handleMouseClick);
         
+        // --- Кнопки ---
         document.getElementById('playBtn')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('gameInterface').classList.remove('hidden'); });
         document.getElementById('backToMenu')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('gameInterface').classList.add('hidden'); });
-        document.getElementById('shopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
         document.getElementById('openShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
         document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
         document.getElementById('prestigeBtn')?.addEventListener('click', performPrestige);
-        document.getElementById('riskBtn')?.addEventListener('click', () => { if (points < 10) showToast("❌ Нужно 10 очков"); else { const isWin = Math.random() < 0.5; if (isWin) { points += points; showToast(`🎉 ПОБЕДА! +${points/2}🧠`); } else { points = Math.floor(points / 2); showToast(`💀 ПОРАЖЕНИЕ! -${Math.floor(points)}🧠`); } updateUI(); saveGame(); } });
         document.getElementById('settingsBtn')?.addEventListener('click', () => { document.getElementById('settingsModal').classList.add('show'); });
         document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
         document.getElementById('resetGameBtn')?.addEventListener('click', () => { if (confirm("Сбросить всё?")) { localStorage.clear(); location.reload(); } });
         document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
         document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
 
-        // Настройки: кнопки выбора фона
+        // --- Фоны ---
         document.getElementById('bgEarlyAutumn')?.addEventListener('click', () => setBodyBg('early_autumn'));
         document.getElementById('bgGolden')?.addEventListener('click', () => setBodyBg('golden'));
         document.getElementById('bgRainy')?.addEventListener('click', () => setBodyBg('rainy'));
@@ -885,12 +762,14 @@
         document.getElementById('bgMountains')?.addEventListener('click', () => setBodyBg('mountains'));
         document.getElementById('bgVillage')?.addEventListener('click', () => setBodyBg('village'));
 
+        // --- Экспорт/импорт/промокоды ---
         document.getElementById('exportSaveBtn')?.addEventListener('click', exportProgress);
         document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
         document.getElementById('promoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.add('show'));
         document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
         document.getElementById('activatePromoBtn')?.addEventListener('click', () => { const code = document.getElementById('promoInput').value.toLowerCase(); const promos = { dima: { points: 500, diamonds: 10 }, 'dima god': { points: 5000, diamonds: 100 }, start: { points: 100, diamonds: 5 }, neural: { points: 1000, diamonds: 50 } }; if (promos[code]) { points += promos[code].points; diamonds += promos[code].diamonds; totalDiamondsEarned += promos[code].diamonds; updateUI(); saveGame(); showToast("✅ Промокод активирован!"); } else showToast("❌ Неверный код"); document.getElementById('promoModal').classList.remove('show'); });
 
+        // --- Звук ---
         document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
             currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
             document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
@@ -898,24 +777,22 @@
             showToast(`🔊 Звук: ${soundProfiles[currentSoundProfile].name}`);
         });
 
-        document.getElementById('dailyBonusBtn')?.addEventListener('click', () => { let dailyBonus = JSON.parse(localStorage.getItem('dailyBonus') || '{"streak":0,"lastClaim":null}'); const today = new Date().toDateString(); let streak = dailyBonus.lastClaim === today ? dailyBonus.streak : (dailyBonus.lastClaim ? (new Date() - new Date(dailyBonus.lastClaim) < 86400000 ? dailyBonus.streak + 1 : 1) : 1); if (streak > 7) streak = 7; const amount = [5, 10, 15, 20, 30, 50, 100][streak - 1]; document.getElementById('dailyBonusText').innerHTML = `🎁 Стрик: ${streak}/7<br>Награда: ${amount}💎`; document.getElementById('dailyBonusModal').classList.add('show'); window.claimDaily = () => { diamonds += amount; totalDiamondsEarned += amount; localStorage.setItem('dailyBonus', JSON.stringify({ streak, lastClaim: today })); updateUI(); saveGame(); showToast(`🎁 +${amount}💎`); document.getElementById('dailyBonusModal').classList.remove('show'); }; });
-        document.getElementById('claimDailyBonusBtn')?.addEventListener('click', () => { if (window.claimDaily) window.claimDaily(); });
-        document.getElementById('closeDailyBonusBtn')?.addEventListener('click', () => document.getElementById('dailyBonusModal').classList.remove('show'));
+        // --- Ночной режим, вибрация, частицы ---
         document.getElementById('nightToggle')?.addEventListener('click', () => { settings.nightMode = !settings.nightMode; saveSettings(); });
         document.getElementById('vibroToggle')?.addEventListener('click', () => { settings.vibro = !settings.vibro; saveSettings(); });
         document.getElementById('particlesToggle')?.addEventListener('click', () => { settings.particles = !settings.particles; saveSettings(); });
         document.getElementById('shareBtn')?.addEventListener('click', shareProgress);
 
-        document.querySelectorAll('.shop-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); document.getElementById('shopNeurons').style.display = tab.dataset.tab === 'neurons' ? 'block' : 'none'; document.getElementById('shopSkins').style.display = tab.dataset.tab === 'skins' ? 'block' : 'none'; }); });
-
+        // --- Глаза ---
         function moveEyes(e) { const x = e.touches ? e.touches[0].clientX : e.clientX; const y = e.touches ? e.touches[0].clientY : e.clientY; document.querySelectorAll('.pupil').forEach(p => { const rect = p.parentElement.parentElement.getBoundingClientRect(); const dx = x - (rect.left + rect.width / 2); const dy = y - (rect.top + rect.height / 2); const angle = Math.atan2(dy, dx); const dist = Math.min(4, Math.hypot(dx, dy) / 20); p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`; }); }
         document.addEventListener('mousemove', moveEyes); document.addEventListener('touchmove', moveEyes);
 
+        // --- Таймеры ---
         let reloadSeconds = 300;
         setInterval(() => { if (reloadSeconds > 0) { reloadSeconds--; const m = Math.floor(reloadSeconds / 60), s = reloadSeconds % 60; document.getElementById('reloadCountdown').innerText = `${m}:${s.toString().padStart(2, '0')}`; if (reloadSeconds === 0) { showToast("Перезагрузка..."); setTimeout(() => location.reload(), 2000); } } }, 1000);
-        setInterval(saveGame, 10000);
+        setInterval(saveGame, 5000);
 
-        loadGame(); applySettings(); applyRussiaDay(); renderQuests();
+        loadGame(); applySettings();
         
         if (musicEnabled && audioCtx) {
             document.body.addEventListener('click', () => {
