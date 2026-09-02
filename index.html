@@ -87,7 +87,7 @@
             padding: 10px;
             margin: 10px 0;
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
         .stat-card { background: #0a1b2e; border-radius: 20px; padding: 5px; text-align: center; }
@@ -298,7 +298,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v10.8</div>
+            <div class="game-version" id="menuVersion">v10.9</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -407,10 +407,14 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.8: Убраны алмазы, клики за сессию. Таймер перезагрузки без стрелок. При входе в игру одно сообщение.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.9: Исправлены AI Pass и магазин. Алмазов больше нет. Сброс прогресса.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "10.8";
+        // Полный сброс прогресса при первом запуске v10.9
+        localStorage.removeItem('neuralEvoSave');
+        localStorage.removeItem('aiPassSeason');
+
+        const GAME_VERSION = "10.9";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
         let points = 100, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
@@ -598,8 +602,6 @@
 
         function loadGame() { 
             const saved = localStorage.getItem('neuralEvoSave'); 
-            const savedSeason = localStorage.getItem('aiPassSeason'); 
-            if (savedSeason !== '4') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '4'); } 
             if (saved) { try { const d = JSON.parse(saved); 
                 points = d.points || 100; 
                 totalClicks = d.totalClicks || 0; 
