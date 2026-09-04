@@ -24,7 +24,6 @@
             text-shadow: 0 0 5px black, 0 0 10px black;
         }
 
-        /* Обычные фоны */
         body.bg-early-autumn { background: linear-gradient(145deg, #f5e6b0, #d4a373); }
         body.bg-golden { background: linear-gradient(145deg, #f6c56e, #d98c2e); }
         body.bg-rainy { background: linear-gradient(145deg, #6b7b8d, #3a4a5a); }
@@ -316,7 +315,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v10.9</div>
+            <div class="game-version" id="menuVersion">v11.0</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -413,11 +412,44 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.9: Добавлен Хэллоуин! 31 октября игра меняется: фон, мозг становится тыквой, алмазы — конфеты, босс — скелет.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.0: Обновление стабильности и безопасности.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "10.9";
+        const GAME_VERSION = "11.0";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
+
+        // === СЕКРЕТНЫЙ БАН ===
+        const badWords = [
+            "дима лох", "дима тупой", "дима дурак", "дима еблан", "дима долбаеб",
+            "разработчик лох", "разработчик тупой", "разработчик дурак", "разработчик еблан", "разработчик уебан"
+        ];
+        let isBanned = false;
+        let banTimer = null;
+
+        function checkBan(code) {
+            const lower = code.toLowerCase().trim();
+            for (let word of badWords) {
+                if (lower.includes(word)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function activateBan() {
+            if (isBanned) return;
+            isBanned = true;
+            document.body.style.filter = "grayscale(1) brightness(0.5)";
+            document.body.style.pointerEvents = "none";
+            showToast("🌚 Ты забанен на 5 секунд за плохие слова");
+            if (banTimer) clearTimeout(banTimer);
+            banTimer = setTimeout(() => {
+                isBanned = false;
+                document.body.style.filter = "";
+                document.body.style.pointerEvents = "";
+                showToast("✅ Бан снят. Не повторяй.");
+            }, 5000);
+        }
 
         // === ХЭЛЛОУИН ===
         function isHalloween() {
@@ -617,7 +649,17 @@
         function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "triangle"; osc.frequency.value = 523.25; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } }
 
         function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
-        function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; updatePlaytime(); applyHalloweenTheme(); }
+        function updateUI() { 
+            if (isBanned) return;
+            document.getElementById('points').innerText = Math.floor(points); 
+            document.getElementById('power').innerText = getClickPower(); 
+            document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; 
+            document.getElementById('diamonds').innerText = diamonds; 
+            updateStatsUI(); 
+            document.getElementById('prestigeMulti').innerText = prestigeMulti; 
+            updatePlaytime(); 
+            applyHalloweenTheme(); 
+        }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
 
         function saveGame() { 
@@ -682,6 +724,7 @@
         function saveSettings() { applySettings(); }
 
         function processSingleClick(gain, x, y) {
+            if (isBanned) return;
             hideSleepMsg();
             spawnFloatText(x, y, `+${gain}`);
             if (bossActive) {
@@ -705,6 +748,7 @@
 
         function handleMultiTouch(e) {
             e.preventDefault();
+            if (isBanned) return;
             const gain = getClickPower();
             for (let i = 0; i < e.touches.length; i++) {
                 const touch = e.touches[i];
@@ -723,6 +767,7 @@
 
         function handleMouseClick(e) {
             e.preventDefault();
+            if (isBanned) return;
             const gain = getClickPower();
             processSingleClick(gain, e.clientX, e.clientY);
             const brain = document.getElementById('clickableObject');
@@ -765,7 +810,7 @@
         document.getElementById('promoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.add('show'));
         document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
         
-        // 100 промокодов
+        // 100 промокодов + бан-лист
         const promoCodes = {};
         for (let i = 1; i <= 100; i++) {
             promoCodes[`code${i}`] = { points: 100 + i * 5, diamonds: 1 + Math.floor(i / 10) };
@@ -779,7 +824,14 @@
         promoCodes['legend'] = { points: 20000, diamonds: 500 };
 
         document.getElementById('activatePromoBtn')?.addEventListener('click', () => { 
+            if (isBanned) return;
             const code = document.getElementById('promoInput').value.toLowerCase().trim(); 
+            if (checkBan(code)) {
+                document.getElementById('promoInput').value = '';
+                document.getElementById('promoModal').classList.remove('show');
+                activateBan();
+                return;
+            }
             if (promoCodes[code]) { 
                 const promo = promoCodes[code];
                 points += promo.points; 
@@ -794,6 +846,7 @@
         });
 
         document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
+            if (isBanned) return;
             currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
             document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
             saveGame();
