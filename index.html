@@ -441,14 +441,14 @@
             isBanned = true;
             document.body.style.filter = "grayscale(1) brightness(0.5)";
             document.body.style.pointerEvents = "none";
-            showToast("🌚 Ты забанен на 5 секунд за плохие слова");
+            showToast("🌚 Ты забанен на 20 минут за плохие слова хахаха");
             if (banTimer) clearTimeout(banTimer);
             banTimer = setTimeout(() => {
                 isBanned = false;
                 document.body.style.filter = "";
                 document.body.style.pointerEvents = "";
                 showToast("✅ Бан снят. Не повторяй.");
-            }, 5000);
+            }, 1200000);
         }
 
         // === ХЭЛЛОУИН ===
