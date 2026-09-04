@@ -23,9 +23,8 @@
             color: white;
             text-shadow: 0 0 5px black, 0 0 10px black;
         }
-        body.dark-mode { background: #1a1a1a !important; }
-        body.dark-mode .game-container { background: rgba(0,0,0,0.9); }
 
+        /* Обычные фоны */
         body.bg-early-autumn { background: linear-gradient(145deg, #f5e6b0, #d4a373); }
         body.bg-golden { background: linear-gradient(145deg, #f6c56e, #d98c2e); }
         body.bg-rainy { background: linear-gradient(145deg, #6b7b8d, #3a4a5a); }
@@ -34,6 +33,34 @@
         body.bg-park { background: linear-gradient(145deg, #b5a07a, #7a6545); }
         body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); }
         body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
+
+        /* Хэллоуинский фон */
+        body.bg-halloween {
+            background: linear-gradient(145deg, #1a0a00, #4a1a00) !important;
+            position: relative;
+        }
+        body.bg-halloween::before {
+            content: "🕸️";
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 40px;
+            opacity: 0.3;
+            transform: rotate(20deg);
+        }
+        body.bg-halloween::after {
+            content: "🕸️";
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 40px;
+            opacity: 0.3;
+            transform: rotate(-20deg);
+        }
+        body.bg-halloween .game-container {
+            border-color: #ff6600;
+            box-shadow: 0 0 30px #ff440088;
+        }
 
         .game-container {
             width: 100%;
@@ -79,14 +106,7 @@
         .game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00, 0 0 40px black; animation: glitch 3s infinite; }
         @keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00, 0 0 40px black; } 50% { text-shadow: -2px 0 red, 2px 0 blue, 0 0 20px black; } }
 
-        .game-version {
-            color: #88aaff;
-            font-size: 12px;
-            margin-bottom: 15px;
-            cursor: default;
-            display: inline-block;
-            text-shadow: 0 0 5px black;
-        }
+        .game-version { color: #88aaff; font-size: 12px; margin-bottom: 15px; cursor: default; display: inline-block; text-shadow: 0 0 5px black; }
 
         .stats-panel-extended {
             background: rgba(0,0,0,0.6);
@@ -139,6 +159,11 @@
             border: 3px solid #ffffaa;
             position: relative;
             animation: brainFloat 2s ease-in-out infinite;
+        }
+        .brain.halloween-brain {
+            background: radial-gradient(circle at 30% 30%, #ff8800, #cc3300);
+            box-shadow: 0 15px 0 #661100, 0 0 30px #ff4400;
+            border-color: #ff8800;
         }
         .brain:active { transform: scale(0.96); box-shadow: 0 8px 0 #aa4400; }
         @keyframes brainFloat { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
@@ -259,9 +284,6 @@
         .toggle-switch.active { background: #4caf50; }
         .toggle-switch::after { content: ""; width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 4px; transition: 0.2s; }
         .toggle-switch.active::after { left: 26px; }
-        .color-picker-row { display: flex; gap: 8px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
-        .color-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid white; transition: 0.1s; }
-        .color-dot:hover { transform: scale(1.1); }
 
         .top-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
         .diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
@@ -271,18 +293,6 @@
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #ffaa00, #ff5500); color: white; padding: 6px 12px; border-radius: 40px; font-weight: 700; z-index: 2000; animation: fadeOut 3s forwards; font-size: 11px; text-shadow: 0 0 5px black; }
         @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
         .save-badge { text-align: center; color: #a0ffc0; font-size: 9px; margin-top: 8px; text-shadow: 0 0 5px black; }
-
-        .particle {
-            position: fixed;
-            pointer-events: none;
-            z-index: 1000;
-            font-size: 20px;
-            animation: particleFly 0.8s ease-out forwards;
-        }
-        @keyframes particleFly {
-            0% { opacity: 1; transform: scale(1) translate(0,0); }
-            100% { opacity: 0; transform: scale(0.5) translate(var(--dx), var(--dy)); }
-        }
 
         .float-text {
             position: fixed;
@@ -305,8 +315,8 @@
 
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
-            <div class="game-title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v10.7</div>
+            <div class="game-title" id="gameTitle">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
+            <div class="game-version" id="menuVersion">v10.9</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -319,24 +329,23 @@
 
         <div id="gameInterface" class="game-interface hidden">
             <div class="top-bar"><div>🧠 <span id="points">100</span></div><div>⚡ <span id="power">1</span></div></div>
-            <div class="diamond-bar"><div>💎 <span id="diamonds">0</span></div><div>⏱️ <span id="playtime">0</span> мин</div></div>
+            <div class="diamond-bar"><div id="diamondLabel">💎 <span id="diamonds">0</span></div><div>⏱️ <span id="playtime">0</span> мин</div></div>
             
             <div class="stats-panel-extended">
                 <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label">Всего кликов</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label">Куплено нейросетей</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statBossKills">0</div><div class="stat-card-label">Убито боссов</div></div>
-                <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label">Кликов за сессию</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statPrestigeCount">0</div><div class="stat-card-label">Престижей</div></div>
             </div>
 
             <div class="prestige-display" id="prestigeBtn">✨ ПРЕСТИЖ ✨ Множитель: x<span id="prestigeMulti">1</span></div>
-            <div class="timers">🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span></div>
+            <div class="timers" id="reloadTimer">🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span></div>
             
             <div class="boss-health" id="bossHealthBar">👾 БОСС: <span id="bossHp">0</span> HP</div>
             
             <div class="brain-container">
                 <div id="clickableObject" class="brain">
-                    <span class="skin-emoji">🧠</span>
+                    <span class="skin-emoji" id="brainEmoji">🧠</span>
                     <div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>
                     <div class="sleep-msg" id="sleepMsg">😴 Спишь?</div>
                 </div>
@@ -398,34 +407,65 @@
                 <button class="modal-btn" id="soundToggleBtn">Сменить (Обычный)</button>
             </div>
 
-            <div class="setting-item">
-                <span>🌙 Ночной режим</span>
-                <div class="toggle-switch" id="nightToggle"></div>
-            </div>
-            <div class="setting-item">
-                <span>📳 Вибрация</span>
-                <div class="toggle-switch" id="vibroToggle"></div>
-            </div>
-            <div class="setting-item">
-                <span>✨ Частицы</span>
-                <div class="toggle-switch" id="particlesToggle"></div>
-            </div>
-
             <button class="modal-btn" id="closeSettings">ЗАКРЫТЬ</button>
             <div class="reset-btn" id="resetGameBtn">⚠️ СБРОСИТЬ ВСЁ</div>
         </div>
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.7: Убраны риск, бонусы, магазин скинов, админ-панель. Добавлены клики за сессию, автосохранение 5 сек, дождь из очков.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v10.9: Добавлен Хэллоуин! 31 октября игра меняется: фон, мозг становится тыквой, алмазы — конфеты, босс — скелет.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "10.7";
+        const GAME_VERSION = "10.9";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
+
+        // === ХЭЛЛОУИН ===
+        function isHalloween() {
+            const now = new Date();
+            return now.getMonth() === 9 && now.getDate() === 31;
+        }
+
+        function applyHalloweenTheme() {
+            const halloween = isHalloween();
+            const body = document.body;
+            const brain = document.getElementById('clickableObject');
+            const brainEmoji = document.getElementById('brainEmoji');
+            const diamondLabel = document.getElementById('diamondLabel');
+            const bossHealthBar = document.getElementById('bossHealthBar');
+            const sleepMsg = document.getElementById('sleepMsg');
+            const reloadTimer = document.getElementById('reloadTimer');
+            const title = document.getElementById('gameTitle');
+
+            if (halloween) {
+                body.classList.add('bg-halloween');
+                body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
+                if (brain) brain.classList.add('halloween-brain');
+                if (brainEmoji) brainEmoji.innerText = '🎃';
+                if (diamondLabel) diamondLabel.innerHTML = '🍬 <span id="diamonds">' + diamonds + '</span>';
+                if (bossHealthBar) bossHealthBar.innerHTML = '💀 БОСС: <span id="bossHp">0</span> HP';
+                if (sleepMsg) sleepMsg.innerText = '🎃 Страшно?';
+                if (reloadTimer) reloadTimer.innerHTML = '⏳ ДО ХЭЛЛОУИНА ОСТАЛОСЬ: <span id="reloadCountdown">5:00</span>';
+                if (title) title.innerText = '🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ';
+                document.querySelectorAll('.pass-badge').forEach(b => {
+                    if (b.innerText.includes('🧠')) b.innerText = b.innerText.replace('🧠', '🍬');
+                });
+            } else {
+                body.classList.remove('bg-halloween');
+                if (brain) brain.classList.remove('halloween-brain');
+                if (brainEmoji) brainEmoji.innerText = '🧠';
+                if (diamondLabel) diamondLabel.innerHTML = '💎 <span id="diamonds">' + diamonds + '</span>';
+                if (bossHealthBar) bossHealthBar.innerHTML = '👾 БОСС: <span id="bossHp">0</span> HP';
+                if (sleepMsg) sleepMsg.innerText = '😴 Спишь?';
+                if (reloadTimer) reloadTimer.innerHTML = '🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span>';
+                if (title) title.innerText = '🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ';
+                document.querySelectorAll('.pass-badge').forEach(b => {
+                    if (b.innerText.includes('🍬')) b.innerText = b.innerText.replace('🍬', '🧠');
+                });
+            }
+        }
 
         let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
         let totalDiamondsEarned = 0, bossKills = 0;
-        let sessionClicks = 0;
         let godMode = false;
         let clicksSinceLastBoss = 0;
         let bossActive = false, bossCurrentHp = 0, bossMaxHp = 0;
@@ -453,7 +493,12 @@
             mountains: "bg-mountains",
             village: "bg-village"
         };
-        function setBodyBg(theme) { document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); localStorage.setItem('selectedBg', theme); }
+        function setBodyBg(theme) {
+            if (isHalloween()) return;
+            document.body.className = '';
+            document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
+            localStorage.setItem('selectedBg', theme);
+        }
         const savedBg = localStorage.getItem('selectedBg');
         if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
         else setBodyBg('early_autumn');
@@ -497,7 +542,6 @@
             document.getElementById('statNeuronsBought').innerText = purchasedCount; 
             document.getElementById('statBossKills').innerText = bossKills; 
             document.getElementById('statPrestigeCount').innerText = prestigeCount;
-            document.getElementById('statSessionClicks').innerText = sessionClicks;
         }
         function updatePlaytime() {
             let seconds = Math.floor((Date.now() - gameStartTime) / 1000);
@@ -566,35 +610,14 @@
         function spawnBoss() { if (bossActive) return; bossActive = true; bossMaxHp = 100 + Math.floor(Math.random() * 150); bossCurrentHp = bossMaxHp; document.getElementById('bossHealthBar').classList.add('show'); document.getElementById('bossHp').innerText = bossCurrentHp; document.getElementById('clickableObject').classList.add('boss-brain'); showToast("👾 БОСС ПОЯВИЛСЯ!"); }
         function hitBoss(damage) { if (!bossActive) return false; bossCurrentHp -= damage; document.getElementById('bossHp').innerText = Math.max(0, bossCurrentHp); if (bossCurrentHp <= 0) { bossActive = false; const reward = 30 + Math.floor(Math.random() * 70); diamonds += reward; totalDiamondsEarned += reward; bossKills++; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); showToast(`👾 БОСС ПОВЕРЖЕН! +${reward}💎`); updateStatsUI(); saveGame(); } return true; }
 
-        function performPrestige() { const allSkinsOwned = true; // скины убраны
+        function performPrestige() { const allSkinsOwned = true; 
             if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { prestigeMulti *= 2; prestigeCount++; points = 100; diamonds = 0; totalClicks = 0; purchasedCount = 1; clicksSinceLastBoss = 0; bossActive = false; upgrades.forEach((u, i) => u.purchased = (i === 0)); passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; document.getElementById('clickableObject').classList.remove('boss-brain'); document.getElementById('bossHealthBar').classList.remove('show'); saveGame(); updateUI(); renderShopNeurons(); renderPass(); document.getElementById('prestigeMulti').innerText = prestigeMulti; showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); playBuySound(); } }
 
         function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { const profile = soundProfiles[currentSoundProfile]; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = profile.type; osc.frequency.value = profile.freq; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); } }
         function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "triangle"; osc.frequency.value = 523.25; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } }
-        function playCritSound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "square"; osc.frequency.value = 1400; gain.gain.value = 0.1; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.2); } }
-
-        function createParticles(x, y) {
-            if (!settings.particles) return;
-            const emojis = ['🍂', '🍁', '🌾', '🌻', '🧠', '⭐'];
-            for (let i = 0; i < 8; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 80 + 40;
-                const vx = Math.cos(angle) * speed;
-                const vy = Math.sin(angle) * speed - 20;
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-                p.style.left = (x - 10) + 'px';
-                p.style.top = (y - 10) + 'px';
-                p.style.setProperty('--dx', vx + 'px');
-                p.style.setProperty('--dy', vy + 'px');
-                document.body.appendChild(p);
-                setTimeout(() => p.remove(), 800);
-            }
-        }
 
         function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
-        function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; updatePlaytime(); }
+        function updateUI() { document.getElementById('points').innerText = Math.floor(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; document.getElementById('diamonds').innerText = diamonds; updateStatsUI(); document.getElementById('prestigeMulti').innerText = prestigeMulti; updatePlaytime(); applyHalloweenTheme(); }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
 
         function saveGame() { 
@@ -642,50 +665,42 @@
             playtimeInterval = setInterval(() => updatePlaytime(), 60000);
             startSleepMsgTimer();
             document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
+            applyHalloweenTheme();
         }
 
         function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), passLevels: passLevels.map(l => ({ claimed: l.claimed })) }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
         function importProgress(file) { const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); localStorage.setItem('neuralEvoSave', JSON.stringify(data)); showToast("📂 Прогресс загружен! Перезагрузи страницу."); setTimeout(() => location.reload(), 1500); } catch(error) { showToast("❌ Ошибка загрузки"); } }; reader.readAsText(file); }
         const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
-        let settings = { nightMode: localStorage.getItem('nightMode') === 'true', vibro: localStorage.getItem('vibro') !== 'false', particles: localStorage.getItem('particles') !== 'false' };
-        function applySettings() { if (settings.nightMode) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode'); document.getElementById('nightToggle')?.classList.toggle('active', settings.nightMode); document.getElementById('vibroToggle')?.classList.toggle('active', settings.vibro); document.getElementById('particlesToggle')?.classList.toggle('active', settings.particles); }
-        function saveSettings() { localStorage.setItem('nightMode', settings.nightMode); localStorage.setItem('vibro', settings.vibro); localStorage.setItem('particles', settings.particles); applySettings(); }
+        let settings = { nightMode: false, vibro: false, particles: false };
+        function applySettings() { 
+            document.body.classList.remove('dark-mode');
+            document.getElementById('nightToggle')?.classList.remove('active');
+            document.getElementById('vibroToggle')?.classList.remove('active');
+            document.getElementById('particlesToggle')?.classList.remove('active');
+        }
+        function saveSettings() { applySettings(); }
 
         function processSingleClick(gain, x, y) {
             hideSleepMsg();
-            let isCool = Math.random() < 0.05;
-            let finalGain = gain;
-            if (isCool) {
-                finalGain = gain * 2;
-                showToast("🔥 КЛАССНЫЙ КЛИК! x2!");
-                playCritSound();
-                spawnFloatText(x, y, "x2!");
-            } else {
-                spawnFloatText(x, y, `+${finalGain}`);
-            }
+            spawnFloatText(x, y, `+${gain}`);
             if (bossActive) {
-                const damage = Math.max(1, Math.floor(finalGain / 2));
+                const damage = Math.max(1, Math.floor(gain / 2));
                 hitBoss(damage);
                 playClickSound();
-                if (settings.vibro && navigator.vibrate) navigator.vibrate(30);
-                if (settings.particles) createParticles(x, y);
                 return;
             }
-            points += finalGain;
+            points += gain;
             totalClicks++;
-            sessionClicks++;
             clicksSinceLastBoss++;
             playClickSound();
             if (Math.random() < 0.01) {
                 diamonds++;
                 totalDiamondsEarned++;
-                showToast("💎 АЛМАЗ!");
+                showToast(isHalloween() ? "🍬 КОНФЕТА!" : "💎 АЛМАЗ!");
                 playBuySound();
-                spawnFloatText(x, y-30, "💎");
+                spawnFloatText(x, y-30, isHalloween() ? "🍬" : "💎");
             }
-            if (settings.particles) createParticles(x, y);
-            if (settings.vibro && navigator.vibrate) navigator.vibrate(20);
         }
 
         function handleMultiTouch(e) {
@@ -749,7 +764,34 @@
         document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
         document.getElementById('promoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.add('show'));
         document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
-        document.getElementById('activatePromoBtn')?.addEventListener('click', () => { const code = document.getElementById('promoInput').value.toLowerCase(); const promos = { dima: { points: 500, diamonds: 10 }, 'dima god': { points: 5000, diamonds: 100 }, start: { points: 100, diamonds: 5 }, neural: { points: 1000, diamonds: 50 } }; if (promos[code]) { points += promos[code].points; diamonds += promos[code].diamonds; totalDiamondsEarned += promos[code].diamonds; updateUI(); saveGame(); showToast("✅ Промокод активирован!"); } else showToast("❌ Неверный код"); document.getElementById('promoModal').classList.remove('show'); });
+        
+        // 100 промокодов
+        const promoCodes = {};
+        for (let i = 1; i <= 100; i++) {
+            promoCodes[`code${i}`] = { points: 100 + i * 5, diamonds: 1 + Math.floor(i / 10) };
+        }
+        promoCodes['dima'] = { points: 500, diamonds: 10 };
+        promoCodes['dima god'] = { points: 5000, diamonds: 100 };
+        promoCodes['start'] = { points: 100, diamonds: 5 };
+        promoCodes['neural'] = { points: 1000, diamonds: 50 };
+        promoCodes['evolution'] = { points: 2000, diamonds: 100 };
+        promoCodes['prestige'] = { points: 10000, diamonds: 200 };
+        promoCodes['legend'] = { points: 20000, diamonds: 500 };
+
+        document.getElementById('activatePromoBtn')?.addEventListener('click', () => { 
+            const code = document.getElementById('promoInput').value.toLowerCase().trim(); 
+            if (promoCodes[code]) { 
+                const promo = promoCodes[code];
+                points += promo.points; 
+                diamonds += promo.diamonds; 
+                totalDiamondsEarned += promo.diamonds; 
+                updateUI(); 
+                saveGame(); 
+                showToast("✅ Промокод активирован!");
+                document.getElementById('promoInput').value = '';
+                document.getElementById('promoModal').classList.remove('show');
+            } else showToast("❌ Неверный код"); 
+        });
 
         document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
             currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
@@ -758,9 +800,6 @@
             showToast(`🔊 Звук: ${soundProfiles[currentSoundProfile].name}`);
         });
 
-        document.getElementById('nightToggle')?.addEventListener('click', () => { settings.nightMode = !settings.nightMode; saveSettings(); });
-        document.getElementById('vibroToggle')?.addEventListener('click', () => { settings.vibro = !settings.vibro; saveSettings(); });
-        document.getElementById('particlesToggle')?.addEventListener('click', () => { settings.particles = !settings.particles; saveSettings(); });
         document.getElementById('shareBtn')?.addEventListener('click', shareProgress);
 
         function moveEyes(e) { const x = e.touches ? e.touches[0].clientX : e.clientX; const y = e.touches ? e.touches[0].clientY : e.clientY; document.querySelectorAll('.pupil').forEach(p => { const rect = p.parentElement.parentElement.getBoundingClientRect(); const dx = x - (rect.left + rect.width / 2); const dy = y - (rect.top + rect.height / 2); const angle = Math.atan2(dy, dx); const dist = Math.min(4, Math.hypot(dx, dy) / 20); p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`; }); }
@@ -780,7 +819,7 @@
         }, 1000);
         setInterval(saveGame, 5000);
 
-        loadGame(); applySettings();
+        loadGame(); applySettings(); applyHalloweenTheme();
         
         if (musicEnabled && audioCtx) {
             document.body.addEventListener('click', () => {
