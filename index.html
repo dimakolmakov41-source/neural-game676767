@@ -33,7 +33,6 @@
         body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); }
         body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 
-        /* Хэллоуинский фон */
         body.bg-halloween {
             background: linear-gradient(145deg, #1a0a00, #4a1a00) !important;
             position: relative;
@@ -315,7 +314,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v11.0</div>
+            <div class="game-version" id="menuVersion">v11.1</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -412,19 +411,20 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.0: Обновление стабильности и безопасности.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.1: Улучшена стабильность.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
-        const GAME_VERSION = "11.0";
+        const GAME_VERSION = "11.1";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
-        // === СЕКРЕТНЫЙ БАН ===
+        // === СЕКРЕТНЫЙ БАН (с сохранением в localStorage) ===
         const badWords = [
             "дима лох", "дима тупой", "дима дурак", "дима еблан", "дима долбаеб",
             "разработчик лох", "разработчик тупой", "разработчик дурак", "разработчик еблан", "разработчик уебан"
         ];
         let isBanned = false;
         let banTimer = null;
+        const BAN_DURATION = 20 * 60 * 1000; // 20 минут в миллисекундах
 
         function checkBan(code) {
             const lower = code.toLowerCase().trim();
@@ -438,17 +438,33 @@
 
         function activateBan() {
             if (isBanned) return;
-            isBanned = true;
-            document.body.style.filter = "grayscale(1) brightness(0.5)";
-            document.body.style.pointerEvents = "none";
-            showToast("🌚 Ты забанен на 20 минут за плохие слова хахаха");
-            if (banTimer) clearTimeout(banTimer);
-            banTimer = setTimeout(() => {
+            const banEnd = Date.now() + BAN_DURATION;
+            localStorage.setItem('banEnd', banEnd);
+            applyBanState();
+        }
+
+        function applyBanState() {
+            const banEnd = parseInt(localStorage.getItem('banEnd'));
+            if (banEnd && Date.now() < banEnd) {
+                isBanned = true;
+                document.body.style.filter = "grayscale(1) brightness(0.5)";
+                document.body.style.pointerEvents = "none";
+                const remaining = Math.ceil((banEnd - Date.now()) / 1000);
+                showToast(`🌚 Ты забанен на ${Math.ceil(remaining / 60)} минут за плохие слова`);
+                if (banTimer) clearTimeout(banTimer);
+                banTimer = setTimeout(() => {
+                    localStorage.removeItem('banEnd');
+                    isBanned = false;
+                    document.body.style.filter = "";
+                    document.body.style.pointerEvents = "";
+                    showToast("✅ Бан снят. Не повторяй.");
+                }, banEnd - Date.now());
+            } else {
+                localStorage.removeItem('banEnd');
                 isBanned = false;
                 document.body.style.filter = "";
                 document.body.style.pointerEvents = "";
-                showToast("✅ Бан снят. Не повторяй.");
-            }, 1200000);
+            }
         }
 
         // === ХЭЛЛОУИН ===
@@ -708,6 +724,7 @@
             startSleepMsgTimer();
             document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
             applyHalloweenTheme();
+            applyBanState();
         }
 
         function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, bossKills, upgrades: upgrades.map(u => u.purchased), passLevels: passLevels.map(l => ({ claimed: l.claimed })) }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
