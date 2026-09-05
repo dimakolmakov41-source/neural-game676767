@@ -137,6 +137,21 @@
         .brain .eyes { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 30px; pointer-events: none; }
         .eye { width: 22px; height: 22px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .pupil { width: 10px; height: 10px; background: black; border-radius: 50%; transition: transform 0.05s; }
+        .combo-text {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffdd44;
+            text-shadow: 0 0 10px #ff8800;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .combo-text.show {
+            opacity: 1;
+        }
 
         .brain .sleep-msg {
             position: absolute;
@@ -193,6 +208,7 @@
         .shop-list { max-height: 300px; overflow-y: auto; }
         .shop-item { background: #1a3150; border-radius: 30px; padding: 8px 12px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center; color: white; flex-wrap: wrap; gap: 8px; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
         .shop-item:hover { background: #2a4160; transform: scale(1.01); }
+        .shop-item .upgrade-level { font-size: 10px; color: #88ddff; margin-left: 5px; }
         .pagination { display: flex; justify-content: center; gap: 15px; margin: 10px 0; }
         .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
         .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
@@ -286,33 +302,29 @@
             z-index: 9999;
             transition: opacity 0.8s ease;
         }
-        #loadingScreen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+        #loadingScreen.hidden { opacity: 0; pointer-events: none; }
         .loader {
-            width: 60px;
-            height: 60px;
+            width: 60px; height: 60px;
             border: 6px solid #2a4b6e;
             border-top: 6px solid #ffaa00;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .loading-text {
-            color: #ffd966;
-            font-size: 24px;
-            font-weight: 800;
-            margin-top: 20px;
-            text-shadow: 0 0 20px #ffaa00;
-        }
-        .loading-sub {
-            color: #88aaff;
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { color: #ffd966; font-size: 24px; font-weight: 800; margin-top: 20px; text-shadow: 0 0 20px #ffaa00; }
+        .loading-sub { color: #88aaff; font-size: 12px; margin-top: 10px; }
+
+        .rank-display {
+            background: #1a3150;
+            border: 1px solid #ffd700;
+            border-radius: 30px;
+            padding: 4px 12px;
             font-size: 12px;
-            margin-top: 10px;
+            font-weight: bold;
+            color: #ffd966;
+            text-align: center;
+            margin-bottom: 8px;
+            text-shadow: 0 0 5px black;
         }
     </style>
 </head>
@@ -320,7 +332,7 @@
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text">ЗАГРУЗКА...</div>
-        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.3</div>
+        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.4</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -328,7 +340,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v11.3</div>
+            <div class="game-version" id="menuVersion">v11.4</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -343,9 +355,11 @@
             <div class="top-bar"><div>🧠 <span id="points">100</span></div><div>⚡ <span id="power">1</span></div></div>
             <div class="diamond-bar"><div>💎 <span id="diamonds">0</span></div><div>⏱️ <span id="playtime">0</span> мин</div></div>
             
+            <div class="rank-display" id="rankDisplay">⭐ Ранг: Новичок</div>
+
             <div class="stats-panel-extended">
                 <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label">Всего кликов</div></div>
-                <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label">Куплено нейросетей</div></div>
+                <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label">Нейросетей</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statPrestigeCount">0</div><div class="stat-card-label">Престижей</div></div>
             </div>
 
@@ -357,6 +371,7 @@
                     <span class="skin-emoji" id="brainEmoji">🧠</span>
                     <div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>
                     <div class="sleep-msg" id="sleepMsg">😴 Спишь?</div>
+                    <div class="combo-text" id="comboText">🔥 x2 КОМБО!</div>
                 </div>
             </div>
             
@@ -416,23 +431,184 @@
                 <button class="modal-btn" id="soundToggleBtn">Сменить (Обычный)</button>
             </div>
 
+            <div class="setting-item">
+                <span>🌐 Язык</span>
+                <button class="modal-btn" id="langToggleBtn">Русский</button>
+            </div>
+
             <button class="modal-btn" id="closeSettings">ЗАКРЫТЬ</button>
             <div class="reset-btn" id="resetGameBtn">⚠️ СБРОСИТЬ ВСЁ</div>
         </div>
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.3: Убраны боссы и ежедневные задания. Чистая игра.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.4: Система рангов, комбо x2 каждые 5 кликов, уровни нейросетей, тройной клик, смена языка, +500 новых нейросетей!</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script>
         setTimeout(() => {
             document.getElementById('loadingScreen').classList.add('hidden');
         }, 2000);
 
-        const GAME_VERSION = "11.3";
+        const GAME_VERSION = "11.4";
         document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
-        // === БАН ===
+        // ===== ЯЗЫК =====
+        let currentLang = localStorage.getItem('gameLang') || 'ru';
+        const langData = {
+            ru: {
+                rank: "⭐ Ранг:",
+                ranks: ["Новичок", "Исследователь", "Эксперт", "Мастер", "Грандмастер", "Легенда"],
+                prestige: "✨ ПРЕСТИЖ ✨ Множитель: x",
+                reload: "🔄 ПЕРЕЗАГРУЗКА:",
+                pass: "🎫 AI PASS СЕЗОН 4",
+                passTimer: "✨ Награда каждые 10 минут",
+                passEnd: "⏳ AI Pass закончится:",
+                shop: "🧠 НЕЙРОСЕТИ",
+                close: "ЗАКРЫТЬ",
+                settings: "⚙️ НАСТРОЙКИ",
+                promo: "🎫 ПРОМОКОД",
+                activate: "АКТИВИРОВАТЬ",
+                share: "📤 ПОДЕЛИТЬСЯ",
+                news: "📢 НОВОСТИ",
+                rankLabel: "Ранг",
+                neuronsBought: "Нейросетей",
+                prestigeCount: "Престижей",
+                totalClicks: "Всего кликов",
+                combo: "🔥 x2 КОМБО!",
+                triple: "⚡ ТРОЙНОЙ КЛИК! x3!",
+                diamond: "💎 АЛМАЗ!",
+                banMsg: "🌚 Ты забанен на ",
+                banMsgEnd: " минут за плохие слова",
+                banUnban: "✅ Бан снят. Не повторяй.",
+                promoActivated: "✅ Промокод активирован!",
+                promoInvalid: "❌ Неверный код",
+                bought: "✅ {name} куплена!",
+                notEnough: "❌ Не хватает очков",
+                prestigeConfirm: "✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?",
+                prestigeDone: "✨ ПРЕСТИЖ! Множитель x",
+                upgrade: "Уровень {level}",
+                lang: "🌐 Язык",
+                sound: "🔊 Звук клика",
+                soundChange: "Сменить (Обычный)",
+                save: "💾 Сохранить прогресс",
+                load: "📂 Загрузить прогресс",
+                download: "Скачать JSON",
+                chooseFile: "Выбрать файл",
+                reset: "⚠️ СБРОСИТЬ ВСЁ",
+                noPoints: "❌ Не хватает очков",
+                passLevel: "🎉 Уровень {level} получен!",
+                passWait: "⏱️ Подожди {minutes} мин",
+                passReady: "🎁 Награда AI PASS готова!",
+                reloading: "Перезагрузка...",
+                copied: "✅ Прогресс скопирован в буфер обмена!",
+                saved: "💾 Прогресс сохранён!",
+                loaded: "📂 Прогресс загружен! Перезагрузи страницу.",
+                loadError: "❌ Ошибка загрузки"
+            },
+            en: {
+                rank: "⭐ Rank:",
+                ranks: ["Novice", "Explorer", "Expert", "Master", "Grandmaster", "Legend"],
+                prestige: "✨ PRESTIGE ✨ Multiplier: x",
+                reload: "🔄 RELOAD:",
+                pass: "🎫 AI PASS SEASON 4",
+                passTimer: "✨ Reward every 10 minutes",
+                passEnd: "⏳ AI Pass ends:",
+                shop: "🧠 NEURAL NETS",
+                close: "CLOSE",
+                settings: "⚙️ SETTINGS",
+                promo: "🎫 PROMO CODE",
+                activate: "ACTIVATE",
+                share: "📤 SHARE",
+                news: "📢 NEWS",
+                rankLabel: "Rank",
+                neuronsBought: "Neural Nets",
+                prestigeCount: "Prestiges",
+                totalClicks: "Total Clicks",
+                combo: "🔥 x2 COMBO!",
+                triple: "⚡ TRIPLE CLICK! x3!",
+                diamond: "💎 DIAMOND!",
+                banMsg: "🌚 You are banned for ",
+                banMsgEnd: " minutes for bad words",
+                banUnban: "✅ Ban lifted. Don't repeat.",
+                promoActivated: "✅ Promo code activated!",
+                promoInvalid: "❌ Invalid code",
+                bought: "✅ {name} bought!",
+                notEnough: "❌ Not enough points",
+                prestigeConfirm: "✨ PRESTIGE? Reset progress for x2 multiplier?",
+                prestigeDone: "✨ PRESTIGE! Multiplier x",
+                upgrade: "Level {level}",
+                lang: "🌐 Language",
+                sound: "🔊 Click sound",
+                soundChange: "Change (Default)",
+                save: "💾 Save progress",
+                load: "📂 Load progress",
+                download: "Download JSON",
+                chooseFile: "Choose file",
+                reset: "⚠️ RESET ALL",
+                noPoints: "❌ Not enough points",
+                passLevel: "🎉 Level {level} unlocked!",
+                passWait: "⏱️ Wait {minutes} min",
+                passReady: "🎁 AI PASS reward ready!",
+                reloading: "Reloading...",
+                copied: "✅ Progress copied to clipboard!",
+                saved: "💾 Progress saved!",
+                loaded: "📂 Progress loaded! Reload page.",
+                loadError: "❌ Load error"
+            }
+        };
+
+        function t(key) {
+            return langData[currentLang][key] || key;
+        }
+
+        function updateLangUI() {
+            document.getElementById('langToggleBtn').innerText = currentLang === 'ru' ? 'Русский' : 'English';
+            // Обновляем текст на странице (основные элементы)
+            document.querySelector('.prestige-display').innerHTML = t('prestige') + '<span id="prestigeMulti">1</span>';
+            document.querySelector('.pass-header span:first-child').innerText = t('pass');
+            document.querySelector('.pass-timer').innerText = t('passTimer');
+            document.querySelector('.shop-tab').innerText = t('shop');
+            document.getElementById('closeShopBtn').innerText = t('close');
+            document.getElementById('closeSettings').innerText = t('close');
+            document.getElementById('closePromoBtn').innerText = t('close');
+            document.getElementById('activatePromoBtn').innerText = t('activate');
+            document.getElementById('promoModal').querySelector('.modal-title').innerText = t('promo');
+            document.querySelector('#settingsModal .modal-title').innerText = t('settings');
+            document.getElementById('exportSaveBtn').innerText = t('download');
+            document.getElementById('importSaveBtn').innerText = t('chooseFile');
+            document.getElementById('resetGameBtn').innerText = t('reset');
+            document.getElementById('soundToggleBtn').innerText = t('soundChange');
+            document.querySelector('.setting-item span:first-child').innerText = t('lang');
+            document.getElementById('shareBtn').innerText = t('share');
+            document.getElementById('newsBtn').innerText = t('news');
+            updateRankUI();
+        }
+
+        // ===== РАНГИ =====
+        const ranks = [
+            { name: "Новичок", threshold: 0 },
+            { name: "Исследователь", threshold: 100 },
+            { name: "Эксперт", threshold: 500 },
+            { name: "Мастер", threshold: 2000 },
+            { name: "Грандмастер", threshold: 10000 },
+            { name: "Легенда", threshold: 50000 }
+        ];
+
+        function getRank(clicks) {
+            let r = ranks[0];
+            for (let i = ranks.length - 1; i >= 0; i--) {
+                if (clicks >= ranks[i].threshold) { r = ranks[i]; break; }
+            }
+            return r;
+        }
+
+        function updateRankUI() {
+            const r = getRank(totalClicks);
+            const rankName = currentLang === 'ru' ? r.name : ['Novice','Explorer','Expert','Master','Grandmaster','Legend'][ranks.indexOf(r)];
+            document.getElementById('rankDisplay').innerHTML = `⭐ ${t('rank')} ${rankName}`;
+        }
+
+        // ===== БАН =====
         const badWords = [
             "дима лох", "дима тупой", "дима дурак", "дима еблан", "дима долбаеб",
             "разработчик лох", "разработчик тупой", "разработчик дурак", "разработчик еблан", "разработчик уебан"
@@ -463,14 +639,14 @@
                 document.body.style.filter = "grayscale(1) brightness(0.5)";
                 document.body.style.pointerEvents = "none";
                 const remaining = Math.ceil((banEnd - Date.now()) / 1000);
-                showToast(`🌚 Ты забанен на ${Math.ceil(remaining / 60)} минут за плохие слова`);
+                showToast(`🌚 ${t('banMsg')}${Math.ceil(remaining / 60)}${t('banMsgEnd')}`);
                 if (banTimer) clearTimeout(banTimer);
                 banTimer = setTimeout(() => {
                     localStorage.removeItem('banEnd');
                     isBanned = false;
                     document.body.style.filter = "";
                     document.body.style.pointerEvents = "";
-                    showToast("✅ Бан снят. Не повторяй.");
+                    showToast(t('banUnban'));
                 }, banEnd - Date.now());
             } else {
                 localStorage.removeItem('banEnd');
@@ -480,15 +656,205 @@
             }
         }
 
+        // ===== ИГРОВЫЕ ПЕРЕМЕННЫЕ =====
         let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
         let totalDiamondsEarned = 0;
         let godMode = false;
-
+        let comboCounter = 0;
         let gameStartTime = Date.now();
         let playtimeInterval = null;
         let sleepMsgTimer = null;
         let sleepMsgShowing = false;
 
+        // ===== НЕЙРОСЕТИ (1500 штук) =====
+        const neuralNames = [
+            // Старые 25
+            "Перцептрон","Нейро-искра","Сверточная","Рекуррентная","Трансформер","Квантовая","GPT-клик","Автокодировщик","DALL-E","Глубокий мозг","Gemini","Нейро-интерфейс","Claude 3","Мультивселенная","Midjourney","Легендарная","Сингулярность","Божественный ИИ","Нейро-Земля","ИИ-Солнце","Галактическая","Космическая","Сверхразум","ДНК-бота","Бесконечность",
+            // Животные
+            "Лев","Тигр","Медведь","Волк","Лиса","Орёл","Сокол","Дельфин","Кит","Акула","Пантера","Ягуар","Леопард","Гепард","Зебра","Жираф","Слон","Носорог","Бегемот","Крокодил","Питон","Анаконда","Хамелеон","Игуана","Фламинго","Пингвин","Сова","Ястреб","Скорпион","Паук",
+            // Еда
+            "Пицца","Бургер","Суши","Роллы","Рамен","Паста","Спагетти","Лазанья","Тирамису","Панна-котта","Крем-брюле","Макаронс","Эклер","Пончик","Круассан","Багет","Сыр","Ветчина","Колбаса","Бекон","Стейк","Гриль","Барбекю","Шашлык","Плов","Борщ","Оливье","Сельдь","Икра","Блины",
+            // Планеты
+            "Меркурий","Венера","Земля","Марс","Юпитер","Сатурн","Уран","Нептун","Плутон","Церера","Эрида","Макемаке","Хаумеа","Седна","Орк","Иксион","Варуна","Квавар","Фобос","Деймос","Ио","Европа","Ганимед","Каллисто","Титан","Рея","Япет","Мимас","Энцелад","Тритон",
+            // Игры
+            "Mario","Link","Samus","Kirby","Fox","Pikachu","Charizard","Mewtwo","Cloud","Sephiroth","Sonic","Tails","Knuckles","Shadow","Master Chief","Cortana","Doom","Ryu","Ken","Chun-Li","Kratos","Atreus","Lara","Nathan","Ezio","Altair","Gordon","Freeman","Chell","Wheatley",
+            // Технологии
+            "Кремний","Процессор","Видеокарта","Оперативка","SSD","Материнка","Блок-питания","Кулер","Монитор","Клавиатура","Мышь","Принтер","Сканер","Микрофон","Колонки","Наушники","Роутер","Модем","Сервер","Ноутбук","Планшет","Смартфон","Часы","Фитнес-браслет","Дрон","Робот","Андроид","iOS","Windows","Linux"
+        ];
+
+        let upgrades = [];
+        for (let i = 0; i < 1500; i++) {
+            const power = i === 0 ? 1 : 1 + Math.floor(i / 10);
+            const price = i === 0 ? 20 : Math.floor(20 * Math.pow(1.17, i));
+            const name = i < neuralNames.length ? neuralNames[i] : `Нейросеть #${i + 1}`;
+            upgrades.push({
+                id: i,
+                name: name,
+                power: power,
+                price: price,
+                purchased: i === 0,
+                level: 0,
+                levelPrice: function() { return Math.floor(this.price * 0.5 * (this.level + 1)); }
+            });
+        }
+
+        let currentPage = 0, ITEMS_PER_PAGE = 20, totalPages = Math.ceil(upgrades.length / ITEMS_PER_PAGE);
+
+        function renderShopNeurons() {
+            const start = currentPage * ITEMS_PER_PAGE, end = Math.min(start + ITEMS_PER_PAGE, upgrades.length);
+            let html = '';
+            if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="prevPageBtn">⬅️</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn">➡️</button></div>`;
+            for (let i = start; i < end; i++) {
+                const u = upgrades[i];
+                const levelText = u.purchased ? ` <span class="upgrade-level">[${t('upgrade').replace('{level}', u.level)}]</span>` : '';
+                html += `<div class="shop-item" data-id="${u.id}"><span>${u.name} +${u.power}${levelText}</span><span>${u.purchased ? `⬆ Улучшить (${u.levelPrice()})` : `💰 ${u.price}`}</span></div>`;
+            }
+            if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="prevPageBtn2">⬅️</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">➡️</button></div>`;
+            document.getElementById('shopNeurons').innerHTML = html;
+            document.querySelectorAll('#shopNeurons .shop-item').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                const u = upgrades[id];
+                if (!u.purchased) {
+                    el.addEventListener('click', () => buyUpgrade(id));
+                } else if (u.level < 5) {
+                    el.addEventListener('click', () => upgradeNeuron(id));
+                }
+            });
+            document.querySelectorAll('#prevPageBtn, #prevPageBtn2').forEach(btn => btn.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
+            document.querySelectorAll('#nextPageBtn, #nextPageBtn2').forEach(btn => btn.addEventListener('click', () => { if (currentPage < totalPages - 1) { currentPage++; renderShopNeurons(); } }));
+        }
+
+        function buyUpgrade(id) {
+            const u = upgrades[id];
+            if (!u.purchased && points >= u.price) {
+                points -= u.price;
+                u.purchased = true;
+                u.level = 0;
+                purchasedCount++;
+                updateUI();
+                renderShopNeurons();
+                saveGame();
+                showToast(t('bought').replace('{name}', u.name));
+                playBuySound();
+            } else showToast(t('noPoints'));
+        }
+
+        function upgradeNeuron(id) {
+            const u = upgrades[id];
+            if (u.purchased && u.level < 5 && points >= u.levelPrice()) {
+                points -= u.levelPrice();
+                u.level++;
+                u.power += Math.floor(1 + u.level * 0.5);
+                updateUI();
+                renderShopNeurons();
+                saveGame();
+                showToast(`⬆ ${u.name} улучшена до уровня ${u.level}!`);
+                playBuySound();
+            } else if (u.level >= 5) {
+                showToast("🔥 Максимальный уровень!");
+            } else showToast(t('noPoints'));
+        }
+
+        // ===== AI PASS =====
+        let passLevels = [], passSeconds = 600, passInterval = null, passClaimCount = 0;
+        let passEndDate = new Date(2026, 8, 10, 23, 59, 59);
+        let passEndTimerInterval = null;
+        for (let i = 1; i <= 20; i++) passLevels.push({ level: i, rewardPoints: Math.floor(i * 50) + 20, rewardDiamonds: Math.floor(i / 2) + 4, claimed: false });
+
+        function renderPass() {
+            const currentAvailable = passLevels.findIndex(l => !l.claimed);
+            let html = '';
+            passLevels.forEach((level, idx) => {
+                let statusClass = '', statusText = '';
+                if (level.claimed) { statusClass = 'completed'; statusText = '✅'; }
+                else if (idx === currentAvailable && passSeconds <= 0) { statusClass = 'available'; statusText = `+${level.rewardPoints}🧠 +${level.rewardDiamonds}💎`; }
+                else if (idx === currentAvailable && passSeconds > 0) { statusText = `${Math.ceil(passSeconds / 60)}м`; }
+                else { statusText = '🔒'; }
+                html += `<div class="pass-badge ${statusClass}" data-level="${level.level}">${level.level}<br>${statusText}</div>`;
+            });
+            document.getElementById('passLevels').innerHTML = html;
+            document.querySelectorAll('.pass-badge').forEach(badge => {
+                badge.addEventListener('click', () => {
+                    const lvl = passLevels.find(l => l.level === parseInt(badge.dataset.level));
+                    if (lvl && !lvl.claimed && passSeconds <= 0) {
+                        points += lvl.rewardPoints;
+                        diamonds += lvl.rewardDiamonds;
+                        totalDiamondsEarned += lvl.rewardDiamonds;
+                        lvl.claimed = true;
+                        passSeconds = 600;
+                        passClaimCount++;
+                        updateUI();
+                        renderPass();
+                        saveGame();
+                        showToast(t('passLevel').replace('{level}', lvl.level));
+                        playBuySound();
+                    } else if (passSeconds > 0) showToast(t('passWait').replace('{minutes}', Math.ceil(passSeconds / 60)));
+                });
+            });
+        }
+
+        function startPassTimer() {
+            if (passInterval) clearInterval(passInterval);
+            passInterval = setInterval(() => {
+                if (passSeconds > 0) {
+                    passSeconds--;
+                    const m = Math.floor(passSeconds / 60), s = passSeconds % 60;
+                    document.getElementById('passTimer').innerHTML = `${m}:${s.toString().padStart(2, '0')}`;
+                    if (passSeconds === 0) showToast(t('passReady'));
+                    renderPass();
+                    saveGame();
+                }
+            }, 1000);
+        }
+
+        function updatePassEndTimer() {
+            const now = new Date();
+            const diff = passEndDate - now;
+            if (diff <= 0) {
+                document.getElementById('passEndTimer').innerHTML = "⏳ AI PASS СЕЗОН 4 ЗАВЕРШЁН!";
+                if (passEndTimerInterval) clearInterval(passEndTimerInterval);
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % 86400000) / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            document.getElementById('passEndTimer').innerHTML = `${t('passEnd')} ${days} дн. ${hours} ч. ${minutes} мин.`;
+        }
+
+        function startPassEndTimer() {
+            if (passEndTimerInterval) clearInterval(passEndTimerInterval);
+            updatePassEndTimer();
+            passEndTimerInterval = setInterval(updatePassEndTimer, 60000);
+        }
+
+        // ===== ПРЕСТИЖ =====
+        function performPrestige() {
+            if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; }
+            if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; }
+            if (confirm(t('prestigeConfirm'))) {
+                prestigeMulti *= 2;
+                prestigeCount++;
+                points = 100;
+                diamonds = 0;
+                totalClicks = 0;
+                purchasedCount = 1;
+                comboCounter = 0;
+                upgrades.forEach((u, i) => u.purchased = (i === 0));
+                upgrades.forEach((u, i) => { if (i === 0) { u.level = 0; u.power = 1; } else { u.level = 0; u.power = 1 + Math.floor(i / 10); } });
+                passLevels.forEach(l => l.claimed = false);
+                passSeconds = 600;
+                passClaimCount = 0;
+                saveGame();
+                updateUI();
+                renderShopNeurons();
+                renderPass();
+                document.getElementById('prestigeMulti').innerText = prestigeMulti;
+                showToast(`${t('prestigeDone')}${prestigeMulti}`);
+                playBuySound();
+            }
+        }
+
+        // ===== ЗВУКИ =====
         const soundProfiles = [
             { name: "Обычный", freq: 880, type: "sine" },
             { name: "Пиксельный", freq: 1200, type: "square" },
@@ -496,32 +862,9 @@
         ];
         let currentSoundProfile = 0;
 
-        const bgThemes = {
-            early_autumn: "bg-early-autumn",
-            golden: "bg-golden",
-            rainy: "bg-rainy",
-            late: "bg-late",
-            forest: "bg-forest",
-            park: "bg-park",
-            mountains: "bg-mountains",
-            village: "bg-village"
-        };
-        function setBodyBg(theme) {
-            document.body.className = '';
-            document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
-            localStorage.setItem('selectedBg', theme);
-        }
-        const savedBg = localStorage.getItem('selectedBg');
-        if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
-        else setBodyBg('early_autumn');
-
         let audioCtx = null, musicScheduled = false, musicGain = null;
         let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
         let musicInterval = null;
-        const melody = [[130.81,0.25],[130.81,0.25],[146.83,0.25],[146.83,0.25],[164.81,0.25],[164.81,0.25],[174.61,0.25],[174.61,0.25],[196.00,0.25],[196.00,0.25],[174.61,0.25],[174.61,0.25],[164.81,0.25],[164.81,0.25],[146.83,0.5],[146.83,0.5],[130.81,0.25],[130.81,0.25],[146.83,0.25],[146.83,0.25],[164.81,0.25],[164.81,0.25],[174.61,0.25],[174.61,0.25],[196.00,0.25],[196.00,0.25],[220.00,0.25],[220.00,0.25],[246.96,0.5],[246.96,0.5],[261.63,0.5],[261.63,1.0]];
-        const bass = [[65.41,0.5],[0,0.5],[65.41,0.5],[0,0.5],[65.41,0.5],[0,0.5],[65.41,0.5],[0,0.5],[82.41,0.5],[0,0.5],[82.41,0.5],[0,0.5],[65.41,1.0],[0,1.0]];
-        const beat = [['kick',0.25],['kick',0.25],['snare',0.25],['kick',0.25],['kick',0.25],['kick',0.25],['snare',0.25],['kick',0.25],['kick',0.25],['kick',0.25],['snare',0.25],['kick',0.25],['kick',0.25],['kick',0.25],['snare',0.25],['kick',0.5]];
-        let melodyIndex = 0, bassIndex = 0, beatIndex = 0;
 
         function initMusic() { if (audioCtx) return; audioCtx = new (window.AudioContext || window.webkitAudioContext)(); musicGain = audioCtx.createGain(); musicGain.gain.value = 0.12; musicGain.connect(audioCtx.destination); }
         function playKick(time) { if(!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "sine"; osc.frequency.value = 60; gain.gain.value = 0.25; gain.gain.exponentialRampToValueAtTime(0.0001, time+0.1); osc.connect(gain); gain.connect(musicGain); osc.start(time); osc.stop(time+0.1); }
@@ -547,11 +890,13 @@
             setTimeout(() => el.remove(), 1000);
         }
 
-        function updateStatsUI() { 
-            document.getElementById('statTotalClicks').innerText = totalClicks; 
-            document.getElementById('statNeuronsBought').innerText = purchasedCount; 
+        function updateStatsUI() {
+            document.getElementById('statTotalClicks').innerText = totalClicks;
+            document.getElementById('statNeuronsBought').innerText = purchasedCount;
             document.getElementById('statPrestigeCount').innerText = prestigeCount;
+            updateRankUI();
         }
+
         function updatePlaytime() {
             let seconds = Math.floor((Date.now() - gameStartTime) / 1000);
             let minutes = Math.floor(seconds / 60);
@@ -567,6 +912,7 @@
                 }
             }, 45000);
         }
+
         function hideSleepMsg() {
             if (sleepMsgTimer) clearTimeout(sleepMsgTimer);
             if (sleepMsgShowing) {
@@ -581,138 +927,196 @@
 🧠 Очки: ${Math.floor(points)}
 💎 Алмазы: ${diamonds}
 🖱️ Всего кликов: ${totalClicks}
-🧬 Нейросетей: ${purchasedCount}/1000
+🧬 Нейросетей: ${purchasedCount}/1500
 ✨ Престижей: ${prestigeCount} (множитель x${prestigeMulti})
 🎫 AI Pass уровней: ${passClaimCount}/20
 📅 Версия ${GAME_VERSION}`;
             navigator.clipboard.writeText(text);
-            showToast("✅ Прогресс скопирован в буфер обмена!");
+            showToast(t('copied'));
         }
 
-        const neuralNames = ["Перцептрон","Нейро-искра","Сверточная","Рекуррентная","Трансформер","Квантовая","GPT-клик","Автокодировщик","DALL-E","Глубокий мозг","Gemini","Нейро-интерфейс","Claude 3","Мультивселенная","Midjourney","Легендарная","Сингулярность","Божественный ИИ","Нейро-Земля","ИИ-Солнце","Галактическая","Космическая","Сверхразум","ДНК-бота","Бесконечность"];
-        let upgrades = [];
-        for (let i = 0; i < 1000; i++) { const power = i === 0 ? 1 : 1 + Math.floor(i / 10); const price = i === 0 ? 20 : Math.floor(20 * Math.pow(1.18, i)); const name = i < neuralNames.length ? neuralNames[i] : `Нейросеть #${i + 1}`; upgrades.push({ id: i, name, power, price, purchased: i === 0 }); }
-        let currentPage = 0, ITEMS_PER_PAGE = 20, totalPages = Math.ceil(upgrades.length / ITEMS_PER_PAGE);
-        function renderShopNeurons() {
-            const start = currentPage * ITEMS_PER_PAGE, end = Math.min(start + ITEMS_PER_PAGE, upgrades.length);
-            let html = '';
-            if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="prevPageBtn">⬅️</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn">➡️</button></div>`;
-            for (let i = start; i < end; i++) { const u = upgrades[i]; html += `<div class="shop-item" data-id="${u.id}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅' : `💰 ${u.price}`}</span></div>`; }
-            if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="prevPageBtn2">⬅️</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">➡️</button></div>`;
-            document.getElementById('shopNeurons').innerHTML = html;
-            document.querySelectorAll('#shopNeurons .shop-item').forEach(el => { if (!upgrades[parseInt(el.dataset.id)].purchased) el.addEventListener('click', () => buyUpgrade(parseInt(el.dataset.id))); });
-            document.querySelectorAll('#prevPageBtn, #prevPageBtn2').forEach(btn => btn.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
-            document.querySelectorAll('#nextPageBtn, #nextPageBtn2').forEach(btn => btn.addEventListener('click', () => { if (currentPage < totalPages - 1) { currentPage++; renderShopNeurons(); } }));
-        }
-        function buyUpgrade(id) { const u = upgrades[id]; if (!u.purchased && points >= u.price) { points -= u.price; u.purchased = true; purchasedCount++; updateUI(); renderShopNeurons(); saveGame(); showToast(`✅ ${u.name} куплена!`); playBuySound(); } else showToast("❌ Не хватает очков"); }
-
-        let passLevels = [], passSeconds = 600, passInterval = null, passClaimCount = 0;
-        let passEndDate = new Date(2026, 8, 10, 23, 59, 59);
-        let passEndTimerInterval = null;
-        for (let i = 1; i <= 20; i++) passLevels.push({ level: i, rewardPoints: Math.floor(i * 50) + 20, rewardDiamonds: Math.floor(i / 2) + 4, claimed: false });
-        function renderPass() { const currentAvailable = passLevels.findIndex(l => !l.claimed); let html = ''; passLevels.forEach((level, idx) => { let statusClass = '', statusText = ''; if (level.claimed) { statusClass = 'completed'; statusText = '✅'; } else if (idx === currentAvailable && passSeconds <= 0) { statusClass = 'available'; statusText = `+${level.rewardPoints}🧠 +${level.rewardDiamonds}💎`; } else if (idx === currentAvailable && passSeconds > 0) { statusText = `${Math.ceil(passSeconds / 60)}м`; } else { statusText = '🔒'; } html += `<div class="pass-badge ${statusClass}" data-level="${level.level}">${level.level}<br>${statusText}</div>`; }); document.getElementById('passLevels').innerHTML = html; document.querySelectorAll('.pass-badge').forEach(badge => { badge.addEventListener('click', () => { const lvl = passLevels.find(l => l.level === parseInt(badge.dataset.level)); if (lvl && !lvl.claimed && passSeconds <= 0) { points += lvl.rewardPoints; diamonds += lvl.rewardDiamonds; totalDiamondsEarned += lvl.rewardDiamonds; lvl.claimed = true; passSeconds = 600; passClaimCount++; updateUI(); renderPass(); saveGame(); showToast(`🎉 Уровень ${lvl.level} получен!`); playBuySound(); } else if (passSeconds > 0) showToast(`⏱️ Подожди ${Math.ceil(passSeconds / 60)} мин`); }); }); }
-        function startPassTimer() { if (passInterval) clearInterval(passInterval); passInterval = setInterval(() => { if (passSeconds > 0) { passSeconds--; const m = Math.floor(passSeconds / 60), s = passSeconds % 60; document.getElementById('passTimer').innerHTML = `${m}:${s.toString().padStart(2, '0')}`; if (passSeconds === 0) showToast("🎁 Награда AI PASS готова!"); renderPass(); saveGame(); } }, 1000); }
-        function updatePassEndTimer() { const now = new Date(); const diff = passEndDate - now; if (diff <= 0) { document.getElementById('passEndTimer').innerHTML = "⏳ AI PASS СЕЗОН 4 ЗАВЕРШЁН!"; if (passEndTimerInterval) clearInterval(passEndTimerInterval); return; } const days = Math.floor(diff / (1000 * 60 * 60 * 24)); const hours = Math.floor((diff % 86400000) / 3600000); const minutes = Math.floor((diff % 3600000) / 60000); document.getElementById('passEndTimer').innerHTML = `⏳ AI Pass закончится: ${days} дн. ${hours} ч. ${minutes} мин.`; }
-        function startPassEndTimer() { if (passEndTimerInterval) clearInterval(passEndTimerInterval); updatePassEndTimer(); passEndTimerInterval = setInterval(updatePassEndTimer, 60000); }
-
-        function performPrestige() { 
-            if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; } 
-            if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; } 
-            if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) { 
-                prestigeMulti *= 2; prestigeCount++; 
-                points = 100; diamonds = 0; totalClicks = 0; purchasedCount = 1; 
-                upgrades.forEach((u, i) => u.purchased = (i === 0)); 
-                passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; 
-                saveGame(); updateUI(); renderShopNeurons(); renderPass(); 
-                document.getElementById('prestigeMulti').innerText = prestigeMulti; 
-                showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`); 
-                playBuySound(); 
-            } 
+        function getClickPower() {
+            let base = 1;
+            upgrades.forEach(u => { if (u.purchased) base += u.power; });
+            if (godMode) base *= 10;
+            return Math.floor(base * prestigeMulti);
         }
 
-        function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { const profile = soundProfiles[currentSoundProfile]; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = profile.type; osc.frequency.value = profile.freq; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); } }
-        function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = "triangle"; osc.frequency.value = 523.25; gain.gain.value = 0.08; gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } }
-
-        function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; return Math.floor(base * prestigeMulti); }
-        function updateUI() { 
+        function updateUI() {
             if (isBanned) return;
-            document.getElementById('points').innerText = Math.floor(points); 
-            document.getElementById('power').innerText = getClickPower(); 
-            document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`; 
-            document.getElementById('diamonds').innerText = diamonds; 
-            updateStatsUI(); 
-            document.getElementById('prestigeMulti').innerText = prestigeMulti; 
-            updatePlaytime(); 
-        }
-        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
-
-        function saveGame() { 
-            const save = { 
-                points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, 
-                totalDiamondsEarned, godMode, 
-                upgrades: upgrades.map(u => u.purchased), 
-                passLevels: passLevels.map(l => ({ claimed: l.claimed })), 
-                passSeconds, passClaimCount, 
-                gameStartTime, currentSoundProfile 
-            }; 
-            localStorage.setItem('neuralEvoSave', JSON.stringify(save)); 
+            document.getElementById('points').innerText = Math.floor(points);
+            document.getElementById('power').innerText = getClickPower();
+            document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`;
+            document.getElementById('diamonds').innerText = diamonds;
+            updateStatsUI();
+            document.getElementById('prestigeMulti').innerText = prestigeMulti;
+            updatePlaytime();
+            document.getElementById('comboText').classList.remove('show');
         }
 
-        function loadGame() { 
-            const saved = localStorage.getItem('neuralEvoSave'); 
-            const savedSeason = localStorage.getItem('aiPassSeason'); 
-            if (savedSeason !== '4') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '4'); } 
-            if (saved) { try { const d = JSON.parse(saved); 
-                points = d.points || 100; 
-                diamonds = d.diamonds || 0; 
-                totalClicks = d.totalClicks || 0; 
-                purchasedCount = d.purchasedCount || 1; 
-                prestigeMulti = d.prestigeMulti || 1; 
-                prestigeCount = d.prestigeCount || 0; 
-                totalDiamondsEarned = d.totalDiamondsEarned || 0; 
-                godMode = d.godMode || false; 
-                if (d.upgrades) d.upgrades.forEach((p, i) => { if (upgrades[i]) upgrades[i].purchased = p; }); 
-                if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; }); 
-                if (d.passSeconds) passSeconds = d.passSeconds; 
-                if (d.gameStartTime) gameStartTime = d.gameStartTime; else gameStartTime = Date.now(); 
-                if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; 
-                purchasedCount = upgrades.filter(u => u.purchased).length; 
-                passClaimCount = passLevels.filter(l => l.claimed).length; 
-            } catch(e) {} } 
-            updateUI(); renderShopNeurons(); renderPass(); updateStatsUI(); startPassTimer(); startPassEndTimer(); 
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        function saveGame() {
+            const save = {
+                points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount,
+                totalDiamondsEarned, godMode, comboCounter,
+                upgrades: upgrades.map(u => ({ purchased: u.purchased, level: u.level, power: u.power })),
+                passLevels: passLevels.map(l => ({ claimed: l.claimed })),
+                passSeconds, passClaimCount,
+                gameStartTime, currentSoundProfile, currentLang
+            };
+            localStorage.setItem('neuralEvoSave', JSON.stringify(save));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('neuralEvoSave');
+            const savedSeason = localStorage.getItem('aiPassSeason');
+            if (savedSeason !== '4') { passLevels.forEach(l => l.claimed = false); passSeconds = 600; passClaimCount = 0; localStorage.setItem('aiPassSeason', '4'); }
+            if (saved) {
+                try {
+                    const d = JSON.parse(saved);
+                    points = d.points || 100;
+                    diamonds = d.diamonds || 0;
+                    totalClicks = d.totalClicks || 0;
+                    purchasedCount = d.purchasedCount || 1;
+                    prestigeMulti = d.prestigeMulti || 1;
+                    prestigeCount = d.prestigeCount || 0;
+                    totalDiamondsEarned = d.totalDiamondsEarned || 0;
+                    godMode = d.godMode || false;
+                    comboCounter = d.comboCounter || 0;
+                    if (d.upgrades) {
+                        d.upgrades.forEach((data, i) => {
+                            if (upgrades[i]) {
+                                upgrades[i].purchased = data.purchased;
+                                upgrades[i].level = data.level || 0;
+                                upgrades[i].power = data.power || (1 + Math.floor(i / 10));
+                            }
+                        });
+                    }
+                    if (d.passLevels) d.passLevels.forEach((l, i) => { if (passLevels[i]) passLevels[i].claimed = l.claimed; });
+                    if (d.passSeconds) passSeconds = d.passSeconds;
+                    if (d.gameStartTime) gameStartTime = d.gameStartTime;
+                    else gameStartTime = Date.now();
+                    if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile;
+                    if (d.currentLang) currentLang = d.currentLang;
+                    purchasedCount = upgrades.filter(u => u.purchased).length;
+                    passClaimCount = passLevels.filter(l => l.claimed).length;
+                } catch(e) {}
+            }
+            updateUI();
+            renderShopNeurons();
+            renderPass();
+            updateStatsUI();
+            startPassTimer();
+            startPassEndTimer();
             if (playtimeInterval) clearInterval(playtimeInterval);
             playtimeInterval = setInterval(() => updatePlaytime(), 60000);
             startSleepMsgTimer();
-            document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
+            document.getElementById('soundToggleBtn').innerText = t('soundChange');
+            document.getElementById('langToggleBtn').innerText = currentLang === 'ru' ? 'Русский' : 'English';
             applyBanState();
+            updateLangUI();
         }
 
-        function exportProgress() { const saveData = { points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount, totalDiamondsEarned, upgrades: upgrades.map(u => u.purchased), passLevels: passLevels.map(l => ({ claimed: l.claimed })) }; const dataStr = JSON.stringify(saveData); const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "neural_evolution_save.json"; a.click(); URL.revokeObjectURL(url); showToast("💾 Прогресс сохранён!"); }
-        function importProgress(file) { const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); localStorage.setItem('neuralEvoSave', JSON.stringify(data)); showToast("📂 Прогресс загружен! Перезагрузи страницу."); setTimeout(() => location.reload(), 1500); } catch(error) { showToast("❌ Ошибка загрузки"); } }; reader.readAsText(file); }
-        const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
-
-        let settings = { nightMode: false, vibro: false, particles: false };
-        function applySettings() { 
-            document.body.classList.remove('dark-mode');
-            document.getElementById('nightToggle')?.classList.remove('active');
-            document.getElementById('vibroToggle')?.classList.remove('active');
-            document.getElementById('particlesToggle')?.classList.remove('active');
+        function exportProgress() {
+            const saveData = {
+                points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount,
+                totalDiamondsEarned, upgrades: upgrades.map(u => ({ purchased: u.purchased, level: u.level, power: u.power })),
+                passLevels: passLevels.map(l => ({ claimed: l.claimed }))
+            };
+            const dataStr = JSON.stringify(saveData);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "neural_evolution_save.json";
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast(t('saved'));
         }
-        function saveSettings() { applySettings(); }
 
+        function importProgress(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    localStorage.setItem('neuralEvoSave', JSON.stringify(data));
+                    showToast(t('loaded'));
+                    setTimeout(() => location.reload(), 1500);
+                } catch(error) {
+                    showToast(t('loadError'));
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        const importInput = document.createElement('input');
+        importInput.type = 'file';
+        importInput.accept = '.json';
+        importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
+
+        // ===== НАСТРОЙКИ ФОНОВ =====
+        const bgThemes = {
+            early_autumn: "bg-early-autumn",
+            golden: "bg-golden",
+            rainy: "bg-rainy",
+            late: "bg-late",
+            forest: "bg-forest",
+            park: "bg-park",
+            mountains: "bg-mountains",
+            village: "bg-village"
+        };
+
+        function setBodyBg(theme) {
+            document.body.className = '';
+            document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
+            localStorage.setItem('selectedBg', theme);
+        }
+        const savedBg = localStorage.getItem('selectedBg');
+        if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
+        else setBodyBg('early_autumn');
+
+        // ===== ОБРАБОТЧИК КЛИКА =====
         function processSingleClick(gain, x, y) {
             if (isBanned) return;
             hideSleepMsg();
-            spawnFloatText(x, y, `+${gain}`);
-            points += gain;
+
+            // Комбо (каждый 5-й клик)
+            comboCounter++;
+            let finalGain = gain;
+            if (comboCounter % 5 === 0) {
+                finalGain = gain * 2;
+                const comboText = document.getElementById('comboText');
+                comboText.innerText = t('combo');
+                comboText.classList.add('show');
+                setTimeout(() => comboText.classList.remove('show'), 800);
+                spawnFloatText(x, y - 40, "🔥 x2!");
+            }
+
+            // Тройной клик (2% шанс)
+            if (Math.random() < 0.02) {
+                finalGain = gain * 3;
+                spawnFloatText(x, y - 40, "⚡ x3!");
+                showToast(t('triple'));
+                playBuySound();
+            }
+
+            points += finalGain;
             totalClicks++;
             playClickSound();
+
             if (Math.random() < 0.01) {
                 diamonds++;
                 totalDiamondsEarned++;
-                showToast("💎 АЛМАЗ!");
+                showToast(t('diamond'));
                 playBuySound();
-                spawnFloatText(x, y-30, "💎");
+                spawnFloatText(x, y - 30, "💎");
             }
         }
 
@@ -743,21 +1147,70 @@
             saveGame();
         }
 
+        function playClickSound() {
+            if (!audioCtx) initMusic();
+            if (audioCtx) {
+                const profile = soundProfiles[currentSoundProfile];
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = profile.type;
+                osc.frequency.value = profile.freq;
+                gain.gain.value = 0.08;
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            }
+        }
+
+        function playBuySound() {
+            if (!audioCtx) initMusic();
+            if (audioCtx) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = "triangle";
+                osc.frequency.value = 523.25;
+                gain.gain.value = 0.08;
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            }
+        }
+
         const clickable = document.getElementById('clickableObject');
         clickable.addEventListener('touchstart', handleMultiTouch, { passive: false });
         clickable.addEventListener('mousedown', handleMouseClick);
-        
-        document.getElementById('playBtn')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('gameInterface').classList.remove('hidden'); });
-        document.getElementById('backToMenu')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('gameInterface').classList.add('hidden'); });
+
+        // ===== КНОПКИ =====
+        document.getElementById('playBtn')?.addEventListener('click', () => {
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('gameInterface').classList.remove('hidden');
+        });
+        document.getElementById('backToMenu')?.addEventListener('click', () => {
+            document.getElementById('mainMenu').classList.remove('hidden');
+            document.getElementById('gameInterface').classList.add('hidden');
+        });
         document.getElementById('openShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
         document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
         document.getElementById('prestigeBtn')?.addEventListener('click', performPrestige);
-        document.getElementById('settingsBtn')?.addEventListener('click', () => { document.getElementById('settingsModal').classList.add('show'); });
+        document.getElementById('settingsBtn')?.addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.add('show');
+            updateLangUI();
+        });
         document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
-        document.getElementById('resetGameBtn')?.addEventListener('click', () => { if (confirm("Сбросить всё?")) { localStorage.clear(); location.reload(); } });
+        document.getElementById('resetGameBtn')?.addEventListener('click', () => {
+            if (confirm("Сбросить всё?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        });
         document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
         document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
 
+        // Фоны
         document.getElementById('bgEarlyAutumn')?.addEventListener('click', () => setBodyBg('early_autumn'));
         document.getElementById('bgGolden')?.addEventListener('click', () => setBodyBg('golden'));
         document.getElementById('bgRainy')?.addEventListener('click', () => setBodyBg('rainy'));
@@ -771,7 +1224,8 @@
         document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
         document.getElementById('promoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.add('show'));
         document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
-        
+
+        // Промокоды
         const promoCodes = {};
         for (let i = 1; i <= 100; i++) {
             promoCodes[`code${i}`] = { points: 100 + i * 5, diamonds: 1 + Math.floor(i / 10) };
@@ -784,57 +1238,77 @@
         promoCodes['prestige'] = { points: 10000, diamonds: 200 };
         promoCodes['legend'] = { points: 20000, diamonds: 500 };
 
-        document.getElementById('activatePromoBtn')?.addEventListener('click', () => { 
+        document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
             if (isBanned) return;
-            const code = document.getElementById('promoInput').value.toLowerCase().trim(); 
+            const code = document.getElementById('promoInput').value.toLowerCase().trim();
             if (checkBan(code)) {
                 document.getElementById('promoInput').value = '';
                 document.getElementById('promoModal').classList.remove('show');
                 activateBan();
                 return;
             }
-            if (promoCodes[code]) { 
+            if (promoCodes[code]) {
                 const promo = promoCodes[code];
-                points += promo.points; 
-                diamonds += promo.diamonds; 
-                totalDiamondsEarned += promo.diamonds; 
-                updateUI(); 
-                saveGame(); 
-                showToast("✅ Промокод активирован!");
+                points += promo.points;
+                diamonds += promo.diamonds;
+                totalDiamondsEarned += promo.diamonds;
+                updateUI();
+                saveGame();
+                showToast(t('promoActivated'));
                 document.getElementById('promoInput').value = '';
                 document.getElementById('promoModal').classList.remove('show');
-            } else showToast("❌ Неверный код"); 
+            } else showToast(t('promoInvalid'));
         });
 
         document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
             if (isBanned) return;
             currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
-            document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
+            document.getElementById('soundToggleBtn').innerText = t('soundChange');
             saveGame();
             showToast(`🔊 Звук: ${soundProfiles[currentSoundProfile].name}`);
         });
 
+        document.getElementById('langToggleBtn')?.addEventListener('click', () => {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            localStorage.setItem('gameLang', currentLang);
+            updateLangUI();
+            saveGame();
+            showToast(currentLang === 'ru' ? '🌐 Язык: Русский' : '🌐 Language: English');
+        });
+
         document.getElementById('shareBtn')?.addEventListener('click', shareProgress);
 
-        function moveEyes(e) { const x = e.touches ? e.touches[0].clientX : e.clientX; const y = e.touches ? e.touches[0].clientY : e.clientY; document.querySelectorAll('.pupil').forEach(p => { const rect = p.parentElement.parentElement.getBoundingClientRect(); const dx = x - (rect.left + rect.width / 2); const dy = y - (rect.top + rect.height / 2); const angle = Math.atan2(dy, dx); const dist = Math.min(4, Math.hypot(dx, dy) / 20); p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`; }); }
-        document.addEventListener('mousemove', moveEyes); document.addEventListener('touchmove', moveEyes);
+        function moveEyes(e) {
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            document.querySelectorAll('.pupil').forEach(p => {
+                const rect = p.parentElement.parentElement.getBoundingClientRect();
+                const dx = x - (rect.left + rect.width / 2);
+                const dy = y - (rect.top + rect.height / 2);
+                const angle = Math.atan2(dy, dx);
+                const dist = Math.min(4, Math.hypot(dx, dy) / 20);
+                p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
+            });
+        }
+        document.addEventListener('mousemove', moveEyes);
+        document.addEventListener('touchmove', moveEyes);
 
         let reloadSeconds = 300;
-        setInterval(() => { 
-            if (reloadSeconds > 0) { 
-                reloadSeconds--; 
-                const m = Math.floor(reloadSeconds / 60), s = reloadSeconds % 60; 
-                document.getElementById('reloadCountdown').innerText = `${m}:${s.toString().padStart(2, '0')}`; 
-                if (reloadSeconds === 0) { 
-                    showToast("Перезагрузка..."); 
-                    setTimeout(() => location.reload(), 2000); 
-                } 
-            } 
+        setInterval(() => {
+            if (reloadSeconds > 0) {
+                reloadSeconds--;
+                const m = Math.floor(reloadSeconds / 60), s = reloadSeconds % 60;
+                document.getElementById('reloadCountdown').innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                if (reloadSeconds === 0) {
+                    showToast(t('reloading'));
+                    setTimeout(() => location.reload(), 2000);
+                }
+            }
         }, 1000);
         setInterval(saveGame, 5000);
 
-        loadGame(); applySettings();
-        
+        loadGame();
+
         if (musicEnabled && audioCtx) {
             document.body.addEventListener('click', () => {
                 if (musicEnabled && audioCtx) {
