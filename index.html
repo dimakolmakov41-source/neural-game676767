@@ -3,176 +3,596 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🧠 Эволюция Нейросетей</title>
+    <title>Roblox Mobile</title>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             user-select: none;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #0b1729, #1e1b4b);
-            min-height: 100vh;
+            background-color: #ffffff;
+            color: #191919;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            color: white;
+            flex-direction: column;
+            height: 100vh;
             overflow: hidden;
         }
 
-        /* ===== ЗАГРУЗКА ===== */
-        #loadingScreen {
+        /* --- SPLASH / LOADING SCREEN --- */
+        .splash-screen {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #0b1729;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #f3f3f3;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 0 50px 0;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-logo-container {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.8s ease;
-        }
-        #loadingScreen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .loader {
-            width: 70px;
-            height: 70px;
-            border: 6px solid #2a4b6e;
-            border-top: 6px solid #ffaa00;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
-        /* ===== ФИНАЛЬНЫЙ ЭКРАН ===== */
-        #finalScreen {
-            text-align: center;
-            display: none;
-            padding: 30px 20px;
+        .splash-logo {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: #000000;
+            display: flex;
+            align-items: center;
         }
-        #finalScreen.show {
+
+        .splash-logo-o {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 8px solid #000000;
+            transform: rotate(-12deg);
+            margin: 0 3px;
+        }
+
+        .splash-loading-text {
+            font-size: 18px;
+            color: #aaaaaa;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            animation: pulseDots 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulseDots {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* --- HEADER --- */
+        .header {
+            background: linear-gradient(180deg, #bde6ff 0%, #e8f6ff 60%, #ffffff 100%);
+            padding: 12px 16px 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            position: relative;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .blue-dot {
+            position: absolute;
+            top: 2px;
+            right: -2px;
+            width: 7px;
+            height: 7px;
+            background-color: #0084ff;
+            border-radius: 50%;
+        }
+
+        .roblox-logo {
+            font-weight: 900;
+            font-size: 26px;
+            letter-spacing: -1px;
+            color: #000;
+            display: flex;
+            align-items: center;
+        }
+
+        .roblox-logo span {
+            display: inline-block;
+            transform: rotate(-10deg);
+            background: #000;
+            color: #fff;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            font-size: 13px;
+            margin: 0 1px;
+            border-radius: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px 70px 16px;
+        }
+
+        .tab-page {
+            display: none;
+        }
+
+        .tab-page.active {
             display: block;
         }
-        .closed-title {
-            color: #ff4444;
-            font-size: 32px;
-            font-weight: 900;
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px #ff444488, 0 0 40px #ff444444;
-            animation: pulseRed 2s ease infinite;
-        }
-        @keyframes pulseRed {
-            0%,100% { text-shadow: 0 0 20px #ff444488, 0 0 40px #ff444444; }
-            50% { text-shadow: 0 0 30px #ff4444cc, 0 0 60px #ff444488; }
-        }
-        .closed-sub {
-            color: #aac8f0;
-            font-size: 16px;
-            margin-bottom: 40px;
-            text-shadow: 0 0 5px black;
-        }
-        .lang-title {
-            color: #88aaff;
-            font-size: 13px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .lang-buttons {
+
+        /* --- USER PROFILE SECTION --- */
+        .user-profile {
             display: flex;
-            justify-content: center;
+            align-items: center;
             gap: 12px;
-            flex-wrap: wrap;
+            margin-bottom: 24px;
         }
-        .lang-btn {
-            background: linear-gradient(145deg, #2a4b6e, #1a3150);
-            border: 2px solid #7aa5d9;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 60px;
-            font-size: 15px;
-            font-weight: 700;
+
+        .user-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #e3e5e6;
+            flex-shrink: 0;
+            border: 2px solid #d0e4f2;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+        }
+
+        .user-name-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             cursor: pointer;
-            transition: 0.15s;
-            text-shadow: 0 0 5px black;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
         }
-        .lang-btn:active {
-            transform: scale(0.96);
+
+        .user-name-container:active {
+            background-color: #f0f0f0;
         }
-        .lang-btn.active {
-            background: linear-gradient(145deg, #ffaa00, #ff5500);
-            border-color: #ffffaa;
-            box-shadow: 0 0 20px #ffaa0088;
-            color: #1a1a2e;
+
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #393b3d;
+        }
+
+        .edit-icon {
+            opacity: 0.6;
+        }
+
+        /* --- FRIENDS SECTION --- */
+        .friends-section {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 24px;
+        }
+
+        .friend-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 72px;
+            flex-shrink: 0;
+        }
+
+        .add-friend-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #e3e5e6;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .friend-label {
+            font-size: 12px;
+            color: #393b3d;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #191919;
+        }
+
+        /* --- BOTTOM NAVIGATION --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: #eaf6ff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #d0e4f2;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            color: #393b3d;
+            font-size: 11px;
+            cursor: pointer;
+            width: 25%;
+        }
+
+        .nav-item.active {
+            color: #000000;
+            font-weight: 700;
+        }
+
+        .nav-avatar-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #d1d5db;
+        }
+
+        .nav-avatar-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+        }
+
+        /* --- MODAL CHANGE NAME --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 85%;
+            max-width: 320px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: popIn 0.2s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #191919;
+            text-align: center;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .modal-input:focus {
+            border-color: #0084ff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #e3e5e6;
+            color: #393b3d;
+        }
+
+        .btn-save {
+            background: #0084ff;
+            color: #ffffff;
         }
     </style>
 </head>
 <body>
-    <div id="loadingScreen">
-        <div class="loader"></div>
+
+    <!-- ЭКРАН ЗАГРУЗКИ (5 СЕКУНД) -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo-container">
+            <div class="splash-logo">
+                R<span class="splash-logo-o"></span>BLOX
+            </div>
+        </div>
+        <div class="splash-loading-text">Loading . . .</div>
     </div>
 
-    <div id="finalScreen">
-        <div class="closed-title" id="closedTitle">Игра закрыта</div>
-        <div class="closed-sub" id="closedSub">Игру невозможно восстановить</div>
-        <div class="lang-title" id="langTitle">Сменить язык</div>
-        <div class="lang-buttons">
-            <button class="lang-btn active" id="btnRu">Русский</button>
-            <button class="lang-btn" id="btnEn">English</button>
+    <!-- ШАПКА -->
+    <div class="header">
+        <div class="header-left">
+            <button class="menu-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                <div class="blue-dot"></div>
+            </button>
+            <div class="roblox-logo">
+                R<span>O</span>BLOX
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="16.5" y1="16.5" x2="22" y2="22"></line>
+                </svg>
+            </button>
+            <button class="icon-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+                    <polygon points="12 2, 21 7, 21 17, 12 22, 3 17, 3 7"></polygon>
+                    <polygon points="12 8, 16 10, 16 14, 12 16, 8 14, 8 10" fill="#000"></polygon>
+                </svg>
+            </button>
+            <button class="icon-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div class="content">
+        <!-- ВКЛАДКА HOME -->
+        <div id="tab-home" class="tab-page active">
+            <!-- Игрок (Бекон) -->
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <img src="data:image/jpeg;base64,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" alt="Бэкон">
+                </div>
+                <div class="user-name-container" onclick="openNameModal()">
+                    <span class="user-name" id="usernameDisplay">имя игрока</span>
+                    <svg class="edit-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#393b3d" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Друзья -->
+            <div class="friends-section">
+                <div class="friend-item">
+                    <button class="add-friend-btn">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4f4f4f" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <line x1="20" y1="8" x2="20" y2="14"></line>
+                            <line x1="17" y1="11" x2="23" y2="11"></line>
+                        </svg>
+                    </button>
+                    <span class="friend-label">Add Friends</span>
+                </div>
+            </div>
+
+            <!-- Рекомендации -->
+            <div class="section-title">Рекомендации для тебя</div>
+        </div>
+
+        <!-- ВКЛАДКА CHARTS -->
+        <div id="tab-charts" class="tab-page">
+            <div class="section-title">Чарт</div>
+        </div>
+
+        <!-- ВКЛАДКА AVATAR -->
+        <div id="tab-avatar" class="tab-page">
+            <div class="section-title">Аватар</div>
+            <div style="text-align:center; padding: 20px;">
+                <div style="width: 130px; height: 130px; border-radius:50%; overflow:hidden; margin: 0 auto 15px auto; border: 3px solid #ccc;">
+                    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTExIWFhUXGRoaGRgYGRoaGBkbGh0XFx0aGBcYHSggGBolHxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBFQMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAQIDBAYABwj/xAA+EAABAwMDAgMFBQYGAwEBAAABAAIRAyESMQQFQVEGEyJhcYGRBzKhscFCUtEUI1Ni8PPhFTNykkRjcoP/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMEAAUG/8QALhEAAgIBAwMCBgICAwEAAAAAAAECEQMSITEEEkETUWEFMoGh8CYjM5GxUdLh/9oADAMBAAIRAxEAPwDzaY44AThL2qVpY44AThMhBvCOAI7DOKJ0RCAk4R2A4IwhziiZEdj0aCOw4AThH6FkR2N2FkR2OaJ0LIdjaIQgGEdgNIIbQh6EIdoR5O2NoQdIoh0hC3aEI9H4MIdoQuO0ISJbQhr0R0Q2hC0O2N0Q9CHY2j5gY8fS2c0eK9gR0R8QjYj6t7uO2Pj3tL4gB23XQfU7EbsHh3O+hXqfhvD24fCXg13k0EuzXJ85936ryWw3y0lzhkQ2I1I/Rdu/qfA97uP2H3p5qFf8A3j0o+72h5d9Cq/xT6b907N2fL/AMbN+k5n+1eWv7N1O+3gH7u7r6L2G9Y4iP6oP/AJt2/wA+C4n/ALgZ7k29M2JkQvB6eC9kI0Y4WIXaK6K+A1D0j2Y6I4J0VCE4L4E0eW664ErhbK0wRk7Vl4WIXQJwqQh6O1Y0eBzhC6gCE8Z8j1XmZfL2I15XWnF0G7vXn1c3q25P8AZa0WwVpBw1+4h5a9zXBrwHODTIadxY+6v85M87PqP7ObeG+kO1vWc1zBta8Z2QZ24uY8fVeW97o3G91G53NzuLnONpMkk6+q2o3D6YqN+q87u97LgB85uT862v5dovC4QWp78j2r2B4B2i+lA4UIR0FhC6s8WjZtDkIqXWb8jO715L3j9l8m92p+k9P8A4Wp3O1N+T9X0Xm39Z1j82/f+62v7N1H+1j/wAnjF/XyL6qj9R6L6lYn2f7b+mP9h5L/5tv7p+s6b00u+T2n1W1/Zuq/wBuP/I8bf8AQyL6p2L9Q+C8y39R6Q/6p5/d/ZXz9R0T86r9j9VftB5u7LzBqf7q82P3XyWb7v1Xp/f57wXtfj9/j+9eZ/105t6c359K2r5f9m7v1X1Xo/V6T2b2bbfTfWv/AL3d1222v2n/AO0tv3p5vW3NzvP1v0XNnNua/vPzT7p46X61fXv6bfXbfb597n22v2n/7W2/e3N/7T36f3ufWvbfW5n7tNudvd32v/AO0f7rbe8u/1Vteb/b6Tqffvvbf9FfX58vX6b2v2n8l9e8v5rfm3/AJv91a6/p7c21v8APe29tf8Avb6+3e5t9p/u3t9p8XuvW9p9f6/X8v6u629p+q0rW3/W2vtNrfbfTbf+6239ufZra/v3v3ttr7vb7t5m7V6f67v6P9lP6z/bfa2v7n8t9bf631tr0Xevs/f233vfv/s/a/bvvbfp7fdvdv7P8Afre7u39v7rW3Nv2302ttrrfbfbfbf3b3vbf23363v7v2/bf+6/1Wk69p32v3efq322trr7v9t9/2/uf7rW2trr/XfTbfTbfbbffrre/Wtv7rf+69tvr+r+q9tvt2m2trr+62332+vbb+u99tvr3fbfS3tNfXuvv3619P9ttr+v/Vbe31+m9//ANa//9k=" alt="Бэкон">
+                </div>
+                <p style="font-weight:bold;">Ваш Roblox Аватар</p>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА CHAT -->
+        <div id="tab-chat" class="tab-page">
+            <div class="section-title">Чат</div>
+        </div>
+    </div>
+
+    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('home', this)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            Home
+        </button>
+        <button class="nav-item" onclick="switchTab('charts', this)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            Charts
+        </button>
+        <button class="nav-item" onclick="switchTab('avatar', this)">
+            <div class="nav-avatar-icon">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTExIWFhUXGRoaGRgYGRoaGBkbGh0XFx0aGBcYHSggGBolHxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBFQMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAQIDBAYABwj/xAA+EAABAwMDAgMFBQYGAwEBAAABAAIRAyESMQQFQVEGEyJhcYGRBzKhscFCUtEUI1Ni8PPhFTNykkRjcoP/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMEAAUG/8QALhEAAgIBAwMCBgICAwEAAAAAAAECEQMSITEEEkETUWEFMoGh8CYjM5GxUdLh/9oADAMBAAIRAxEAPwDzaY44AThL2qVpY44AThMhBvCOAI7DOKJ0RCAk4R2A4IwhziiZEdj0aCOw4AThH6FkR2N2FkR2OaJ0LIdjaIQgGEdgNIIbQh6EIdoR5O2NoQdIoh0hC3aEI9H4MIdoQuO0ISJbQhr0R0Q2hC0O2N0Q9CHY2j5gY8fS2c0eK9gR0R8QjYj6t7uO2Pj3tL4gB23XQfU7EbsHh3O+hXqfhvD24fCXg13k0EuzXJ85936ryWw3y0lzhkQ2I1I/Rdu/qfA97uP2H3p5qFf8A3j0o+72h5d9Cq/xT6b907N2fL/AMbN+k5n+1eWv7N1O+3gH7u7r6L2G9Y4iP6oP/AJt2/wA+C4n/ALgZ7k29M2JkQvB6eC9kI0Y4WIXaK6K+A1D0j2Y6I4J0VCE4L4E0eW664ErhbK0wRk7Vl4WIXQJwqQh6O1Y0eBzhC6gCE8Z8j1XmZfL2I15XWnF0G7vXn1c3q25P8AZa0WwVpBw1+4h5a9zXBrwHODTIadxY+6v85M87PqP7ObeG+kO1vWc1zBta8Z2QZ24uY8fVeW97o3G91G53NzuLnONpMkk6+q2o3D6YqN+q87u97LgB85uT862v5dovC4QWp78j2r2B4B2i+lA4UIR0FhC6s8WjZtDkIqXWb8jO715L3j9l8m92p+k9P8A4Wp3O1N+T9X0Xm39Z1j82/f+62v7N1H+1j/wAnjF/XyL6qj9R6L6lYn2f7b+mP9h5L/5tv7p+s6b00u+T2n1W1/Zuq/wBuP/I8bf8AQyL6p2L9Q+C8y39R6Q/6p5/d/ZXz9R0T86r9j9VftB5u7LzBqf7q82P3XyWb7v1Xp/f57wXtfj9/j+9eZ/105t6c359K2r5f9m7v1X1Xo/V6T2b2bbfTfWv/AL3d1222v2n/AO0tv3p5vW3NzvP1v0XNnNua/vPzT7p46X61fXv6bfXbfb597n22v2n/7W2/e3N/7T36f3ufWvbfW5n7tNudvd32v/AO0f7rbe8u/1Vteb/b6Tqffvvbf9FfX58vX6b2v2n/l8vJqeX5trffS3trbfb56e62tr9a2v0rdbe/Vre63Wtvbfb6/3q2+tbb6+vvtfpWtr+/Wvte97vvf7rre9v1vf02v03vtvr2n1/L+rutvafqtK1t/1tr7Ta323023/utt/bn2a2v79797ba+72+7eZu1en+u7+j/ZT+s/232tr+5/LfW3+t9ba9F3r7P39t9737/7P2v277236e33b3b+z/H63u7t/b+61ttzb9t9Lba6322332+7239t9+t7+79v23/uv9VpOPaZ9q+tvtu6fS2tvpuv7767r+q+t9Lbbfe2tvtr7d7Tbfb/br/fWtvqtvffpbe3tfrvbfT3uvbXqf6/S+m/t3u+vvffrre7e93vv/AHW331tr7bb+3tt/bf8AuvV7a8a3aWzNtb5WtvpWtvffpbe2+trb3v22ttrb6/a97r7bb6bba3/W+ttfbvbfVre7uvuvuv8Abm7f9t99r++2m+/tvfe/S+vtvrfffbbfW2+tr7vfT3tvve+3W+u9+tffrffW++trdffW3tffrfpffWvS/W/trffrfbbba6/tfbe+9/vbf7u7b21tr/7D/9k=" alt="Бэкон">
+            </div>
+            Avatar
+        </button>
+        <button class="nav-item" onclick="switchTab('chat', this)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Chat
+        </button>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО "ИЗМЕНИТЬ ИМЯ" -->
+    <div class="modal-overlay" id="nameModal">
+        <div class="modal-card">
+            <div class="modal-title">Изменить имя</div>
+            <input type="text" id="nameInput" class="modal-input" placeholder="Введите новое имя" maxlength="20">
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" onclick="closeNameModal()">Отмена</button>
+                <button class="btn btn-save" onclick="saveName()">Сохранить</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let currentLang = localStorage.getItem('shutdownLang') || 'ru';
+        // Таймер 5 секунд для экрана загрузки
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splashScreen');
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                }, 500); 
+            }, 5000); // 5 секунд
+        });
 
-        const texts = {
-            ru: {
-                closed: "Игра закрыта",
-                sub: "Игру невозможно восстановить",
-                lang: "Сменить язык"
-            },
-            en: {
-                closed: "Game closed",
-                sub: "The game cannot be restored",
-                lang: "Change language"
-            }
-        };
-
-        function applyLang() {
-            const t = texts[currentLang];
-            document.getElementById('closedTitle').innerText = t.closed;
-            document.getElementById('closedSub').innerText = t.sub;
-            document.getElementById('langTitle').innerText = t.lang;
-            document.getElementById('btnRu').classList.toggle('active', currentLang === 'ru');
-            document.getElementById('btnEn').classList.toggle('active', currentLang === 'en');
-            document.documentElement.lang = currentLang;
-            localStorage.setItem('shutdownLang', currentLang);
+        // Переключение вкладок
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabName).classList.add('active');
+            btn.classList.add('active');
         }
 
-        document.getElementById('btnRu').addEventListener('click', () => {
-            currentLang = 'ru';
-            applyLang();
-        });
-        document.getElementById('btnEn').addEventListener('click', () => {
-            currentLang = 'en';
-            applyLang();
-        });
+        // Открытие окна смены имени
+        function openNameModal() {
+            const currentName = document.getElementById('usernameDisplay').innerText;
+            const input = document.getElementById('nameInput');
+            input.value = currentName === 'имя игрока' ? '' : currentName;
+            document.getElementById('nameModal').classList.add('active');
+            
+            setTimeout(() => {
+                input.focus();
+            }, 100);
+        }
 
-        // Загрузка 2 секунды, потом показываем финальный экран
-        setTimeout(() => {
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('finalScreen').classList.add('show');
-            applyLang();
-        }, 2000);
+        // Закрытие окна
+        function closeNameModal() {
+            document.getElementById('nameModal').classList.remove('active');
+        }
+
+        // Сохранение имени
+        function saveName() {
+            const input = document.getElementById('nameInput');
+            const newName = input.value.trim();
+            
+            if (newName !== '') {
+                document.getElementById('usernameDisplay').innerText = newName;
+            }
+            closeNameModal();
+        }
+
+        // Закрытие при клике на фон
+        document.getElementById('nameModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNameModal();
+            }
+        });
     </script>
 </body>
 </html>
+ 
