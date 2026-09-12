@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Roblox Mobile</title>
+    <title>Roblox Mobile - Tower of Hell 3D</title>
+    <!-- Подключаем Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -168,7 +170,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .user-avatar {
@@ -255,6 +257,206 @@
             color: #191919;
         }
 
+        /* --- GAMES LIST --- */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .game-card {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+            border: 1px solid #eaeaea;
+        }
+
+        .game-card:active {
+            transform: scale(0.96);
+        }
+
+        .game-card-thumb {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #ff0055, #ff7700, #9900ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 42px;
+        }
+
+        .game-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            padding: 8px 10px 2px 10px;
+            color: #191919;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .game-card-stats {
+            font-size: 11px;
+            color: #757575;
+            padding: 0 10px 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- SIDEBAR MENU --- */
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ffffff;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            transition: left 0.3s ease-in-out;
+        }
+
+        .sidebar-menu.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: #000000;
+            border: 2px solid #000000;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        .close-btn span {
+            color: #ff0000;
+            font-weight: 900;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 40px;
+            padding-left: 10px;
+        }
+
+        .sidebar-user .user-avatar {
+            width: 60px;
+            height: 60px;
+        }
+
+        .sidebar-user-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #191919;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            padding-left: 10px;
+            flex: 1;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-decoration: none;
+            color: #000000;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sidebar-item-settings {
+            margin-top: auto;
+            margin-bottom: 40px;
+        }
+
+        /* --- SETTINGS PAGE --- */
+        .settings-screen {
+            position: fixed;
+            top: 0;
+            left: 100%;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ffffff;
+            z-index: 2500;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease-in-out;
+        }
+
+        .settings-screen.active {
+            left: 0;
+        }
+
+        .settings-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #ffffff;
+        }
+
+        .settings-back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .settings-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #191919;
+        }
+
+        .settings-header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .settings-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .settings-item {
+            font-size: 18px;
+            font-weight: 500;
+            color: #191919;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
         /* --- BOTTOM NAVIGATION --- */
         .bottom-nav {
             position: fixed;
@@ -267,7 +469,7 @@
             justify-content: space-around;
             align-items: center;
             border-top: 1px solid #d0e4f2;
-            z-index: 100;
+            z-index: 2600;
         }
 
         .nav-item {
@@ -312,7 +514,7 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.4);
-            z-index: 1000;
+            z-index: 3000;
             justify-content: center;
             align-items: center;
         }
@@ -385,11 +587,232 @@
             background: #0084ff;
             color: #ffffff;
         }
+
+        /* --- GAME LOADING SCREEN (ПО СКРИНШОТУ) --- */
+        .game-loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #1e2029;
+            z-index: 7000;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 60px 20px;
+            color: #ffffff;
+        }
+
+        .game-loading-card {
+            background-color: #272a36;
+            width: 260px;
+            border-radius: 20px;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .game-loading-thumb {
+            width: 140px;
+            height: 140px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #a8a8a8, #5a5a5a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 54px;
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        .game-loading-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        .game-loading-username {
+            font-size: 13px;
+            color: #a0a5b5;
+        }
+
+        .game-loading-footer {
+            font-size: 14px;
+            color: #d1d5e0;
+            letter-spacing: 0.3px;
+        }
+
+        /* --- 3D GAME CANVAS SCREEN --- */
+        .game-3d-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            z-index: 8000;
+            display: none;
+            touch-action: none;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            touch-action: none;
+        }
+
+        /* HUD & Controls Overlay */
+        .game-hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .game-hud * {
+            pointer-events: auto;
+        }
+
+        .game-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-exit-btn {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+        }
+
+        .game-stats-box {
+            background: rgba(0,0,0,0.6);
+            color: #00ffcc;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid rgba(0,255,204,0.3);
+        }
+
+        .controls-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        /* Touch D-PAD */
+        .dpad-container {
+            display: grid;
+            grid-template-columns: repeat(3, 46px);
+            grid-template-rows: repeat(3, 46px);
+            gap: 4px;
+        }
+
+        .dpad-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            touch-action: manipulation;
+        }
+
+        .dpad-btn:active {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 3; }
+
+        .jump-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(0, 132, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            touch-action: manipulation;
+            box-shadow: 0 4px 15px rgba(0, 132, 255, 0.4);
+        }
+
+        .jump-btn:active {
+            background: rgba(0, 132, 255, 0.9);
+            transform: scale(0.95);
+        }
+
+        /* WIN MODAL */
+        .win-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 20, 0.95);
+            border: 2px solid #00ff88;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+            z-index: 9000;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .win-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .win-text {
+            font-size: 14px;
+            color: #cccccc;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ЭКРАН ЗАГРУЗКИ (5 СЕКУНД) -->
+    <!-- ЭКРАН ЗАГРУЗКИ (7 секунд) -->
     <div class="splash-screen" id="splashScreen">
         <div class="splash-logo-container">
             <div class="splash-logo">
@@ -399,10 +822,79 @@
         <div class="splash-loading-text">Loading . . .</div>
     </div>
 
+    <!-- ВЫЕЗЖАЮЩЕЕ МЕНЮ -->
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div class="sidebar-header">
+            <button class="close-btn" onclick="closeSidebar()">
+                <span>✕</span>
+            </button>
+        </div>
+        
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTExIWFhUXGRoaGRgYGRoaGBkbGh0XFx0aGBcYHSggGBolHxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBFQMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAQIDBAYABwj/xAA+EAABAwMDAgMFBQYGAwEBAAABAAIRAyESMQQFQVEGEyJhcYGRBzKhscFCUtEUI1Ni8PPhFTNykkRjcoP/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMEAAUG/8QALhEAAgIBAwMCBgICAwEAAAAAAAECEQMSITEEEkETUWEFMoGh8CYjM5GxUdLh/9oADAMBADrawingbox0hC3aEI9H4MIdoQuO0ISJbQhr0R0Q2hC0O2N0Q9CHY2j5gY8fS2c0eK9gR0R8QjYj6t7uO2Pj3tL4gB23XQfU7EbsHh3O+hXqfhvD24fCXg13k0EuzXJ85936ryWw3y0lzhkQ2I1I/Rdu/qfA97uP2H3p5qFf8A3j0o+72h5d9Cq/xT6b907N2fL/AMbN+k5n+1eWv7N1O+3gH7u7r6L2G9Y4iP6oP/AJt2/A+C4n/ALgZ7k29M2JkQvB6eC9kI0Y4WIXaK6K+A1D0j2Y6I4J0VCE4L4E0eW664ErhbK0wRk7Vl4WIXQJwqQh6O1Y0eBzhC6gCE8Z8j1XmZfL2I15XWnF0G7vXn1c3q25P8AZa0WwVpBw1+4h5a9zXBrwHODTIadxY+6v85M87PqP7ObeG+kO1vWc1zBta8Z2QZ24uY8fVeW97o3G91G53NzuLnONpMkk6+q2o3D6YqN+q87u97LgB85uT862v5dovC4QWp78j2r2B4B2i+lA4UIR0FhC6s8WjZtDkIqXWb8jO715L3j9l8m92p+k9P8A4Wp3O1N+T9X0Xm39Z1j82/f+62v7N1H+1j/AnjF/XyL6qj9R6L6lYn2f7b+mP9h5L/5tv7p+s6b00u+T2n1W1/Zuq/BuP/I8bf8AQyL6p2L9Q+C8y39R6Q/6p5/d/ZXz9R0T86r9j9VftB5u7LzBqf7q82P3XyWb7v1Xp/f57wXtfj9/j+9eZ/105t6c359K2r5f9m7v1X1Xo/V6T2b2bbfTfWv/AL3d1222v2n/AO0tv3p5vW3NzvP1v0XNnNua/vPzT7p46X61fXv6bfXbfb597n22v2n/7W2/e3N/7T36f3ufWvbfW5n7tNudvd32v/AO0f7rbe8u/1Vteb/b6Tqffvvbf9FfX58vX6b2v2n/l8vJqeX5trffS3trbfb56e62tr9a2v0rdbe/Vre63Wtvbfb6/3q2+tbb6+vvtfpWtr+/Wvte97vvf7rre9v1vf02v03vtvr2n1/L+rutvafqtK1t/1tr7Ta323023/utt/bn2a2v79797ba+72+7eZu1en+u7+j/ZT+s/232tr+5/LfW3+t9ba9F3r7P39t9737/7P2v277236e33b3b+z/H63u7t/b+61ttzb9t9Lba6322332+7239t9+t7+79v23/uv9VpOPaZ9q+tvtu6fS2tvpuv7767r+q+t9Lbbfe2tvtr7d7Tbfb/br/fWtvqtvffpbe3tfrvbfT3uvbXqf6/S+m/t3u+vvffrre7e93vv/AHW331tr7bb+3tt/bf8uvV7a8a3aWzNtb5WtvpWtvffpbe2+trb3v22ttrb6/a97r7bb6bba3/W+ttfbvbfVre7uvuvuv8Abm7f9t99r++2m+/tvfe/S+vtvrfffbbfW2+tr7vfT3tvve+3W+u9+tffrffW++trdffW3tffrfpffWvS/W/trffrfbbba6/tfbe+9/vbf7u7b21tr/7D/9k=" alt="Бэкон">
+            </div>
+            <span class="sidebar-user-name" id="sidebarUsernameDisplay">имя игрока</span>
+        </div>
+
+        <div class="sidebar-links">
+            <a href="#" class="sidebar-item">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Favorites
+            </a>
+            <a href="#" class="sidebar-item">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Continue Playing
+            </a>
+            <div class="sidebar-item sidebar-item-settings" onclick="openSettings()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                Settings
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН НАСТРОЕК -->
+    <div class="settings-screen" id="settingsScreen">
+        <div class="settings-header">
+            <button class="settings-back-btn" onclick="closeSettings()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <div class="settings-title">Settings</div>
+            <div class="settings-header-right">
+                <button class="icon-btn">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+                        <polygon points="12 2, 21 7, 21 17, 12 22, 3 17, 3 7"></polygon>
+                        <polygon points="12 8, 16 10, 16 14, 12 16, 8 14, 8 10" fill="#000"></polygon>
+                    </svg>
+                </button>
+                <button class="icon-btn">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="settings-content">
+            <div class="settings-item">Account info</div>
+        </div>
+    </div>
+
     <!-- ШАПКА -->
     <div class="header">
         <div class="header-left">
-            <button class="menu-btn">
+            <button class="menu-btn" onclick="openSidebar()">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -443,7 +935,7 @@
             <!-- Игрок (Бекон) -->
             <div class="user-profile">
                 <div class="user-avatar">
-                    <img src="data:image/jpeg;base64,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" alt="Бэкон">
+                    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTExIWFhUXGRoaGRgYGRoaGBkbGh0XFx0aGBcYHSggGBolHxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBFQMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAQIDBAYABwj/xAA+EAABAwMDAgMFBQYGAwEBAAABAAIRAyESMQQFQVEGEyJhcYGRBzKhscFCUtEUI1Ni8PPhFTNykkRjcoP/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMEAAUG/8QALhEAAgIBAwMCBgICAwEAAAAAAAECEQMSITEEEkETUWEFMoGh8CYjM5GxUdLh/9oADAMBADrawingbox0hC3aEI9H4MIdoQuO0ISJbQhr0R0Q2hC0O2N0Q9CHY2j5gY8fS2c0eK9gR0R8QjYj6t7uO2Pj3tL4gB23XQfU7EbsHh3O+hXqfhvD24fCXg13k0EuzXJ85936ryWw3y0lzhkQ2I1I/Rdu/qfA97uP2H3p5qFf8A3j0o+72h5d9Cq/xT6b907N2fL/AMbN+k5n+1eWv7N1O+3gH7u7r6L2G9Y4iP6oP/AJt2/A+C4n/ALgZ7k29M2JkQvB6eC9kI0Y4WIXaK6K+A1D0j2Y6I4J0VCE4L4E0eW664ErhbK0wRk7Vl4WIXQJwqQh6O1Y0eBzhC6gCE8Z8j1XmZfL2I15XWnF0G7vXn1c3q25P8AZa0WwVpBw1+4h5a9zXBrwHODTIadxY+6v85M87PqP7ObeG+kO1vWc1zBta8Z2QZ24uY8fVeW97o3G91G53NzuLnONpMkk6+q2o3D6YqN+q87u97LgB85uT862v5dovC4QWp78j2r2B4B2i+lA4UIR0FhC6s8WjZtDkIqXWb8jO715L3j9l8m92p+k9P8A4Wp3O1N+T9X0Xm39Z1j82/f+62v7N1H+1j/AnjF/XyL6qj9R6L6lYn2f7b+mP9h5L/5tv7p+s6b00u+T2n1W1/Zuq/BuP/I8bf8AQyL6p2L9Q+C8y39R6Q/6p5/d/ZXz9R0T86r9j9VftB5u7LzBqf7q82P3XyWb7v1Xp/f57wXtfj9/j+9eZ/105t6c359K2r5f9m7v1X1Xo/V6T2b2bbfTfWv/AL3d1222v2n/AO0tv3p5vW3NzvP1v0XNnNua/vPzT7p46X61fXv6bfXbfb597n22v2n/7W2/e3N/7T36f3ufWvbfW5n7tNudvd32v/AO0f7rbe8u/1Vteb/b6Tqffvvbf9FfX58vX6b2v2n/l8vJqeX5trffS3trbfb56e62tr9a2v0rdbe/Vre63Wtvbfb6/3q2+tbb6+vvtfpWtr+/Wvte97vvf7rre9v1vf02v03vtvr2n1/L+rutvafqtK1t/1tr7Ta323023/utt/bn2a2v79797ba+72+7eZu1en+u7+j/ZT+s/232tr+5/LfW3+t9ba9F3r7P39t9737/7P2v277236e33b3b+z/H63u7t/b+61ttzb9t9Lba6322332+7239t9+t7+79v23/uv9VpOPaZ9q+tvtu6fS2tvpuv7767r+q+t9Lbbfe2tvtr7d7Tbfb/br/fWtvqtvffpbe3tfrvbfT3uvbXqf6/S+m/t3u+vvffrre7e93vv/AHW331tr7bb+3tt/bf8uvV7a8a3aWzNtb5WtvpWtvffpbe2+trb3v22ttrb6/a97r7bb6bba3/W+ttfbvbfVre7uvuvuv8Abm7f9t99r++2m+/tvfe/S+vtvrfffbbfW2+tr7vfT3tvve+3W+u9+tffrffW++trdffW3tffrfpffWvS/W/trffrfbbba6/tfbe+9/vbf7u7b21tr/7D/9k=" alt="Бэкон">
                 </div>
                 <div class="user-name-container" onclick="openNameModal()">
                     <span class="user-name" id="usernameDisplay">имя игрока</span>
@@ -469,6 +961,21 @@
                 </div>
             </div>
 
+            <!-- Игры -->
+            <div class="section-title">Игры</div>
+            <div class="games-grid">
+                <!-- Игра Tower of Hell -->
+                <div class="game-card" onclick="launchGame('Tower of Hell')">
+                    <div class="game-card-thumb">
+                        🏰
+                    </div>
+                    <div class="game-card-title">Tower of Hell</div>
+                    <div class="game-card-stats">
+                        <span>👍 92%</span> • <span>👁 184.2K</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Рекомендации -->
             <div class="section-title">Рекомендации для тебя</div>
         </div>
@@ -483,7 +990,7 @@
             <div class="section-title">Аватар</div>
             <div style="text-align:center; padding: 20px;">
                 <div style="width: 130px; height: 130px; border-radius:50%; overflow:hidden; margin: 0 auto 15px auto; border: 3px solid #ccc;">
-                    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTExIWFhUXGRoaGRgYGRoaGBkbGh0XFx0aGBcYHSggGBolHxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBFQMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAQIDBAYABwj/xAA+EAABAwMDAgMFBQYGAwEBAAABAAIRAyESMQQFQVEGEyJhcYGRBzKhscFCUtEUI1Ni8PPhFTNykkRjcoP/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMEAAUG/8QALhEAAgIBAwMCBgICAwEAAAAAAAECEQMSITEEEkETUWEFMoGh8CYjM5GxUdLh/9oADAMBAAIRAxEAPwDzaY44AThL2qVpY44AThMhBvCOAI7DOKJ0RCAk4R2A4IwhziiZEdj0aCOw4AThH6FkR2N2FkR2OaJ0LIdjaIQgGEdgNIIbQh6EIdoR5O2NoQdIoh0hC3aEI9H4MIdoQuO0ISJbQhr0R0Q2hC0O2N0Q9CHY2j5gY8fS2c0eK9gR0R8QjYj6t7uO2Pj3tL4gB23XQfU7EbsHh3O+hXqfhvD24fCXg13k0EuzXJ85936ryWw3y0lzhkQ2I1I/Rdu/qfA97uP2H3p5qFf8A3j0o+72h5d9Cq/xT6b907N2fL/AMbN+k5n+1eWv7N1O+3gH7u7r6L2G9Y4iP6oP/AJt2/wA+C4n/ALgZ7k29M2JkQvB6eC9kI0Y4WIXaK6K+A1D0j2Y6I4J0VCE4L4E0eW664ErhbK0wRk7Vl4WIXQJwqQh6O1Y0eBzhC6gCE8Z8j1XmZfL2I15XWnF0G7vXn1c3q25P8AZa0WwVpBw1+4h5a9zXBrwHODTIadxY+6v85M87PqP7ObeG+kO1vWc1zBta8Z2QZ24uY8fVeW97o3G91G53NzuLnONpMkk6+q2o3D6YqN+q87u97LgB85uT862v5dovC4QWp78j2r2B4B2i+lA4UIR0FhC6s8WjZtDkIqXWb8jO715L3j9l8m92p+k9P8A4Wp3O1N+T9X0Xm39Z1j82/f+62v7N1H+1j/wAnjF/XyL6qj9R6L6lYn2f7b+mP9h5L/5tv7p+s6b00u+T2n1W1/Zuq/wBuP/I8bf8AQyL6p2L9Q+C8y39R6Q/6p5/d/ZXz9R0T86r9j9VftB5u7LzBqf7q82P3XyWb7v1Xp/f57wXtfj9/j+9eZ/105t6c359K2r5f9m7v1X1Xo/V6T2b2bbfTfWv/AL3d1222v2n/AO0tv3p5vW3NzvP1v0XNnNua/vPzT7p46X61fXv6bfXbfb597n22v2n/7W2/e3N/7T36f3ufWvbfW5n7tNudvd32v/AO0f7rbe8u/1Vteb/b6Tqffvvbf9FfX58vX6b2v2n8l9e8v5rfm3/AJv91a6/p7c21v8APe29tf8Avb6+3e5t9p/u3t9p8XuvW9p9f6/X8v6u629p+q0rW3/W2vtNrfbfTbf+6239ufZra/v3v3ttr7vb7t5m7V6f67v6P9lP6z/bfa2v7n8t9bf631tr0Xevs/f233vfv/s/a/bvvbfp7fdvdv7P8Afre7u39v7rW3Nv2302ttrrfbfbfbf3b3vbf23363v7v2/bf+6/1Wk69p32v3efq322trr7v9t9/2/uf7rW2trr/XfTbfTbfbbffrre/Wtv7rf+69tvr+r+q9tvt2m2trr+62332+vbb+u99tvr3fbfS3tNfXuvv3619P9ttr+v/Vbe31+m9//ANa//9k=" alt="Бэкон">
+                    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTExIWFhUXGRoaGRgYGRoaGBkbGh0XFx0aGBcYHSggGBolHxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBFQMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAQIDBAYABwj/xAA+EAABAwMDAgMFBQYGAwEBAAABAAIRAyESMQQFQVEGEyJhcYGRBzKhscFCUtEUI1Ni8PPhFTNykkRjcoP/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMEAAUG/8QALhEAAgIBAwMCBgICAwEAAAAAAAECEQMSITEEEkETUWEFMoGh8CYjM5GxUdLh/9oADAMBADrawingbox0hC3aEI9H4MIdoQuO0ISJbQhr0R0Q2hC0O2N0Q9CHY2j5gY8fS2c0eK9gR0R8QjYj6t7uO2Pj3tL4gB23XQfU7EbsHh3O+hXqfhvD24fCXg13k0EuzXJ85936ryWw3y0lzhkQ2I1I/Rdu/qfA97uP2H3p5qFf8A3j0o+72h5d9Cq/xT6b907N2fL/AMbN+k5n+1eWv7N1O+3gH7u7r6L2G9Y4iP6oP/AJt2/A+C4n/ALgZ7k29M2JkQvB6eC9kI0Y4WIXaK6K+A1D0j2Y6I4J0VCE4L4E0eW664ErhbK0wRk7Vl4WIXQJwqQh6O1Y0eBzhC6gCE8Z8j1XmZfL2I15XWnF0G7vXn1c3q25P8AZa0WwVpBw1+4h5a9zXBrwHODTIadxY+6v85M87PqP7ObeG+kO1vWc1zBta8Z2QZ24uY8fVeW97o3G91G53NzuLnONpMkk6+q2o3D6YqN+q87u97LgB85uT862v5dovC4QWp78j2r2B4B2i+lA4UIR0FhC6s8WjZtDkIqXWb8jO715L3j9l8m92p+k9P8A4Wp3O1N+T9X0Xm39Z1j82/f+62v7N1H+1j/AnjF/XyL6qj9R6L6lYn2f7b+mP9h5L/5tv7p+s6b00u+T2n1W1/Zuq/BuP/I8bf8AQyL6p2L9Q+C8y39R6Q/6p5/d/ZXz9R0T86r9j9VftB5u7LzBqf7q82P3XyWb7v1Xp/f57wXtfj9/j+9eZ/105t6c359K2r5f9m7v1X1Xo/V6T2b2bbfTfWv/AL3d1222v2n/AO0tv3p5vW3NzvP1v0XNnNua/vPzT7p46X61fXv6bfXbfb597n22v2n/7W2/e3N/7T36f3ufWvbfW5n7tNudvd32v/AO0f7rbe8u/1Vteb/b6Tqffvvbf9FfX58vX6b2v2n/l8vJqeX5trffS3trbfb56e62tr9a2v0rdbe/Vre63Wtvbfb6/3q2+tbb6+vvtfpWtr+/Wvte97vvf7rre9v1vf02v03vtvr2n1/L+rutvafqtK1t/1tr7Ta323023/utt/bn2a2v79797ba+72+7eZu1en+u7+j/ZT+s/232tr+5/LfW3+t9ba9F3r7P39t9737/7P2v277236e33b3b+z/H63u7t/b+61ttzb9t9Lba6322332+7239t9+t7+79v23/uv9VpOPaZ9q+tvtu6fS2tvpuv7767r+q+t9Lbbfe2tvtr7d7Tbfb/br/fWtvqtvffpbe3tfrvbfT3uvbXqf6/S+m/t3u+vvffrre7e93vv/AHW331tr7bb+3tt/bf8uvV7a8a3aWzNtb5WtvpWtvffpbe2+trb3v22ttrb6/a97r7bb6bba3/W+ttfbvbfVre7uvuvuv8Abm7f9t99r++2m+/tvfe/S+vtvrfffbbfW2+tr7vfT3tvve+3W+u9+tffrffW++trdffW3tffrfpffWvS/W/trffrfbbba6/tfbe+9/vbf7u7b21tr/7D/9k=" alt="Бэкон">
                 </div>
                 <p style="font-weight:bold;">Ваш Roblox Аватар</p>
             </div>
@@ -497,13 +1004,13 @@
 
     <!-- НИЖНЯЯ НАВИГАЦИЯ -->
     <div class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('home', this)">
+        <button class="nav-item active" id="nav-home" onclick="switchTab('home', this)">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
             Home
         </button>
-        <button class="nav-item" onclick="switchTab('charts', this)">
+        <button class="nav-item" id="nav-charts" onclick="switchTab('charts', this)">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
                 <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -511,13 +1018,13 @@
             </svg>
             Charts
         </button>
-        <button class="nav-item" onclick="switchTab('avatar', this)">
+        <button class="nav-item" id="nav-avatar" onclick="switchTab('avatar', this)">
             <div class="nav-avatar-icon">
-                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTExIWFhUXGRoaGRgYGRoaGBkbGh0XFx0aGBcYHSggGBolHxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBFQMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAQIDBAYABwj/xAA+EAABAwMDAgMFBQYGAwEBAAABAAIRAyESMQQFQVEGEyJhcYGRBzKhscFCUtEUI1Ni8PPhFTNykkRjcoP/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMEAAUG/8QALhEAAgIBAwMCBgICAwEAAAAAAAECEQMSITEEEkETUWEFMoGh8CYjM5GxUdLh/9oADAMBAAIRAxEAPwDzaY44AThL2qVpY44AThMhBvCOAI7DOKJ0RCAk4R2A4IwhziiZEdj0aCOw4AThH6FkR2N2FkR2OaJ0LIdjaIQgGEdgNIIbQh6EIdoR5O2NoQdIoh0hC3aEI9H4MIdoQuO0ISJbQhr0R0Q2hC0O2N0Q9CHY2j5gY8fS2c0eK9gR0R8QjYj6t7uO2Pj3tL4gB23XQfU7EbsHh3O+hXqfhvD24fCXg13k0EuzXJ85936ryWw3y0lzhkQ2I1I/Rdu/qfA97uP2H3p5qFf8A3j0o+72h5d9Cq/xT6b907N2fL/AMbN+k5n+1eWv7N1O+3gH7u7r6L2G9Y4iP6oP/AJt2/wA+C4n/ALgZ7k29M2JkQvB6eC9kI0Y4WIXaK6K+A1D0j2Y6I4J0VCE4L4E0eW664ErhbK0wRk7Vl4WIXQJwqQh6O1Y0eBzhC6gCE8Z8j1XmZfL2I15XWnF0G7vXn1c3q25P8AZa0WwVpBw1+4h5a9zXBrwHODTIadxY+6v85M87PqP7ObeG+kO1vWc1zBta8Z2QZ24uY8fVeW97o3G91G53NzuLnONpMkk6+q2o3D6YqN+q87u97LgB85uT862v5dovC4QWp78j2r2B4B2i+lA4UIR0FhC6s8WjZtDkIqXWb8jO715L3j9l8m92p+k9P8A4Wp3O1N+T9X0Xm39Z1j82/f+62v7N1H+1j/wAnjF/XyL6qj9R6L6lYn2f7b+mP9h5L/5tv7p+s6b00u+T2n1W1/Zuq/wBuP/I8bf8AQyL6p2L9Q+C8y39R6Q/6p5/d/ZXz9R0T86r9j9VftB5u7LzBqf7q82P3XyWb7v1Xp/f57wXtfj9/j+9eZ/105t6c359K2r5f9m7v1X1Xo/V6T2b2bbfTfWv/AL3d1222v2n/AO0tv3p5vW3NzvP1v0XNnNua/vPzT7p46X61fXv6bfXbfb597n22v2n/7W2/e3N/7T36f3ufWvbfW5n7tNudvd32v/AO0f7rbe8u/1Vteb/b6Tqffvvbf9FfX58vX6b2v2n/l8vJqeX5trffS3trbfb56e62tr9a2v0rdbe/Vre63Wtvbfb6/3q2+tbb6+vvtfpWtr+/Wvte97vvf7rre9v1vf02v03vtvr2n1/L+rutvafqtK1t/1tr7Ta323023/utt/bn2a2v79797ba+72+7eZu1en+u7+j/ZT+s/232tr+5/LfW3+t9ba9F3r7P39t9737/7P2v277236e33b3b+z/H63u7t/b+61ttzb9t9Lba6322332+7239t9+t7+79v23/uv9VpOPaZ9q+tvtu6fS2tvpuv7767r+q+t9Lbbfe2tvtr7d7Tbfb/br/fWtvqtvffpbe3tfrvbfT3uvbXqf6/S+m/t3u+vvffrre7e93vv/AHW331tr7bb+3tt/bf8AuvV7a8a3aWzNtb5WtvpWtvffpbe2+trb3v22ttrb6/a97r7bb6bba3/W+ttfbvbfVre7uvuvuv8Abm7f9t99r++2m+/tvfe/S+vtvrfffbbfW2+tr7vfT3tvve+3W+u9+tffrffW++trdffW3tffrfpffWvS/W/trffrfbbba6/tfbe+9/vbf7u7b21tr/7D/9k=" alt="Бэкон">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhUTExIWFhUXGRoaGRgYGRoaGBkbGh0XFx0aGBcYHSggGBolHxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBFQMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAQIDBAYABwj/xAA+EAABAwMDAgMFBQYGAwEBAAABAAIRAyESMQQFQVEGEyJhcYGRBzKhscFCUtEUI1Ni8PPhFTNykkRjcoP/xAAaAQADAQEBAQAAAAAAAAAAAAABAgMEAAUG/8QALhEAAgIBAwMCBgICAwEAAAAAAAECEQMSITEEEkETUWEFMoGh8CYjM5GxUdLh/9oADAMBADrawingbox0hC3aEI9H4MIdoQuO0ISJbQhr0R0Q2hC0O2N0Q9CHY2j5gY8fS2c0eK9gR0R8QjYj6t7uO2Pj3tL4gB23XQfU7EbsHh3O+hXqfhvD24fCXg13k0EuzXJ85936ryWw3y0lzhkQ2I1I/Rdu/qfA97uP2H3p5qFf8A3j0o+72h5d9Cq/xT6b907N2fL/AMbN+k5n+1eWv7N1O+3gH7u7r6L2G9Y4iP6oP/AJt2/A+C4n/ALgZ7k29M2JkQvB6eC9kI0Y4WIXaK6K+A1D0j2Y6I4J0VCE4L4E0eW664ErhbK0wRk7Vl4WIXQJwqQh6O1Y0eBzhC6gCE8Z8j1XmZfL2I15XWnF0G7vXn1c3q25P8AZa0WwVpBw1+4h5a9zXBrwHODTIadxY+6v85M87PqP7ObeG+kO1vWc1zBta8Z2QZ24uY8fVeW97o3G91G53NzuLnONpMkk6+q2o3D6YqN+q87u97LgB85uT862v5dovC4QWp78j2r2B4B2i+lA4UIR0FhC6s8WjZtDkIqXWb8jO715L3j9l8m92p+k9P8A4Wp3O1N+T9X0Xm39Z1j82/f+62v7N1H+1j/AnjF/XyL6qj9R6L6lYn2f7b+mP9h5L/5tv7p+s6b00u+T2n1W1/Zuq/BuP/I8bf8AQyL6p2L9Q+C8y39R6Q/6p5/d/ZXz9R0T86r9j9VftB5u7LzBqf7q82P3XyWb7v1Xp/f57wXtfj9/j+9eZ/105t6c359K2r5f9m7v1X1Xo/V6T2b2bbfTfWv/AL3d1222v2n/AO0tv3p5vW3NzvP1v0XNnNua/vPzT7p46X61fXv6bfXbfb597n22v2n/7W2/e3N/7T36f3ufWvbfW5n7tNudvd32v/AO0f7rbe8u/1Vteb/b6Tqffvvbf9FfX58vX6b2v2n/l8vJqeX5trffS3trbfb56e62tr9a2v0rdbe/Vre63Wtvbfb6/3q2+tbb6+vvtfpWtr+/Wvte97vvf7rre9v1vf02v03vtvr2n1/L+rutvafqtK1t/1tr7Ta323023/utt/bn2a2v79797ba+72+7eZu1en+u7+j/ZT+s/232tr+5/LfW3+t9ba9F3r7P39t9737/7P2v277236e33b3b+z/H63u7t/b+61ttzb9t9Lba6322332+7239t9+t7+79v23/uv9VpOPaZ9q+tvtu6fS2tvpuv7767r+q+t9Lbbfe2tvtr7d7Tbfb/br/fWtvqtvffpbe3tfrvbfT3uvbXqf6/S+m/t3u+vvffrre7e93vv/AHW331tr7bb+3tt/bf8uvV7a8a3aWzNtb5WtvpWtvffpbe2+trb3v22ttrb6/a97r7bb6bba3/W+ttfbvbfVre7uvuvuv8Abm7f9t99r++2m+/tvfe/S+vtvrfffbbfW2+tr7vfT3tvve+3W+u9+tffrffW++trdffW3tffrfpffWvS/W/trffrfbbba6/tfbe+9/vbf7u7b21tr/7D/9k=" alt="Бэкон">
             </div>
             Avatar
         </button>
-        <button class="nav-item" onclick="switchTab('chat', this)">
+        <button class="nav-item" id="nav-chat" onclick="switchTab('chat', this)">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
@@ -537,62 +1044,438 @@
         </div>
     </div>
 
+    <!-- ЭКРАН ЗАГРУЗКИ ИГРЫ -->
+    <div class="game-loading-screen" id="gameLoadingScreen">
+        <div></div>
+        <div class="game-loading-card">
+            <div class="game-loading-thumb">🏰</div>
+            <div class="game-loading-title" id="loadingGameTitle">Tower of Hell</div>
+            <div class="game-loading-username" id="loadingUsername">имя игрока</div>
+        </div>
+        <div class="game-loading-footer">Joining server...</div>
+    </div>
+
+    <!-- 3D ЭКРАН ИГРЫ -->
+    <div class="game-3d-screen" id="game3dScreen">
+        <canvas id="gameCanvas"></canvas>
+        <div class="game-hud">
+            <div class="game-header-bar">
+                <button class="game-exit-btn" onclick="exitGame()">◀ Выйти</button>
+                <div class="game-stats-box" id="heightMeter">Высота: 0m</div>
+            </div>
+
+            <!-- Сенсорные кнопки управления -->
+            <div class="controls-container">
+                <div class="dpad-container">
+                    <button class="dpad-btn btn-up" id="btnForward">▲</button>
+                    <button class="dpad-btn btn-left" id="btnLeft">◀</button>
+                    <button class="dpad-btn btn-right" id="btnRight">▶</button>
+                    <button class="dpad-btn btn-down" id="btnBack">▼</button>
+                </div>
+                <button class="jump-btn" id="btnJump">ПРОБЕЛ</button>
+            </div>
+        </div>
+
+        <!-- Окно Победы -->
+        <div class="win-modal" id="winModal">
+            <div class="win-title">ПОБЕДА! 🎉</div>
+            <div class="win-text">Вы успешно прошли Tower of Hell!</div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-save" onclick="restartGame()">Заново</button>
+                <button class="btn btn-cancel" onclick="exitGame()">Выйти</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Таймер 5 секунд для экрана загрузки
         window.addEventListener('DOMContentLoaded', () => {
+            const savedName = localStorage.getItem('roblox_username');
+            if (savedName) {
+                document.getElementById('usernameDisplay').innerText = savedName;
+                document.getElementById('sidebarUsernameDisplay').innerText = savedName;
+            }
+
+            // Старт 7-секундного лого-экрана
             setTimeout(() => {
                 const splash = document.getElementById('splashScreen');
                 splash.style.opacity = '0';
                 setTimeout(() => {
                     splash.style.display = 'none';
                 }, 500); 
-            }, 5000); // 5 секунд
+            }, 7000);
         });
 
-        // Переключение вкладок
+        function openSidebar() { document.getElementById('sidebarMenu').classList.add('active'); }
+        function closeSidebar() { document.getElementById('sidebarMenu').classList.remove('active'); }
+        function openSettings() { closeSidebar(); document.getElementById('settingsScreen').classList.add('active'); }
+        function closeSettings() { document.getElementById('settingsScreen').classList.remove('active'); }
+
         function switchTab(tabName, btn) {
+            closeSettings();
             document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            
             document.getElementById('tab-' + tabName).classList.add('active');
             btn.classList.add('active');
         }
 
-        // Открытие окна смены имени
         function openNameModal() {
             const currentName = document.getElementById('usernameDisplay').innerText;
             const input = document.getElementById('nameInput');
             input.value = currentName === 'имя игрока' ? '' : currentName;
             document.getElementById('nameModal').classList.add('active');
-            
-            setTimeout(() => {
-                input.focus();
-            }, 100);
+            setTimeout(() => input.focus(), 100);
         }
 
-        // Закрытие окна
-        function closeNameModal() {
-            document.getElementById('nameModal').classList.remove('active');
-        }
+        function closeNameModal() { document.getElementById('nameModal').classList.remove('active'); }
 
-        // Сохранение имени
         function saveName() {
             const input = document.getElementById('nameInput');
             const newName = input.value.trim();
-            
             if (newName !== '') {
                 document.getElementById('usernameDisplay').innerText = newName;
+                document.getElementById('sidebarUsernameDisplay').innerText = newName;
+                localStorage.setItem('roblox_username', newName);
             }
             closeNameModal();
         }
 
-        // Закрытие при клике на фон
-        document.getElementById('nameModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeNameModal();
+        /* ЗАПУСК ИГРЫ С ЗАГРУЗКОЙ 7 СЕКУНД */
+        function launchGame(gameTitle) {
+            const loadingScreen = document.getElementById('gameLoadingScreen');
+            const savedName = localStorage.getItem('roblox_username') || 'имя игрока';
+            
+            document.getElementById('loadingGameTitle').innerText = gameTitle;
+            document.getElementById('loadingUsername').innerText = savedName;
+            loadingScreen.style.display = 'flex';
+
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                start3DGame();
+            }, 7000);
+        }
+
+        /* 3D ИГРАс ВРАЩЕНИЕМ КАМЕРЫ НА 360 ГРАДУСОВ */
+        let scene, camera, renderer;
+        let player, playerVelocity = new THREE.Vector3();
+        let platforms = [];
+        let winPlatform;
+        let isGrounded = false;
+        let animationFrameId;
+        let isGameRunning = false;
+
+        // Камера (углы вращения)
+        let cameraYaw = 0; // Вращение влево/вправо
+        let cameraPitch = 0.3; // Вращение вверх/вниз
+        let isPointerDown = false;
+        let previousPointerX = 0;
+        let previousPointerY = 0;
+
+        const keys = { forward: false, backward: false, left: false, right: false, jump: false };
+
+        function start3DGame() {
+            document.getElementById('game3dScreen').style.display = 'block';
+            document.getElementById('winModal').style.display = 'none';
+            
+            cameraYaw = 0;
+            cameraPitch = 0.3;
+
+            initThreeJS();
+            setupCameraControls();
+            setupTouchControls();
+            setupKeyboardControls();
+            
+            isGameRunning = true;
+            animate();
+        }
+
+        function initThreeJS() {
+            const canvas = document.getElementById('gameCanvas');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0e1017);
+            scene.fog = new THREE.FogExp2(0x0e1017, 0.015);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(20, 40, 20);
+            scene.add(dirLight);
+
+            platforms = [];
+
+            // Игрок
+            const playerGroup = new THREE.Group();
+            
+            const bodyGeo = new THREE.BoxGeometry(0.8, 1.0, 0.5);
+            const bodyMat = new THREE.MeshLambertMaterial({ color: 0x0084ff });
+            const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+            bodyMesh.position.y = 0.5;
+            playerGroup.add(bodyMesh);
+
+            const headGeo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+            const headMat = new THREE.MeshLambertMaterial({ color: 0xffcc99 });
+            const headMesh = new THREE.Mesh(headGeo, headMat);
+            headMesh.position.y = 1.3;
+            playerGroup.add(headMesh);
+
+            player = playerGroup;
+            player.position.set(0, 2, 0);
+            scene.add(player);
+
+            createTower();
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createTower() {
+            // Старт
+            const baseGeo = new THREE.CylinderGeometry(6, 6, 1, 32);
+            const baseMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
+            const basePlat = new THREE.Mesh(baseGeo, baseMat);
+            basePlat.position.set(0, 0, 0);
+            scene.add(basePlat);
+            platforms.push({ mesh: basePlat, radius: 6, y: 0.5 });
+
+            const colors = [0xff0055, 0xff7700, 0xffdd00, 0x00ff66, 0x00ccff, 0xaa00ff];
+            let currentY = 3;
+            let currentAngle = 0;
+
+            for (let i = 0; i < 24; i++) {
+                const color = colors[Math.floor(i / 4) % colors.length];
+                const platGeo = new THREE.BoxGeometry(3, 0.5, 3);
+                const platMat = new THREE.MeshLambertMaterial({ color: color });
+                const plat = new THREE.Mesh(platGeo, platMat);
+
+                currentAngle += 0.75;
+                const x = Math.cos(currentAngle) * 4.5;
+                const z = Math.sin(currentAngle) * 4.5;
+
+                plat.position.set(x, currentY, z);
+                scene.add(plat);
+
+                platforms.push({ mesh: plat, sizeX: 3, sizeZ: 3, y: currentY + 0.25 });
+                currentY += 2.2;
             }
-        });
+
+            // Финиш
+            const winGeo = new THREE.CylinderGeometry(5, 5, 1, 32);
+            const winMat = new THREE.MeshLambertMaterial({ color: 0x00ff88 });
+            winPlatform = new THREE.Mesh(winGeo, winMat);
+            winPlatform.position.set(0, currentY, 0);
+            scene.add(winPlatform);
+            platforms.push({ mesh: winPlatform, radius: 5, y: currentY + 0.5, isWin: true });
+
+            // Стенка
+            const wallGeo = new THREE.CylinderGeometry(9, 9, currentY + 10, 24, 1, true);
+            const wallMat = new THREE.MeshBasicMaterial({ color: 0x1f2438, wireframe: true, transparent: true, opacity: 0.2 });
+            const towerWall = new THREE.Mesh(wallGeo, wallMat);
+            towerWall.position.set(0, currentY / 2, 0);
+            scene.add(towerWall);
+        }
+
+        /* УПРАВЛЕНИЕ КАМЕРОЙ (СВАЙП / МЫШЬ) */
+        function setupCameraControls() {
+            const canvas = document.getElementById('gameCanvas');
+
+            const handleStart = (x, y) => {
+                isPointerDown = true;
+                previousPointerX = x;
+                previousPointerY = y;
+            };
+
+            const handleMove = (x, y) => {
+                if (!isPointerDown) return;
+                const deltaX = x - previousPointerX;
+                const deltaY = y - previousPointerY;
+
+                cameraYaw -= deltaX * 0.006;
+                cameraPitch += deltaY * 0.006;
+
+                // Ограничиваем угол наклона камеры по вертикали
+                cameraPitch = Math.max(0.05, Math.min(1.3, cameraPitch));
+
+                previousPointerX = x;
+                previousPointerY = y;
+            };
+
+            const handleEnd = () => { isPointerDown = false; };
+
+            // Мышь
+            canvas.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY));
+            window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+            window.addEventListener('mouseup', handleEnd);
+
+            // Тачскрин (Палец)
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) handleStart(e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: false });
+
+            window.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1 && isPointerDown) {
+                    handleMove(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: false });
+
+            window.addEventListener('touchend', handleEnd);
+        }
+
+        // Обновление физики и позиции
+        function updatePhysics() {
+            if (!isGameRunning) return;
+
+            const speed = 0.12;
+
+            // Вектор направления движения относительно поворота камеры
+            const forwardX = -Math.sin(cameraYaw);
+            const forwardZ = -Math.cos(cameraYaw);
+            const rightX = Math.cos(cameraYaw);
+            const rightZ = -Math.sin(cameraYaw);
+
+            let moveX = 0;
+            let moveZ = 0;
+
+            if (keys.forward) { moveX += forwardX; moveZ += forwardZ; }
+            if (keys.backward) { moveX -= forwardX; moveZ -= forwardZ; }
+            if (keys.left) { moveX -= rightX; moveZ -= rightZ; }
+            if (keys.right) { moveX += rightX; moveZ += rightZ; }
+
+            // Поворачиваем модель персонажа в сторону движения
+            if (moveX !== 0 || moveZ !== 0) {
+                const moveAngle = Math.atan2(moveX, moveZ);
+                player.rotation.y = moveAngle;
+
+                player.position.x += moveX * speed;
+                player.position.z += moveZ * speed;
+            }
+
+            // Гравитация
+            playerVelocity.y -= 0.012;
+            player.position.y += playerVelocity.y;
+
+            // Проверка столкновения с платформами
+            isGrounded = false;
+            for (let p of platforms) {
+                if (p.radius) {
+                    const dist = Math.hypot(player.position.x - p.mesh.position.x, player.position.z - p.mesh.position.z);
+                    if (dist <= p.radius && Math.abs(player.position.y - p.y) < 0.3 && playerVelocity.y <= 0) {
+                        player.position.y = p.y;
+                        playerVelocity.y = 0;
+                        isGrounded = true;
+                        if (p.isWin) triggerWin();
+                    }
+                } else {
+                    const dx = Math.abs(player.position.x - p.mesh.position.x);
+                    const dz = Math.abs(player.position.z - p.mesh.position.z);
+                    if (dx <= p.sizeX / 2 + 0.2 && dz <= p.sizeZ / 2 + 0.2 && Math.abs(player.position.y - p.y) < 0.3 && playerVelocity.y <= 0) {
+                        player.position.y = p.y;
+                        playerVelocity.y = 0;
+                        isGrounded = true;
+                    }
+                }
+            }
+
+            // Прыжок
+            if (keys.jump && isGrounded) {
+                playerVelocity.y = 0.28;
+                isGrounded = false;
+            }
+
+            // Упал вниз
+            if (player.position.y < -8) {
+                resetPlayerPosition();
+            }
+
+            // Обновляем позицию камеры (Орбита вокруг игрока)
+            const cameraRadius = 7;
+            camera.position.x = player.position.x + cameraRadius * Math.sin(cameraYaw) * Math.cos(cameraPitch);
+            camera.position.z = player.position.z + cameraRadius * Math.cos(cameraYaw) * Math.cos(cameraPitch);
+            camera.position.y = player.position.y + cameraRadius * Math.sin(cameraPitch) + 1.2;
+
+            camera.lookAt(player.position.x, player.position.y + 1, player.position.z);
+
+            document.getElementById('heightMeter').innerText = `Высота: ${Math.max(0, Math.floor(player.position.y))}m`;
+        }
+
+        function resetPlayerPosition() {
+            player.position.set(0, 2, 0);
+            playerVelocity.set(0, 0, 0);
+        }
+
+        function triggerWin() {
+            isGameRunning = false;
+            document.getElementById('winModal').style.display = 'block';
+        }
+
+        function restartGame() {
+            document.getElementById('winModal').style.display = 'none';
+            resetPlayerPosition();
+            isGameRunning = true;
+        }
+
+        function animate() {
+            if (document.getElementById('game3dScreen').style.display === 'block') {
+                animationFrameId = requestAnimationFrame(animate);
+                updatePhysics();
+                renderer.render(scene, camera);
+            }
+        }
+
+        function exitGame() {
+            isGameRunning = false;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            document.getElementById('game3dScreen').style.display = 'none';
+        }
+
+        function onWindowResize() {
+            if (!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function setupTouchControls() {
+            const bindBtn = (id, keyName) => {
+                const btn = document.getElementById(id);
+                
+                const start = (e) => { e.stopPropagation(); keys[keyName] = true; };
+                const end = (e) => { e.stopPropagation(); keys[keyName] = false; };
+
+                btn.addEventListener('touchstart', start, { passive: false });
+                btn.addEventListener('touchend', end, { passive: false });
+                btn.addEventListener('mousedown', start);
+                btn.addEventListener('mouseup', end);
+            };
+
+            bindBtn('btnForward', 'forward');
+            bindBtn('btnBack', 'backward');
+            bindBtn('btnLeft', 'left');
+            bindBtn('btnRight', 'right');
+            bindBtn('btnJump', 'jump');
+        }
+
+        function setupKeyboardControls() {
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = true;
+                if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.backward = true;
+                if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
+                if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
+                if (e.code === 'Space') keys.jump = true;
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
+                if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.backward = false;
+                if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
+                if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
+                if (e.code === 'Space') keys.jump = false;
+            });
+        }
     </script>
 </body>
 </html>
- 
