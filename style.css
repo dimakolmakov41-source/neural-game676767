@@ -163,7 +163,7 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 }
 .brain .sleep-msg.show { opacity: 1; }
 
-/* ========== AI PASS 5 СТИЛЬ ========== */
+/* ========== AI PASS 5 ========== */
 .pass-container {
     background: linear-gradient(135deg, #1a0a2e 0%, #2d1b5e 50%, #0a1a3e 100%);
     border: 2px solid transparent;
@@ -271,9 +271,7 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
     0%,100% { transform: scale(1); box-shadow: 0 0 15px #ff64c8, 0 0 25px #b464ff; }
     50% { transform: scale(1.1); box-shadow: 0 0 25px #ff64c8, 0 0 40px #b464ff; }
 }
-.pass-badge.locked {
-    opacity: 0.5;
-}
+.pass-badge.locked { opacity: 0.5; }
 .open-tasks-btn {
     background: linear-gradient(145deg, #ff64c8, #b464ff);
     border: 2px solid #ffffff80;
@@ -290,9 +288,7 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
     letter-spacing: 1px;
     transition: 0.15s;
 }
-.open-tasks-btn:active {
-    transform: scale(0.97);
-}
+.open-tasks-btn:active { transform: scale(0.97); }
 .pass-end {
     text-align: center;
     font-size: 10px;
@@ -383,28 +379,10 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
     font-weight: 800;
     text-shadow: 0 0 5px black;
 }
-.task-desc {
-    font-size: 12px;
-    color: #d0c0e8;
-}
-.task-progress-bar {
-    height: 8px;
-    background: rgba(0,0,0,0.5);
-    border-radius: 8px;
-    overflow: hidden;
-}
-.task-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #b464ff, #ff64c8);
-    width: 0%;
-    transition: width 0.3s;
-    box-shadow: 0 0 10px #ff64c8;
-}
-.task-progress-text {
-    text-align: right;
-    font-size: 10px;
-    color: #a88ad0;
-}
+.task-desc { font-size: 12px; color: #d0c0e8; }
+.task-progress-bar { height: 8px; background: rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
+.task-progress-fill { height: 100%; background: linear-gradient(90deg, #b464ff, #ff64c8); width: 0%; transition: width 0.3s; box-shadow: 0 0 10px #ff64c8; }
+.task-progress-text { text-align: right; font-size: 10px; color: #a88ad0; }
 .task-claim-btn {
     background: linear-gradient(145deg, #4caf50, #2e7d32);
     border: none;
@@ -491,8 +469,6 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 
 .top-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
 .diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
-.prestige-display { background: #ffaa00; color: #1a1a2e; padding: 4px 12px; border-radius: 40px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px; transition: 0.1s; text-shadow: 0 0 5px black; }
-.prestige-display:hover { background: #ffcc44; transform: scale(1.01); }
 .timers { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 8px; margin-bottom: 10px; text-align: center; font-size: 12px; color: #aaffdd; text-shadow: 0 0 5px black; }
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #ffaa00, #ff5500); color: white; padding: 6px 12px; border-radius: 40px; font-weight: 700; z-index: 2000; animation: fadeOut 3s forwards; font-size: 11px; text-shadow: 0 0 5px black; }
 @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
@@ -536,16 +512,3 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .loading-text { color: #ffd966; font-size: 24px; font-weight: 800; margin-top: 20px; text-shadow: 0 0 20px #ffaa00; }
 .loading-sub { color: #88aaff; font-size: 12px; margin-top: 10px; }
-
-.rank-display {
-    background: #1a3150;
-    border: 1px solid #ffd700;
-    border-radius: 30px;
-    padding: 4px 12px;
-    font-size: 12px;
-    font-weight: bold;
-    color: #ffd966;
-    text-align: center;
-    margin-bottom: 8px;
-    text-shadow: 0 0 5px black;
-}
