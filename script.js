@@ -1,16 +1,17 @@
-// Сброс прогресса при первом запуске v11.6
-if (localStorage.getItem('gameVersion') !== '11.6') {
+
+// Сброс прогресса при первом запуске v11.7
+if (localStorage.getItem('gameVersion') !== '11.7') {
     localStorage.removeItem('neuralEvoSave');
     localStorage.removeItem('aiPassSeason');
     localStorage.removeItem('banEnd');
-    localStorage.setItem('gameVersion', '11.6');
+    localStorage.setItem('gameVersion', '11.7');
 }
 
 setTimeout(() => {
     document.getElementById('loadingScreen').classList.add('hidden');
 }, 2000);
 
-const GAME_VERSION = "11.6";
+const GAME_VERSION = "11.7";
 document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
 // ===== БАН =====
@@ -62,37 +63,15 @@ function applyBanState() {
 }
 
 // ===== ПЕРЕМЕННЫЕ =====
-let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1, prestigeMulti = 1, prestigeCount = 0;
+let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1;
 let totalDiamondsEarned = 0;
+let sessionClicks = 0;
 let godMode = false;
 let comboCounter = 0;
 let gameStartTime = Date.now();
 let playtimeInterval = null;
 let sleepMsgTimer = null;
 let sleepMsgShowing = false;
-
-// ===== РАНГИ =====
-const ranks = [
-    { name: "Новичок", threshold: 0 },
-    { name: "Исследователь", threshold: 100 },
-    { name: "Эксперт", threshold: 500 },
-    { name: "Мастер", threshold: 2000 },
-    { name: "Грандмастер", threshold: 10000 },
-    { name: "Легенда", threshold: 50000 }
-];
-
-function getRank(clicks) {
-    let r = ranks[0];
-    for (let i = ranks.length - 1; i >= 0; i--) {
-        if (clicks >= ranks[i].threshold) { r = ranks[i]; break; }
-    }
-    return r;
-}
-
-function updateRankUI() {
-    const r = getRank(totalClicks);
-    document.getElementById('rankDisplay').innerHTML = `⭐ Ранг: ${r.name}`;
-}
 
 // ===== НЕЙРОСЕТИ =====
 const neuralNames = [
@@ -324,35 +303,6 @@ function startPassEndTimer() {
     passEndTimerInterval = setInterval(updatePassEndTimer, 60000);
 }
 
-// ===== ПРЕСТИЖ =====
-function performPrestige() {
-    if (purchasedCount < 130) { showToast("❌ Нужно 130 нейросетей"); return; }
-    if (totalClicks < 13000) { showToast("❌ Нужно 13000 кликов"); return; }
-    if (confirm("✨ ПРЕСТИЖ? Сбросить прогресс за x2 множитель?")) {
-        prestigeMulti *= 2;
-        prestigeCount++;
-        points = 100;
-        diamonds = 0;
-        totalClicks = 0;
-        purchasedCount = 1;
-        comboCounter = 0;
-        passCurrentTask = 0;
-        passRewardSeconds = 600;
-        passTasks.forEach(t => { t.claimed = false; t.completed = false; });
-        upgrades.forEach((u, i) => {
-            u.purchased = (i === 0);
-        });
-        saveGame();
-        updateUI();
-        renderShopNeurons();
-        renderPassBadges();
-        renderTasksList();
-        document.getElementById('prestigeMulti').innerText = prestigeMulti;
-        showToast(`✨ ПРЕСТИЖ! Множитель x${prestigeMulti}`);
-        playBuySound();
-    }
-}
-
 // ===== ЗВУКИ =====
 const soundProfiles = [
     { name: "Обычный", freq: 880, type: "sine" },
@@ -388,8 +338,7 @@ function spawnFloatText(x, y, text) {
 function updateStatsUI() {
     document.getElementById('statTotalClicks').innerText = totalClicks;
     document.getElementById('statNeuronsBought').innerText = purchasedCount;
-    document.getElementById('statPrestigeCount').innerText = prestigeCount;
-    updateRankUI();
+    document.getElementById('statSessionClicks').innerText = sessionClicks;
 }
 
 function updatePlaytime() {
@@ -423,7 +372,6 @@ function shareProgress() {
 💎 Алмазы: ${diamonds}
 🖱️ Всего кликов: ${totalClicks}
 🧬 Нейросетей: ${purchasedCount}/1500
-✨ Престижей: ${prestigeCount} (множитель x${prestigeMulti})
 🎫 AI Pass 5 уровней: ${passTasks.filter(t=>t.claimed).length}/20
 📅 Версия ${GAME_VERSION}`;
     navigator.clipboard.writeText(text);
@@ -434,7 +382,7 @@ function getClickPower() {
     let base = 1;
     upgrades.forEach(u => { if (u.purchased) base += u.power; });
     if (godMode) base *= 10;
-    return Math.floor(base * prestigeMulti);
+    return Math.floor(base);
 }
 
 function updateUI() {
@@ -444,7 +392,6 @@ function updateUI() {
     document.getElementById('clickHint').innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`;
     document.getElementById('diamonds').innerText = diamonds;
     updateStatsUI();
-    document.getElementById('prestigeMulti').innerText = prestigeMulti;
     updatePlaytime();
     document.getElementById('comboText').classList.remove('show');
     checkPassProgress();
@@ -460,7 +407,7 @@ function showToast(msg) {
 
 function saveGame() {
     const save = {
-        points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount,
+        points, diamonds, totalClicks, purchasedCount,
         totalDiamondsEarned, godMode, comboCounter,
         upgrades: upgrades.map(u => ({ purchased: u.purchased })),
         passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
@@ -479,8 +426,6 @@ function loadGame() {
             diamonds = d.diamonds || 0;
             totalClicks = d.totalClicks || 0;
             purchasedCount = d.purchasedCount || 1;
-            prestigeMulti = d.prestigeMulti || 1;
-            prestigeCount = d.prestigeCount || 0;
             totalDiamondsEarned = d.totalDiamondsEarned || 0;
             godMode = d.godMode || false;
             comboCounter = d.comboCounter || 0;
@@ -523,7 +468,7 @@ function loadGame() {
 
 function exportProgress() {
     const saveData = {
-        points, diamonds, totalClicks, purchasedCount, prestigeMulti, prestigeCount,
+        points, diamonds, totalClicks, purchasedCount,
         totalDiamondsEarned,
         upgrades: upgrades.map(u => ({ purchased: u.purchased })),
         passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
@@ -606,6 +551,7 @@ function processSingleClick(gain, x, y) {
 
     points += finalGain;
     totalClicks++;
+    sessionClicks++;
     playClickSound();
 
     if (Math.random() < 0.01) {
@@ -692,7 +638,6 @@ document.getElementById('backToMenu')?.addEventListener('click', () => {
 });
 document.getElementById('openShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
 document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
-document.getElementById('prestigeBtn')?.addEventListener('click', performPrestige);
 document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
 document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
 document.getElementById('resetGameBtn')?.addEventListener('click', () => {
