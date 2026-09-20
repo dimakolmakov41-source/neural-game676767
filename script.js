@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.14";
+const GAME_VERSION = "11.15";
 
 if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.removeItem('neuralEvoSave');
@@ -210,18 +210,44 @@ window.addEventListener('load', () => {
         } else showToast("❌ Не хватает очков");
     }
 
-    // ===== AI PASS 6 (21–30 сентября) =====
+    // ===== AI PASS 5 и 6 =====
     let passTasks = [];
     let passCurrentTask = 0;
-    // AI Pass 6: 21 сентября 2026 — 30 сентября 2026
-    const passStartDate = new Date(2026, 8, 21, 0, 0, 0);
-    const passEndDate = new Date(2026, 8, 30, 23, 59, 59);
+    const pass5EndDate = new Date(2026, 8, 21, 0, 0, 0);
+    const pass6StartDate = new Date(2026, 8, 21, 0, 0, 0);
+    const pass6EndDate = new Date(2026, 8, 30, 23, 59, 59);
     let passEndTimerInterval = null;
     let passRewardSeconds = 600;
     let passRewardInterval = null;
 
-    // Сброс AI Pass при новом сезоне
-    if (localStorage.getItem('aiPassSeason') !== '6') {
+    function getActivePassNumber() {
+        const now = new Date();
+        return now >= pass6StartDate ? 6 : 5;
+    }
+
+    function applyPassStyle() {
+        const container = document.getElementById('passContainer');
+        const title = document.getElementById('passTitle');
+        const tasksTitle = document.getElementById('passTasksTitle');
+        if (!container || !title) return;
+        const num = getActivePassNumber();
+        container.classList.remove('pass-v5', 'pass-v6');
+        if (num === 6) {
+            container.classList.add('pass-v6');
+            title.innerHTML = '🤖 AI PASS 6 🤖';
+            if (tasksTitle) tasksTitle.innerHTML = '🤖 ЗАДАНИЯ AI PASS 6 🤖';
+        } else {
+            container.classList.add('pass-v5');
+            title.innerHTML = '✨ AI PASS 5 ✨';
+            if (tasksTitle) tasksTitle.innerHTML = '✨ ЗАДАНИЯ AI PASS 5 ✨';
+        }
+    }
+
+    function initPassSeason() {
+        const season = localStorage.getItem('aiPassSeason');
+        const now = new Date();
+
+        // Заполняем задания
         passTasks = [];
         for (let i = 1; i <= 20; i++) {
             passTasks.push({
@@ -233,25 +259,20 @@ window.addEventListener('load', () => {
                 claimed: false
             });
         }
-        passCurrentTask = 0;
-        passRewardSeconds = 600;
-        localStorage.setItem('aiPassSeason', '6');
-    } else {
-        for (let i = 1; i <= 20; i++) {
-            passTasks.push({
-                level: i,
-                targetClicks: i * 500,
-                rewardPoints: i * 500,
-                rewardDiamonds: i * 5,
-                completed: false,
-                claimed: false
-            });
-        }
-    }
 
-    function isPassActive() {
-        const now = new Date();
-        return now >= passStartDate && now <= passEndDate;
+        if (season !== '6') {
+            if (now >= pass6StartDate) {
+                // Включаем 6-й сезон
+                passCurrentTask = 0;
+                passRewardSeconds = 600;
+                localStorage.setItem('aiPassSeason', '6');
+                saveGame();
+            } else if (season !== '5') {
+                passCurrentTask = 0;
+                passRewardSeconds = 600;
+                localStorage.setItem('aiPassSeason', '5');
+            }
+        }
     }
 
     function renderPassBadges() {
@@ -279,10 +300,6 @@ window.addEventListener('load', () => {
     function updatePassRewardTimerDisplay() {
         const el = document.getElementById('passTimer');
         if (!el) return;
-        if (!isPassActive()) {
-            el.innerHTML = `⏱️ --:--`;
-            return;
-        }
         const m = Math.floor(passRewardSeconds / 60);
         const s = passRewardSeconds % 60;
         el.innerHTML = `⏱️ ${m}:${s.toString().padStart(2, '0')}`;
@@ -292,7 +309,6 @@ window.addEventListener('load', () => {
         if (passRewardInterval) clearInterval(passRewardInterval);
         updatePassRewardTimerDisplay();
         passRewardInterval = setInterval(() => {
-            if (!isPassActive()) return;
             passRewardSeconds--;
             if (passRewardSeconds <= 0) {
                 points += 500;
@@ -300,7 +316,8 @@ window.addEventListener('load', () => {
                 totalDiamondsEarned += 5;
                 updateUI();
                 saveGame();
-                showToast(`🎁 Награда AI Pass 6! +500🧠 +5💎`);
+                const num = getActivePassNumber();
+                showToast(`🎁 Награда AI Pass ${num}! +500🧠 +5💎`);
                 playBuySound();
                 passRewardSeconds = 600;
             }
@@ -389,21 +406,19 @@ window.addEventListener('load', () => {
     function updatePassEndTimer() {
         const el = document.getElementById('passEndTimer');
         if (!el) return;
+        const num = getActivePassNumber();
         const now = new Date();
-        const diff = passEndDate - now;
+        const endDate = num === 6 ? pass6EndDate : pass5EndDate;
+        const diff = endDate - now;
         if (diff <= 0) {
-            el.innerHTML = "⏳ AI PASS 6 ЗАВЕРШЁН!";
+            el.innerHTML = `⏳ AI PASS ${num} ЗАВЕРШЁН!`;
             if (passEndTimerInterval) clearInterval(passEndTimerInterval);
-            return;
-        }
-        if (now < passStartDate) {
-            el.innerHTML = "⏳ AI Pass 6 начнётся 21 сентября!";
             return;
         }
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % 86400000) / 3600000);
         const minutes = Math.floor((diff % 3600000) / 60000);
-        el.innerHTML = `⏳ До конца AI Pass 6: ${days} дн. ${hours} ч. ${minutes} мин.`;
+        el.innerHTML = `⏳ До конца AI Pass ${num}: ${days} дн. ${hours} ч. ${minutes} мин.`;
     }
 
     function startPassEndTimer() {
@@ -485,12 +500,13 @@ window.addEventListener('load', () => {
     }
 
     function shareProgress() {
+        const num = getActivePassNumber();
         const text = `🧠 Мой прогресс в игре "Кликер: Эволюция Нейросетей":
 🧠 Очки: ${Math.floor(points)}
 💎 Алмазы: ${diamonds}
 🖱️ Всего кликов: ${totalClicks}
 🧬 Нейросетей: ${purchasedCount}/1500
-🤖 AI Pass 6 уровней: ${passTasks.filter(t=>t.claimed).length}/20
+🤖 AI Pass ${num} уровней: ${passTasks.filter(t=>t.claimed).length}/20
 📅 Версия ${GAME_VERSION}`;
         navigator.clipboard.writeText(text);
         showToast("✅ Прогресс скопирован!");
@@ -586,6 +602,8 @@ window.addEventListener('load', () => {
         if (stb) stb.innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
         applyBanState();
         applyTheme();
+        initPassSeason();
+        applyPassStyle();
     }
 
     function exportProgress() {
@@ -1034,7 +1052,7 @@ window.addEventListener('load', () => {
                 console.log("Алмазы:", diamonds);
                 console.log("Клики:", totalClicks);
                 console.log("Нейросети:", purchasedCount);
-                console.log("AI Pass 6:", passTasks.filter(t=>t.claimed).length, "/ 20");
+                console.log("AI Pass:", passTasks.filter(t=>t.claimed).length, "/ 20");
                 showToast("Смотри консоль (F12)");
             };
             document.getElementById('admResetTutorial').onclick = () => {
