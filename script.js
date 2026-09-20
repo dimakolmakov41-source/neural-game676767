@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.9";
+const GAME_VERSION = "11.10";
 
 if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.removeItem('neuralEvoSave');
@@ -29,7 +29,7 @@ function applyHalloweenTheme() {
         body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
         if (brain) brain.classList.add('halloween-brain');
         if (brainEmoji) brainEmoji.innerText = '🎃';
-        if (diamondLabel) diamondLabel.innerHTML = '🍬 <span id="diamonds">' + (window.diamonds || 0) + '</span>';
+        if (diamondLabel) diamondLabel.innerHTML = '🍬 <span id="diamonds">' + (window.__diamonds || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = '🎃 Страшно?';
         if (reloadTimer) reloadTimer.innerHTML = '⏳ ДО ХЭЛЛОУИНА: <span id="reloadCountdown">5:00</span>';
         if (title) title.innerText = '🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ';
@@ -37,7 +37,7 @@ function applyHalloweenTheme() {
         body.classList.remove('bg-halloween');
         if (brain) brain.classList.remove('halloween-brain');
         if (brainEmoji) brainEmoji.innerText = '🧠';
-        if (diamondLabel) diamondLabel.innerHTML = '💎 <span id="diamonds">' + (window.diamonds || 0) + '</span>';
+        if (diamondLabel) diamondLabel.innerHTML = '💎 <span id="diamonds">' + (window.__diamonds || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = '😴 Спишь?';
         if (reloadTimer) reloadTimer.innerHTML = '🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span>';
         if (title) title.innerText = '🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ';
@@ -111,8 +111,8 @@ window.addEventListener('load', () => {
     let sleepMsgTimer = null;
     let sleepMsgShowing = false;
 
-    // Экспорт переменных для Хэллоуина
-    Object.defineProperty(window, 'diamonds', { get: () => diamonds });
+    // Экспорт для Хэллоуина
+    Object.defineProperty(window, '__diamonds', { get: () => diamonds });
 
     // ===== НЕЙРОСЕТИ =====
     const neuralNames = [
@@ -803,6 +803,144 @@ window.addEventListener('load', () => {
         }
     }, 1000);
     setInterval(saveGame, 5000);
+
+    // ===== АДМИН-ПАНЕЛЬ v2 =====
+    let adminCurrentTab = 'game';
+
+    function renderAdminBody() {
+        const body = document.getElementById('adminBody');
+        if (!body) return;
+
+        if (adminCurrentTab === 'game') {
+            body.innerHTML = `
+                <div class="admin-item"><span>+1000 очков</span><button id="admPoints">Дать</button></div>
+                <div class="admin-item"><span>+100 алмазов</span><button id="admDiamonds">Дать</button></div>
+                <div class="admin-item"><span>Купить все нейросети</span><button id="admBuyAll">Купить</button></div>
+                <div class="admin-item"><span>Открыть все AI Pass</span><button id="admPass">Дать</button></div>
+                <div class="admin-item"><span>Режим Бога (x10)</span><button id="admGod">Вкл/Выкл</button></div>
+                <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
+            `;
+            document.getElementById('admPoints').onclick = () => { points += 1000; updateUI(); saveGame(); showToast("+1000 очков"); };
+            document.getElementById('admDiamonds').onclick = () => { diamonds += 100; totalDiamondsEarned += 100; updateUI(); saveGame(); showToast("+100 алмазов"); };
+            document.getElementById('admBuyAll').onclick = () => {
+                upgrades.forEach((u, i) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } });
+                updateUI(); renderShopNeurons(); saveGame(); showToast("Все нейросети куплены!");
+            };
+            document.getElementById('admPass').onclick = () => {
+                passTasks.forEach((t, i) => { t.claimed = true; });
+                passCurrentTask = passTasks.length;
+                renderPassBadges(); renderTasksList(); saveGame(); showToast("Все AI Pass открыты!");
+            };
+            document.getElementById('admGod').onclick = () => {
+                godMode = !godMode; updateUI(); saveGame();
+                showToast(godMode ? "БОГ ВКЛ" : "БОГ ВЫКЛ");
+            };
+            document.getElementById('admReset').onclick = () => {
+                if (confirm("Сбросить прогресс?")) { localStorage.clear(); location.reload(); }
+            };
+        }
+
+        if (adminCurrentTab === 'visual') {
+            body.innerHTML = `
+                <div class="admin-item"><span>Фон: Ранняя осень</span><button data-bg="early_autumn">Вкл</button></div>
+                <div class="admin-item"><span>Фон: Золотая</span><button data-bg="golden">Вкл</button></div>
+                <div class="admin-item"><span>Фон: Дождливая</span><button data-bg="rainy">Вкл</button></div>
+                <div class="admin-item"><span>Фон: Поздняя</span><button data-bg="late">Вкл</button></div>
+                <div class="admin-item"><span>Фон: Лес</span><button data-bg="forest">Вкл</button></div>
+                <div class="admin-item"><span>Фон: Парк</span><button data-bg="park">Вкл</button></div>
+                <div class="admin-item"><span>Фон: Горы</span><button data-bg="mountains">Вкл</button></div>
+                <div class="admin-item"><span>Фон: Деревня</span><button data-bg="village">Вкл</button></div>
+                <div class="admin-item"><span>Мозг: 🧠 обычный</span><button id="brainNormal">Вкл</button></div>
+                <div class="admin-item"><span>Мозг: 🎃 тыква</span><button id="brainPumpkin">Вкл</button></div>
+                <div class="admin-item"><span>Мозг: 👽 пришелец</span><button id="brainAlien">Вкл</button></div>
+                <div class="admin-item"><span>Мозг: 🔥 огонь</span><button id="brainFire">Вкл</button></div>
+            `;
+            body.querySelectorAll('[data-bg]').forEach(btn => {
+                btn.onclick = () => { setBodyBg(btn.dataset.bg); showToast("Фон: " + btn.dataset.bg); };
+            });
+            document.getElementById('brainNormal').onclick = () => {
+                const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🧠';
+            };
+            document.getElementById('brainPumpkin').onclick = () => {
+                const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🎃';
+            };
+            document.getElementById('brainAlien').onclick = () => {
+                const e = document.getElementById('brainEmoji'); if (e) e.innerText = '👽';
+            };
+            document.getElementById('brainFire').onclick = () => {
+                const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🔥';
+            };
+        }
+
+        if (adminCurrentTab === 'settings') {
+            body.innerHTML = `
+                <div class="admin-item"><span>Открыть настройки игры</span><button id="admOpenSettings">Открыть</button></div>
+                <div class="admin-item"><span>Вкл/Выкл звук</span><button id="admSound">Переключить</button></div>
+                <div class="admin-item"><span>Сменить звук клика</span><button id="admSoundProfile">Сменить</button></div>
+                <div class="admin-item"><span>Показать статистику</span><button id="admStats">Показать</button></div>
+            `;
+            document.getElementById('admOpenSettings').onclick = () => {
+                document.getElementById('adminOverlay').classList.remove('show');
+                document.getElementById('settingsModal').classList.add('show');
+            };
+            document.getElementById('admSound').onclick = () => {
+                musicEnabled = !musicEnabled;
+                localStorage.setItem('musicEnabled', musicEnabled);
+                const btn = document.getElementById('musicToggle');
+                if (btn) btn.innerText = musicEnabled ? '🔊' : '🔇';
+                showToast(musicEnabled ? "Звук ВКЛ" : "Звук ВЫКЛ");
+            };
+            document.getElementById('admSoundProfile').onclick = () => {
+                currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
+                showToast("Звук: " + soundProfiles[currentSoundProfile].name);
+                saveGame();
+            };
+            document.getElementById('admStats').onclick = () => {
+                console.log("=== СТАТИСТИКА ИГРЫ ===");
+                console.log("Очки:", Math.floor(points));
+                console.log("Алмазы:", diamonds);
+                console.log("Клики:", totalClicks);
+                console.log("Нейросети:", purchasedCount);
+                console.log("AI Pass:", passTasks.filter(t=>t.claimed).length, "/ 20");
+                showToast("Смотри консоль (F12)");
+            };
+        }
+    }
+
+    function openAdminPanel() {
+        const overlay = document.getElementById('adminOverlay');
+        if (!overlay) return;
+        adminCurrentTab = 'game';
+        document.querySelectorAll('.admin-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.tab === 'game');
+        });
+        renderAdminBody();
+        overlay.classList.add('show');
+    }
+
+    const versionEl = document.getElementById('menuVersion');
+    if (versionEl) {
+        versionEl.style.cursor = 'pointer';
+        versionEl.addEventListener('click', openAdminPanel);
+    }
+
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            adminCurrentTab = tab.dataset.tab;
+            renderAdminBody();
+        });
+    });
+
+    document.getElementById('adminCloseBtn')?.addEventListener('click', () => {
+        document.getElementById('adminOverlay').classList.remove('show');
+    });
+    document.getElementById('adminOverlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'adminOverlay') {
+            document.getElementById('adminOverlay').classList.remove('show');
+        }
+    });
 
     loadGame();
 });
