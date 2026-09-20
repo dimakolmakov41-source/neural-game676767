@@ -243,7 +243,8 @@ window.addEventListener('load', () => {
         }
     }
 
-    function initPassSeason() {
+    // skipSave=true — не сохранять игру (используется при загрузке, чтобы не перезаписать сейв)
+    function initPassSeason(skipSave) {
         const season = localStorage.getItem('aiPassSeason');
         const now = new Date();
 
@@ -266,7 +267,7 @@ window.addEventListener('load', () => {
                 passCurrentTask = 0;
                 passRewardSeconds = 600;
                 localStorage.setItem('aiPassSeason', '6');
-                saveGame();
+                if (!skipSave) saveGame();
             } else if (season !== '5') {
                 passCurrentTask = 0;
                 passRewardSeconds = 600;
@@ -557,6 +558,10 @@ window.addEventListener('load', () => {
     }
 
     function loadGame() {
+        // 1. СНАЧАЛА заполняем задания AI Pass (иначе passTasks = [])
+        initPassSeason(true);
+
+        // 2. Читаем сейв и накладываем поверх
         const saved = localStorage.getItem('neuralEvoSave');
         if (saved) {
             try {
@@ -573,6 +578,7 @@ window.addEventListener('load', () => {
                         if (upgrades[i]) upgrades[i].purchased = data.purchased;
                     });
                 }
+                // Восстанавливаем passTasks ТЕПЕРЬ, когда массив уже заполнен
                 if (d.passTasks) {
                     d.passTasks.forEach((data, i) => {
                         if (passTasks[i]) {
@@ -588,6 +594,8 @@ window.addEventListener('load', () => {
                 purchasedCount = upgrades.filter(u => u.purchased).length;
             } catch(e) {}
         }
+
+        // 3. Отрисовка
         updateUI();
         renderShopNeurons();
         renderPassBadges();
@@ -602,7 +610,6 @@ window.addEventListener('load', () => {
         if (stb) stb.innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
         applyBanState();
         applyTheme();
-        initPassSeason();
         applyPassStyle();
     }
 
