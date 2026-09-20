@@ -249,6 +249,9 @@ body.bg-newyear .game-container {
 }
 .brain .sleep-msg.show { opacity: 1; }
 
+/* ========== AI PASS — СКРЫТ ========== */
+#passContainer { display: none !important; }
+
 /* ========== AI PASS 5 — ФИОЛЕТОВЫЙ ========== */
 .pass-container.pass-v5 {
     background: linear-gradient(135deg, #1a0a2e 0%, #2d1b5e 50%, #0a1a3e 100%);
