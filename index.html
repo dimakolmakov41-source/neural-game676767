@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=11.11">
+    <link rel="stylesheet" href="style.css?v=11.12">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text">ЗАГРУЗКА...</div>
-        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.11</div>
+        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.12</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -18,7 +18,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v11.11</div>
+            <div class="game-version" id="menuVersion">v11.12</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -73,6 +73,35 @@
 
             <div class="action-buttons"><div class="action-btn" id="backToMenu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn">🛒 МАГАЗИН</div></div>
             <div class="save-badge">💾 автосохранение</div>
+        </div>
+    </div>
+
+    <!-- ===== ОБУЧЕНИЕ ДЛЯ НОВИЧКОВ ===== -->
+    <div class="tutorial-overlay" id="tutorialOverlay">
+        <div class="tutorial-box">
+            <!-- Экран 1: приветствие -->
+            <div class="tutorial-step" id="tutorialStep1">
+                <div class="tutorial-robot">
+                    <span class="robot-emoji">🤖</span>
+                    <span class="robot-text">: Привет я робот !<br>Я вижу ты тут впервые ?</span>
+                </div>
+                <div class="tutorial-buttons">
+                    <button class="tutorial-btn-yes" id="tutorialYes">Да</button>
+                    <button class="tutorial-btn-no" id="tutorialNo">Нет</button>
+                </div>
+            </div>
+            <!-- Экран 2: обучение -->
+            <div class="tutorial-step hidden" id="tutorialStep2">
+                <div class="tutorial-robot">
+                    <span class="robot-emoji">🤖</span>
+                    <span class="robot-text">: Нажми на мозг !</span>
+                </div>
+                <div class="tutorial-text">
+                    Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)
+                </div>
+                <div class="tutorial-hand">👇</div>
+                <button class="tutorial-btn-ok" id="tutorialOk">ПОНЯЛ</button>
+            </div>
         </div>
     </div>
 
@@ -140,8 +169,8 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.11: Добавлен полноэкранный режим в настройках. Улучшена стабильность игры.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.12: Добавлено обучение для новичков. Починена загрузка прогресса.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
-    <script src="script.js?v=11.11"></script>
+    <script src="script.js?v=11.12"></script>
 </body>
 </html>
