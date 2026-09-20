@@ -1,12 +1,47 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.8";
+const GAME_VERSION = "11.9";
 
-// Сброс при первом запуске v11.8
 if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.removeItem('neuralEvoSave');
     localStorage.removeItem('aiPassSeason');
     localStorage.removeItem('banEnd');
     localStorage.setItem('gameVersion', GAME_VERSION);
+}
+
+// ===== ХЭЛЛОУИН =====
+function isHalloween() {
+    const now = new Date();
+    return now.getMonth() === 9 && now.getDate() === 31;
+}
+
+function applyHalloweenTheme() {
+    const h = isHalloween();
+    const body = document.body;
+    const brain = document.getElementById('clickableObject');
+    const brainEmoji = document.getElementById('brainEmoji');
+    const diamondLabel = document.getElementById('diamondLabel');
+    const sleepMsg = document.getElementById('sleepMsg');
+    const reloadTimer = document.getElementById('reloadTimer');
+    const title = document.getElementById('gameTitle');
+
+    if (h) {
+        body.classList.add('bg-halloween');
+        body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
+        if (brain) brain.classList.add('halloween-brain');
+        if (brainEmoji) brainEmoji.innerText = '🎃';
+        if (diamondLabel) diamondLabel.innerHTML = '🍬 <span id="diamonds">' + (window.diamonds || 0) + '</span>';
+        if (sleepMsg) sleepMsg.innerText = '🎃 Страшно?';
+        if (reloadTimer) reloadTimer.innerHTML = '⏳ ДО ХЭЛЛОУИНА: <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = '🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ';
+    } else {
+        body.classList.remove('bg-halloween');
+        if (brain) brain.classList.remove('halloween-brain');
+        if (brainEmoji) brainEmoji.innerText = '🧠';
+        if (diamondLabel) diamondLabel.innerHTML = '💎 <span id="diamonds">' + (window.diamonds || 0) + '</span>';
+        if (sleepMsg) sleepMsg.innerText = '😴 Спишь?';
+        if (reloadTimer) reloadTimer.innerHTML = '🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = '🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ';
+    }
 }
 
 window.addEventListener('load', () => {
@@ -48,7 +83,7 @@ window.addEventListener('load', () => {
             document.body.style.filter = "grayscale(1) brightness(0.5)";
             document.body.style.pointerEvents = "none";
             const remaining = Math.ceil((banEnd - Date.now()) / 1000);
-            showToast(`🌚 Ты забанен на ${Math.ceil(remaining / 60)} минут за плохие слова`);
+            showToast(`🌚 Ты забанен на ${Math.ceil(remaining / 60)} минут`);
             if (banTimer) clearTimeout(banTimer);
             banTimer = setTimeout(() => {
                 localStorage.removeItem('banEnd');
@@ -75,6 +110,9 @@ window.addEventListener('load', () => {
     let playtimeInterval = null;
     let sleepMsgTimer = null;
     let sleepMsgShowing = false;
+
+    // Экспорт переменных для Хэллоуина
+    Object.defineProperty(window, 'diamonds', { get: () => diamonds });
 
     // ===== НЕЙРОСЕТИ =====
     const neuralNames = [
@@ -163,19 +201,10 @@ window.addEventListener('load', () => {
         passTasks.forEach((task, idx) => {
             let cls = 'pass-badge';
             let statusText = '';
-            if (task.claimed) {
-                cls += ' completed';
-                statusText = '✅';
-            } else if (idx === passCurrentTask) {
-                cls += ' available';
-                statusText = '🎯';
-            } else if (idx < passCurrentTask) {
-                cls += ' completed';
-                statusText = '✔';
-            } else {
-                cls += ' locked';
-                statusText = '🔒';
-            }
+            if (task.claimed) { cls += ' completed'; statusText = '✅'; }
+            else if (idx === passCurrentTask) { cls += ' available'; statusText = '🎯'; }
+            else if (idx < passCurrentTask) { cls += ' completed'; statusText = '✔'; }
+            else { cls += ' locked'; statusText = '🔒'; }
             html += `<div class="${cls}">${task.level}<br>${statusText}</div>`;
         });
         container.innerHTML = html;
@@ -183,8 +212,7 @@ window.addEventListener('load', () => {
         const progressFill = document.getElementById('passProgressFill');
         if (progressFill) {
             const claimed = passTasks.filter(t => t.claimed).length;
-            const percent = (claimed / passTasks.length) * 100;
-            progressFill.style.width = percent + '%';
+            progressFill.style.width = ((claimed / passTasks.length) * 100) + '%';
         }
     }
 
@@ -263,8 +291,7 @@ window.addEventListener('load', () => {
         container.innerHTML = html;
         document.querySelectorAll('.task-claim-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const idx = parseInt(btn.dataset.idx);
-                claimTask(idx);
+                claimTask(parseInt(btn.dataset.idx));
             });
         });
     }
@@ -283,7 +310,7 @@ window.addEventListener('load', () => {
         renderPassBadges();
         renderTasksList();
         saveGame();
-        showToast(`🎉 Уровень ${task.level} получен! +${task.rewardPoints}🧠 +${task.rewardDiamonds}💎`);
+        showToast(`🎉 Уровень ${task.level} получен!`);
         playBuySound();
     }
 
@@ -297,8 +324,7 @@ window.addEventListener('load', () => {
     function updatePassEndTimer() {
         const el = document.getElementById('passEndTimer');
         if (!el) return;
-        const now = new Date();
-        const diff = passEndDate - now;
+        const diff = passEndDate - new Date();
         if (diff <= 0) {
             el.innerHTML = "⏳ AI PASS 5 ЗАВЕРШЁН!";
             if (passEndTimerInterval) clearInterval(passEndTimerInterval);
@@ -364,8 +390,7 @@ window.addEventListener('load', () => {
         const el = document.getElementById('playtime');
         if (!el) return;
         const seconds = Math.floor((Date.now() - gameStartTime) / 1000);
-        const minutes = Math.floor(seconds / 60);
-        el.innerText = minutes;
+        el.innerText = Math.floor(seconds / 60);
     }
 
     function startSleepMsgTimer() {
@@ -398,7 +423,7 @@ window.addEventListener('load', () => {
 🎫 AI Pass 5 уровней: ${passTasks.filter(t=>t.claimed).length}/20
 📅 Версия ${GAME_VERSION}`;
         navigator.clipboard.writeText(text);
-        showToast("✅ Прогресс скопирован в буфер обмена!");
+        showToast("✅ Прогресс скопирован!");
     }
 
     function getClickPower() {
@@ -459,9 +484,7 @@ window.addEventListener('load', () => {
                 comboCounter = d.comboCounter || 0;
                 if (d.upgrades) {
                     d.upgrades.forEach((data, i) => {
-                        if (upgrades[i]) {
-                            upgrades[i].purchased = data.purchased;
-                        }
+                        if (upgrades[i]) upgrades[i].purchased = data.purchased;
                     });
                 }
                 if (d.passTasks) {
@@ -492,6 +515,7 @@ window.addEventListener('load', () => {
         const stb = document.getElementById('soundToggleBtn');
         if (stb) stb.innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
         applyBanState();
+        applyHalloweenTheme();
     }
 
     function exportProgress() {
@@ -502,8 +526,7 @@ window.addEventListener('load', () => {
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds
         };
-        const dataStr = JSON.stringify(saveData);
-        const blob = new Blob([dataStr], { type: "application/json" });
+        const blob = new Blob([JSON.stringify(saveData)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -519,7 +542,7 @@ window.addEventListener('load', () => {
             try {
                 const data = JSON.parse(e.target.result);
                 localStorage.setItem('neuralEvoSave', JSON.stringify(data));
-                showToast("📂 Прогресс загружен! Перезагрузи страницу.");
+                showToast("📂 Загружено! Перезагрузи страницу.");
                 setTimeout(() => location.reload(), 1500);
             } catch(error) {
                 showToast("❌ Ошибка загрузки");
@@ -546,6 +569,7 @@ window.addEventListener('load', () => {
     };
 
     function setBodyBg(theme) {
+        if (isHalloween()) return;
         document.body.className = '';
         document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
         localStorage.setItem('selectedBg', theme);
@@ -587,9 +611,9 @@ window.addEventListener('load', () => {
         if (Math.random() < 0.01) {
             diamonds++;
             totalDiamondsEarned++;
-            showToast("💎 АЛМАЗ!");
+            showToast(isHalloween() ? "🍬 КОНФЕТА!" : "💎 АЛМАЗ!");
             playBuySound();
-            spawnFloatText(x, y - 30, "💎");
+            spawnFloatText(x, y - 30, isHalloween() ? "🍬" : "💎");
         }
     }
 
@@ -677,10 +701,7 @@ window.addEventListener('load', () => {
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
     document.getElementById('resetGameBtn')?.addEventListener('click', () => {
-        if (confirm("Сбросить всё?")) {
-            localStorage.clear();
-            location.reload();
-        }
+        if (confirm("Сбросить всё?")) { localStorage.clear(); location.reload(); }
     });
     document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
     document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
@@ -708,9 +729,7 @@ window.addEventListener('load', () => {
     document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
 
     const promoCodes = {};
-    for (let i = 1; i <= 100; i++) {
-        promoCodes[`code${i}`] = { points: 100 + i * 5, diamonds: 1 + Math.floor(i / 10) };
-    }
+    for (let i = 1; i <= 100; i++) promoCodes[`code${i}`] = { points: 100 + i * 5, diamonds: 1 + Math.floor(i / 10) };
     promoCodes['dima'] = { points: 500, diamonds: 10 };
     promoCodes['dima god'] = { points: 5000, diamonds: 100 };
     promoCodes['start'] = { points: 100, diamonds: 5 };
@@ -719,6 +738,7 @@ window.addEventListener('load', () => {
     promoCodes['prestige'] = { points: 10000, diamonds: 200 };
     promoCodes['legend'] = { points: 20000, diamonds: 500 };
     promoCodes['pass5'] = { points: 5000, diamonds: 50 };
+    promoCodes['halloween'] = { points: 6666, diamonds: 66 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
         if (isBanned) return;
