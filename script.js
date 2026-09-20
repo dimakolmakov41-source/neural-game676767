@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.11";
+const GAME_VERSION = "11.12";
 
 if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.removeItem('neuralEvoSave');
@@ -55,7 +55,7 @@ window.addEventListener('load', () => {
     // ===== БАН =====
     const badWords = [
         "дима лох", "дима тупой", "дима дурак", "дима еблан", "дима долбаеб",
-        "разработчик лох", "разработчик тупой", "разработчик дурак", "разработчик еблан", "разработчик уебан"
+        "разработчик лох", "разработчик тупой", "разработчик дурак", "разработчик еблан", "разработчик уеба"
     ];
     let isBanned = false;
     let banTimer = null;
@@ -689,6 +689,33 @@ window.addEventListener('load', () => {
         clickable.addEventListener('mousedown', handleMouseClick);
     }
 
+    // ===== ОБУЧЕНИЕ ДЛЯ НОВИЧКОВ =====
+    const tutorialOverlay = document.getElementById('tutorialOverlay');
+    const tutorialStep1 = document.getElementById('tutorialStep1');
+    const tutorialStep2 = document.getElementById('tutorialStep2');
+
+    // Показываем обучение только если игрок первый раз
+    if (!localStorage.getItem('tutorialDone')) {
+        setTimeout(() => {
+            if (tutorialOverlay) tutorialOverlay.classList.add('show');
+        }, 1800);
+    }
+
+    document.getElementById('tutorialYes')?.addEventListener('click', () => {
+        tutorialStep1.classList.add('hidden');
+        tutorialStep2.classList.remove('hidden');
+    });
+
+    document.getElementById('tutorialNo')?.addEventListener('click', () => {
+        localStorage.setItem('tutorialDone', 'true');
+        if (tutorialOverlay) tutorialOverlay.classList.remove('show');
+    });
+
+    document.getElementById('tutorialOk')?.addEventListener('click', () => {
+        localStorage.setItem('tutorialDone', 'true');
+        if (tutorialOverlay) tutorialOverlay.classList.remove('show');
+    });
+
     // ===== КНОПКИ =====
     document.getElementById('playBtn')?.addEventListener('click', () => {
         document.getElementById('mainMenu').classList.add('hidden');
@@ -908,6 +935,7 @@ window.addEventListener('load', () => {
                 <div class="admin-item"><span>Вкл/Выкл звук</span><button id="admSound">Переключить</button></div>
                 <div class="admin-item"><span>Сменить звук клика</span><button id="admSoundProfile">Сменить</button></div>
                 <div class="admin-item"><span>Показать статистику</span><button id="admStats">Показать</button></div>
+                <div class="admin-item"><span>Сбросить обучение</span><button id="admResetTutorial">Сбросить</button></div>
             `;
             document.getElementById('admOpenSettings').onclick = () => {
                 document.getElementById('adminOverlay').classList.remove('show');
@@ -933,6 +961,10 @@ window.addEventListener('load', () => {
                 console.log("Нейросети:", purchasedCount);
                 console.log("AI Pass:", passTasks.filter(t=>t.claimed).length, "/ 20");
                 showToast("Смотри консоль (F12)");
+            };
+            document.getElementById('admResetTutorial').onclick = () => {
+                localStorage.removeItem('tutorialDone');
+                showToast("Обучение сброшено! Перезагрузи страницу.");
             };
         }
     }
