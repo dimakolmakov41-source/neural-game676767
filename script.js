@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.13";
+const GAME_VERSION = "11.14";
 
 if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.removeItem('neuralEvoSave');
@@ -31,7 +31,6 @@ function applyTheme() {
     const reloadTimer = document.getElementById('reloadTimer');
     const title = document.getElementById('gameTitle');
 
-    // Сброс всех тем
     body.classList.remove('bg-halloween', 'bg-newyear');
     body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
     if (brain) brain.classList.remove('halloween-brain', 'newyear-brain');
@@ -211,23 +210,48 @@ window.addEventListener('load', () => {
         } else showToast("❌ Не хватает очков");
     }
 
-    // ===== AI PASS 5 =====
+    // ===== AI PASS 6 (21–30 сентября) =====
     let passTasks = [];
     let passCurrentTask = 0;
-    const passEndDate = new Date(2026, 8, 21, 23, 59, 59);
+    // AI Pass 6: 21 сентября 2026 — 30 сентября 2026
+    const passStartDate = new Date(2026, 8, 21, 0, 0, 0);
+    const passEndDate = new Date(2026, 8, 30, 23, 59, 59);
     let passEndTimerInterval = null;
     let passRewardSeconds = 600;
     let passRewardInterval = null;
 
-    for (let i = 1; i <= 20; i++) {
-        passTasks.push({
-            level: i,
-            targetClicks: i * 500,
-            rewardPoints: i * 500,
-            rewardDiamonds: i * 5,
-            completed: false,
-            claimed: false
-        });
+    // Сброс AI Pass при новом сезоне
+    if (localStorage.getItem('aiPassSeason') !== '6') {
+        passTasks = [];
+        for (let i = 1; i <= 20; i++) {
+            passTasks.push({
+                level: i,
+                targetClicks: i * 500,
+                rewardPoints: i * 500,
+                rewardDiamonds: i * 5,
+                completed: false,
+                claimed: false
+            });
+        }
+        passCurrentTask = 0;
+        passRewardSeconds = 600;
+        localStorage.setItem('aiPassSeason', '6');
+    } else {
+        for (let i = 1; i <= 20; i++) {
+            passTasks.push({
+                level: i,
+                targetClicks: i * 500,
+                rewardPoints: i * 500,
+                rewardDiamonds: i * 5,
+                completed: false,
+                claimed: false
+            });
+        }
+    }
+
+    function isPassActive() {
+        const now = new Date();
+        return now >= passStartDate && now <= passEndDate;
     }
 
     function renderPassBadges() {
@@ -255,6 +279,10 @@ window.addEventListener('load', () => {
     function updatePassRewardTimerDisplay() {
         const el = document.getElementById('passTimer');
         if (!el) return;
+        if (!isPassActive()) {
+            el.innerHTML = `⏱️ --:--`;
+            return;
+        }
         const m = Math.floor(passRewardSeconds / 60);
         const s = passRewardSeconds % 60;
         el.innerHTML = `⏱️ ${m}:${s.toString().padStart(2, '0')}`;
@@ -264,6 +292,7 @@ window.addEventListener('load', () => {
         if (passRewardInterval) clearInterval(passRewardInterval);
         updatePassRewardTimerDisplay();
         passRewardInterval = setInterval(() => {
+            if (!isPassActive()) return;
             passRewardSeconds--;
             if (passRewardSeconds <= 0) {
                 points += 500;
@@ -271,7 +300,7 @@ window.addEventListener('load', () => {
                 totalDiamondsEarned += 5;
                 updateUI();
                 saveGame();
-                showToast(`🎁 Награда AI Pass! +500🧠 +5💎`);
+                showToast(`🎁 Награда AI Pass 6! +500🧠 +5💎`);
                 playBuySound();
                 passRewardSeconds = 600;
             }
@@ -360,16 +389,21 @@ window.addEventListener('load', () => {
     function updatePassEndTimer() {
         const el = document.getElementById('passEndTimer');
         if (!el) return;
-        const diff = passEndDate - new Date();
+        const now = new Date();
+        const diff = passEndDate - now;
         if (diff <= 0) {
-            el.innerHTML = "⏳ AI PASS 5 ЗАВЕРШЁН!";
+            el.innerHTML = "⏳ AI PASS 6 ЗАВЕРШЁН!";
             if (passEndTimerInterval) clearInterval(passEndTimerInterval);
+            return;
+        }
+        if (now < passStartDate) {
+            el.innerHTML = "⏳ AI Pass 6 начнётся 21 сентября!";
             return;
         }
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % 86400000) / 3600000);
         const minutes = Math.floor((diff % 3600000) / 60000);
-        el.innerHTML = `⏳ До конца AI Pass 5: ${days} дн. ${hours} ч. ${minutes} мин.`;
+        el.innerHTML = `⏳ До конца AI Pass 6: ${days} дн. ${hours} ч. ${minutes} мин.`;
     }
 
     function startPassEndTimer() {
@@ -456,7 +490,7 @@ window.addEventListener('load', () => {
 💎 Алмазы: ${diamonds}
 🖱️ Всего кликов: ${totalClicks}
 🧬 Нейросетей: ${purchasedCount}/1500
-🎫 AI Pass 5 уровней: ${passTasks.filter(t=>t.claimed).length}/20
+🤖 AI Pass 6 уровней: ${passTasks.filter(t=>t.claimed).length}/20
 📅 Версия ${GAME_VERSION}`;
         navigator.clipboard.writeText(text);
         showToast("✅ Прогресс скопирован!");
@@ -833,8 +867,10 @@ window.addEventListener('load', () => {
     promoCodes['prestige'] = { points: 10000, diamonds: 200 };
     promoCodes['legend'] = { points: 20000, diamonds: 500 };
     promoCodes['pass5'] = { points: 5000, diamonds: 50 };
+    promoCodes['pass6'] = { points: 6000, diamonds: 60 };
     promoCodes['halloween'] = { points: 6666, diamonds: 66 };
     promoCodes['newyear'] = { points: 7777, diamonds: 77 };
+    promoCodes['robot'] = { points: 9999, diamonds: 99 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
         if (isBanned) return;
@@ -998,7 +1034,7 @@ window.addEventListener('load', () => {
                 console.log("Алмазы:", diamonds);
                 console.log("Клики:", totalClicks);
                 console.log("Нейросети:", purchasedCount);
-                console.log("AI Pass:", passTasks.filter(t=>t.claimed).length, "/ 20");
+                console.log("AI Pass 6:", passTasks.filter(t=>t.claimed).length, "/ 20");
                 showToast("Смотри консоль (F12)");
             };
             document.getElementById('admResetTutorial').onclick = () => {
