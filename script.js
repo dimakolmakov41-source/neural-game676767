@@ -825,6 +825,11 @@ window.addEventListener('load', () => {
     document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
     document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
 
+    // ===== ТЕСТ КНОПКА =====
+    document.getElementById('testBtn')?.addEventListener('click', () => {
+        showToast("🧪 Тест кнопка работает!");
+    });
+
     document.getElementById('openTasksBtn')?.addEventListener('click', () => {
         renderTasksList();
         document.getElementById('passTasksModal').classList.add('show');
