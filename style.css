@@ -249,70 +249,78 @@ body.bg-newyear .game-container {
 }
 .brain .sleep-msg.show { opacity: 1; }
 
+/* ========== AI PASS 6 — СТИЛЬ РОБОТОВ ========== */
 .pass-container {
-    background: linear-gradient(135deg, #1a0a2e 0%, #2d1b5e 50%, #0a1a3e 100%);
-    border: 2px solid transparent;
-    background-clip: padding-box;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 50%, #0a0a1e 100%);
+    border: 3px solid #4a6a8a;
     border-radius: 30px;
     padding: 15px;
     margin: 10px 0;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 0 30px rgba(180, 100, 255, 0.4), inset 0 0 30px rgba(100, 50, 200, 0.2);
+    box-shadow: 0 0 30px rgba(100, 180, 255, 0.3), inset 0 0 30px rgba(50, 100, 150, 0.2);
 }
 .pass-container::before {
-    content: "";
+    content: "⚙️";
     position: absolute;
-    top: -2px; left: -2px; right: -2px; bottom: -2px;
-    background: linear-gradient(45deg, #b464ff, #ff64c8, #64c8ff, #b464ff);
-    background-size: 300% 300%;
-    border-radius: 32px;
-    z-index: -1;
-    animation: borderGlow 4s ease infinite;
-    filter: blur(2px);
+    top: 8px;
+    right: 12px;
+    font-size: 20px;
+    opacity: 0.4;
+    pointer-events: none;
 }
-@keyframes borderGlow {
-    0%,100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+.pass-container::after {
+    content: "⚙️";
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 20px;
+    opacity: 0.4;
+    pointer-events: none;
 }
+
 .pass-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #e0b0ff;
+    color: #88ccff;
     font-weight: 900;
     font-size: 14px;
     margin-bottom: 12px;
-    text-shadow: 0 0 10px #b464ff, 0 0 20px #b464ff;
+    text-shadow: 0 0 10px #4a9eff, 0 0 20px #4a9eff;
     letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
 }
 .pass-timer-header {
-    background: linear-gradient(145deg, #ff64c8, #b464ff);
+    background: linear-gradient(145deg, #4a6a8a, #2a4a6a);
     padding: 4px 12px;
-    border-radius: 20px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: 800;
-    color: white;
+    color: #cceeff;
     text-shadow: 0 0 5px black;
-    box-shadow: 0 0 15px rgba(255, 100, 200, 0.6);
+    box-shadow: 0 0 15px rgba(100, 180, 255, 0.5);
+    border: 1px solid #6a9abb;
+    font-family: 'Courier New', monospace;
 }
 .pass-progress-bar {
-    height: 10px;
-    background: rgba(0,0,0,0.5);
+    height: 12px;
+    background: rgba(0,0,0,0.6);
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 12px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+    border: 1px solid #4a6a8a;
 }
 .pass-progress-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #b464ff, #ff64c8, #64c8ff);
+    background: linear-gradient(90deg, #4a9eff, #88ccff, #4a9eff);
     background-size: 200% 100%;
     border-radius: 10px;
     transition: width 0.5s ease;
     animation: progressShine 2s linear infinite;
-    box-shadow: 0 0 10px #ff64c8;
+    box-shadow: 0 0 15px #4a9eff;
 }
 @keyframes progressShine {
     0% { background-position: 0% 50%; }
@@ -326,18 +334,41 @@ body.bg-newyear .game-container {
     margin-bottom: 12px;
 }
 .pass-badge {
-    background: linear-gradient(145deg, #2a1b4e, #1a0a3e);
-    border: 1px solid #5a3b8e;
-    border-radius: 12px;
+    background: linear-gradient(145deg, #2a3a4e, #1a2a3e);
+    border: 2px solid #4a6a8a;
+    border-radius: 8px;
     padding: 6px 2px;
     font-size: 9px;
-    color: #a88ad0;
+    color: #88aacc;
     text-align: center;
     cursor: pointer;
     transition: 0.2s;
     text-shadow: 0 0 3px black;
     font-weight: bold;
     position: relative;
+    font-family: 'Courier New', monospace;
+}
+.pass-badge::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 4px;
+    height: 4px;
+    background: #6a9abb;
+    border-radius: 50%;
+    box-shadow: 0 0 4px #4a9eff;
+}
+.pass-badge::after {
+    content: "";
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 4px;
+    height: 4px;
+    background: #6a9abb;
+    border-radius: 50%;
+    box-shadow: 0 0 4px #4a9eff;
 }
 .pass-badge.completed {
     background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
@@ -345,42 +376,55 @@ body.bg-newyear .game-container {
     color: #a0ffc0;
     box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
 }
+.pass-badge.completed::before,
+.pass-badge.completed::after {
+    background: #4caf50;
+    box-shadow: 0 0 4px #4caf50;
+}
 .pass-badge.available {
-    background: linear-gradient(145deg, #ff64c8, #b464ff);
-    border-color: #fff;
+    background: linear-gradient(145deg, #4a9eff, #2a6ecc);
+    border-color: #88ccff;
     color: white;
-    box-shadow: 0 0 15px #ff64c8, 0 0 25px #b464ff;
+    box-shadow: 0 0 15px #4a9eff, 0 0 25px #4a9eff;
     animation: badgePulse 1.2s ease infinite;
 }
+.pass-badge.available::before,
+.pass-badge.available::after {
+    background: #ffffff;
+    box-shadow: 0 0 6px #ffffff;
+}
 @keyframes badgePulse {
-    0%,100% { transform: scale(1); box-shadow: 0 0 15px #ff64c8, 0 0 25px #b464ff; }
-    50% { transform: scale(1.1); box-shadow: 0 0 25px #ff64c8, 0 0 40px #b464ff; }
+    0%,100% { transform: scale(1); box-shadow: 0 0 15px #4a9eff, 0 0 25px #4a9eff; }
+    50% { transform: scale(1.1); box-shadow: 0 0 25px #4a9eff, 0 0 40px #4a9eff; }
 }
 .pass-badge.locked { opacity: 0.5; }
 .open-tasks-btn {
-    background: linear-gradient(145deg, #ff64c8, #b464ff);
-    border: 2px solid #ffffff80;
+    background: linear-gradient(145deg, #4a9eff, #2a6ecc);
+    border: 2px solid #88ccff;
     color: white;
     padding: 12px;
-    border-radius: 60px;
+    border-radius: 12px;
     font-size: 14px;
     font-weight: 900;
     cursor: pointer;
     text-align: center;
     width: 100%;
     text-shadow: 0 0 5px black;
-    box-shadow: 0 0 20px rgba(255, 100, 200, 0.5);
+    box-shadow: 0 0 20px rgba(100, 180, 255, 0.5);
     letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
 }
 .open-tasks-btn:active { transform: scale(0.97); }
 .pass-end {
     text-align: center;
     font-size: 10px;
-    color: #e0b0ff;
+    color: #88ccff;
     margin-top: 8px;
     text-shadow: 0 0 5px black;
+    font-family: 'Courier New', monospace;
 }
 
+/* ========== МОДАЛ ЗАДАНИЙ AI PASS 6 ========== */
 .pass-tasks-modal {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -396,48 +440,60 @@ body.bg-newyear .game-container {
 }
 .pass-tasks-modal.show { opacity: 1; visibility: visible; }
 .pass-tasks-content {
-    background: linear-gradient(135deg, #1a0a2e, #0a1a3e);
-    border: 2px solid #b464ff;
+    background: linear-gradient(135deg, #1a1a2e, #0a0a1e);
+    border: 3px solid #4a6a8a;
     border-radius: 30px;
     padding: 20px;
     width: 100%;
     max-width: 400px;
     max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0 0 40px rgba(180, 100, 255, 0.6);
+    box-shadow: 0 0 40px rgba(100, 180, 255, 0.4);
     color: white;
 }
 .pass-tasks-title {
     text-align: center;
     font-size: 22px;
     font-weight: 900;
-    color: #e0b0ff;
-    text-shadow: 0 0 15px #b464ff, 0 0 30px #b464ff;
+    color: #88ccff;
+    text-shadow: 0 0 15px #4a9eff, 0 0 30px #4a9eff;
     margin-bottom: 15px;
     letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
 }
 .task-item {
-    background: linear-gradient(145deg, #2a1b4e, #1a0a3e);
-    border: 1px solid #5a3b8e;
-    border-radius: 20px;
+    background: linear-gradient(145deg, #2a3a4e, #1a2a3e);
+    border: 2px solid #4a6a8a;
+    border-radius: 15px;
     padding: 12px;
     margin-bottom: 10px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    transition: 0.2s;
+    position: relative;
+}
+.task-item::before {
+    content: "🔩";
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    font-size: 12px;
+    opacity: 0.5;
 }
 .task-item.completed {
     background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
     border-color: #4caf50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
 }
 .task-item.current {
-    border-color: #ff64c8;
-    box-shadow: 0 0 15px rgba(255, 100, 200, 0.5);
+    border-color: #4a9eff;
+    box-shadow: 0 0 15px rgba(100, 180, 255, 0.5);
     animation: taskPulse 2s ease infinite;
 }
 @keyframes taskPulse {
-    0%,100% { box-shadow: 0 0 15px rgba(255, 100, 200, 0.4); }
-    50% { box-shadow: 0 0 25px rgba(255, 100, 200, 0.7); }
+    0%,100% { box-shadow: 0 0 15px rgba(100, 180, 255, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(100, 180, 255, 0.7); }
 }
 .task-header {
     display: flex;
@@ -445,51 +501,55 @@ body.bg-newyear .game-container {
     align-items: center;
     font-weight: bold;
     font-size: 13px;
+    font-family: 'Courier New', monospace;
 }
 .task-level {
-    color: #ff64c8;
-    text-shadow: 0 0 5px #ff64c8;
+    color: #88ccff;
+    text-shadow: 0 0 5px #4a9eff;
     font-size: 14px;
 }
 .task-reward {
-    background: linear-gradient(145deg, #ff64c8, #b464ff);
+    background: linear-gradient(145deg, #4a9eff, #2a6ecc);
     color: white;
     padding: 3px 10px;
-    border-radius: 20px;
+    border-radius: 10px;
     font-size: 11px;
     font-weight: 800;
     text-shadow: 0 0 5px black;
+    border: 1px solid #88ccff;
 }
-.task-desc { font-size: 12px; color: #d0c0e8; }
-.task-progress-bar { height: 8px; background: rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
-.task-progress-fill { height: 100%; background: linear-gradient(90deg, #b464ff, #ff64c8); width: 0%; transition: width 0.3s; box-shadow: 0 0 10px #ff64c8; }
-.task-progress-text { text-align: right; font-size: 10px; color: #a88ad0; }
+.task-desc { font-size: 12px; color: #a0c0e0; }
+.task-progress-bar { height: 8px; background: rgba(0,0,0,0.6); border-radius: 8px; overflow: hidden; border: 1px solid #4a6a8a; }
+.task-progress-fill { height: 100%; background: linear-gradient(90deg, #4a9eff, #88ccff); width: 0%; transition: width 0.3s; box-shadow: 0 0 10px #4a9eff; }
+.task-progress-text { text-align: right; font-size: 10px; color: #88aacc; font-family: 'Courier New', monospace; }
 .task-claim-btn {
     background: linear-gradient(145deg, #4caf50, #2e7d32);
     border: none;
     color: white;
     padding: 8px 16px;
-    border-radius: 30px;
+    border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
     text-shadow: 0 0 5px black;
     box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
     align-self: flex-end;
     font-size: 12px;
+    font-family: 'Courier New', monospace;
 }
 .task-claim-btn:active { transform: scale(0.95); }
 .close-tasks-btn {
-    background: linear-gradient(145deg, #8c5cd4, #5a3b8e);
-    border: none;
+    background: linear-gradient(145deg, #4a6a8a, #2a4a6a);
+    border: 2px solid #6a9abb;
     color: white;
     padding: 10px;
-    border-radius: 40px;
+    border-radius: 12px;
     font-weight: bold;
     cursor: pointer;
     width: 100%;
     margin-top: 10px;
     text-shadow: 0 0 5px black;
     font-size: 14px;
+    font-family: 'Courier New', monospace;
 }
 
 .shop-panel { background: rgba(0,0,0,0.95); border-radius: 30px; padding: 10px; margin: 10px 0; display: none; }
