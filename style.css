@@ -56,6 +56,56 @@ body.bg-halloween .game-container {
     box-shadow: 0 0 30px #ff440088;
 }
 
+/* ===== НОВЫЙ ГОД ===== */
+body.bg-newyear {
+    background: linear-gradient(145deg, #1a2a4a, #4a6a9a) !important;
+    position: relative;
+}
+body.bg-newyear::before {
+    content: "❄️";
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 40px;
+    opacity: 0.4;
+    pointer-events: none;
+    animation: snowFall 8s linear infinite;
+}
+body.bg-newyear::after {
+    content: "❄️";
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 40px;
+    opacity: 0.4;
+    pointer-events: none;
+    animation: snowFall 10s linear infinite;
+}
+@keyframes snowFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+body.bg-newyear .game-container {
+    border-color: #88ccff;
+    box-shadow: 0 0 30px #88ccff88;
+}
+
+.brain.newyear-brain {
+    background: radial-gradient(circle at 30% 30%, #aaddff, #3366aa);
+    box-shadow: 0 15px 0 #1a3a6a, 0 0 30px #88ccff;
+    border-color: #ffffff;
+}
+.brain .santa-hat {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 55px;
+    z-index: 3;
+    pointer-events: none;
+    filter: drop-shadow(0 0 10px #ff0000);
+}
+
 .game-container {
     width: 100%;
     max-width: 420px;
@@ -199,7 +249,6 @@ body.bg-halloween .game-container {
 }
 .brain .sleep-msg.show { opacity: 1; }
 
-/* ========== AI PASS 5 ========== */
 .pass-container {
     background: linear-gradient(135deg, #1a0a2e 0%, #2d1b5e 50%, #0a1a3e 100%);
     border: 2px solid transparent;
@@ -322,7 +371,6 @@ body.bg-halloween .game-container {
     text-shadow: 0 0 5px black;
     box-shadow: 0 0 20px rgba(255, 100, 200, 0.5);
     letter-spacing: 1px;
-    transition: 0.15s;
 }
 .open-tasks-btn:active { transform: scale(0.97); }
 .pass-end {
@@ -333,7 +381,6 @@ body.bg-halloween .game-container {
     text-shadow: 0 0 5px black;
 }
 
-/* ========== МОДАЛ ЗАДАНИЙ ========== */
 .pass-tasks-modal {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -378,12 +425,10 @@ body.bg-halloween .game-container {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    transition: 0.2s;
 }
 .task-item.completed {
     background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
     border-color: #4caf50;
-    box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
 }
 .task-item.current {
     border-color: #ff64c8;
@@ -449,14 +494,14 @@ body.bg-halloween .game-container {
 
 .shop-panel { background: rgba(0,0,0,0.95); border-radius: 30px; padding: 10px; margin: 10px 0; display: none; }
 .shop-panel.show { display: block; }
-.shop-tab { background: #2a4b6e; padding: 8px; border-radius: 30px; text-align: center; cursor: pointer; flex: 1; color: white; font-size: 12px; transition: 0.1s; text-shadow: 0 0 5px black; }
+.shop-tab { background: #2a4b6e; padding: 8px; border-radius: 30px; text-align: center; cursor: pointer; flex: 1; color: white; font-size: 12px; text-shadow: 0 0 5px black; }
 .shop-tab.active { background: #ffaa00; color: #1a1a2e; }
 .shop-tab:hover { background: #3a6b8e; transform: scale(1.02); }
 .shop-list { max-height: 300px; overflow-y: auto; }
-.shop-item { background: #1a3150; border-radius: 30px; padding: 8px 12px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center; color: white; flex-wrap: wrap; gap: 8px; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
+.shop-item { background: #1a3150; border-radius: 30px; padding: 8px 12px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center; color: white; flex-wrap: wrap; gap: 8px; cursor: pointer; text-shadow: 0 0 5px black; }
 .shop-item:hover { background: #2a4160; transform: scale(1.01); }
 .pagination { display: flex; justify-content: center; gap: 15px; margin: 10px 0; }
-.page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
+.page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; text-shadow: 0 0 5px black; }
 .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
 
 .modal-overlay {
@@ -487,9 +532,9 @@ body.bg-halloween .game-container {
 }
 .modal-title { color: #d9b0ff; font-size: 20px; font-weight: 800; margin-bottom: 15px; text-shadow: 0 0 5px black; }
 .modal-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 30px; border: none; background: #2a4b6e; color: white; text-align: center; }
-.modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; font-weight: 700; margin: 5px; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
+.modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; font-weight: 700; margin: 5px; cursor: pointer; text-shadow: 0 0 5px black; }
 .modal-btn:hover { background: #a07ce0; transform: scale(1.02); }
-.reset-btn { background: linear-gradient(145deg, #aa3300, #661100); border: 2px solid #ff6644; color: white; padding: 12px; border-radius: 60px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 15px; transition: 0.1s; text-shadow: 0 0 5px black; }
+.reset-btn { background: linear-gradient(145deg, #aa3300, #661100); border: 2px solid #ff6644; color: white; padding: 12px; border-radius: 60px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 15px; text-shadow: 0 0 5px black; }
 .reset-btn:hover { background: #cc4400; transform: scale(1.01); }
 .setting-item {
     display: flex;
@@ -549,7 +594,6 @@ body.bg-halloween .game-container {
 .loading-text { color: #ffd966; font-size: 24px; font-weight: 800; margin-top: 20px; text-shadow: 0 0 20px #ffaa00; }
 .loading-sub { color: #88aaff; font-size: 12px; margin-top: 10px; }
 
-/* ===== АДМИН-ПАНЕЛЬ v2 ===== */
 .admin-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -564,7 +608,6 @@ body.bg-halloween .game-container {
     padding: 20px;
 }
 .admin-overlay.show { opacity: 1; visibility: visible; }
-
 .admin-panel {
     background: #ff0000;
     border: 6px solid #000;
@@ -577,7 +620,6 @@ body.bg-halloween .game-container {
     overflow: hidden;
     box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
 }
-
 .admin-header {
     background: #ff0000;
     color: white;
@@ -589,14 +631,7 @@ body.bg-halloween .game-container {
     text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
     border-bottom: 4px solid #000;
 }
-
-.admin-tabs {
-    display: flex;
-    background: #000;
-    gap: 4px;
-    padding: 6px;
-}
-
+.admin-tabs { display: flex; background: #000; gap: 4px; padding: 6px; }
 .admin-tab {
     flex: 1;
     background: #fff;
@@ -607,15 +642,9 @@ body.bg-halloween .game-container {
     font-size: 13px;
     cursor: pointer;
     border: 2px solid #fff;
-    transition: 0.15s;
     user-select: none;
 }
-.admin-tab.active {
-    background: #ffcc00;
-    border-color: #000;
-    color: #000;
-}
-
+.admin-tab.active { background: #ffcc00; border-color: #000; color: #000; }
 .admin-body {
     background: #ff0000;
     color: white;
@@ -625,7 +654,6 @@ body.bg-halloween .game-container {
     min-height: 200px;
     font-size: 14px;
 }
-
 .admin-item {
     display: flex;
     justify-content: space-between;
@@ -648,10 +676,8 @@ body.bg-halloween .game-container {
     font-weight: 700;
     cursor: pointer;
     font-size: 12px;
-    transition: 0.1s;
 }
 .admin-item button:active { transform: scale(0.95); background: #333; }
-
 .admin-close {
     background: #000;
     color: #fff;
@@ -665,7 +691,6 @@ body.bg-halloween .game-container {
 }
 .admin-close:active { background: #333; }
 
-/* ===== ОБУЧЕНИЕ ДЛЯ НОВИЧКОВ ===== */
 .tutorial-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -679,11 +704,7 @@ body.bg-halloween .game-container {
     visibility: hidden;
     transition: 0.3s;
 }
-.tutorial-overlay.show {
-    opacity: 1;
-    visibility: visible;
-}
-
+.tutorial-overlay.show { opacity: 1; visibility: visible; }
 .tutorial-box {
     background: #0a0a0a;
     border: 4px solid #000;
@@ -695,10 +716,8 @@ body.bg-halloween .game-container {
     color: white;
     text-align: center;
 }
-
 .tutorial-step { display: block; }
 .tutorial-step.hidden { display: none; }
-
 .tutorial-robot {
     display: flex;
     align-items: flex-start;
@@ -706,11 +725,7 @@ body.bg-halloween .game-container {
     margin-bottom: 18px;
     text-align: left;
 }
-.robot-emoji {
-    font-size: 40px;
-    line-height: 1;
-    flex-shrink: 0;
-}
+.robot-emoji { font-size: 40px; line-height: 1; flex-shrink: 0; }
 .robot-text {
     font-size: 16px;
     font-weight: 700;
@@ -718,13 +733,7 @@ body.bg-halloween .game-container {
     color: white;
     text-shadow: 0 0 5px black;
 }
-
-.tutorial-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 10px;
-}
+.tutorial-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 10px; }
 .tutorial-btn-yes, .tutorial-btn-no {
     flex: 1;
     padding: 14px;
@@ -734,19 +743,11 @@ body.bg-halloween .game-container {
     cursor: pointer;
     border-radius: 4px;
     text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
-    transition: 0.1s;
 }
-.tutorial-btn-yes {
-    background: #00dd00;
-    color: #003300;
-}
+.tutorial-btn-yes { background: #00dd00; color: #003300; }
 .tutorial-btn-yes:active { transform: scale(0.95); background: #00aa00; }
-.tutorial-btn-no {
-    background: #dd0000;
-    color: #330000;
-}
+.tutorial-btn-no { background: #dd0000; color: #330000; }
 .tutorial-btn-no:active { transform: scale(0.95); background: #aa0000; }
-
 .tutorial-text {
     font-size: 16px;
     font-weight: 700;
@@ -776,6 +777,5 @@ body.bg-halloween .game-container {
     cursor: pointer;
     margin-top: 10px;
     text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
-    transition: 0.1s;
 }
 .tutorial-btn-ok:active { transform: scale(0.97); background: #008800; }
