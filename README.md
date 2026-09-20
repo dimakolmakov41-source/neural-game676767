@@ -4,7 +4,7 @@
 
 🎮 **Играть онлайн:** [https://dimakolmakov41-source.github.io/neural-game676767/index.html](https://dimakolmakov41-source.github.io/neural-game676767/index.html)
 
-📢 **Телеграм канал разработчика:** [https://t.me/+shmhKDO_mY03NjRi](https://t.me/+shmhKDO_mY03NjRi)
+📢 **Телеграм канал разработчика:** [https://t.me/+Ij7uCJdXUvphZmFi](https://t.me/+Ij7uCJdXUvphZmFi)
 
 ---
 
@@ -62,7 +62,7 @@
 **dimakolmakov41-source**
 GitHub: [https://github.com/dimakolmakov41-source](https://github.com/dimakolmakov41-source)
 
-📢 **Телеграм канал:** [https://t.me/+shmhKDO_mY03NjRi](https://t.me/+shmhKDO_mY03NjRi)
+📢 **Телеграм канал:** [https://t.me/+Ij7uCJdXUvphZmFi](https://t.me/+Ij7uCJdXUvphZmFi)
 
 ---
 
