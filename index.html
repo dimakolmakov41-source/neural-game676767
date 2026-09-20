@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=11.9">
+    <link rel="stylesheet" href="style.css?v=11.10">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text">ЗАГРУЗКА...</div>
-        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.9</div>
+        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.10</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -18,7 +18,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v11.9</div>
+            <div class="game-version" id="menuVersion">v11.10</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -76,6 +76,20 @@
         </div>
     </div>
 
+    <!-- ===== АДМИН-ПАНЕЛЬ v2 ===== -->
+    <div class="admin-overlay" id="adminOverlay">
+        <div class="admin-panel">
+            <div class="admin-header">АДМИН ПАНЕЛЬ v2</div>
+            <div class="admin-tabs">
+                <div class="admin-tab active" data-tab="game">Игра</div>
+                <div class="admin-tab" data-tab="visual">Визуал</div>
+                <div class="admin-tab" data-tab="settings">Настройки</div>
+            </div>
+            <div class="admin-body" id="adminBody"></div>
+            <button class="admin-close" id="adminCloseBtn">✖ ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
     <div class="pass-tasks-modal" id="passTasksModal">
         <div class="pass-tasks-content">
             <div class="pass-tasks-title">✨ ЗАДАНИЯ AI PASS 5 ✨</div>
@@ -122,8 +136,8 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.9: Возвращён Хэллоуин! 31 октября фон станет оранжевым, мозг — тыквой, алмазы — конфетами.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.10: Добавлена админ-панель. Нажми на версию игры в главном меню.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
-    <script src="script.js?v=11.9"></script>
+    <script src="script.js?v=11.10"></script>
 </body>
 </html>
