@@ -520,10 +520,12 @@ window.addEventListener('load', () => {
     function exportProgress() {
         const saveData = {
             points, diamonds, totalClicks, purchasedCount,
-            totalDiamondsEarned,
+            totalDiamondsEarned, godMode, comboCounter,
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
-            passCurrentTask, passRewardSeconds
+            passCurrentTask, passRewardSeconds,
+            gameStartTime, currentSoundProfile,
+            gameVersion: GAME_VERSION
         };
         const blob = new Blob([JSON.stringify(saveData)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
@@ -540,9 +542,10 @@ window.addEventListener('load', () => {
         reader.onload = function(e) {
             try {
                 const data = JSON.parse(e.target.result);
+                data.gameVersion = GAME_VERSION;
                 localStorage.setItem('neuralEvoSave', JSON.stringify(data));
-                showToast("📂 Загружено! Перезагрузи страницу.");
-                setTimeout(() => location.reload(), 1500);
+                showToast("📂 Загружено! Перезагружаю...");
+                setTimeout(() => location.reload(), 1000);
             } catch(error) {
                 showToast("❌ Ошибка загрузки");
             }
