@@ -1,1008 +1,781 @@
-// ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.12";
-
-if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
-    localStorage.removeItem('neuralEvoSave');
-    localStorage.removeItem('aiPassSeason');
-    localStorage.removeItem('banEnd');
-    localStorage.setItem('gameVersion', GAME_VERSION);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
-// ===== ХЭЛЛОУИН =====
-function isHalloween() {
-    const now = new Date();
-    return now.getMonth() === 9 && now.getDate() === 31;
+body {
+    transition: background 0.8s ease;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    color: white;
+    text-shadow: 0 0 5px black, 0 0 10px black;
 }
 
-function applyHalloweenTheme() {
-    const h = isHalloween();
-    const body = document.body;
-    const brain = document.getElementById('clickableObject');
-    const brainEmoji = document.getElementById('brainEmoji');
-    const diamondLabel = document.getElementById('diamondLabel');
-    const sleepMsg = document.getElementById('sleepMsg');
-    const reloadTimer = document.getElementById('reloadTimer');
-    const title = document.getElementById('gameTitle');
+body.bg-early-autumn { background: linear-gradient(145deg, #f5e6b0, #d4a373); }
+body.bg-golden { background: linear-gradient(145deg, #f6c56e, #d98c2e); }
+body.bg-rainy { background: linear-gradient(145deg, #6b7b8d, #3a4a5a); }
+body.bg-late { background: linear-gradient(145deg, #8b6b4f, #4d2e1b); }
+body.bg-forest { background: linear-gradient(145deg, #6a8d4e, #2f4a1f); }
+body.bg-park { background: linear-gradient(145deg, #b5a07a, #7a6545); }
+body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); }
+body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 
-    if (h) {
-        body.classList.add('bg-halloween');
-        body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
-        if (brain) brain.classList.add('halloween-brain');
-        if (brainEmoji) brainEmoji.innerText = '🎃';
-        if (diamondLabel) diamondLabel.innerHTML = '🍬 <span id="diamonds">' + (window.__diamonds || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = '🎃 Страшно?';
-        if (reloadTimer) reloadTimer.innerHTML = '⏳ ДО ХЭЛЛОУИНА: <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = '🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ';
-    } else {
-        body.classList.remove('bg-halloween');
-        if (brain) brain.classList.remove('halloween-brain');
-        if (brainEmoji) brainEmoji.innerText = '🧠';
-        if (diamondLabel) diamondLabel.innerHTML = '💎 <span id="diamonds">' + (window.__diamonds || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = '😴 Спишь?';
-        if (reloadTimer) reloadTimer.innerHTML = '🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = '🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ';
-    }
+/* ===== ХЭЛЛОУИН ===== */
+body.bg-halloween {
+    background: linear-gradient(145deg, #1a0a00, #4a1a00) !important;
+    position: relative;
+}
+body.bg-halloween::before {
+    content: "🕸️";
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 40px;
+    opacity: 0.35;
+    transform: rotate(20deg);
+    pointer-events: none;
+}
+body.bg-halloween::after {
+    content: "🕸️";
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 40px;
+    opacity: 0.35;
+    transform: rotate(-20deg);
+    pointer-events: none;
+}
+body.bg-halloween .game-container {
+    border-color: #ff6600;
+    box-shadow: 0 0 30px #ff440088;
 }
 
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        const ls = document.getElementById('loadingScreen');
-        if (ls) ls.classList.add('hidden');
-    }, 1500);
-
-    document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
-
-    // ===== БАН =====
-    const badWords = [
-        "дима лох", "дима тупой", "дима дурак", "дима еблан", "дима долбаеб",
-        "разработчик лох", "разработчик тупой", "разработчик дурак", "разработчик еблан", "разработчик уеба"
-    ];
-    let isBanned = false;
-    let banTimer = null;
-    const BAN_DURATION = 20 * 60 * 1000;
-
-    function checkBan(code) {
-        const lower = code.toLowerCase().trim();
-        for (let word of badWords) {
-            if (lower.includes(word)) return true;
-        }
-        return false;
-    }
-
-    function activateBan() {
-        if (isBanned) return;
-        const banEnd = Date.now() + BAN_DURATION;
-        localStorage.setItem('banEnd', banEnd);
-        applyBanState();
-    }
-
-    function applyBanState() {
-        const banEnd = parseInt(localStorage.getItem('banEnd'));
-        if (banEnd && Date.now() < banEnd) {
-            isBanned = true;
-            document.body.style.filter = "grayscale(1) brightness(0.5)";
-            document.body.style.pointerEvents = "none";
-            const remaining = Math.ceil((banEnd - Date.now()) / 1000);
-            showToast(`🌚 Ты забанен на ${Math.ceil(remaining / 60)} минут`);
-            if (banTimer) clearTimeout(banTimer);
-            banTimer = setTimeout(() => {
-                localStorage.removeItem('banEnd');
-                isBanned = false;
-                document.body.style.filter = "";
-                document.body.style.pointerEvents = "";
-                showToast("✅ Бан снят. Не повторяй.");
-            }, banEnd - Date.now());
-        } else {
-            localStorage.removeItem('banEnd');
-            isBanned = false;
-            document.body.style.filter = "";
-            document.body.style.pointerEvents = "";
-        }
-    }
-
-    // ===== ПЕРЕМЕННЫЕ =====
-    let points = 100, diamonds = 0, totalClicks = 0, purchasedCount = 1;
-    let totalDiamondsEarned = 0;
-    let sessionClicks = 0;
-    let godMode = false;
-    let comboCounter = 0;
-    let gameStartTime = Date.now();
-    let playtimeInterval = null;
-    let sleepMsgTimer = null;
-    let sleepMsgShowing = false;
-
-    Object.defineProperty(window, '__diamonds', { get: () => diamonds });
-
-    // ===== НЕЙРОСЕТИ =====
-    const neuralNames = [
-        "Перцептрон","Нейро-искра","Сверточная","Рекуррентная","Трансформер","Квантовая","GPT-клик","Автокодировщик","DALL-E","Глубокий мозг","Gemini","Нейро-интерфейс","Claude 3","Мультивселенная","Midjourney","Легендарная","Сингулярность","Божественный ИИ","Нейро-Земля","ИИ-Солнце","Галактическая","Космическая","Сверхразум","ДНК-бота","Бесконечность",
-        "Лев","Тигр","Медведь","Волк","Лиса","Орёл","Сокол","Дельфин","Кит","Акула","Пантера","Ягуар","Леопард","Гепард","Зебра","Жираф","Слон","Носорог","Бегемот","Крокодил","Питон","Анаконда","Хамелеон","Игуана","Фламинго","Пингвин","Сова","Ястреб","Скорпион","Паук",
-        "Пицца","Бургер","Суши","Роллы","Рамен","Паста","Спагетти","Лазанья","Тирамису","Панна-котта","Крем-брюле","Макаронс","Эклер","Пончик","Круассан","Багет","Сыр","Ветчина","Колбаса","Бекон","Стейк","Гриль","Барбекю","Шашлык","Плов","Борщ","Оливье","Сельдь","Икра","Блины",
-        "Меркурий","Венера","Земля","Марс","Юпитер","Сатурн","Уран","Нептун","Плутон","Церера","Эрида","Макемаке","Хаумеа","Седна","Орк","Иксион","Варуна","Квавар","Фобос","Деймос","Ио","Европа","Ганимед","Каллисто","Титан","Рея","Япет","Мимас","Энцелад","Тритон",
-        "Mario","Link","Samus","Kirby","Fox","Pikachu","Charizard","Mewtwo","Cloud","Sephiroth","Sonic","Tails","Knuckles","Shadow","Master Chief","Cortana","Doom","Ryu","Ken","Chun-Li","Kratos","Atreus","Lara","Nathan","Ezio","Altair","Gordon","Freeman","Chell","Wheatley",
-        "Кремний","Процессор","Видеокарта","Оперативка","SSD","Материнка","Блок-питания","Кулер","Монитор","Клавиатура","Мышь","Принтер","Сканер","Микрофон","Колонки","Наушники","Роутер","Модем","Сервер","Ноутбук","Планшет","Смартфон","Часы","Фитнес-браслет","Дрон","Робот","Андроид","iOS","Windows","Linux"
-    ];
-
-    let upgrades = [];
-    for (let i = 0; i < 1500; i++) {
-        const power = i === 0 ? 1 : 1 + Math.floor(i / 10);
-        const price = i === 0 ? 20 : Math.floor(20 * Math.pow(1.17, i));
-        const name = i < neuralNames.length ? neuralNames[i] : `Нейросеть #${i + 1}`;
-        upgrades.push({
-            id: i,
-            name: name,
-            power: power,
-            price: price,
-            purchased: i === 0
-        });
-    }
-
-    let currentPage = 0, ITEMS_PER_PAGE = 20, totalPages = Math.ceil(upgrades.length / ITEMS_PER_PAGE);
-
-    function renderShopNeurons() {
-        const start = currentPage * ITEMS_PER_PAGE, end = Math.min(start + ITEMS_PER_PAGE, upgrades.length);
-        let html = '';
-        if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="prevPageBtn">⬅️</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn">➡️</button></div>`;
-        for (let i = start; i < end; i++) {
-            const u = upgrades[i];
-            html += `<div class="shop-item" data-id="${u.id}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅' : `💰 ${u.price}`}</span></div>`;
-        }
-        if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="prevPageBtn2">⬅️</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">➡️</button></div>`;
-        document.getElementById('shopNeurons').innerHTML = html;
-        document.querySelectorAll('#shopNeurons .shop-item').forEach(el => {
-            const id = parseInt(el.dataset.id);
-            const u = upgrades[id];
-            if (!u.purchased) {
-                el.addEventListener('click', () => buyUpgrade(id));
-            }
-        });
-        document.querySelectorAll('#prevPageBtn, #prevPageBtn2').forEach(btn => btn.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
-        document.querySelectorAll('#nextPageBtn, #nextPageBtn2').forEach(btn => btn.addEventListener('click', () => { if (currentPage < totalPages - 1) { currentPage++; renderShopNeurons(); } }));
-    }
-
-    function buyUpgrade(id) {
-        const u = upgrades[id];
-        if (!u.purchased && points >= u.price) {
-            points -= u.price;
-            u.purchased = true;
-            purchasedCount++;
-            updateUI();
-            renderShopNeurons();
-            saveGame();
-            showToast(`✅ ${u.name} куплена!`);
-            playBuySound();
-        } else showToast("❌ Не хватает очков");
-    }
-
-    // ===== AI PASS 5 =====
-    let passTasks = [];
-    let passCurrentTask = 0;
-    const passEndDate = new Date(2026, 8, 21, 23, 59, 59);
-    let passEndTimerInterval = null;
-    let passRewardSeconds = 600;
-    let passRewardInterval = null;
-
-    for (let i = 1; i <= 20; i++) {
-        passTasks.push({
-            level: i,
-            targetClicks: i * 500,
-            rewardPoints: i * 500,
-            rewardDiamonds: i * 5,
-            completed: false,
-            claimed: false
-        });
-    }
-
-    function renderPassBadges() {
-        const container = document.getElementById('passLevels');
-        if (!container) return;
-        let html = '';
-        passTasks.forEach((task, idx) => {
-            let cls = 'pass-badge';
-            let statusText = '';
-            if (task.claimed) { cls += ' completed'; statusText = '✅'; }
-            else if (idx === passCurrentTask) { cls += ' available'; statusText = '🎯'; }
-            else if (idx < passCurrentTask) { cls += ' completed'; statusText = '✔'; }
-            else { cls += ' locked'; statusText = '🔒'; }
-            html += `<div class="${cls}">${task.level}<br>${statusText}</div>`;
-        });
-        container.innerHTML = html;
-
-        const progressFill = document.getElementById('passProgressFill');
-        if (progressFill) {
-            const claimed = passTasks.filter(t => t.claimed).length;
-            progressFill.style.width = ((claimed / passTasks.length) * 100) + '%';
-        }
-    }
-
-    function updatePassRewardTimerDisplay() {
-        const el = document.getElementById('passTimer');
-        if (!el) return;
-        const m = Math.floor(passRewardSeconds / 60);
-        const s = passRewardSeconds % 60;
-        el.innerHTML = `⏱️ ${m}:${s.toString().padStart(2, '0')}`;
-    }
-
-    function startPassRewardTimer() {
-        if (passRewardInterval) clearInterval(passRewardInterval);
-        updatePassRewardTimerDisplay();
-        passRewardInterval = setInterval(() => {
-            passRewardSeconds--;
-            if (passRewardSeconds <= 0) {
-                points += 500;
-                diamonds += 5;
-                totalDiamondsEarned += 5;
-                updateUI();
-                saveGame();
-                showToast(`🎁 Награда AI Pass! +500🧠 +5💎`);
-                playBuySound();
-                passRewardSeconds = 600;
-            }
-            updatePassRewardTimerDisplay();
-        }, 1000);
-    }
-
-    function renderTasksList() {
-        const container = document.getElementById('tasksList');
-        if (!container) return;
-        let html = '';
-        passTasks.forEach((task, idx) => {
-            let cls = 'task-item';
-            let statusText = '';
-            let claimBtn = '';
-            if (task.claimed) {
-                cls += ' completed';
-                statusText = '✅ ВЫПОЛНЕНО';
-            } else if (idx === passCurrentTask) {
-                cls += ' current';
-                const progress = Math.min(totalClicks, task.targetClicks);
-                const percent = Math.min(100, (progress / task.targetClicks) * 100);
-                statusText = `${progress} / ${task.targetClicks} кликов`;
-                if (totalClicks >= task.targetClicks) {
-                    claimBtn = `<button class="task-claim-btn" data-idx="${idx}">ЗАБРАТЬ</button>`;
-                }
-                html += `<div class="${cls}">
-                    <div class="task-header">
-                        <span class="task-level">🎯 Уровень ${task.level}</span>
-                        <span class="task-reward">+${task.rewardPoints}🧠 +${task.rewardDiamonds}💎</span>
-                    </div>
-                    <div class="task-desc">Сделай ${task.targetClicks} кликов</div>
-                    <div class="task-progress-bar"><div class="task-progress-fill" style="width:${percent}%"></div></div>
-                    <div class="task-progress-text">${statusText}</div>
-                    ${claimBtn}
-                </div>`;
-                return;
-            } else if (idx < passCurrentTask) {
-                cls += ' completed';
-                statusText = '✅ ВЫПОЛНЕНО';
-            } else {
-                statusText = `🔒 Сначала пройди уровень ${idx}`;
-            }
-            html += `<div class="${cls}">
-                <div class="task-header">
-                    <span class="task-level">${idx === passCurrentTask ? '🎯' : '🔒'} Уровень ${task.level}</span>
-                    <span class="task-reward">+${task.rewardPoints}🧠 +${task.rewardDiamonds}💎</span>
-                </div>
-                <div class="task-desc">Сделай ${task.targetClicks} кликов</div>
-                <div class="task-progress-text">${statusText}</div>
-            </div>`;
-        });
-        container.innerHTML = html;
-        document.querySelectorAll('.task-claim-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                claimTask(parseInt(btn.dataset.idx));
-            });
-        });
-    }
-
-    function claimTask(idx) {
-        const task = passTasks[idx];
-        if (!task || task.claimed) return;
-        if (idx !== passCurrentTask) return;
-        if (totalClicks < task.targetClicks) return;
-        task.claimed = true;
-        points += task.rewardPoints;
-        diamonds += task.rewardDiamonds;
-        totalDiamondsEarned += task.rewardDiamonds;
-        passCurrentTask++;
-        updateUI();
-        renderPassBadges();
-        renderTasksList();
-        saveGame();
-        showToast(`🎉 Уровень ${task.level} получен!`);
-        playBuySound();
-    }
-
-    function checkPassProgress() {
-        const modal = document.getElementById('passTasksModal');
-        if (modal && modal.classList.contains('show')) {
-            renderTasksList();
-        }
-    }
-
-    function updatePassEndTimer() {
-        const el = document.getElementById('passEndTimer');
-        if (!el) return;
-        const diff = passEndDate - new Date();
-        if (diff <= 0) {
-            el.innerHTML = "⏳ AI PASS 5 ЗАВЕРШЁН!";
-            if (passEndTimerInterval) clearInterval(passEndTimerInterval);
-            return;
-        }
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % 86400000) / 3600000);
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        el.innerHTML = `⏳ До конца AI Pass 5: ${days} дн. ${hours} ч. ${minutes} мин.`;
-    }
-
-    function startPassEndTimer() {
-        if (passEndTimerInterval) clearInterval(passEndTimerInterval);
-        updatePassEndTimer();
-        passEndTimerInterval = setInterval(updatePassEndTimer, 60000);
-    }
-
-    // ===== ЗВУКИ =====
-    const soundProfiles = [
-        { name: "Обычный", freq: 880, type: "sine" },
-        { name: "Пиксельный", freq: 1200, type: "square" },
-        { name: "Глубокий", freq: 440, type: "sawtooth" }
-    ];
-    let currentSoundProfile = 0;
-
-    let audioCtx = null;
-    let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
-
-    function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
-
-    const musicBtn = document.getElementById('musicToggle');
-    if (musicBtn) {
-        musicBtn.innerText = musicEnabled ? '🔊' : '🔇';
-        musicBtn.onclick = () => {
-            musicEnabled = !musicEnabled;
-            localStorage.setItem('musicEnabled', musicEnabled);
-            musicBtn.innerText = musicEnabled ? '🔊' : '🔇';
-        };
-    }
-
-    document.querySelectorAll('.menu-btn').forEach((btn,i)=>{ btn.style.animationDelay=`${i*0.05}s`; });
-
-    function spawnFloatText(x, y, text) {
-        const el = document.createElement('div');
-        el.className = 'float-text';
-        el.innerText = text;
-        el.style.left = (x - 20) + 'px';
-        el.style.top = (y - 10) + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1000);
-    }
-
-    function updateStatsUI() {
-        const a = document.getElementById('statTotalClicks');
-        const b = document.getElementById('statNeuronsBought');
-        const c = document.getElementById('statSessionClicks');
-        if (a) a.innerText = totalClicks;
-        if (b) b.innerText = purchasedCount;
-        if (c) c.innerText = sessionClicks;
-    }
-
-    function updatePlaytime() {
-        const el = document.getElementById('playtime');
-        if (!el) return;
-        const seconds = Math.floor((Date.now() - gameStartTime) / 1000);
-        el.innerText = Math.floor(seconds / 60);
-    }
-
-    function startSleepMsgTimer() {
-        if (sleepMsgTimer) clearTimeout(sleepMsgTimer);
-        sleepMsgTimer = setTimeout(() => {
-            if (!sleepMsgShowing) {
-                sleepMsgShowing = true;
-                const el = document.getElementById('sleepMsg');
-                if (el) el.classList.add('show');
-            }
-        }, 45000);
-    }
-
-    function hideSleepMsg() {
-        if (sleepMsgTimer) clearTimeout(sleepMsgTimer);
-        if (sleepMsgShowing) {
-            sleepMsgShowing = false;
-            const el = document.getElementById('sleepMsg');
-            if (el) el.classList.remove('show');
-        }
-        startSleepMsgTimer();
-    }
-
-    function shareProgress() {
-        const text = `🧠 Мой прогресс в игре "Кликер: Эволюция Нейросетей":
-🧠 Очки: ${Math.floor(points)}
-💎 Алмазы: ${diamonds}
-🖱️ Всего кликов: ${totalClicks}
-🧬 Нейросетей: ${purchasedCount}/1500
-🎫 AI Pass 5 уровней: ${passTasks.filter(t=>t.claimed).length}/20
-📅 Версия ${GAME_VERSION}`;
-        navigator.clipboard.writeText(text);
-        showToast("✅ Прогресс скопирован!");
-    }
-
-    function getClickPower() {
-        let base = 1;
-        upgrades.forEach(u => { if (u.purchased) base += u.power; });
-        if (godMode) base *= 10;
-        return Math.floor(base);
-    }
-
-    function updateUI() {
-        if (isBanned) return;
-        const p = document.getElementById('points');
-        const pw = document.getElementById('power');
-        const ch = document.getElementById('clickHint');
-        const dm = document.getElementById('diamonds');
-        if (p) p.innerText = Math.floor(points);
-        if (pw) pw.innerText = getClickPower();
-        if (ch) ch.innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`;
-        if (dm) dm.innerText = diamonds;
-        updateStatsUI();
-        updatePlaytime();
-        const ct = document.getElementById('comboText');
-        if (ct) ct.classList.remove('show');
-        checkPassProgress();
-    }
-
-    function showToast(msg) {
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.innerText = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 2500);
-    }
-
-    function saveGame() {
-        const save = {
-            points, diamonds, totalClicks, purchasedCount,
-            totalDiamondsEarned, godMode, comboCounter,
-            upgrades: upgrades.map(u => ({ purchased: u.purchased })),
-            passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
-            passCurrentTask, passRewardSeconds,
-            gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION
-        };
-        localStorage.setItem('neuralEvoSave', JSON.stringify(save));
-    }
-
-    function loadGame() {
-        const saved = localStorage.getItem('neuralEvoSave');
-        if (saved) {
-            try {
-                const d = JSON.parse(saved);
-                points = d.points || 100;
-                diamonds = d.diamonds || 0;
-                totalClicks = d.totalClicks || 0;
-                purchasedCount = d.purchasedCount || 1;
-                totalDiamondsEarned = d.totalDiamondsEarned || 0;
-                godMode = d.godMode || false;
-                comboCounter = d.comboCounter || 0;
-                if (d.upgrades) {
-                    d.upgrades.forEach((data, i) => {
-                        if (upgrades[i]) upgrades[i].purchased = data.purchased;
-                    });
-                }
-                if (d.passTasks) {
-                    d.passTasks.forEach((data, i) => {
-                        if (passTasks[i]) {
-                            passTasks[i].claimed = data.claimed;
-                            passTasks[i].completed = data.completed;
-                        }
-                    });
-                }
-                if (d.passCurrentTask !== undefined) passCurrentTask = d.passCurrentTask;
-                if (d.passRewardSeconds !== undefined) passRewardSeconds = d.passRewardSeconds;
-                if (d.gameStartTime) gameStartTime = d.gameStartTime;
-                if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile;
-                purchasedCount = upgrades.filter(u => u.purchased).length;
-            } catch(e) {}
-        }
-        updateUI();
-        renderShopNeurons();
-        renderPassBadges();
-        renderTasksList();
-        updateStatsUI();
-        startPassEndTimer();
-        startPassRewardTimer();
-        if (playtimeInterval) clearInterval(playtimeInterval);
-        playtimeInterval = setInterval(() => updatePlaytime(), 60000);
-        startSleepMsgTimer();
-        const stb = document.getElementById('soundToggleBtn');
-        if (stb) stb.innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
-        applyBanState();
-        applyHalloweenTheme();
-    }
-
-    function exportProgress() {
-        const saveData = {
-            points, diamonds, totalClicks, purchasedCount,
-            totalDiamondsEarned, godMode, comboCounter,
-            upgrades: upgrades.map(u => ({ purchased: u.purchased })),
-            passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
-            passCurrentTask, passRewardSeconds,
-            gameStartTime, currentSoundProfile,
-            gameVersion: GAME_VERSION
-        };
-        const blob = new Blob([JSON.stringify(saveData)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "neural_evolution_save.json";
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast("💾 Прогресс сохранён!");
-    }
-
-    function importProgress(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                data.gameVersion = GAME_VERSION;
-                localStorage.setItem('neuralEvoSave', JSON.stringify(data));
-                showToast("📂 Загружено! Перезагружаю...");
-                setTimeout(() => location.reload(), 1000);
-            } catch(error) {
-                showToast("❌ Ошибка загрузки");
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    const importInput = document.createElement('input');
-    importInput.type = 'file';
-    importInput.accept = '.json';
-    importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
-
-    // ===== ФОНЫ =====
-    const bgThemes = {
-        early_autumn: "bg-early-autumn",
-        golden: "bg-golden",
-        rainy: "bg-rainy",
-        late: "bg-late",
-        forest: "bg-forest",
-        park: "bg-park",
-        mountains: "bg-mountains",
-        village: "bg-village"
-    };
-
-    function setBodyBg(theme) {
-        if (isHalloween()) return;
-        document.body.className = '';
-        document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
-        localStorage.setItem('selectedBg', theme);
-    }
-    const savedBg = localStorage.getItem('selectedBg');
-    if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
-    else setBodyBg('early_autumn');
-
-    // ===== КЛИК =====
-    function processSingleClick(gain, x, y) {
-        if (isBanned) return;
-        hideSleepMsg();
-
-        comboCounter++;
-        let finalGain = gain;
-        if (comboCounter % 5 === 0) {
-            finalGain = gain * 2;
-            const comboText = document.getElementById('comboText');
-            if (comboText) {
-                comboText.innerText = "🔥 x2 КОМБО!";
-                comboText.classList.add('show');
-                setTimeout(() => comboText.classList.remove('show'), 800);
-            }
-            spawnFloatText(x, y - 40, "🔥 x2!");
-        }
-
-        if (Math.random() < 0.02) {
-            finalGain = gain * 3;
-            spawnFloatText(x, y - 40, "⚡ x3!");
-            showToast("⚡ ТРОЙНОЙ КЛИК! x3!");
-            playBuySound();
-        }
-
-        points += finalGain;
-        totalClicks++;
-        sessionClicks++;
-        playClickSound();
-
-        if (Math.random() < 0.01) {
-            diamonds++;
-            totalDiamondsEarned++;
-            showToast(isHalloween() ? "🍬 КОНФЕТА!" : "💎 АЛМАЗ!");
-            playBuySound();
-            spawnFloatText(x, y - 30, isHalloween() ? "🍬" : "💎");
-        }
-    }
-
-    function handleMultiTouch(e) {
-        e.preventDefault();
-        if (isBanned) return;
-        const gain = getClickPower();
-        for (let i = 0; i < e.touches.length; i++) {
-            const touch = e.touches[i];
-            processSingleClick(gain, touch.clientX, touch.clientY);
-        }
-        const brain = document.getElementById('clickableObject');
-        brain.style.transform = 'scale(0.92)';
-        setTimeout(() => brain.style.transform = '', 120);
-        updateUI();
-        saveGame();
-    }
-
-    function handleMouseClick(e) {
-        e.preventDefault();
-        if (isBanned) return;
-        const gain = getClickPower();
-        processSingleClick(gain, e.clientX, e.clientY);
-        const brain = document.getElementById('clickableObject');
-        brain.style.transform = 'scale(0.92)';
-        setTimeout(() => brain.style.transform = '', 120);
-        updateUI();
-        saveGame();
-    }
-
-    function playClickSound() {
-        if (!audioCtx) initMusic();
-        if (audioCtx) {
-            try {
-                const profile = soundProfiles[currentSoundProfile];
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = profile.type;
-                osc.frequency.value = profile.freq;
-                gain.gain.value = 0.08;
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.05);
-            } catch(e) {}
-        }
-    }
-
-    function playBuySound() {
-        if (!audioCtx) initMusic();
-        if (audioCtx) {
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = "triangle";
-                osc.frequency.value = 523.25;
-                gain.gain.value = 0.08;
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.1);
-            } catch(e) {}
-        }
-    }
-
-    const clickable = document.getElementById('clickableObject');
-    if (clickable) {
-        clickable.addEventListener('touchstart', handleMultiTouch, { passive: false });
-        clickable.addEventListener('mousedown', handleMouseClick);
-    }
-
-    // ===== ОБУЧЕНИЕ ДЛЯ НОВИЧКОВ =====
-    const tutorialOverlay = document.getElementById('tutorialOverlay');
-    const tutorialStep1 = document.getElementById('tutorialStep1');
-    const tutorialStep2 = document.getElementById('tutorialStep2');
-
-    // Показываем обучение только если игрок первый раз
-    if (!localStorage.getItem('tutorialDone')) {
-        setTimeout(() => {
-            if (tutorialOverlay) tutorialOverlay.classList.add('show');
-        }, 1800);
-    }
-
-    document.getElementById('tutorialYes')?.addEventListener('click', () => {
-        tutorialStep1.classList.add('hidden');
-        tutorialStep2.classList.remove('hidden');
-    });
-
-    document.getElementById('tutorialNo')?.addEventListener('click', () => {
-        localStorage.setItem('tutorialDone', 'true');
-        if (tutorialOverlay) tutorialOverlay.classList.remove('show');
-    });
-
-    document.getElementById('tutorialOk')?.addEventListener('click', () => {
-        localStorage.setItem('tutorialDone', 'true');
-        if (tutorialOverlay) tutorialOverlay.classList.remove('show');
-    });
-
-    // ===== КНОПКИ =====
-    document.getElementById('playBtn')?.addEventListener('click', () => {
-        document.getElementById('mainMenu').classList.add('hidden');
-        document.getElementById('gameInterface').classList.remove('hidden');
-    });
-    document.getElementById('backToMenu')?.addEventListener('click', () => {
-        document.getElementById('mainMenu').classList.remove('hidden');
-        document.getElementById('gameInterface').classList.add('hidden');
-    });
-    document.getElementById('openShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
-    document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
-    document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
-    document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
-    document.getElementById('resetGameBtn')?.addEventListener('click', () => {
-        if (confirm("Сбросить всё?")) { localStorage.clear(); location.reload(); }
-    });
-    document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
-    document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
-
-    document.getElementById('openTasksBtn')?.addEventListener('click', () => {
-        renderTasksList();
-        document.getElementById('passTasksModal').classList.add('show');
-    });
-    document.getElementById('closeTasksBtn')?.addEventListener('click', () => {
-        document.getElementById('passTasksModal').classList.remove('show');
-    });
-
-    document.getElementById('bgEarlyAutumn')?.addEventListener('click', () => setBodyBg('early_autumn'));
-    document.getElementById('bgGolden')?.addEventListener('click', () => setBodyBg('golden'));
-    document.getElementById('bgRainy')?.addEventListener('click', () => setBodyBg('rainy'));
-    document.getElementById('bgLate')?.addEventListener('click', () => setBodyBg('late'));
-    document.getElementById('bgForest')?.addEventListener('click', () => setBodyBg('forest'));
-    document.getElementById('bgPark')?.addEventListener('click', () => setBodyBg('park'));
-    document.getElementById('bgMountains')?.addEventListener('click', () => setBodyBg('mountains'));
-    document.getElementById('bgVillage')?.addEventListener('click', () => setBodyBg('village'));
-
-    document.getElementById('exportSaveBtn')?.addEventListener('click', exportProgress);
-    document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
-    document.getElementById('promoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.add('show'));
-    document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
-
-    // ===== ПОЛНОЭКРАННЫЙ РЕЖИМ =====
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    if (fullscreenBtn) {
-        fullscreenBtn.addEventListener('click', () => {
-            const el = document.documentElement;
-            const isFull = document.fullscreenElement || document.webkitFullscreenElement;
-            if (!isFull) {
-                if (el.requestFullscreen) el.requestFullscreen();
-                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-                else if (el.msRequestFullscreen) el.msRequestFullscreen();
-                fullscreenBtn.innerText = 'Выключить';
-                showToast("⛶ Полный экран");
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                else if (document.msExitFullscreen) document.msExitFullscreen();
-                fullscreenBtn.innerText = 'Включить';
-                showToast("⛶ Обычный режим");
-            }
-        });
-        document.addEventListener('fullscreenchange', () => {
-            fullscreenBtn.innerText = document.fullscreenElement ? 'Выключить' : 'Включить';
-        });
-        document.addEventListener('webkitfullscreenchange', () => {
-            fullscreenBtn.innerText = document.webkitFullscreenElement ? 'Выключить' : 'Включить';
-        });
-    }
-
-    const promoCodes = {};
-    for (let i = 1; i <= 100; i++) promoCodes[`code${i}`] = { points: 100 + i * 5, diamonds: 1 + Math.floor(i / 10) };
-    promoCodes['dima'] = { points: 500, diamonds: 10 };
-    promoCodes['dima god'] = { points: 5000, diamonds: 100 };
-    promoCodes['start'] = { points: 100, diamonds: 5 };
-    promoCodes['neural'] = { points: 1000, diamonds: 50 };
-    promoCodes['evolution'] = { points: 2000, diamonds: 100 };
-    promoCodes['prestige'] = { points: 10000, diamonds: 200 };
-    promoCodes['legend'] = { points: 20000, diamonds: 500 };
-    promoCodes['pass5'] = { points: 5000, diamonds: 50 };
-    promoCodes['halloween'] = { points: 6666, diamonds: 66 };
-
-    document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
-        if (isBanned) return;
-        const code = document.getElementById('promoInput').value.toLowerCase().trim();
-        if (checkBan(code)) {
-            document.getElementById('promoInput').value = '';
-            document.getElementById('promoModal').classList.remove('show');
-            activateBan();
-            return;
-        }
-        if (promoCodes[code]) {
-            const promo = promoCodes[code];
-            points += promo.points;
-            diamonds += promo.diamonds;
-            totalDiamondsEarned += promo.diamonds;
-            updateUI();
-            saveGame();
-            showToast("✅ Промокод активирован!");
-            document.getElementById('promoInput').value = '';
-            document.getElementById('promoModal').classList.remove('show');
-        } else showToast("❌ Неверный код");
-    });
-
-    document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
-        if (isBanned) return;
-        currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
-        document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
-        saveGame();
-        showToast(`🔊 Звук: ${soundProfiles[currentSoundProfile].name}`);
-    });
-
-    document.getElementById('shareBtn')?.addEventListener('click', shareProgress);
-
-    function moveEyes(e) {
-        const x = e.touches ? e.touches[0].clientX : e.clientX;
-        const y = e.touches ? e.touches[0].clientY : e.clientY;
-        document.querySelectorAll('.pupil').forEach(p => {
-            const rect = p.parentElement.parentElement.getBoundingClientRect();
-            const dx = x - (rect.left + rect.width / 2);
-            const dy = y - (rect.top + rect.height / 2);
-            const angle = Math.atan2(dy, dx);
-            const dist = Math.min(4, Math.hypot(dx, dy) / 20);
-            p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
-        });
-    }
-    document.addEventListener('mousemove', moveEyes);
-    document.addEventListener('touchmove', moveEyes);
-
-    let reloadSeconds = 300;
-    setInterval(() => {
-        if (reloadSeconds > 0) {
-            reloadSeconds--;
-            const el = document.getElementById('reloadCountdown');
-            if (el) {
-                const m = Math.floor(reloadSeconds / 60), s = reloadSeconds % 60;
-                el.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-            }
-            if (reloadSeconds === 0) {
-                showToast("Перезагрузка...");
-                setTimeout(() => location.reload(), 2000);
-            }
-        }
-    }, 1000);
-    setInterval(saveGame, 5000);
-
-    // ===== АДМИН-ПАНЕЛЬ v2 =====
-    let adminCurrentTab = 'game';
-
-    function renderAdminBody() {
-        const body = document.getElementById('adminBody');
-        if (!body) return;
-
-        if (adminCurrentTab === 'game') {
-            body.innerHTML = `
-                <div class="admin-item"><span>+1000 очков</span><button id="admPoints">Дать</button></div>
-                <div class="admin-item"><span>+100 алмазов</span><button id="admDiamonds">Дать</button></div>
-                <div class="admin-item"><span>Купить все нейросети</span><button id="admBuyAll">Купить</button></div>
-                <div class="admin-item"><span>Открыть все AI Pass</span><button id="admPass">Дать</button></div>
-                <div class="admin-item"><span>Режим Бога (x10)</span><button id="admGod">Вкл/Выкл</button></div>
-                <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
-            `;
-            document.getElementById('admPoints').onclick = () => { points += 1000; updateUI(); saveGame(); showToast("+1000 очков"); };
-            document.getElementById('admDiamonds').onclick = () => { diamonds += 100; totalDiamondsEarned += 100; updateUI(); saveGame(); showToast("+100 алмазов"); };
-            document.getElementById('admBuyAll').onclick = () => {
-                upgrades.forEach((u, i) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } });
-                updateUI(); renderShopNeurons(); saveGame(); showToast("Все нейросети куплены!");
-            };
-            document.getElementById('admPass').onclick = () => {
-                passTasks.forEach((t, i) => { t.claimed = true; });
-                passCurrentTask = passTasks.length;
-                renderPassBadges(); renderTasksList(); saveGame(); showToast("Все AI Pass открыты!");
-            };
-            document.getElementById('admGod').onclick = () => {
-                godMode = !godMode; updateUI(); saveGame();
-                showToast(godMode ? "БОГ ВКЛ" : "БОГ ВЫКЛ");
-            };
-            document.getElementById('admReset').onclick = () => {
-                if (confirm("Сбросить прогресс?")) { localStorage.clear(); location.reload(); }
-            };
-        }
-
-        if (adminCurrentTab === 'visual') {
-            body.innerHTML = `
-                <div class="admin-item"><span>Фон: Ранняя осень</span><button data-bg="early_autumn">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Золотая</span><button data-bg="golden">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Дождливая</span><button data-bg="rainy">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Поздняя</span><button data-bg="late">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Лес</span><button data-bg="forest">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Парк</span><button data-bg="park">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Горы</span><button data-bg="mountains">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Деревня</span><button data-bg="village">Вкл</button></div>
-                <div class="admin-item"><span>Мозг: 🧠 обычный</span><button id="brainNormal">Вкл</button></div>
-                <div class="admin-item"><span>Мозг: 🎃 тыква</span><button id="brainPumpkin">Вкл</button></div>
-                <div class="admin-item"><span>Мозг: 👽 пришелец</span><button id="brainAlien">Вкл</button></div>
-                <div class="admin-item"><span>Мозг: 🔥 огонь</span><button id="brainFire">Вкл</button></div>
-            `;
-            body.querySelectorAll('[data-bg]').forEach(btn => {
-                btn.onclick = () => { setBodyBg(btn.dataset.bg); showToast("Фон: " + btn.dataset.bg); };
-            });
-            document.getElementById('brainNormal').onclick = () => {
-                const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🧠';
-            };
-            document.getElementById('brainPumpkin').onclick = () => {
-                const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🎃';
-            };
-            document.getElementById('brainAlien').onclick = () => {
-                const e = document.getElementById('brainEmoji'); if (e) e.innerText = '👽';
-            };
-            document.getElementById('brainFire').onclick = () => {
-                const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🔥';
-            };
-        }
-
-        if (adminCurrentTab === 'settings') {
-            body.innerHTML = `
-                <div class="admin-item"><span>Открыть настройки игры</span><button id="admOpenSettings">Открыть</button></div>
-                <div class="admin-item"><span>Вкл/Выкл звук</span><button id="admSound">Переключить</button></div>
-                <div class="admin-item"><span>Сменить звук клика</span><button id="admSoundProfile">Сменить</button></div>
-                <div class="admin-item"><span>Показать статистику</span><button id="admStats">Показать</button></div>
-                <div class="admin-item"><span>Сбросить обучение</span><button id="admResetTutorial">Сбросить</button></div>
-            `;
-            document.getElementById('admOpenSettings').onclick = () => {
-                document.getElementById('adminOverlay').classList.remove('show');
-                document.getElementById('settingsModal').classList.add('show');
-            };
-            document.getElementById('admSound').onclick = () => {
-                musicEnabled = !musicEnabled;
-                localStorage.setItem('musicEnabled', musicEnabled);
-                const btn = document.getElementById('musicToggle');
-                if (btn) btn.innerText = musicEnabled ? '🔊' : '🔇';
-                showToast(musicEnabled ? "Звук ВКЛ" : "Звук ВЫКЛ");
-            };
-            document.getElementById('admSoundProfile').onclick = () => {
-                currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
-                showToast("Звук: " + soundProfiles[currentSoundProfile].name);
-                saveGame();
-            };
-            document.getElementById('admStats').onclick = () => {
-                console.log("=== СТАТИСТИКА ИГРЫ ===");
-                console.log("Очки:", Math.floor(points));
-                console.log("Алмазы:", diamonds);
-                console.log("Клики:", totalClicks);
-                console.log("Нейросети:", purchasedCount);
-                console.log("AI Pass:", passTasks.filter(t=>t.claimed).length, "/ 20");
-                showToast("Смотри консоль (F12)");
-            };
-            document.getElementById('admResetTutorial').onclick = () => {
-                localStorage.removeItem('tutorialDone');
-                showToast("Обучение сброшено! Перезагрузи страницу.");
-            };
-        }
-    }
-
-    function openAdminPanel() {
-        const overlay = document.getElementById('adminOverlay');
-        if (!overlay) return;
-        adminCurrentTab = 'game';
-        document.querySelectorAll('.admin-tab').forEach(t => {
-            t.classList.toggle('active', t.dataset.tab === 'game');
-        });
-        renderAdminBody();
-        overlay.classList.add('show');
-    }
-
-    const versionEl = document.getElementById('menuVersion');
-    if (versionEl) {
-        versionEl.style.cursor = 'pointer';
-        versionEl.addEventListener('click', openAdminPanel);
-    }
-
-    document.querySelectorAll('.admin-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            adminCurrentTab = tab.dataset.tab;
-            renderAdminBody();
-        });
-    });
-
-    document.getElementById('adminCloseBtn')?.addEventListener('click', () => {
-        document.getElementById('adminOverlay').classList.remove('show');
-    });
-    document.getElementById('adminOverlay')?.addEventListener('click', (e) => {
-        if (e.target.id === 'adminOverlay') {
-            document.getElementById('adminOverlay').classList.remove('show');
-        }
-    });
-
-    loadGame();
-});
+.game-container {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(18, 28, 40, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 48px;
+    border: 1px solid rgba(100, 180, 255, 0.3);
+    padding: 20px 16px;
+    margin: 0 auto;
+    color: white;
+    text-shadow: 0 0 5px black;
+}
+
+.main-menu { text-align: center; }
+.main-menu.hidden, .game-interface.hidden { display: none; }
+
+.menu-btn, .action-btn {
+    background: linear-gradient(145deg, #2a4b6e, #1a3150);
+    border: 2px solid #7aa5d9;
+    color: white;
+    padding: 12px;
+    border-radius: 60px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    flex: 1;
+    min-width: 100px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: btnFlyIn 0.4s forwards;
+    transition: 0.1s;
+    text-shadow: 0 0 5px black;
+}
+.menu-btn:hover, .action-btn:hover {
+    background: linear-gradient(145deg, #3a6b8e, #2a4160);
+    box-shadow: 0 0 10px #7aa5d9;
+    transform: scale(1.02);
+}
+@keyframes btnFlyIn { to { opacity: 1; transform: translateY(0); } }
+.menu-buttons-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+.game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00, 0 0 40px black; animation: glitch 3s infinite; }
+@keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00, 0 0 40px black; } 50% { text-shadow: -2px 0 red, 2px 0 blue, 0 0 20px black; } }
+
+.game-version { color: #88aaff; font-size: 12px; margin-bottom: 15px; cursor: pointer; display: inline-block; text-shadow: 0 0 5px black; }
+.game-version:active { color: #ffaa00; }
+
+.stats-panel-extended {
+    background: rgba(0,0,0,0.6);
+    border-radius: 30px;
+    padding: 10px;
+    margin: 10px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+.stat-card { background: #0a1b2e; border-radius: 20px; padding: 5px; text-align: center; }
+.stat-card-value { color: #ffd966; font-size: 16px; font-weight: 800; text-shadow: 0 0 5px black; }
+.stat-card-label { color: #aac8f0; font-size: 9px; text-shadow: 0 0 5px black; }
+
+.music-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1a3150;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    font-size: 24px;
+    border: 2px solid #ffd966;
+}
+
+.brain-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    position: relative;
+}
+.brain {
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.08s;
+    background: radial-gradient(circle at 30% 30%, #ffaa00, #ff5500);
+    box-shadow: 0 15px 0 #aa4400, 0 0 20px #ffaa00;
+    border: 3px solid #ffffaa;
+    position: relative;
+    animation: brainFloat 2s ease-in-out infinite;
+}
+.brain.halloween-brain {
+    background: radial-gradient(circle at 30% 30%, #ff8800, #cc3300);
+    box-shadow: 0 15px 0 #661100, 0 0 30px #ff4400;
+    border-color: #ff8800;
+}
+.brain:active { transform: scale(0.96); box-shadow: 0 8px 0 #aa4400; }
+@keyframes brainFloat { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
+.brain .skin-emoji { font-size: 70px; z-index: 2; }
+.brain .eyes { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 30px; pointer-events: none; }
+.eye { width: 22px; height: 22px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.pupil { width: 10px; height: 10px; background: black; border-radius: 50%; transition: transform 0.05s; }
+.combo-text {
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffdd44;
+    text-shadow: 0 0 10px #ff8800;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.combo-text.show { opacity: 1; }
+
+.brain .sleep-msg {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: #ffaa00;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: 0 0 5px black;
+}
+.brain .sleep-msg.show { opacity: 1; }
+
+/* ========== AI PASS 5 ========== */
+.pass-container {
+    background: linear-gradient(135deg, #1a0a2e 0%, #2d1b5e 50%, #0a1a3e 100%);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 30px;
+    padding: 15px;
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(180, 100, 255, 0.4), inset 0 0 30px rgba(100, 50, 200, 0.2);
+}
+.pass-container::before {
+    content: "";
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    background: linear-gradient(45deg, #b464ff, #ff64c8, #64c8ff, #b464ff);
+    background-size: 300% 300%;
+    border-radius: 32px;
+    z-index: -1;
+    animation: borderGlow 4s ease infinite;
+    filter: blur(2px);
+}
+@keyframes borderGlow {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+.pass-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #e0b0ff;
+    font-weight: 900;
+    font-size: 14px;
+    margin-bottom: 12px;
+    text-shadow: 0 0 10px #b464ff, 0 0 20px #b464ff;
+    letter-spacing: 1px;
+}
+.pass-timer-header {
+    background: linear-gradient(145deg, #ff64c8, #b464ff);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(255, 100, 200, 0.6);
+}
+.pass-progress-bar {
+    height: 10px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
+}
+.pass-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #b464ff, #ff64c8, #64c8ff);
+    background-size: 200% 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    animation: progressShine 2s linear infinite;
+    box-shadow: 0 0 10px #ff64c8;
+}
+@keyframes progressShine {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+.pass-levels {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+.pass-badge {
+    background: linear-gradient(145deg, #2a1b4e, #1a0a3e);
+    border: 1px solid #5a3b8e;
+    border-radius: 12px;
+    padding: 6px 2px;
+    font-size: 9px;
+    color: #a88ad0;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+    text-shadow: 0 0 3px black;
+    font-weight: bold;
+    position: relative;
+}
+.pass-badge.completed {
+    background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
+    border-color: #4caf50;
+    color: #a0ffc0;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+}
+.pass-badge.available {
+    background: linear-gradient(145deg, #ff64c8, #b464ff);
+    border-color: #fff;
+    color: white;
+    box-shadow: 0 0 15px #ff64c8, 0 0 25px #b464ff;
+    animation: badgePulse 1.2s ease infinite;
+}
+@keyframes badgePulse {
+    0%,100% { transform: scale(1); box-shadow: 0 0 15px #ff64c8, 0 0 25px #b464ff; }
+    50% { transform: scale(1.1); box-shadow: 0 0 25px #ff64c8, 0 0 40px #b464ff; }
+}
+.pass-badge.locked { opacity: 0.5; }
+.open-tasks-btn {
+    background: linear-gradient(145deg, #ff64c8, #b464ff);
+    border: 2px solid #ffffff80;
+    color: white;
+    padding: 12px;
+    border-radius: 60px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+    text-shadow: 0 0 5px black;
+    box-shadow: 0 0 20px rgba(255, 100, 200, 0.5);
+    letter-spacing: 1px;
+    transition: 0.15s;
+}
+.open-tasks-btn:active { transform: scale(0.97); }
+.pass-end {
+    text-align: center;
+    font-size: 10px;
+    color: #e0b0ff;
+    margin-top: 8px;
+    text-shadow: 0 0 5px black;
+}
+
+/* ========== МОДАЛ ЗАДАНИЙ ========== */
+.pass-tasks-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    padding: 20px;
+}
+.pass-tasks-modal.show { opacity: 1; visibility: visible; }
+.pass-tasks-content {
+    background: linear-gradient(135deg, #1a0a2e, #0a1a3e);
+    border: 2px solid #b464ff;
+    border-radius: 30px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 0 40px rgba(180, 100, 255, 0.6);
+    color: white;
+}
+.pass-tasks-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 900;
+    color: #e0b0ff;
+    text-shadow: 0 0 15px #b464ff, 0 0 30px #b464ff;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+.task-item {
+    background: linear-gradient(145deg, #2a1b4e, #1a0a3e);
+    border: 1px solid #5a3b8e;
+    border-radius: 20px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: 0.2s;
+}
+.task-item.completed {
+    background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
+    border-color: #4caf50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+}
+.task-item.current {
+    border-color: #ff64c8;
+    box-shadow: 0 0 15px rgba(255, 100, 200, 0.5);
+    animation: taskPulse 2s ease infinite;
+}
+@keyframes taskPulse {
+    0%,100% { box-shadow: 0 0 15px rgba(255, 100, 200, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(255, 100, 200, 0.7); }
+}
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 13px;
+}
+.task-level {
+    color: #ff64c8;
+    text-shadow: 0 0 5px #ff64c8;
+    font-size: 14px;
+}
+.task-reward {
+    background: linear-gradient(145deg, #ff64c8, #b464ff);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-shadow: 0 0 5px black;
+}
+.task-desc { font-size: 12px; color: #d0c0e8; }
+.task-progress-bar { height: 8px; background: rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
+.task-progress-fill { height: 100%; background: linear-gradient(90deg, #b464ff, #ff64c8); width: 0%; transition: width 0.3s; box-shadow: 0 0 10px #ff64c8; }
+.task-progress-text { text-align: right; font-size: 10px; color: #a88ad0; }
+.task-claim-btn {
+    background: linear-gradient(145deg, #4caf50, #2e7d32);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+    align-self: flex-end;
+    font-size: 12px;
+}
+.task-claim-btn:active { transform: scale(0.95); }
+.close-tasks-btn {
+    background: linear-gradient(145deg, #8c5cd4, #5a3b8e);
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    text-shadow: 0 0 5px black;
+    font-size: 14px;
+}
+
+.shop-panel { background: rgba(0,0,0,0.95); border-radius: 30px; padding: 10px; margin: 10px 0; display: none; }
+.shop-panel.show { display: block; }
+.shop-tab { background: #2a4b6e; padding: 8px; border-radius: 30px; text-align: center; cursor: pointer; flex: 1; color: white; font-size: 12px; transition: 0.1s; text-shadow: 0 0 5px black; }
+.shop-tab.active { background: #ffaa00; color: #1a1a2e; }
+.shop-tab:hover { background: #3a6b8e; transform: scale(1.02); }
+.shop-list { max-height: 300px; overflow-y: auto; }
+.shop-item { background: #1a3150; border-radius: 30px; padding: 8px 12px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center; color: white; flex-wrap: wrap; gap: 8px; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
+.shop-item:hover { background: #2a4160; transform: scale(1.01); }
+.pagination { display: flex; justify-content: center; gap: 15px; margin: 10px 0; }
+.page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
+.page-btn:hover { background: #ffcc44; transform: scale(1.05); }
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    padding: 20px;
+}
+.modal-overlay.show { opacity: 1; visibility: visible; }
+.modal-content {
+    background: linear-gradient(145deg, #1d3147, #112233);
+    border-radius: 40px;
+    padding: 20px;
+    width: 90%;
+    max-width: 380px;
+    text-align: center;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: white;
+    text-shadow: 0 0 5px black;
+}
+.modal-title { color: #d9b0ff; font-size: 20px; font-weight: 800; margin-bottom: 15px; text-shadow: 0 0 5px black; }
+.modal-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 30px; border: none; background: #2a4b6e; color: white; text-align: center; }
+.modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; font-weight: 700; margin: 5px; cursor: pointer; transition: 0.1s; text-shadow: 0 0 5px black; }
+.modal-btn:hover { background: #a07ce0; transform: scale(1.02); }
+.reset-btn { background: linear-gradient(145deg, #aa3300, #661100); border: 2px solid #ff6644; color: white; padding: 12px; border-radius: 60px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 15px; transition: 0.1s; text-shadow: 0 0 5px black; }
+.reset-btn:hover { background: #cc4400; transform: scale(1.01); }
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    flex-wrap: wrap;
+    gap: 8px;
+    text-shadow: 0 0 5px black;
+}
+
+.top-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
+.diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
+.timers { background: rgba(0,0,0,0.5); border-radius: 20px; padding: 8px; margin-bottom: 10px; text-align: center; font-size: 12px; color: #aaffdd; text-shadow: 0 0 5px black; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #ffaa00, #ff5500); color: white; padding: 6px 12px; border-radius: 40px; font-weight: 700; z-index: 2000; animation: fadeOut 3s forwards; font-size: 11px; text-shadow: 0 0 5px black; }
+@keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+.save-badge { text-align: center; color: #a0ffc0; font-size: 9px; margin-top: 8px; text-shadow: 0 0 5px black; }
+
+.float-text {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1500;
+    font-size: 28px;
+    font-weight: 900;
+    color: #ffdd44;
+    text-shadow: 0 0 10px #ff8800, 0 0 20px #ff4400;
+    animation: floatUp 1s ease-out forwards;
+}
+@keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
+}
+
+#loadingScreen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0b1729;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease;
+}
+#loadingScreen.hidden { opacity: 0; pointer-events: none; }
+.loader {
+    width: 60px; height: 60px;
+    border: 6px solid #2a4b6e;
+    border-top: 6px solid #ffaa00;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.loading-text { color: #ffd966; font-size: 24px; font-weight: 800; margin-top: 20px; text-shadow: 0 0 20px #ffaa00; }
+.loading-sub { color: #88aaff; font-size: 12px; margin-top: 10px; }
+
+/* ===== АДМИН-ПАНЕЛЬ v2 ===== */
+.admin-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    padding: 20px;
+}
+.admin-overlay.show { opacity: 1; visibility: visible; }
+
+.admin-panel {
+    background: #ff0000;
+    border: 6px solid #000;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+}
+
+.admin-header {
+    background: #ff0000;
+    color: white;
+    font-size: 22px;
+    font-weight: 900;
+    text-align: center;
+    padding: 14px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    border-bottom: 4px solid #000;
+}
+
+.admin-tabs {
+    display: flex;
+    background: #000;
+    gap: 4px;
+    padding: 6px;
+}
+
+.admin-tab {
+    flex: 1;
+    background: #fff;
+    color: #000;
+    text-align: center;
+    padding: 10px 4px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    border: 2px solid #fff;
+    transition: 0.15s;
+    user-select: none;
+}
+.admin-tab.active {
+    background: #ffcc00;
+    border-color: #000;
+    color: #000;
+}
+
+.admin-body {
+    background: #ff0000;
+    color: white;
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 200px;
+    font-size: 14px;
+}
+
+.admin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.25);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: 2px solid #000;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.admin-item span { font-weight: 700; color: white; }
+.admin-item button {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.1s;
+}
+.admin-item button:active { transform: scale(0.95); background: #333; }
+
+.admin-close {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    border-top: 4px solid #fff;
+    letter-spacing: 1px;
+}
+.admin-close:active { background: #333; }
+
+/* ===== ОБУЧЕНИЕ ДЛЯ НОВИЧКОВ ===== */
+.tutorial-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+}
+.tutorial-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tutorial-box {
+    background: #0a0a0a;
+    border: 4px solid #000;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.9);
+    color: white;
+    text-align: center;
+}
+
+.tutorial-step { display: block; }
+.tutorial-step.hidden { display: none; }
+
+.tutorial-robot {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 18px;
+    text-align: left;
+}
+.robot-emoji {
+    font-size: 40px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.robot-text {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: white;
+    text-shadow: 0 0 5px black;
+}
+
+.tutorial-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 10px;
+}
+.tutorial-btn-yes, .tutorial-btn-no {
+    flex: 1;
+    padding: 14px;
+    border: 3px solid #000;
+    font-size: 22px;
+    font-weight: 900;
+    cursor: pointer;
+    border-radius: 4px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+    transition: 0.1s;
+}
+.tutorial-btn-yes {
+    background: #00dd00;
+    color: #003300;
+}
+.tutorial-btn-yes:active { transform: scale(0.95); background: #00aa00; }
+.tutorial-btn-no {
+    background: #dd0000;
+    color: #330000;
+}
+.tutorial-btn-no:active { transform: scale(0.95); background: #aa0000; }
+
+.tutorial-text {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: white;
+    margin: 16px 0;
+    text-shadow: 0 0 5px black;
+}
+.tutorial-hand {
+    font-size: 50px;
+    margin: 10px 0;
+    animation: handBounce 1s ease-in-out infinite;
+}
+@keyframes handBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.tutorial-btn-ok {
+    width: 100%;
+    padding: 14px;
+    background: #00aa00;
+    color: white;
+    border: 3px solid #000;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    margin-top: 10px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    transition: 0.1s;
+}
+.tutorial-btn-ok:active { transform: scale(0.97); background: #008800; }
