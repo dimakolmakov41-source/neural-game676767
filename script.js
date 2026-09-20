@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.12";
+const GAME_VERSION = "11.13";
 
 if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.removeItem('neuralEvoSave');
@@ -14,8 +14,15 @@ function isHalloween() {
     return now.getMonth() === 9 && now.getDate() === 31;
 }
 
-function applyHalloweenTheme() {
-    const h = isHalloween();
+// ===== НОВЫЙ ГОД =====
+function isNewYear() {
+    const now = new Date();
+    const m = now.getMonth();
+    const d = now.getDate();
+    return (m === 11 && d === 31) || (m === 0 && d === 1);
+}
+
+function applyTheme() {
     const body = document.body;
     const brain = document.getElementById('clickableObject');
     const brainEmoji = document.getElementById('brainEmoji');
@@ -24,18 +31,48 @@ function applyHalloweenTheme() {
     const reloadTimer = document.getElementById('reloadTimer');
     const title = document.getElementById('gameTitle');
 
-    if (h) {
+    // Сброс всех тем
+    body.classList.remove('bg-halloween', 'bg-newyear');
+    body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
+    if (brain) brain.classList.remove('halloween-brain', 'newyear-brain');
+    const oldHat = brain ? brain.querySelector('.santa-hat') : null;
+    if (oldHat) oldHat.remove();
+
+    if (isHalloween()) {
         body.classList.add('bg-halloween');
-        body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
         if (brain) brain.classList.add('halloween-brain');
         if (brainEmoji) brainEmoji.innerText = '🎃';
         if (diamondLabel) diamondLabel.innerHTML = '🍬 <span id="diamonds">' + (window.__diamonds || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = '🎃 Страшно?';
         if (reloadTimer) reloadTimer.innerHTML = '⏳ ДО ХЭЛЛОУИНА: <span id="reloadCountdown">5:00</span>';
         if (title) title.innerText = '🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ';
+    } else if (isNewYear()) {
+        body.classList.add('bg-newyear');
+        if (brain) {
+            brain.classList.add('newyear-brain');
+            const hat = document.createElement('span');
+            hat.className = 'santa-hat';
+            hat.innerText = '🎅';
+            brain.appendChild(hat);
+        }
+        if (brainEmoji) brainEmoji.innerText = '🧠';
+        if (diamondLabel) diamondLabel.innerHTML = '❄️ <span id="diamonds">' + (window.__diamonds || 0) + '</span>';
+        if (sleepMsg) sleepMsg.innerText = '❄️ С Новым Годом!';
+        if (reloadTimer) reloadTimer.innerHTML = '🎄 НОВЫЙ ГОД: <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = '🎄 КЛИКЕР: НОВОГОДНЯЯ ЭВОЛЮЦИЯ';
     } else {
-        body.classList.remove('bg-halloween');
-        if (brain) brain.classList.remove('halloween-brain');
+        const savedBg = localStorage.getItem('selectedBg') || 'early_autumn';
+        const bgThemes = {
+            early_autumn: "bg-early-autumn",
+            golden: "bg-golden",
+            rainy: "bg-rainy",
+            late: "bg-late",
+            forest: "bg-forest",
+            park: "bg-park",
+            mountains: "bg-mountains",
+            village: "bg-village"
+        };
+        body.classList.add(bgThemes[savedBg] || 'bg-early-autumn');
         if (brainEmoji) brainEmoji.innerText = '🧠';
         if (diamondLabel) diamondLabel.innerHTML = '💎 <span id="diamonds">' + (window.__diamonds || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = '😴 Спишь?';
@@ -514,7 +551,7 @@ window.addEventListener('load', () => {
         const stb = document.getElementById('soundToggleBtn');
         if (stb) stb.innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
         applyBanState();
-        applyHalloweenTheme();
+        applyTheme();
     }
 
     function exportProgress() {
@@ -571,14 +608,14 @@ window.addEventListener('load', () => {
     };
 
     function setBodyBg(theme) {
-        if (isHalloween()) return;
+        if (isHalloween() || isNewYear()) return;
         document.body.className = '';
         document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
         localStorage.setItem('selectedBg', theme);
     }
     const savedBg = localStorage.getItem('selectedBg');
-    if (savedBg && bgThemes[savedBg]) setBodyBg(savedBg);
-    else setBodyBg('early_autumn');
+    if (savedBg && bgThemes[savedBg] && !isHalloween() && !isNewYear()) setBodyBg(savedBg);
+    else applyTheme();
 
     // ===== КЛИК =====
     function processSingleClick(gain, x, y) {
@@ -613,9 +650,11 @@ window.addEventListener('load', () => {
         if (Math.random() < 0.01) {
             diamonds++;
             totalDiamondsEarned++;
-            showToast(isHalloween() ? "🍬 КОНФЕТА!" : "💎 АЛМАЗ!");
+            if (isHalloween()) showToast("🍬 КОНФЕТА!");
+            else if (isNewYear()) showToast("❄️ СНЕЖИНКА!");
+            else showToast("💎 АЛМАЗ!");
             playBuySound();
-            spawnFloatText(x, y - 30, isHalloween() ? "🍬" : "💎");
+            spawnFloatText(x, y - 30, isHalloween() ? "🍬" : (isNewYear() ? "❄️" : "💎"));
         }
     }
 
@@ -689,7 +728,7 @@ window.addEventListener('load', () => {
         clickable.addEventListener('mousedown', handleMouseClick);
     }
 
-    // ===== ОБУЧЕНИЕ ДЛЯ НОВИЧКОВ =====
+    // ===== ОБУЧЕНИЕ =====
     const tutorialOverlay = document.getElementById('tutorialOverlay');
     const tutorialStep1 = document.getElementById('tutorialStep1');
     const tutorialStep2 = document.getElementById('tutorialStep2');
@@ -795,6 +834,7 @@ window.addEventListener('load', () => {
     promoCodes['legend'] = { points: 20000, diamonds: 500 };
     promoCodes['pass5'] = { points: 5000, diamonds: 50 };
     promoCodes['halloween'] = { points: 6666, diamonds: 66 };
+    promoCodes['newyear'] = { points: 7777, diamonds: 77 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
         if (isBanned) return;
