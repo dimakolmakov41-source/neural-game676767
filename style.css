@@ -100,7 +100,8 @@ body.bg-halloween .game-container {
 .game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00, 0 0 40px black; animation: glitch 3s infinite; }
 @keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00, 0 0 40px black; } 50% { text-shadow: -2px 0 red, 2px 0 blue, 0 0 20px black; } }
 
-.game-version { color: #88aaff; font-size: 12px; margin-bottom: 15px; cursor: default; display: inline-block; text-shadow: 0 0 5px black; }
+.game-version { color: #88aaff; font-size: 12px; margin-bottom: 15px; cursor: pointer; display: inline-block; text-shadow: 0 0 5px black; }
+.game-version:active { color: #ffaa00; }
 
 .stats-panel-extended {
     background: rgba(0,0,0,0.6);
@@ -547,3 +548,119 @@ body.bg-halloween .game-container {
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .loading-text { color: #ffd966; font-size: 24px; font-weight: 800; margin-top: 20px; text-shadow: 0 0 20px #ffaa00; }
 .loading-sub { color: #88aaff; font-size: 12px; margin-top: 10px; }
+
+/* ===== АДМИН-ПАНЕЛЬ v2 ===== */
+.admin-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    padding: 20px;
+}
+.admin-overlay.show { opacity: 1; visibility: visible; }
+
+.admin-panel {
+    background: #ff0000;
+    border: 6px solid #000;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+}
+
+.admin-header {
+    background: #ff0000;
+    color: white;
+    font-size: 22px;
+    font-weight: 900;
+    text-align: center;
+    padding: 14px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    border-bottom: 4px solid #000;
+}
+
+.admin-tabs {
+    display: flex;
+    background: #000;
+    gap: 4px;
+    padding: 6px;
+}
+
+.admin-tab {
+    flex: 1;
+    background: #fff;
+    color: #000;
+    text-align: center;
+    padding: 10px 4px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    border: 2px solid #fff;
+    transition: 0.15s;
+    user-select: none;
+}
+.admin-tab.active {
+    background: #ffcc00;
+    border-color: #000;
+    color: #000;
+}
+
+.admin-body {
+    background: #ff0000;
+    color: white;
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 200px;
+    font-size: 14px;
+}
+
+.admin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.25);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: 2px solid #000;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.admin-item span { font-weight: 700; color: white; }
+.admin-item button {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.1s;
+}
+.admin-item button:active { transform: scale(0.95); background: #333; }
+
+.admin-close {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    border-top: 4px solid #fff;
+    letter-spacing: 1px;
+}
+.admin-close:active { background: #333; }
