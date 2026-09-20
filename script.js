@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.10";
+const GAME_VERSION = "11.11";
 
 if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.removeItem('neuralEvoSave');
@@ -111,7 +111,6 @@ window.addEventListener('load', () => {
     let sleepMsgTimer = null;
     let sleepMsgShowing = false;
 
-    // Экспорт для Хэллоуина
     Object.defineProperty(window, '__diamonds', { get: () => diamonds });
 
     // ===== НЕЙРОСЕТИ =====
@@ -727,6 +726,34 @@ window.addEventListener('load', () => {
     document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
     document.getElementById('promoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.add('show'));
     document.getElementById('closePromoBtn')?.addEventListener('click', () => document.getElementById('promoModal').classList.remove('show'));
+
+    // ===== ПОЛНОЭКРАННЫЙ РЕЖИМ =====
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            const el = document.documentElement;
+            const isFull = document.fullscreenElement || document.webkitFullscreenElement;
+            if (!isFull) {
+                if (el.requestFullscreen) el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+                else if (el.msRequestFullscreen) el.msRequestFullscreen();
+                fullscreenBtn.innerText = 'Выключить';
+                showToast("⛶ Полный экран");
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+                fullscreenBtn.innerText = 'Включить';
+                showToast("⛶ Обычный режим");
+            }
+        });
+        document.addEventListener('fullscreenchange', () => {
+            fullscreenBtn.innerText = document.fullscreenElement ? 'Выключить' : 'Включить';
+        });
+        document.addEventListener('webkitfullscreenchange', () => {
+            fullscreenBtn.innerText = document.webkitFullscreenElement ? 'Выключить' : 'Включить';
+        });
+    }
 
     const promoCodes = {};
     for (let i = 1; i <= 100; i++) promoCodes[`code${i}`] = { points: 100 + i * 5, diamonds: 1 + Math.floor(i / 10) };
