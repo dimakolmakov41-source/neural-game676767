@@ -243,12 +243,10 @@ window.addEventListener('load', () => {
         }
     }
 
-    // skipSave=true — не сохранять игру (используется при загрузке, чтобы не перезаписать сейв)
     function initPassSeason(skipSave) {
         const season = localStorage.getItem('aiPassSeason');
         const now = new Date();
 
-        // Заполняем задания
         passTasks = [];
         for (let i = 1; i <= 20; i++) {
             passTasks.push({
@@ -263,7 +261,6 @@ window.addEventListener('load', () => {
 
         if (season !== '6') {
             if (now >= pass6StartDate) {
-                // Включаем 6-й сезон
                 passCurrentTask = 0;
                 passRewardSeconds = 600;
                 localStorage.setItem('aiPassSeason', '6');
@@ -558,10 +555,8 @@ window.addEventListener('load', () => {
     }
 
     function loadGame() {
-        // 1. СНАЧАЛА заполняем задания AI Pass (иначе passTasks = [])
         initPassSeason(true);
 
-        // 2. Читаем сейв и накладываем поверх
         const saved = localStorage.getItem('neuralEvoSave');
         if (saved) {
             try {
@@ -578,7 +573,6 @@ window.addEventListener('load', () => {
                         if (upgrades[i]) upgrades[i].purchased = data.purchased;
                     });
                 }
-                // Восстанавливаем passTasks ТЕПЕРЬ, когда массив уже заполнен
                 if (d.passTasks) {
                     d.passTasks.forEach((data, i) => {
                         if (passTasks[i]) {
@@ -594,8 +588,6 @@ window.addEventListener('load', () => {
                 purchasedCount = upgrades.filter(u => u.purchased).length;
             } catch(e) {}
         }
-
-        // 3. Отрисовка
         updateUI();
         renderShopNeurons();
         renderPassBadges();
@@ -792,10 +784,17 @@ window.addEventListener('load', () => {
     const tutorialStep1 = document.getElementById('tutorialStep1');
     const tutorialStep2 = document.getElementById('tutorialStep2');
 
-    if (!localStorage.getItem('tutorialDone')) {
-        setTimeout(() => {
-            if (tutorialOverlay) tutorialOverlay.classList.add('show');
-        }, 1800);
+    // Функция: показать робота с первого шага
+    function showTutorial() {
+        if (tutorialStep1) tutorialStep1.classList.remove('hidden');
+        if (tutorialStep2) tutorialStep2.classList.add('hidden');
+        if (tutorialOverlay) tutorialOverlay.classList.add('show');
+    }
+
+    // Функция: уйти в игру
+    function goToGame() {
+        document.getElementById('mainMenu').classList.add('hidden');
+        document.getElementById('gameInterface').classList.remove('hidden');
     }
 
     document.getElementById('tutorialYes')?.addEventListener('click', () => {
@@ -806,18 +805,25 @@ window.addEventListener('load', () => {
     document.getElementById('tutorialNo')?.addEventListener('click', () => {
         localStorage.setItem('tutorialDone', 'true');
         if (tutorialOverlay) tutorialOverlay.classList.remove('show');
+        goToGame();
     });
 
     document.getElementById('tutorialOk')?.addEventListener('click', () => {
         localStorage.setItem('tutorialDone', 'true');
         if (tutorialOverlay) tutorialOverlay.classList.remove('show');
+        goToGame();
     });
 
     // ===== КНОПКИ =====
     document.getElementById('playBtn')?.addEventListener('click', () => {
-        document.getElementById('mainMenu').classList.add('hidden');
-        document.getElementById('gameInterface').classList.remove('hidden');
+        // Если обучение ещё не пройдено — показываем робота, игру не открываем
+        if (!localStorage.getItem('tutorialDone')) {
+            showTutorial();
+            return;
+        }
+        goToGame();
     });
+
     document.getElementById('backToMenu')?.addEventListener('click', () => {
         document.getElementById('mainMenu').classList.remove('hidden');
         document.getElementById('gameInterface').classList.add('hidden');
