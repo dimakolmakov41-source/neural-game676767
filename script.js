@@ -156,11 +156,21 @@ window.addEventListener('load', () => {
         "Пицца","Бургер","Суши","Роллы","Рамен","Паста","Спагетти","Лазанья","Тирамису","Панна-котта","Крем-брюле","Макаронс","Эклер","Пончик","Круассан","Багет","Сыр","Ветчина","Колбаса","Бекон","Стейк","Гриль","Барбекю","Шашлык","Плов","Борщ","Оливье","Сельдь","Икра","Блины",
         "Меркурий","Венера","Земля","Марс","Юпитер","Сатурн","Уран","Нептун","Плутон","Церера","Эрида","Макемаке","Хаумеа","Седна","Орк","Иксион","Варуна","Квавар","Фобос","Деймос","Ио","Европа","Ганимед","Каллисто","Титан","Рея","Япет","Мимас","Энцелад","Тритон",
         "Mario","Link","Samus","Kirby","Fox","Pikachu","Charizard","Mewtwo","Cloud","Sephiroth","Sonic","Tails","Knuckles","Shadow","Master Chief","Cortana","Doom","Ryu","Ken","Chun-Li","Kratos","Atreus","Lara","Nathan","Ezio","Altair","Gordon","Freeman","Chell","Wheatley",
-        "Кремний","Процессор","Видеокарта","Оперативка","SSD","Материнка","Блок-питания","Кулер","Монитор","Клавиатура","Мышь","Принтер","Сканер","Микрофон","Колонки","Наушники","Роутер","Модем","Сервер","Ноутбук","Планшет","Смартфон","Часы","Фитнес-браслет","Дрон","Робот","Андроид","iOS","Windows","Linux"
+        "Кремний","Процессор","Видеокарта","Оперативка","SSD","Материнка","Блок-питания","Кулер","Монитор","Клавиатура","Мышь","Принтер","Сканер","Микрофон","Колонки","Наушники","Роутер","Модем","Сервер","Ноутбук","Планшет","Смартфон","Часы","Фитнес-браслет","Дрон","Робот","Андроид","iOS","Windows","Linux",
+        "Врач","Учитель","Инженер","Повар","Пилот","Космонавт","Полицейский","Пожарный","Программист","Учёный",
+        "Россия","Япония","Китай","США","Германия","Франция","Италия","Испания","Бразилия","Канада",
+        "Матрица","Терминатор","Начало","Аватар","Интерстеллар","Дюна","Бэтмен","Супермен","Человек-паук","Железный человек",
+        "Рок","Джаз","Поп","Хип-хоп","Классика","Электроника","Рэп","Регги","Блюз","Металл",
+        "Футбол","Баскетбол","Теннис","Хоккей","Бокс","Плавание","Бег","Шахматы","Сёрфинг","Сноуборд",
+        "Физика","Химия","Биология","Математика","Астрономия","Геология","Медицина","Психология","Генетика","Кибернетика",
+        "Египет","Рим","Греция","Викинги","Самураи","Рыцари","Пираты","Инки","Ацтеки","Майя",
+        "Киберпанк","Сингулярность","Гиперпространство","Телепорт","Голо-ИИ","Квантовый ПК","Нейро-линк","Био-чип","Антигравитация","Варп-двигатель",
+        "Магия","Волшебство","Заклинание","Зелье","Артефакт","Руна","Портал","Гримуар","Алхимия","Некромантия",
+        "Радость","Грусть","Страх","Гнев","Спокойствие","Любовь","Надежда","Восторг","Удивление","Скука"
     ];
 
     let upgrades = [];
-    for (let i = 0; i < 1500; i++) {
+    for (let i = 0; i < 1600; i++) {
         const power = i === 0 ? 1 : 1 + Math.floor(i / 10);
         const price = i === 0 ? 20 : Math.floor(20 * Math.pow(1.17, i));
         const name = i < neuralNames.length ? neuralNames[i] : `Нейросеть #${i + 1}`;
@@ -210,6 +220,39 @@ window.addEventListener('load', () => {
         } else showToast("❌ Не хватает очков");
     }
 
+    // ===== КУПИТЬ ВСЁ ДОСТУПНОЕ =====
+    function buyAllAvailable() {
+        // Собираем все некупленные, сортируем по цене (от дешёвых)
+        const list = upgrades
+            .map((u, i) => ({ u, i }))
+            .filter(x => !x.u.purchased)
+            .sort((a, b) => a.u.price - b.u.price);
+
+        let bought = 0;
+        let spent = 0;
+        for (const item of list) {
+            if (points >= item.u.price) {
+                points -= item.u.price;
+                spent += item.u.price;
+                item.u.purchased = true;
+                bought++;
+            } else {
+                break; // дороже — уже не хватит
+            }
+        }
+
+        if (bought > 0) {
+            purchasedCount = upgrades.filter(u => u.purchased).length;
+            updateUI();
+            renderShopNeurons();
+            saveGame();
+            showToast(`💰 Куплено сетей: ${bought}!`);
+            playBuySound();
+        } else {
+            showToast("❌ Не хватает очков");
+        }
+    }
+
     // ===== AI PASS 5 и 6 =====
     let passTasks = [];
     let passCurrentTask = 0;
@@ -243,7 +286,6 @@ window.addEventListener('load', () => {
         }
     }
 
-    // Заполняет passTasks свежими 20 заданиями
     function fillPassTasks() {
         passTasks = [];
         for (let i = 1; i <= 20; i++) {
@@ -258,7 +300,6 @@ window.addEventListener('load', () => {
         }
     }
 
-    // Определяет активный сезон, сбрасывает прогресс при смене
     function initPassSeason(skipSave) {
         const savedSeason = localStorage.getItem('aiPassSeason');
         const now = new Date();
@@ -267,7 +308,6 @@ window.addEventListener('load', () => {
         fillPassTasks();
 
         if (savedSeason !== activeSeason) {
-            // Новый сезон — сбрасываем прогресс пасса
             passCurrentTask = 0;
             passRewardSeconds = 600;
             localStorage.setItem('aiPassSeason', activeSeason);
@@ -508,7 +548,7 @@ window.addEventListener('load', () => {
 🧠 Очки: ${Math.floor(points)}
 💎 Алмазы: ${diamonds}
 🖱️ Всего кликов: ${totalClicks}
-🧬 Нейросетей: ${purchasedCount}/1500
+🧬 Нейросетей: ${purchasedCount}/${upgrades.length}
 🤖 AI Pass ${num} уровней: ${passTasks.filter(t=>t.claimed).length}/20
 📅 Версия ${GAME_VERSION}`;
         navigator.clipboard.writeText(text);
@@ -561,11 +601,9 @@ window.addEventListener('load', () => {
     }
 
     function loadGame() {
-        // 1. Определяем активный сезон + заполняем passTasks свежими
         initPassSeason(true);
         const activeSeason = localStorage.getItem('aiPassSeason') || '5';
 
-        // 2. Читаем сейв
         const saved = localStorage.getItem('neuralEvoSave');
         if (saved) {
             try {
@@ -582,7 +620,6 @@ window.addEventListener('load', () => {
                         if (upgrades[i]) upgrades[i].purchased = data.purchased;
                     });
                 }
-                // Восстанавливаем passTasks ТОЛЬКО если сезон совпадает
                 if (d.passSeason === activeSeason && d.passTasks) {
                     d.passTasks.forEach((data, i) => {
                         if (passTasks[i]) {
@@ -593,7 +630,6 @@ window.addEventListener('load', () => {
                     if (d.passCurrentTask !== undefined) passCurrentTask = d.passCurrentTask;
                     if (d.passRewardSeconds !== undefined) passRewardSeconds = d.passRewardSeconds;
                 }
-                // иначе — прогресс пасса остаётся свежим (0/20)
                 if (d.gameStartTime) gameStartTime = d.gameStartTime;
                 if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile;
                 purchasedCount = upgrades.filter(u => u.purchased).length;
@@ -840,6 +876,7 @@ window.addEventListener('load', () => {
     });
     document.getElementById('openShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
     document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
+    document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
     document.getElementById('resetGameBtn')?.addEventListener('click', () => {
