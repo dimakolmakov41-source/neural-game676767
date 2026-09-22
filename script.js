@@ -243,10 +243,8 @@ window.addEventListener('load', () => {
         }
     }
 
-    function initPassSeason(skipSave) {
-        const season = localStorage.getItem('aiPassSeason');
-        const now = new Date();
-
+    // Заполняет passTasks свежими 20 заданиями
+    function fillPassTasks() {
         passTasks = [];
         for (let i = 1; i <= 20; i++) {
             passTasks.push({
@@ -258,19 +256,26 @@ window.addEventListener('load', () => {
                 claimed: false
             });
         }
+    }
 
-        if (season !== '6') {
-            if (now >= pass6StartDate) {
-                passCurrentTask = 0;
-                passRewardSeconds = 600;
-                localStorage.setItem('aiPassSeason', '6');
-                if (!skipSave) saveGame();
-            } else if (season !== '5') {
-                passCurrentTask = 0;
-                passRewardSeconds = 600;
-                localStorage.setItem('aiPassSeason', '5');
-            }
+    // Определяет активный сезон, сбрасывает прогресс при смене
+    function initPassSeason(skipSave) {
+        const savedSeason = localStorage.getItem('aiPassSeason');
+        const now = new Date();
+        const activeSeason = now >= pass6StartDate ? '6' : '5';
+
+        fillPassTasks();
+
+        if (savedSeason !== activeSeason) {
+            // Новый сезон — сбрасываем прогресс пасса
+            passCurrentTask = 0;
+            passRewardSeconds = 600;
+            localStorage.setItem('aiPassSeason', activeSeason);
+            if (!skipSave) saveGame();
+            return { seasonChanged: true, activeSeason };
         }
+
+        return { seasonChanged: false, activeSeason };
     }
 
     function renderPassBadges() {
@@ -549,14 +554,18 @@ window.addEventListener('load', () => {
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
+            passSeason: localStorage.getItem('aiPassSeason') || '5',
             gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION
         };
         localStorage.setItem('neuralEvoSave', JSON.stringify(save));
     }
 
     function loadGame() {
+        // 1. Определяем активный сезон + заполняем passTasks свежими
         initPassSeason(true);
+        const activeSeason = localStorage.getItem('aiPassSeason') || '5';
 
+        // 2. Читаем сейв
         const saved = localStorage.getItem('neuralEvoSave');
         if (saved) {
             try {
@@ -573,21 +582,24 @@ window.addEventListener('load', () => {
                         if (upgrades[i]) upgrades[i].purchased = data.purchased;
                     });
                 }
-                if (d.passTasks) {
+                // Восстанавливаем passTasks ТОЛЬКО если сезон совпадает
+                if (d.passSeason === activeSeason && d.passTasks) {
                     d.passTasks.forEach((data, i) => {
                         if (passTasks[i]) {
                             passTasks[i].claimed = data.claimed;
                             passTasks[i].completed = data.completed;
                         }
                     });
+                    if (d.passCurrentTask !== undefined) passCurrentTask = d.passCurrentTask;
+                    if (d.passRewardSeconds !== undefined) passRewardSeconds = d.passRewardSeconds;
                 }
-                if (d.passCurrentTask !== undefined) passCurrentTask = d.passCurrentTask;
-                if (d.passRewardSeconds !== undefined) passRewardSeconds = d.passRewardSeconds;
+                // иначе — прогресс пасса остаётся свежим (0/20)
                 if (d.gameStartTime) gameStartTime = d.gameStartTime;
                 if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile;
                 purchasedCount = upgrades.filter(u => u.purchased).length;
             } catch(e) {}
         }
+
         updateUI();
         renderShopNeurons();
         renderPassBadges();
@@ -612,6 +624,7 @@ window.addEventListener('load', () => {
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
+            passSeason: localStorage.getItem('aiPassSeason') || '5',
             gameStartTime, currentSoundProfile,
             gameVersion: GAME_VERSION
         };
@@ -784,14 +797,12 @@ window.addEventListener('load', () => {
     const tutorialStep1 = document.getElementById('tutorialStep1');
     const tutorialStep2 = document.getElementById('tutorialStep2');
 
-    // Функция: показать робота с первого шага
     function showTutorial() {
         if (tutorialStep1) tutorialStep1.classList.remove('hidden');
         if (tutorialStep2) tutorialStep2.classList.add('hidden');
         if (tutorialOverlay) tutorialOverlay.classList.add('show');
     }
 
-    // Функция: уйти в игру
     function goToGame() {
         document.getElementById('mainMenu').classList.add('hidden');
         document.getElementById('gameInterface').classList.remove('hidden');
@@ -816,7 +827,6 @@ window.addEventListener('load', () => {
 
     // ===== КНОПКИ =====
     document.getElementById('playBtn')?.addEventListener('click', () => {
-        // Если обучение ещё не пройдено — показываем робота, игру не открываем
         if (!localStorage.getItem('tutorialDone')) {
             showTutorial();
             return;
