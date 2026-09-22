@@ -34,7 +34,7 @@
 
         <div id="gameInterface" class="game-interface hidden">
             <div class="top-bar"><div>🧠 <span id="points">100</span></div><div>⚡ <span id="power">1</span></div></div>
-            <div class="diamond-bar"><div id="diamondLabel">💎 <span id="diamonds">0</span></div><div>⏱️ <span id="playtime">0</span> мин</div></div>
+            <div class="diamond-bar"><div id="starLabel">⭐ <span id="stars">0</span></div><div>⏱️ <span id="playtime">0</span> мин</div></div>
 
             <div class="stats-panel-extended">
                 <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label">Всего кликов</div></div>
@@ -106,6 +106,28 @@
         </div>
     </div>
 
+    <div class="diamond-removal-overlay" id="diamondRemovalOverlay">
+        <div class="diamond-removal-box">
+            <div class="diamond-removal-step" id="diamondStep1">
+                <div class="diamond-removal-row">
+                    <span class="dr-emoji">🗑️</span>
+                    <span class="dr-dash">- - - - - -</span>
+                    <span class="dr-emoji dr-diamond" id="drDiamond">💎</span>
+                </div>
+            </div>
+            <div class="diamond-removal-step hidden" id="diamondStep2">
+                <div class="diamond-removal-text">Ваши алмазы конвертированы в звёзды</div>
+                <div class="diamond-removal-text">Алмазы полностью удалены</div>
+                <div class="diamond-removal-row">
+                    <span class="dr-emoji">💎</span>
+                    <span class="dr-dash">- - - - -&gt;</span>
+                    <span class="dr-emoji">⭐</span>
+                </div>
+                <button class="diamond-removal-btn" id="diamondRemovalOk">ПОНЯЛ</button>
+            </div>
+        </div>
+    </div>
+
     <div class="admin-overlay" id="adminOverlay">
         <div class="admin-panel">
             <div class="admin-header">АДМИН ПАНЕЛЬ v2</div>
@@ -169,7 +191,7 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.16: AI Pass 6 идёт до 30 сентября! Добавлено 100 новых нейросетей (1500 → 1600) и кнопка «Купить всё доступное».</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.16: Алмазы конвертированы в звёзды ⭐ (10💎 = 1⭐). Добавлено 100 новых нейросетей и кнопка «Купить всё доступное».</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
     <script src="script.js?v=11.16"></script>
 </body>
