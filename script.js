@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.15";
+const GAME_VERSION = "11.16";
 
 if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.removeItem('neuralEvoSave');
@@ -222,22 +222,19 @@ window.addEventListener('load', () => {
 
     // ===== КУПИТЬ ВСЁ ДОСТУПНОЕ =====
     function buyAllAvailable() {
-        // Собираем все некупленные, сортируем по цене (от дешёвых)
         const list = upgrades
             .map((u, i) => ({ u, i }))
             .filter(x => !x.u.purchased)
             .sort((a, b) => a.u.price - b.u.price);
 
         let bought = 0;
-        let spent = 0;
         for (const item of list) {
             if (points >= item.u.price) {
                 points -= item.u.price;
-                spent += item.u.price;
                 item.u.purchased = true;
                 bought++;
             } else {
-                break; // дороже — уже не хватит
+                break;
             }
         }
 
