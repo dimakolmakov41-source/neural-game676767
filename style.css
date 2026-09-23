@@ -26,35 +26,59 @@ body.bg-park { background: linear-gradient(145deg, #b5a07a, #7a6545); }
 body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); }
 body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 
+/* ===== ХЭЛЛОУИН ===== */
 body.bg-halloween {
     background: linear-gradient(145deg, #1a0a00, #4a1a00) !important;
     position: relative;
 }
 body.bg-halloween::before {
-    content: "🕸️"; position: fixed; top: 10px; left: 10px;
-    font-size: 40px; opacity: 0.35; transform: rotate(20deg); pointer-events: none;
+    content: "🕸️";
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 40px;
+    opacity: 0.35;
+    transform: rotate(20deg);
+    pointer-events: none;
 }
 body.bg-halloween::after {
-    content: "🕸️"; position: fixed; bottom: 10px; right: 10px;
-    font-size: 40px; opacity: 0.35; transform: rotate(-20deg); pointer-events: none;
+    content: "🕸️";
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 40px;
+    opacity: 0.35;
+    transform: rotate(-20deg);
+    pointer-events: none;
 }
 body.bg-halloween .game-container {
     border-color: #ff6600;
     box-shadow: 0 0 30px #ff440088;
 }
 
+/* ===== НОВЫЙ ГОД ===== */
 body.bg-newyear {
     background: linear-gradient(145deg, #1a2a4a, #4a6a9a) !important;
     position: relative;
 }
 body.bg-newyear::before {
-    content: "❄️"; position: fixed; top: 10px; left: 10px;
-    font-size: 40px; opacity: 0.4; pointer-events: none;
+    content: "❄️";
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 40px;
+    opacity: 0.4;
+    pointer-events: none;
     animation: snowFall 8s linear infinite;
 }
 body.bg-newyear::after {
-    content: "❄️"; position: fixed; top: 10px; right: 10px;
-    font-size: 40px; opacity: 0.4; pointer-events: none;
+    content: "❄️";
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 40px;
+    opacity: 0.4;
+    pointer-events: none;
     animation: snowFall 10s linear infinite;
 }
 @keyframes snowFall {
@@ -72,18 +96,26 @@ body.bg-newyear .game-container {
     border-color: #ffffff;
 }
 .brain .santa-hat {
-    position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
-    font-size: 55px; z-index: 3; pointer-events: none;
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 55px;
+    z-index: 3;
+    pointer-events: none;
     filter: drop-shadow(0 0 10px #ff0000);
 }
 
 .game-container {
-    width: 100%; max-width: 420px;
+    width: 100%;
+    max-width: 420px;
     background: rgba(18, 28, 40, 0.85);
     backdrop-filter: blur(12px);
     border-radius: 48px;
     border: 1px solid rgba(100, 180, 255, 0.3);
-    padding: 20px 16px; margin: 0 auto; color: white;
+    padding: 20px 16px;
+    margin: 0 auto;
+    color: white;
     text-shadow: 0 0 5px black;
 }
 
@@ -92,13 +124,21 @@ body.bg-newyear .game-container {
 
 .menu-btn, .action-btn {
     background: linear-gradient(145deg, #2a4b6e, #1a3150);
-    border: 2px solid #7aa5d9; color: white;
-    padding: 12px; border-radius: 60px;
-    font-size: 14px; font-weight: 700; cursor: pointer;
-    text-align: center; flex: 1; min-width: 100px;
-    opacity: 0; transform: translateY(30px);
+    border: 2px solid #7aa5d9;
+    color: white;
+    padding: 12px;
+    border-radius: 60px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    flex: 1;
+    min-width: 100px;
+    opacity: 0;
+    transform: translateY(30px);
     animation: btnFlyIn 0.4s forwards;
-    transition: 0.1s; text-shadow: 0 0 5px black;
+    transition: 0.1s;
+    text-shadow: 0 0 5px black;
 }
 .menu-btn:hover, .action-btn:hover {
     background: linear-gradient(145deg, #3a6b8e, #2a4160);
@@ -115,33 +155,54 @@ body.bg-newyear .game-container {
 
 .stats-panel-extended {
     background: rgba(0,0,0,0.6);
-    border-radius: 30px; padding: 10px; margin: 10px 0;
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    border-radius: 30px;
+    padding: 10px;
+    margin: 10px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
 }
 .stat-card { background: #0a1b2e; border-radius: 20px; padding: 5px; text-align: center; }
 .stat-card-value { color: #ffd966; font-size: 16px; font-weight: 800; text-shadow: 0 0 5px black; }
 .stat-card-label { color: #aac8f0; font-size: 9px; text-shadow: 0 0 5px black; }
 
 .music-toggle {
-    position: fixed; bottom: 20px; right: 20px;
-    background: #1a3150; border-radius: 50%;
-    width: 45px; height: 45px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 100; font-size: 24px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1a3150;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    font-size: 24px;
     border: 2px solid #ffd966;
 }
 
 .brain-container {
-    display: flex; flex-direction: column; align-items: center;
-    margin: 20px 0; position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    position: relative;
 }
 .brain {
-    width: 170px; height: 170px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: 0.08s;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.08s;
     background: radial-gradient(circle at 30% 30%, #ffaa00, #ff5500);
     box-shadow: 0 15px 0 #aa4400, 0 0 20px #ffaa00;
-    border: 3px solid #ffffaa; position: relative;
+    border: 3px solid #ffffaa;
+    position: relative;
     animation: brainFloat 2s ease-in-out infinite;
 }
 .brain.halloween-brain {
@@ -156,29 +217,79 @@ body.bg-newyear .game-container {
 .eye { width: 22px; height: 22px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .pupil { width: 10px; height: 10px; background: black; border-radius: 50%; transition: transform 0.05s; }
 .combo-text {
-    position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
-    font-size: 18px; font-weight: 800; color: #ffdd44;
-    text-shadow: 0 0 10px #ff8800; opacity: 0; transition: opacity 0.2s;
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffdd44;
+    text-shadow: 0 0 10px #ff8800;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
 .combo-text.show { opacity: 1; }
 
 .brain .sleep-msg {
-    position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.8); color: #ffaa00;
-    padding: 4px 12px; border-radius: 30px;
-    font-size: 14px; font-weight: bold; opacity: 0;
-    transition: opacity 0.3s; pointer-events: none;
-    white-space: nowrap; text-shadow: 0 0 5px black;
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: #ffaa00;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: 0 0 5px black;
 }
 .brain .sleep-msg.show { opacity: 1; }
 
+/* ===== КНОПКА БУСТА ===== */
+.boost-btn {
+    background: linear-gradient(145deg, #ffaa00, #cc6600);
+    border: 2px solid #ffdd66;
+    border-radius: 40px;
+    color: white;
+    font-size: 15px;
+    font-weight: 900;
+    text-align: center;
+    padding: 12px;
+    margin: 10px 0;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.5);
+    transition: 0.15s;
+}
+.boost-btn:active { transform: scale(0.97); }
+.boost-btn.active {
+    background: linear-gradient(145deg, #2e7d32, #1a5a20);
+    border-color: #66cc66;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+    animation: boostPulse 1s ease-in-out infinite;
+}
+@keyframes boostPulse {
+    0%,100% { box-shadow: 0 0 15px rgba(76,175,80,0.5); }
+    50% { box-shadow: 0 0 25px rgba(76,175,80,0.9); }
+}
+
 /* ========== ОКОШКО УДАЛЕНИЯ АЛМАЗОВ ========== */
 .diamond-removal-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.85);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 6000; padding: 20px;
-    opacity: 0; visibility: hidden; transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 6000;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
 }
 .diamond-removal-overlay.show { opacity: 1; visibility: visible; }
 .diamond-removal-box {
@@ -186,32 +297,48 @@ body.bg-newyear .game-container {
     border: 4px solid #fff;
     border-radius: 6px;
     padding: 40px 20px;
-    width: 100%; max-width: 380px;
-    color: white; text-align: center;
+    width: 100%;
+    max-width: 380px;
+    color: white;
+    text-align: center;
     box-shadow: 0 0 40px rgba(0,0,200,0.8);
 }
 .diamond-removal-step { display: block; }
 .diamond-removal-step.hidden { display: none; }
 .diamond-removal-row {
-    display: flex; align-items: center; justify-content: space-around;
-    font-size: 60px; margin: 25px 0; position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 60px;
+    margin: 25px 0;
+    position: relative;
 }
 .dr-emoji { font-size: 60px; display: inline-block; }
 .dr-dash {
-    font-size: 22px; font-weight: 900;
-    letter-spacing: 4px; color: white;
-    flex: 1; text-align: center;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: white;
+    flex: 1;
+    text-align: center;
 }
 .diamond-removal-text {
-    font-size: 17px; margin: 8px 0;
-    font-weight: 600; line-height: 1.4;
+    font-size: 17px;
+    margin: 8px 0;
+    font-weight: 600;
+    line-height: 1.4;
 }
 .diamond-removal-btn {
-    background: #fff; color: #000;
-    border: none; padding: 12px 40px;
-    font-size: 16px; font-weight: 900;
-    border-radius: 6px; cursor: pointer;
-    margin-top: 20px; letter-spacing: 1px;
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 12px 40px;
+    font-size: 16px;
+    font-weight: 900;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 20px;
+    letter-spacing: 1px;
     text-shadow: none;
 }
 .diamond-removal-btn:active { transform: scale(0.95); }
@@ -230,21 +357,32 @@ body.bg-newyear .game-container {
     background: linear-gradient(135deg, #1a0a2e 0%, #2d1b5e 50%, #0a1a3e 100%);
     border: 2px solid transparent;
     background-clip: padding-box;
-    border-radius: 30px; padding: 15px; margin: 10px 0;
-    position: relative; overflow: hidden;
+    border-radius: 30px;
+    padding: 15px;
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
     box-shadow: 0 0 30px rgba(180, 100, 255, 0.4), inset 0 0 30px rgba(100, 50, 200, 0.2);
 }
 .pass-container.pass-v5::before {
-    content: ""; position: absolute;
+    content: "";
+    position: absolute;
     top: -2px; left: -2px; right: -2px; bottom: -2px;
     background: linear-gradient(45deg, #b464ff, #ff64c8, #64c8ff, #b464ff);
-    background-size: 300% 300%; border-radius: 32px; z-index: -1;
-    animation: borderGlow 4s ease infinite; filter: blur(2px);
+    background-size: 300% 300%;
+    border-radius: 32px;
+    z-index: -1;
+    animation: borderGlow 4s ease infinite;
+    filter: blur(2px);
 }
-.pass-container.pass-v5 .pass-header { color: #e0b0ff; text-shadow: 0 0 10px #b464ff, 0 0 20px #b464ff; }
+.pass-container.pass-v5 .pass-header {
+    color: #e0b0ff;
+    text-shadow: 0 0 10px #b464ff, 0 0 20px #b464ff;
+}
 .pass-container.pass-v5 .pass-timer-header {
     background: linear-gradient(145deg, #ff64c8, #b464ff);
-    border-radius: 20px; box-shadow: 0 0 15px rgba(255, 100, 200, 0.6);
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(255, 100, 200, 0.6);
 }
 .pass-container.pass-v5 .pass-progress-fill {
     background: linear-gradient(90deg, #b464ff, #ff64c8, #64c8ff);
@@ -252,15 +390,19 @@ body.bg-newyear .game-container {
 }
 .pass-container.pass-v5 .pass-badge {
     background: linear-gradient(145deg, #2a1b4e, #1a0a3e);
-    border: 1px solid #5a3b8e; border-radius: 12px; color: #a88ad0;
+    border: 1px solid #5a3b8e;
+    border-radius: 12px;
+    color: #a88ad0;
 }
 .pass-container.pass-v5 .pass-badge.completed {
     background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
-    border-color: #4caf50; color: #a0ffc0;
+    border-color: #4caf50;
+    color: #a0ffc0;
 }
 .pass-container.pass-v5 .pass-badge.available {
     background: linear-gradient(145deg, #ff64c8, #b464ff);
-    border-color: #fff; color: white;
+    border-color: #fff;
+    color: white;
     box-shadow: 0 0 15px #ff64c8, 0 0 25px #b464ff;
     animation: badgePulse 1.2s ease infinite;
 }
@@ -270,33 +412,51 @@ body.bg-newyear .game-container {
     box-shadow: 0 0 20px rgba(255, 100, 200, 0.5);
     border-radius: 60px;
 }
-.pass-container.pass-v5 .pass-end { color: #e0b0ff; }
+.pass-container.pass-v5 .pass-end {
+    color: #e0b0ff;
+}
 
 /* ========== AI PASS 6 — РОБОТЫ ========== */
 .pass-container.pass-v6 {
     background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 50%, #0a0a1e 100%);
-    border: 3px solid #4a6a8a; border-radius: 30px;
-    padding: 15px; margin: 10px 0;
-    position: relative; overflow: hidden;
+    border: 3px solid #4a6a8a;
+    border-radius: 30px;
+    padding: 15px;
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
     box-shadow: 0 0 30px rgba(100, 180, 255, 0.3), inset 0 0 30px rgba(50, 100, 150, 0.2);
 }
 .pass-container.pass-v6::before {
-    content: "⚙️"; position: absolute; top: 8px; right: 12px;
-    font-size: 20px; opacity: 0.4; pointer-events: none;
+    content: "⚙️";
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 20px;
+    opacity: 0.4;
+    pointer-events: none;
 }
 .pass-container.pass-v6::after {
-    content: "⚙️"; position: absolute; bottom: 8px; left: 12px;
-    font-size: 20px; opacity: 0.4; pointer-events: none;
+    content: "⚙️";
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 20px;
+    opacity: 0.4;
+    pointer-events: none;
 }
 .pass-container.pass-v6 .pass-header {
-    color: #88ccff; text-shadow: 0 0 10px #4a9eff, 0 0 20px #4a9eff;
+    color: #88ccff;
+    text-shadow: 0 0 10px #4a9eff, 0 0 20px #4a9eff;
     font-family: 'Courier New', monospace;
 }
 .pass-container.pass-v6 .pass-timer-header {
     background: linear-gradient(145deg, #4a6a8a, #2a4a6a);
-    border-radius: 10px; color: #cceeff;
+    border-radius: 10px;
+    color: #cceeff;
     box-shadow: 0 0 15px rgba(100, 180, 255, 0.5);
-    border: 1px solid #6a9abb; font-family: 'Courier New', monospace;
+    border: 1px solid #6a9abb;
+    font-family: 'Courier New', monospace;
 }
 .pass-container.pass-v6 .pass-progress-fill {
     background: linear-gradient(90deg, #4a9eff, #88ccff, #4a9eff);
@@ -304,16 +464,20 @@ body.bg-newyear .game-container {
 }
 .pass-container.pass-v6 .pass-badge {
     background: linear-gradient(145deg, #2a3a4e, #1a2a3e);
-    border: 2px solid #4a6a8a; border-radius: 8px;
-    color: #88aacc; font-family: 'Courier New', monospace;
+    border: 2px solid #4a6a8a;
+    border-radius: 8px;
+    color: #88aacc;
+    font-family: 'Courier New', monospace;
 }
 .pass-container.pass-v6 .pass-badge.completed {
     background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
-    border-color: #4caf50; color: #a0ffc0;
+    border-color: #4caf50;
+    color: #a0ffc0;
 }
 .pass-container.pass-v6 .pass-badge.available {
     background: linear-gradient(145deg, #4a9eff, #2a6ecc);
-    border-color: #88ccff; color: white;
+    border-color: #88ccff;
+    color: white;
     box-shadow: 0 0 15px #4a9eff, 0 0 25px #4a9eff;
     animation: badgePulse 1.2s ease infinite;
 }
@@ -321,53 +485,212 @@ body.bg-newyear .game-container {
     background: linear-gradient(145deg, #4a9eff, #2a6ecc);
     border: 2px solid #88ccff;
     box-shadow: 0 0 20px rgba(100, 180, 255, 0.5);
-    border-radius: 12px; font-family: 'Courier New', monospace;
+    border-radius: 12px;
+    font-family: 'Courier New', monospace;
 }
-.pass-container.pass-v6 .pass-end { color: #88ccff; font-family: 'Courier New', monospace; }
+.pass-container.pass-v6 .pass-end {
+    color: #88ccff;
+    font-family: 'Courier New', monospace;
+}
 
-.pass-container { padding: 15px; margin: 10px 0; position: relative; overflow: hidden; border-radius: 30px; }
-.pass-header { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 14px; margin-bottom: 12px; letter-spacing: 1px; }
-.pass-timer-header { padding: 4px 12px; font-size: 12px; font-weight: 800; color: white; text-shadow: 0 0 5px black; }
-.pass-progress-bar { height: 10px; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; margin-bottom: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.6); }
-.pass-progress-fill { height: 100%; width: 0%; background-size: 200% 100%; border-radius: 10px; transition: width 0.5s ease; animation: progressShine 2s linear infinite; }
-@keyframes progressShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-.pass-levels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; justify-content: center; margin-bottom: 12px; }
-.pass-badge { padding: 6px 2px; font-size: 9px; text-align: center; cursor: pointer; transition: 0.2s; text-shadow: 0 0 3px black; font-weight: bold; position: relative; }
+/* ========== ОБЩИЕ СТИЛИ AI PASS ========== */
+.pass-container {
+    padding: 15px;
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
+    border-radius: 30px;
+}
+.pass-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 900;
+    font-size: 14px;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+.pass-timer-header {
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 0 5px black;
+}
+.pass-progress-bar {
+    height: 10px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
+}
+.pass-progress-fill {
+    height: 100%;
+    width: 0%;
+    background-size: 200% 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    animation: progressShine 2s linear infinite;
+}
+@keyframes progressShine {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+.pass-levels {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+.pass-badge {
+    padding: 6px 2px;
+    font-size: 9px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+    text-shadow: 0 0 3px black;
+    font-weight: bold;
+    position: relative;
+}
 .pass-badge.locked { opacity: 0.5; }
-@keyframes badgePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-.open-tasks-btn { color: white; padding: 12px; font-size: 14px; font-weight: 900; cursor: pointer; text-align: center; width: 100%; text-shadow: 0 0 5px black; letter-spacing: 1px; }
+@keyframes badgePulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+.open-tasks-btn {
+    color: white;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+    text-shadow: 0 0 5px black;
+    letter-spacing: 1px;
+}
 .open-tasks-btn:active { transform: scale(0.97); }
-.pass-end { text-align: center; font-size: 10px; margin-top: 8px; text-shadow: 0 0 5px black; }
+.pass-end {
+    text-align: center;
+    font-size: 10px;
+    margin-top: 8px;
+    text-shadow: 0 0 5px black;
+}
 
+/* ========== МОДАЛ ЗАДАНИЙ ========== */
 .pass-tasks-modal {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.95);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 1500; opacity: 0; visibility: hidden;
-    transition: 0.2s; padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    padding: 20px;
 }
 .pass-tasks-modal.show { opacity: 1; visibility: visible; }
 .pass-tasks-content {
     background: linear-gradient(135deg, #1a0a2e, #0a1a3e);
-    border: 2px solid #b464ff; border-radius: 30px;
-    padding: 20px; width: 100%; max-width: 400px; max-height: 80vh;
-    overflow-y: auto; box-shadow: 0 0 40px rgba(180, 100, 255, 0.6); color: white;
+    border: 2px solid #b464ff;
+    border-radius: 30px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 0 40px rgba(180, 100, 255, 0.6);
+    color: white;
 }
-.pass-tasks-title { text-align: center; font-size: 22px; font-weight: 900; color: #e0b0ff; text-shadow: 0 0 15px #b464ff, 0 0 30px #b464ff; margin-bottom: 15px; letter-spacing: 1px; }
-.task-item { background: linear-gradient(145deg, #2a1b4e, #1a0a3e); border: 1px solid #5a3b8e; border-radius: 20px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; transition: 0.2s; }
-.task-item.completed { background: linear-gradient(145deg, #1a5a3a, #0a3a2a); border-color: #4caf50; box-shadow: 0 0 15px rgba(76, 175, 80, 0.3); }
-.task-item.current { border-color: #ff64c8; box-shadow: 0 0 15px rgba(255, 100, 200, 0.5); animation: taskPulse 2s ease infinite; }
-@keyframes taskPulse { 0%,100% { box-shadow: 0 0 15px rgba(255, 100, 200, 0.4); } 50% { box-shadow: 0 0 25px rgba(255, 100, 200, 0.7); } }
-.task-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 13px; }
-.task-level { color: #ff64c8; text-shadow: 0 0 5px #ff64c8; font-size: 14px; }
-.task-reward { background: linear-gradient(145deg, #ff64c8, #b464ff); color: white; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-shadow: 0 0 5px black; }
+.pass-tasks-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 900;
+    color: #e0b0ff;
+    text-shadow: 0 0 15px #b464ff, 0 0 30px #b464ff;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+.task-item {
+    background: linear-gradient(145deg, #2a1b4e, #1a0a3e);
+    border: 1px solid #5a3b8e;
+    border-radius: 20px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: 0.2s;
+}
+.task-item.completed {
+    background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
+    border-color: #4caf50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+}
+.task-item.current {
+    border-color: #ff64c8;
+    box-shadow: 0 0 15px rgba(255, 100, 200, 0.5);
+    animation: taskPulse 2s ease infinite;
+}
+@keyframes taskPulse {
+    0%,100% { box-shadow: 0 0 15px rgba(255, 100, 200, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(255, 100, 200, 0.7); }
+}
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 13px;
+}
+.task-level {
+    color: #ff64c8;
+    text-shadow: 0 0 5px #ff64c8;
+    font-size: 14px;
+}
+.task-reward {
+    background: linear-gradient(145deg, #ff64c8, #b464ff);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-shadow: 0 0 5px black;
+}
 .task-desc { font-size: 12px; color: #d0c0e8; }
 .task-progress-bar { height: 8px; background: rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
 .task-progress-fill { height: 100%; background: linear-gradient(90deg, #b464ff, #ff64c8); width: 0%; transition: width 0.3s; box-shadow: 0 0 10px #ff64c8; }
 .task-progress-text { text-align: right; font-size: 10px; color: #a88ad0; }
-.task-claim-btn { background: linear-gradient(145deg, #4caf50, #2e7d32); border: none; color: white; padding: 8px 16px; border-radius: 30px; font-weight: bold; cursor: pointer; text-shadow: 0 0 5px black; box-shadow: 0 0 15px rgba(76, 175, 80, 0.5); align-self: flex-end; font-size: 12px; }
+.task-claim-btn {
+    background: linear-gradient(145deg, #4caf50, #2e7d32);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+    align-self: flex-end;
+    font-size: 12px;
+}
 .task-claim-btn:active { transform: scale(0.95); }
-.close-tasks-btn { background: linear-gradient(145deg, #8c5cd4, #5a3b8e); border: none; color: white; padding: 10px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-shadow: 0 0 5px black; font-size: 14px; }
+.close-tasks-btn {
+    background: linear-gradient(145deg, #8c5cd4, #5a3b8e);
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    text-shadow: 0 0 5px black;
+    font-size: 14px;
+}
 
 .shop-panel { background: rgba(0,0,0,0.95); border-radius: 30px; padding: 10px; margin: 10px 0; display: none; }
 .shop-panel.show { display: block; }
@@ -381,16 +704,49 @@ body.bg-newyear .game-container {
 .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; text-shadow: 0 0 5px black; }
 .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
 
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: 0.2s; padding: 20px; }
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    padding: 20px;
+}
 .modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: linear-gradient(145deg, #1d3147, #112233); border-radius: 40px; padding: 20px; width: 90%; max-width: 380px; text-align: center; max-height: 80vh; overflow-y: auto; color: white; text-shadow: 0 0 5px black; }
+.modal-content {
+    background: linear-gradient(145deg, #1d3147, #112233);
+    border-radius: 40px;
+    padding: 20px;
+    width: 90%;
+    max-width: 380px;
+    text-align: center;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: white;
+    text-shadow: 0 0 5px black;
+}
 .modal-title { color: #d9b0ff; font-size: 20px; font-weight: 800; margin-bottom: 15px; text-shadow: 0 0 5px black; }
 .modal-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 30px; border: none; background: #2a4b6e; color: white; text-align: center; }
 .modal-btn { background: #8c5cd4; color: white; padding: 8px 16px; border-radius: 40px; border: none; font-weight: 700; margin: 5px; cursor: pointer; text-shadow: 0 0 5px black; }
 .modal-btn:hover { background: #a07ce0; transform: scale(1.02); }
 .reset-btn { background: linear-gradient(145deg, #aa3300, #661100); border: 2px solid #ff6644; color: white; padding: 12px; border-radius: 60px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-top: 15px; text-shadow: 0 0 5px black; }
 .reset-btn:hover { background: #cc4400; transform: scale(1.01); }
-.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; flex-wrap: wrap; gap: 8px; text-shadow: 0 0 5px black; }
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    flex-wrap: wrap;
+    gap: 8px;
+    text-shadow: 0 0 5px black;
+}
 
 .top-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
 .diamond-bar { background: rgba(0, 10, 20, 0.7); border-radius: 60px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; color: white; text-shadow: 0 0 5px black; }
@@ -399,49 +755,232 @@ body.bg-newyear .game-container {
 @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
 .save-badge { text-align: center; color: #a0ffc0; font-size: 9px; margin-top: 8px; text-shadow: 0 0 5px black; }
 
-.float-text { position: fixed; pointer-events: none; z-index: 1500; font-size: 28px; font-weight: 900; color: #ffdd44; text-shadow: 0 0 10px #ff8800, 0 0 20px #ff4400; animation: floatUp 1s ease-out forwards; }
-@keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-120px) scale(1.5); } }
+.float-text {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1500;
+    font-size: 28px;
+    font-weight: 900;
+    color: #ffdd44;
+    text-shadow: 0 0 10px #ff8800, 0 0 20px #ff4400;
+    animation: floatUp 1s ease-out forwards;
+}
+@keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
+}
 
-#loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b1729; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.8s ease; }
+#loadingScreen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0b1729;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease;
+}
 #loadingScreen.hidden { opacity: 0; pointer-events: none; }
-.loader { width: 60px; height: 60px; border: 6px solid #2a4b6e; border-top: 6px solid #ffaa00; border-radius: 50%; animation: spin 1s linear infinite; }
+.loader {
+    width: 60px; height: 60px;
+    border: 6px solid #2a4b6e;
+    border-top: 6px solid #ffaa00;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .loading-text { color: #ffd966; font-size: 24px; font-weight: 800; margin-top: 20px; text-shadow: 0 0 20px #ffaa00; }
 .loading-sub { color: #88aaff; font-size: 12px; margin-top: 10px; }
 
-.admin-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 3000; opacity: 0; visibility: hidden; transition: 0.2s; padding: 20px; }
+.admin-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    padding: 20px;
+}
 .admin-overlay.show { opacity: 1; visibility: visible; }
-.admin-panel { background: #ff0000; border: 6px solid #000; border-radius: 10px; width: 100%; max-width: 400px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 40px rgba(255, 0, 0, 0.6); }
-.admin-header { background: #ff0000; color: white; font-size: 22px; font-weight: 900; text-align: center; padding: 14px; letter-spacing: 2px; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; border-bottom: 4px solid #000; }
+.admin-panel {
+    background: #ff0000;
+    border: 6px solid #000;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+}
+.admin-header {
+    background: #ff0000;
+    color: white;
+    font-size: 22px;
+    font-weight: 900;
+    text-align: center;
+    padding: 14px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    border-bottom: 4px solid #000;
+}
 .admin-tabs { display: flex; background: #000; gap: 4px; padding: 6px; }
-.admin-tab { flex: 1; background: #fff; color: #000; text-align: center; padding: 10px 4px; font-weight: 800; font-size: 13px; cursor: pointer; border: 2px solid #fff; user-select: none; }
+.admin-tab {
+    flex: 1;
+    background: #fff;
+    color: #000;
+    text-align: center;
+    padding: 10px 4px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    border: 2px solid #fff;
+    user-select: none;
+}
 .admin-tab.active { background: #ffcc00; border-color: #000; color: #000; }
-.admin-body { background: #ff0000; color: white; padding: 16px; overflow-y: auto; flex: 1; min-height: 200px; font-size: 14px; }
-.admin-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border: 2px solid #000; gap: 8px; flex-wrap: wrap; }
+.admin-body {
+    background: #ff0000;
+    color: white;
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 200px;
+    font-size: 14px;
+}
+.admin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.25);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: 2px solid #000;
+    gap: 8px;
+    flex-wrap: wrap;
+}
 .admin-item span { font-weight: 700; color: white; }
-.admin-item button { background: #000; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
+.admin-item button {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 12px;
+}
 .admin-item button:active { transform: scale(0.95); background: #333; }
-.admin-close { background: #000; color: #fff; border: none; padding: 12px; font-size: 16px; font-weight: 900; cursor: pointer; border-top: 4px solid #fff; letter-spacing: 1px; }
+.admin-close {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    border-top: 4px solid #fff;
+    letter-spacing: 1px;
+}
 .admin-close:active { background: #333; }
 
-.tutorial-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 20px; opacity: 0; visibility: hidden; transition: 0.3s; }
+.tutorial-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+}
 .tutorial-overlay.show { opacity: 1; visibility: visible; }
-.tutorial-box { background: #0a0a0a; border: 4px solid #000; border-radius: 12px; padding: 20px; width: 100%; max-width: 360px; box-shadow: 0 0 40px rgba(0,0,0,0.9); color: white; text-align: center; }
+.tutorial-box {
+    background: #0a0a0a;
+    border: 4px solid #000;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.9);
+    color: white;
+    text-align: center;
+}
 .tutorial-step { display: block; }
 .tutorial-step.hidden { display: none; }
-.tutorial-robot { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; text-align: left; }
+.tutorial-robot {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 18px;
+    text-align: left;
+}
 .robot-emoji { font-size: 40px; line-height: 1; flex-shrink: 0; }
-.robot-text { font-size: 16px; font-weight: 700; line-height: 1.4; color: white; text-shadow: 0 0 5px black; }
+.robot-text {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: white;
+    text-shadow: 0 0 5px black;
+}
 .tutorial-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 10px; }
-.tutorial-btn-yes, .tutorial-btn-no { flex: 1; padding: 14px; border: 3px solid #000; font-size: 22px; font-weight: 900; cursor: pointer; border-radius: 4px; text-shadow: 1px 1px 0 rgba(0,0,0,0.4); }
+.tutorial-btn-yes, .tutorial-btn-no {
+    flex: 1;
+    padding: 14px;
+    border: 3px solid #000;
+    font-size: 22px;
+    font-weight: 900;
+    cursor: pointer;
+    border-radius: 4px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+}
 .tutorial-btn-yes { background: #00dd00; color: #003300; }
 .tutorial-btn-yes:active { transform: scale(0.95); background: #00aa00; }
 .tutorial-btn-no { background: #dd0000; color: #330000; }
 .tutorial-btn-no:active { transform: scale(0.95); background: #aa0000; }
-.tutorial-text { font-size: 16px; font-weight: 700; line-height: 1.5; color: white; margin: 16px 0; text-shadow: 0 0 5px black; }
-.tutorial-hand { font-size: 50px; margin: 10px 0; animation: handBounce 1s ease-in-out infinite; }
-@keyframes handBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.tutorial-btn-ok { width: 100%; padding: 14px; background: #00aa00; color: white; border: 3px solid #000; border-radius: 4px; font-size: 18px; font-weight: 900; cursor: pointer; margin-top: 10px; text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+.tutorial-text {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: white;
+    margin: 16px 0;
+    text-shadow: 0 0 5px black;
+}
+.tutorial-hand {
+    font-size: 50px;
+    margin: 10px 0;
+    animation: handBounce 1s ease-in-out infinite;
+}
+@keyframes handBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.tutorial-btn-ok {
+    width: 100%;
+    padding: 14px;
+    background: #00aa00;
+    color: white;
+    border: 3px solid #000;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    margin-top: 10px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+}
 .tutorial-btn-ok:active { transform: scale(0.97); background: #008800; }
 
-@keyframes borderGlow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes borderGlow {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
