@@ -876,7 +876,7 @@ window.addEventListener('load', () => {
         playClickSound();
 
         // Звёзды: 1% шанс, +3 звезды
-        if (Math.random() < 0.01) {
+        if (Math.random() < 0.0001) {
             stars += 3;
             totalStarsEarned += 3;
             if (isHalloween()) showToast("🍬 КОНФЕТЫ! +3");
