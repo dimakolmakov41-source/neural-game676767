@@ -1,7 +1,6 @@
 // ===== ВЕРСИЯ =====
 const GAME_VERSION = "11.18";
 
-// Захватываем старые алмазы ДО автосброса
 let _pendingDiamondConversion = 0;
 (function captureOldDiamonds() {
     const s = localStorage.getItem('neuralEvoSave');
@@ -23,13 +22,11 @@ if (localStorage.getItem('gameVersion') !== GAME_VERSION) {
     localStorage.setItem('gameVersion', GAME_VERSION);
 }
 
-// ===== ХЭЛЛОУИН =====
 function isHalloween() {
     const now = new Date();
     return now.getMonth() === 9 && now.getDate() === 31;
 }
 
-// ===== НОВЫЙ ГОД =====
 function isNewYear() {
     const now = new Date();
     const m = now.getMonth();
@@ -103,7 +100,6 @@ window.addEventListener('load', () => {
 
     document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
-    // ===== БАН =====
     const badWords = [
         "дима лох", "дима тупой", "дима дурак", "дима еблан", "дима долбаеб",
         "разработчик лох", "разработчик тупой", "разработчик дурак", "разработчик еблан", "разработчик уебан"
@@ -151,7 +147,6 @@ window.addEventListener('load', () => {
         }
     }
 
-    // ===== ПЕРЕМЕННЫЕ =====
     let points = 100, stars = 0, totalClicks = 0, purchasedCount = 1;
     let totalStarsEarned = 0;
     let sessionClicks = 0;
@@ -162,16 +157,14 @@ window.addEventListener('load', () => {
     let sleepMsgTimer = null;
     let sleepMsgShowing = false;
 
-    // Буст
     const BOOST_MULTIPLIER = 5;
     const BOOST_PRICE = 20;
-    const BOOST_DURATION = 5 * 60 * 1000; // 5 минут
+    const BOOST_DURATION = 5 * 60 * 1000;
     let boostEndTime = 0;
     let boostInterval = null;
 
     Object.defineProperty(window, '__stars', { get: () => stars });
 
-    // ===== НЕЙРОСЕТИ =====
     const neuralNames = [
         "Перцептрон","Нейро-искра","Сверточная","Рекуррентная","Трансформер","Квантовая","GPT-клик","Автокодировщик","DALL-E","Глубокий мозг","Gemini","Нейро-интерфейс","Claude 3","Мультивселенная","Midjourney","Легендарная","Сингулярность","Божественный ИИ","Нейро-Земля","ИИ-Солнце","Галактическая","Космическая","Сверхразум","ДНК-бота","Бесконечность",
         "Лев","Тигр","Медведь","Волк","Лиса","Орёл","Сокол","Дельфин","Кит","Акула","Пантера","Ягуар","Леопард","Гепард","Зебра","Жираф","Слон","Носорог","Бегемот","Крокодил","Питон","Анаконда","Хамелеон","Игуана","Фламинго","Пингвин","Сова","Ястреб","Скорпион","Паук",
@@ -304,7 +297,6 @@ window.addEventListener('load', () => {
             } else {
                 updateBoostUI();
                 if (boostEndTime > 0) {
-                    // Буст только что закончился
                     boostEndTime = 0;
                     showToast("⏳ Буст закончился");
                     updateUI();
@@ -332,19 +324,23 @@ window.addEventListener('load', () => {
         playBuySound();
     }
 
-    // ===== AI PASS 5 и 6 =====
+    // ===== AI PASS 5, 6, 7 =====
     let passTasks = [];
     let passCurrentTask = 0;
     const pass5EndDate = new Date(2026, 8, 21, 0, 0, 0);
     const pass6StartDate = new Date(2026, 8, 21, 0, 0, 0);
-    const pass6EndDate = new Date(2026, 8, 30, 23, 59, 59);
+    const pass6EndDate = new Date(2026, 8, 30, 0, 0, 0);
+    const pass7StartDate = new Date(2026, 8, 30, 0, 0, 0);
+    const pass7EndDate = new Date(2026, 9, 9, 23, 59, 59);  // 9 октября 2026
     let passEndTimerInterval = null;
     let passRewardSeconds = 600;
     let passRewardInterval = null;
 
     function getActivePassNumber() {
         const now = new Date();
-        return now >= pass6StartDate ? 6 : 5;
+        if (now >= pass7StartDate) return 7;
+        if (now >= pass6StartDate) return 6;
+        return 5;
     }
 
     function applyPassStyle() {
@@ -353,8 +349,12 @@ window.addEventListener('load', () => {
         const tasksTitle = document.getElementById('passTasksTitle');
         if (!container || !title) return;
         const num = getActivePassNumber();
-        container.classList.remove('pass-v5', 'pass-v6');
-        if (num === 6) {
+        container.classList.remove('pass-v5', 'pass-v6', 'pass-v7');
+        if (num === 7) {
+            container.classList.add('pass-v7');
+            title.innerHTML = '> AI PASS 7 _';
+            if (tasksTitle) tasksTitle.innerHTML = '> ЗАДАНИЯ AI PASS 7 _';
+        } else if (num === 6) {
             container.classList.add('pass-v6');
             title.innerHTML = '🤖 AI PASS 6 🤖';
             if (tasksTitle) tasksTitle.innerHTML = '🤖 ЗАДАНИЯ AI PASS 6 🤖';
@@ -365,26 +365,59 @@ window.addEventListener('load', () => {
         }
     }
 
-    function fillPassTasks() {
+    // Заполняет passTasks по сезону
+    function fillPassTasks(season) {
         passTasks = [];
-        for (let i = 1; i <= 20; i++) {
-            passTasks.push({
-                level: i,
-                targetClicks: i * 500,
-                rewardPoints: i * 500,
-                rewardStars: i * 5,
-                completed: false,
-                claimed: false
-            });
+        if (season === '7') {
+            // AI Pass 7 — 30 уровней, хакерские награды
+            for (let i = 1; i <= 30; i++) {
+                let targetClicks, rewardPoints, rewardStars;
+                if (i <= 10) {
+                    targetClicks = i * 500;
+                    rewardPoints = i * 700;
+                    rewardStars = i * 7;
+                } else if (i <= 20) {
+                    targetClicks = i * 600;
+                    rewardPoints = i * 1000;
+                    rewardStars = i * 10;
+                } else {
+                    targetClicks = i * 800;
+                    rewardPoints = i * 1500;
+                    rewardStars = i * 15;
+                }
+                passTasks.push({
+                    level: i,
+                    targetClicks: targetClicks,
+                    rewardPoints: rewardPoints,
+                    rewardStars: rewardStars,
+                    completed: false,
+                    claimed: false
+                });
+            }
+        } else {
+            // AI Pass 5 и 6 — 20 уровней
+            for (let i = 1; i <= 20; i++) {
+                passTasks.push({
+                    level: i,
+                    targetClicks: i * 500,
+                    rewardPoints: i * 500,
+                    rewardStars: i * 5,
+                    completed: false,
+                    claimed: false
+                });
+            }
         }
     }
 
     function initPassSeason(skipSave) {
         const savedSeason = localStorage.getItem('aiPassSeason');
         const now = new Date();
-        const activeSeason = now >= pass6StartDate ? '6' : '5';
+        let activeSeason;
+        if (now >= pass7StartDate) activeSeason = '7';
+        else if (now >= pass6StartDate) activeSeason = '6';
+        else activeSeason = '5';
 
-        fillPassTasks();
+        fillPassTasks(activeSeason);
 
         if (savedSeason !== activeSeason) {
             passCurrentTask = 0;
@@ -433,13 +466,21 @@ window.addEventListener('load', () => {
         passRewardInterval = setInterval(() => {
             passRewardSeconds--;
             if (passRewardSeconds <= 0) {
-                points += 500;
-                stars += 5;
-                totalStarsEarned += 5;
+                const num = getActivePassNumber();
+                let rewardPoints, rewardStars;
+                if (num === 7) {
+                    rewardPoints = 1500;
+                    rewardStars = 15;
+                } else {
+                    rewardPoints = 500;
+                    rewardStars = 5;
+                }
+                points += rewardPoints;
+                stars += rewardStars;
+                totalStarsEarned += rewardStars;
                 updateUI();
                 saveGame();
-                const num = getActivePassNumber();
-                showToast(`🎁 Награда AI Pass ${num}! +500🧠 +5⭐`);
+                showToast(`🎁 Награда AI Pass ${num}! +${rewardPoints}🧠 +${rewardStars}⭐`);
                 playBuySound();
                 passRewardSeconds = 600;
             }
@@ -530,7 +571,10 @@ window.addEventListener('load', () => {
         if (!el) return;
         const num = getActivePassNumber();
         const now = new Date();
-        const endDate = num === 6 ? pass6EndDate : pass5EndDate;
+        let endDate;
+        if (num === 7) endDate = pass7EndDate;
+        else if (num === 6) endDate = pass6EndDate;
+        else endDate = pass5EndDate;
         const diff = endDate - now;
         if (diff <= 0) {
             el.innerHTML = `⏳ AI PASS ${num} ЗАВЕРШЁН!`;
@@ -628,7 +672,7 @@ window.addEventListener('load', () => {
 ⭐ Звёзды: ${stars}
 🖱️ Всего кликов: ${totalClicks}
 🧬 Нейросетей: ${purchasedCount}/${upgrades.length}
-🤖 AI Pass ${num} уровней: ${passTasks.filter(t=>t.claimed).length}/20
+🤖 AI Pass ${num} уровней: ${passTasks.filter(t=>t.claimed).length}/${passTasks.length}
 📅 Версия ${GAME_VERSION}`;
         navigator.clipboard.writeText(text);
         showToast("✅ Прогресс скопирован!");
@@ -823,7 +867,6 @@ window.addEventListener('load', () => {
     importInput.accept = '.json';
     importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
-    // ===== ФОНЫ =====
     const bgThemes = {
         early_autumn: "bg-early-autumn",
         golden: "bg-golden",
@@ -845,7 +888,6 @@ window.addEventListener('load', () => {
     if (savedBg && bgThemes[savedBg] && !isHalloween() && !isNewYear()) setBodyBg(savedBg);
     else applyTheme();
 
-    // ===== КЛИК =====
     function processSingleClick(gain, x, y) {
         if (isBanned) return;
         hideSleepMsg();
@@ -875,8 +917,8 @@ window.addEventListener('load', () => {
         sessionClicks++;
         playClickSound();
 
-        // Звёзды: 1% шанс, +3 звезды
-        if (Math.random() < 0.0001) {
+        // Звёзды: 0.1% шанс, +3 звезды
+        if (Math.random() < 0.001) {
             stars += 3;
             totalStarsEarned += 3;
             if (isHalloween()) showToast("🍬 КОНФЕТЫ! +3");
@@ -957,7 +999,6 @@ window.addEventListener('load', () => {
         clickable.addEventListener('mousedown', handleMouseClick);
     }
 
-    // ===== ОБУЧЕНИЕ =====
     const tutorialOverlay = document.getElementById('tutorialOverlay');
     const tutorialStep1 = document.getElementById('tutorialStep1');
     const tutorialStep2 = document.getElementById('tutorialStep2');
@@ -990,7 +1031,6 @@ window.addEventListener('load', () => {
         goToGame();
     });
 
-    // ===== КНОПКИ =====
     document.getElementById('playBtn')?.addEventListener('click', () => {
         if (!localStorage.getItem('tutorialDone')) {
             showTutorial();
@@ -1079,9 +1119,11 @@ window.addEventListener('load', () => {
     promoCodes['legend'] = { points: 20000, stars: 500 };
     promoCodes['pass5'] = { points: 5000, stars: 50 };
     promoCodes['pass6'] = { points: 6000, stars: 60 };
+    promoCodes['pass7'] = { points: 7000, stars: 70 };
     promoCodes['halloween'] = { points: 6666, stars: 66 };
     promoCodes['newyear'] = { points: 7777, stars: 77 };
     promoCodes['robot'] = { points: 9999, stars: 99 };
+    promoCodes['hacker'] = { points: 11111, stars: 111 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
         if (isBanned) return;
@@ -1147,7 +1189,6 @@ window.addEventListener('load', () => {
     }, 1000);
     setInterval(saveGame, 5000);
 
-    // ===== АДМИН-ПАНЕЛЬ v2 =====
     let adminCurrentTab = 'game';
 
     function renderAdminBody() {
@@ -1245,7 +1286,7 @@ window.addEventListener('load', () => {
                 console.log("Звёзды:", stars);
                 console.log("Клики:", totalClicks);
                 console.log("Нейросети:", purchasedCount);
-                console.log("AI Pass:", passTasks.filter(t=>t.claimed).length, "/ 20");
+                console.log("AI Pass:", passTasks.filter(t=>t.claimed).length, "/", passTasks.length);
                 showToast("Смотри консоль (F12)");
             };
             document.getElementById('admResetTutorial').onclick = () => {
