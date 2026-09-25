@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=11.18">
+    <link rel="stylesheet" href="style.css?v=11.19">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text">ЗАГРУЗКА...</div>
-        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.18</div>
+        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.19</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -18,7 +18,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v11.18</div>
+            <div class="game-version" id="menuVersion">v11.19</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
@@ -28,6 +28,7 @@
                 <div class="menu-btn" id="shareBtn">📤 ПОДЕЛИТЬСЯ</div>
             </div>
             <div class="menu-buttons-row">
+                <div class="menu-btn" id="leadersBtn">🏆 ЛИДЕРЫ</div>
                 <div class="menu-btn" id="testBtn">🧪 ТЕСТ КНОПКА</div>
             </div>
         </div>
@@ -130,6 +131,29 @@
         </div>
     </div>
 
+    <div class="leaderboard-modal" id="leaderboardModal">
+        <div class="leaderboard-content">
+            <div class="leaderboard-title">🏆 ЛИДЕРЫ</div>
+            <div class="leaderboard-nick-row">
+                <span id="leaderboardNick">Игрок</span>
+                <button class="leaderboard-nick-btn" id="changeNickBtn">✏️</button>
+            </div>
+            <div class="leaderboard-loading" id="leaderboardLoading">Загрузка...</div>
+            <div class="leaderboard-list" id="leaderboardList"></div>
+            <button class="leaderboard-btn-send" id="sendScoreBtn">📤 ОТПРАВИТЬ СЧЁТ</button>
+            <button class="leaderboard-btn-close" id="closeLeaderboardBtn">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <div class="nick-modal" id="nickModal">
+        <div class="nick-content">
+            <div class="nick-title">👤 ТВОЙ НИК</div>
+            <div class="nick-hint">От 2 до 15 символов, без пробелов</div>
+            <input type="text" id="nickInput" class="nick-input" maxlength="15" placeholder="Например: DIMA7383">
+            <button class="nick-btn" id="saveNickBtn">СОХРАНИТЬ</button>
+        </div>
+    </div>
+
     <div class="admin-overlay" id="adminOverlay">
         <div class="admin-panel">
             <div class="admin-header">АДМИН ПАНЕЛЬ v2</div>
@@ -193,8 +217,10 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.18: Звёзды дают по 3 штуки (шанс 0.1%). Буст x5 за 20⭐. Скоро AI Pass 7 — 30 уровней, хакерский стиль!</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.19: Добавлен глобальный лидерборд! 🏆 Смотри топ игроков со всего мира.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
-    <script src="script.js?v=11.18"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script src="script.js?v=11.19"></script>
 </body>
 </html>
