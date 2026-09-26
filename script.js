@@ -51,6 +51,9 @@ function isNewYear() {
     const d = now.getDate();
     return (m === 11 && d === 31) || (m === 0 && d === 1);
 }
+function isHackerMode() {
+    return new Date() >= new Date(2026, 8, 30, 0, 0, 0);
+}
 
 function applyTheme() {
     const body = document.body;
@@ -61,7 +64,7 @@ function applyTheme() {
     const reloadTimer = document.getElementById('reloadTimer');
     const title = document.getElementById('gameTitle');
 
-    body.classList.remove('bg-halloween', 'bg-newyear');
+    body.classList.remove('bg-halloween', 'bg-newyear', 'bg-hacker');
     body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
     if (brain) brain.classList.remove('halloween-brain', 'newyear-brain');
     const oldHat = brain ? brain.querySelector('.santa-hat') : null;
@@ -89,6 +92,13 @@ function applyTheme() {
         if (sleepMsg) sleepMsg.innerText = '❄️ С Новым Годом!';
         if (reloadTimer) reloadTimer.innerHTML = '🎄 НОВЫЙ ГОД: <span id="reloadCountdown">5:00</span>';
         if (title) title.innerText = '🎄 КЛИКЕР: НОВОГОДНЯЯ ЭВОЛЮЦИЯ';
+    } else if (isHackerMode()) {
+        body.classList.add('bg-hacker');
+        if (brainEmoji) brainEmoji.innerText = '🧠';
+        if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
+        if (sleepMsg) sleepMsg.innerText = '😴 Спишь?';
+        if (reloadTimer) reloadTimer.innerHTML = '> ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span> _';
+        if (title) title.innerText = '> КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ _';
     } else {
         const savedBg = localStorage.getItem('selectedBg') || 'early_autumn';
         const bgThemes = {
@@ -726,13 +736,13 @@ window.addEventListener('load', () => {
 
     const bgThemes = { early_autumn: "bg-early-autumn", golden: "bg-golden", rainy: "bg-rainy", late: "bg-late", forest: "bg-forest", park: "bg-park", mountains: "bg-mountains", village: "bg-village" };
     function setBodyBg(theme) {
-        if (isHalloween() || isNewYear()) return;
+        if (isHalloween() || isNewYear() || isHackerMode()) { applyTheme(); return; }
         document.body.className = '';
         document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
         localStorage.setItem('selectedBg', theme);
     }
     const savedBg = localStorage.getItem('selectedBg');
-    if (savedBg && bgThemes[savedBg] && !isHalloween() && !isNewYear()) setBodyBg(savedBg);
+    if (savedBg && bgThemes[savedBg] && !isHalloween() && !isNewYear() && !isHackerMode()) setBodyBg(savedBg);
     else applyTheme();
 
     function processSingleClick(gain, x, y) {
