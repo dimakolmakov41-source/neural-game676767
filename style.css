@@ -26,7 +26,6 @@ body.bg-park { background: linear-gradient(145deg, #b5a07a, #7a6545); }
 body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); }
 body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 
-/* ===== ХЭЛЛОУИН ===== */
 body.bg-halloween {
     background: linear-gradient(145deg, #1a0a00, #4a1a00) !important;
     position: relative;
@@ -48,7 +47,6 @@ body.bg-halloween .game-container {
     box-shadow: 0 0 30px #ff440088;
 }
 
-/* ===== НОВЫЙ ГОД ===== */
 body.bg-newyear {
     background: linear-gradient(145deg, #1a2a4a, #4a6a9a) !important;
     position: relative;
@@ -85,7 +83,6 @@ body.bg-newyear .game-container {
     filter: drop-shadow(0 0 10px #ff0000);
 }
 
-/* ===== ХАКЕРСКИЙ РЕЖИМ (AI Pass 7) ===== */
 body.bg-hacker {
     background: #000a00 !important;
     background-image:
@@ -295,8 +292,149 @@ body.bg-hacker .toast {
     font-family: 'Courier New', monospace;
     text-shadow: none;
 }
+body.bg-hacker .shop-item {
+    background: linear-gradient(145deg, #001a00, #000a00);
+    border: 1px solid rgba(0,255,65,0.4);
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+}
+body.bg-hacker .shop-item:hover {
+    background: linear-gradient(145deg, #003300, #001a00);
+    box-shadow: 0 0 10px rgba(0,255,65,0.5);
+}
+body.bg-hacker .page-btn {
+    background: #003300;
+    color: #00ff41;
+    border: 1px solid #00ff41;
+    box-shadow: 0 0 8px rgba(0,255,65,0.5);
+}
+body.bg-hacker .shop-tab.active {
+    background: #00aa22;
+    color: #000000;
+}
+body.bg-hacker .shop-tab {
+    background: #001a00;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+}
 
-/* ========== ОКОШКО УДАЛЕНИЯ АЛМАЗОВ ========== */
+.game-container {
+    width: 100%; max-width: 420px;
+    background: rgba(18, 28, 40, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 48px;
+    border: 1px solid rgba(100, 180, 255, 0.3);
+    padding: 20px 16px; margin: 0 auto; color: white;
+    text-shadow: 0 0 5px black;
+}
+
+.main-menu { text-align: center; }
+.main-menu.hidden, .game-interface.hidden { display: none; }
+
+.menu-btn, .action-btn {
+    background: linear-gradient(145deg, #2a4b6e, #1a3150);
+    border: 2px solid #7aa5d9;
+    color: white; padding: 12px; border-radius: 60px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    text-align: center; flex: 1; min-width: 100px;
+    opacity: 0; transform: translateY(30px);
+    animation: btnFlyIn 0.4s forwards;
+    transition: 0.1s; text-shadow: 0 0 5px black;
+}
+.menu-btn:hover, .action-btn:hover {
+    background: linear-gradient(145deg, #3a6b8e, #2a4160);
+    box-shadow: 0 0 10px #7aa5d9;
+    transform: scale(1.02);
+}
+@keyframes btnFlyIn { to { opacity: 1; transform: translateY(0); } }
+.menu-buttons-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+.game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00, 0 0 40px black; animation: glitch 3s infinite; }
+@keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00, 0 0 40px black; } 50% { text-shadow: -2px 0 red, 2px 0 blue, 0 0 20px black; } }
+
+.game-version { color: #88aaff; font-size: 12px; margin-bottom: 15px; cursor: pointer; display: inline-block; text-shadow: 0 0 5px black; }
+.game-version:active { color: #ffaa00; }
+
+.stats-panel-extended {
+    background: rgba(0,0,0,0.6);
+    border-radius: 30px; padding: 10px; margin: 10px 0;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+}
+.stat-card { background: #0a1b2e; border-radius: 20px; padding: 5px; text-align: center; }
+.stat-card-value { color: #ffd966; font-size: 16px; font-weight: 800; text-shadow: 0 0 5px black; }
+.stat-card-label { color: #aac8f0; font-size: 9px; text-shadow: 0 0 5px black; }
+
+.music-toggle {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #1a3150; border-radius: 50%;
+    width: 45px; height: 45px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 100; font-size: 24px;
+    border: 2px solid #ffd966;
+}
+
+.brain-container {
+    display: flex; flex-direction: column; align-items: center;
+    margin: 20px 0; position: relative;
+}
+.brain {
+    width: 170px; height: 170px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.08s;
+    background: radial-gradient(circle at 30% 30%, #ffaa00, #ff5500);
+    box-shadow: 0 15px 0 #aa4400, 0 0 20px #ffaa00;
+    border: 3px solid #ffffaa; position: relative;
+    animation: brainFloat 2s ease-in-out infinite;
+}
+.brain.halloween-brain {
+    background: radial-gradient(circle at 30% 30%, #ff8800, #cc3300);
+    box-shadow: 0 15px 0 #661100, 0 0 30px #ff4400;
+    border-color: #ff8800;
+}
+.brain:active { transform: scale(0.96); box-shadow: 0 8px 0 #aa4400; }
+@keyframes brainFloat { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
+.brain .skin-emoji { font-size: 70px; z-index: 2; }
+.brain .eyes { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 30px; pointer-events: none; }
+.eye { width: 22px; height: 22px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.pupil { width: 10px; height: 10px; background: black; border-radius: 50%; transition: transform 0.05s; }
+.combo-text {
+    position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
+    font-size: 18px; font-weight: 800; color: #ffdd44;
+    text-shadow: 0 0 10px #ff8800; opacity: 0; transition: opacity 0.2s;
+}
+.combo-text.show { opacity: 1; }
+
+.brain .sleep-msg {
+    position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.8); color: #ffaa00;
+    padding: 4px 12px; border-radius: 30px;
+    font-size: 14px; font-weight: bold; opacity: 0;
+    transition: opacity 0.3s; pointer-events: none;
+    white-space: nowrap; text-shadow: 0 0 5px black;
+}
+.brain .sleep-msg.show { opacity: 1; }
+
+.boost-btn {
+    background: linear-gradient(145deg, #ffaa00, #cc6600);
+    border: 2px solid #ffdd66;
+    border-radius: 40px; color: white;
+    font-size: 15px; font-weight: 900;
+    text-align: center; padding: 12px; margin: 10px 0;
+    cursor: pointer; text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.5);
+    transition: 0.15s;
+}
+.boost-btn:active { transform: scale(0.97); }
+.boost-btn.active {
+    background: linear-gradient(145deg, #2e7d32, #1a5a20);
+    border-color: #66cc66;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+    animation: boostPulse 1s ease-in-out infinite;
+}
+@keyframes boostPulse {
+    0%,100% { box-shadow: 0 0 15px rgba(76,175,80,0.5); }
+    50% { box-shadow: 0 0 25px rgba(76,175,80,0.9); }
+}
+
 .diamond-removal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.85);
@@ -347,7 +485,6 @@ body.bg-hacker .toast {
     animation: diamondToTrash 1.5s ease-in forwards;
 }
 
-/* ========== ЛИДЕРБОРД ========== */
 .leaderboard-modal {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.95);
@@ -431,7 +568,6 @@ body.bg-hacker .toast {
     text-shadow: 0 0 5px black; font-size: 14px;
 }
 
-/* ===== МОДАЛКА НИКА ===== */
 .nick-modal {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.9);
@@ -470,7 +606,6 @@ body.bg-hacker .toast {
 }
 .nick-btn:active { transform: scale(0.97); }
 
-/* ========== AI PASS 5 — ФИОЛЕТОВЫЙ ========== */
 .pass-container.pass-v5 {
     background: linear-gradient(135deg, #1a0a2e 0%, #2d1b5e 50%, #0a1a3e 100%);
     border: 2px solid transparent;
@@ -519,7 +654,6 @@ body.bg-hacker .toast {
 }
 .pass-container.pass-v5 .pass-end { color: #e0b0ff; }
 
-/* ========== AI PASS 6 — РОБОТЫ ========== */
 .pass-container.pass-v6 {
     background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 50%, #0a0a1e 100%);
     border: 3px solid #4a6a8a; border-radius: 30px;
@@ -572,7 +706,6 @@ body.bg-hacker .toast {
 }
 .pass-container.pass-v6 .pass-end { color: #88ccff; font-family: 'Courier New', monospace; }
 
-/* ========== AI PASS 7 — ХАКЕР ========== */
 .pass-container.pass-v7 {
     background: linear-gradient(135deg, #000a00 0%, #001a00 50%, #000000 100%);
     border: 2px solid #00ff41;
@@ -700,7 +833,6 @@ body.bg-hacker .toast {
     letter-spacing: 1px;
 }
 
-/* ========== ОБЩИЕ СТИЛИ AI PASS ========== */
 .pass-container { padding: 15px; margin: 10px 0; position: relative; overflow: hidden; border-radius: 30px; }
 .pass-header { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 14px; margin-bottom: 12px; letter-spacing: 1px; }
 .pass-timer-header { padding: 4px 12px; font-size: 12px; font-weight: 800; color: white; text-shadow: 0 0 5px black; }
@@ -715,7 +847,6 @@ body.bg-hacker .toast {
 .open-tasks-btn:active { transform: scale(0.97); }
 .pass-end { text-align: center; font-size: 10px; margin-top: 8px; text-shadow: 0 0 5px black; }
 
-/* ========== МОДАЛ ЗАДАНИЙ ========== */
 .pass-tasks-modal {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.95);
@@ -758,31 +889,6 @@ body.bg-hacker .toast {
 .pagination { display: flex; justify-content: center; gap: 15px; margin: 10px 0; }
 .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; text-shadow: 0 0 5px black; }
 .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
-body.bg-hacker .shop-item {
-    background: linear-gradient(145deg, #001a00, #000a00);
-    border: 1px solid rgba(0,255,65,0.4);
-    color: #00ff41;
-    font-family: 'Courier New', monospace;
-}
-body.bg-hacker .shop-item:hover {
-    background: linear-gradient(145deg, #003300, #001a00);
-    box-shadow: 0 0 10px rgba(0,255,65,0.5);
-}
-body.bg-hacker .page-btn {
-    background: #003300;
-    color: #00ff41;
-    border: 1px solid #00ff41;
-    box-shadow: 0 0 8px rgba(0,255,65,0.5);
-}
-body.bg-hacker .shop-tab.active {
-    background: #00aa22;
-    color: #000000;
-}
-body.bg-hacker .shop-tab {
-    background: #001a00;
-    border: 1px solid #00ff41;
-    color: #00ff41;
-}
 
 .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -974,6 +1080,5 @@ body.bg-hacker .shop-tab {
     50% { background-position: 100% 50%; }
 }
 
-/* ===== СКРЫТО: ФОНЫ (верни — удали 2 строки ниже) ===== */
 #bgSettingItem { display: none !important; }
 .admin-item[data-bg-row="true"] { display: none !important; }
