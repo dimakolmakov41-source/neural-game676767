@@ -855,3 +855,7 @@ body.bg-newyear .game-container {
     0%,100% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
 }
+
+/* ===== СКРЫТО: ФОНЫ (верни — удали 2 строки ниже) ===== */
+#bgSettingItem { display: none !important; }
+.admin-item[data-bg-row="true"] { display: none !important; }
