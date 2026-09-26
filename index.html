@@ -27,10 +27,6 @@
                 <div class="menu-btn" id="newsBtn">📢 НОВОСТИ</div>
                 <div class="menu-btn" id="shareBtn">📤 ПОДЕЛИТЬСЯ</div>
             </div>
-            <div class="menu-buttons-row">
-                <div class="menu-btn" id="leadersBtn">🏆 ЛИДЕРЫ</div>
-                <div class="menu-btn" id="testBtn">🧪 ТЕСТ КНОПКА</div>
-            </div>
         </div>
 
         <div id="gameInterface" class="game-interface hidden">
@@ -60,8 +56,8 @@
 
             <div class="pass-container" id="passContainer">
                 <div class="pass-header">
-                    <span id="passTitle">✨ AI PASS 5 ✨</span>
-                    <span class="pass-timer-header" id="passTimer">⏱️ 10:00</span>
+                    <span id="passTitle">🤖 AI PASS 6 🤖</span>
+                    <span class="pass-timer-header" id="passTimer">⏱️ 25:00</span>
                 </div>
                 <div class="pass-progress-bar">
                     <div class="pass-progress-fill" id="passProgressFill"></div>
@@ -131,29 +127,6 @@
         </div>
     </div>
 
-    <div class="leaderboard-modal" id="leaderboardModal">
-        <div class="leaderboard-content">
-            <div class="leaderboard-title">🏆 ЛИДЕРЫ</div>
-            <div class="leaderboard-nick-row">
-                <span id="leaderboardNick">Игрок</span>
-                <button class="leaderboard-nick-btn" id="changeNickBtn">✏️</button>
-            </div>
-            <div class="leaderboard-loading" id="leaderboardLoading">Загрузка...</div>
-            <div class="leaderboard-list" id="leaderboardList"></div>
-            <button class="leaderboard-btn-send" id="sendScoreBtn">📤 ОТПРАВИТЬ СЧЁТ</button>
-            <button class="leaderboard-btn-close" id="closeLeaderboardBtn">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div class="nick-modal" id="nickModal">
-        <div class="nick-content">
-            <div class="nick-title">👤 ТВОЙ НИК</div>
-            <div class="nick-hint">От 2 до 15 символов, без пробелов</div>
-            <input type="text" id="nickInput" class="nick-input" maxlength="15" placeholder="Например: DIMA7383">
-            <button class="nick-btn" id="saveNickBtn">СОХРАНИТЬ</button>
-        </div>
-    </div>
-
     <div class="admin-overlay" id="adminOverlay">
         <div class="admin-panel">
             <div class="admin-header">АДМИН ПАНЕЛЬ v2</div>
@@ -169,7 +142,7 @@
 
     <div class="pass-tasks-modal" id="passTasksModal">
         <div class="pass-tasks-content">
-            <div class="pass-tasks-title" id="passTasksTitle">✨ ЗАДАНИЯ AI PASS 5 ✨</div>
+            <div class="pass-tasks-title" id="passTasksTitle">🤖 ЗАДАНИЯ AI PASS 6 🤖</div>
             <div id="tasksList"></div>
             <button class="close-tasks-btn" id="closeTasksBtn">ЗАКРЫТЬ</button>
         </div>
@@ -217,10 +190,8 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.19: Добавлен глобальный лидерборд! 🏆 Смотри топ игроков со всего мира.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.19: Скоро AI Pass 8 — хэллоуинский! 🎃 40 уровней с 9 по 31 октября.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
     <script src="script.js?v=11.19"></script>
 </body>
 </html>
