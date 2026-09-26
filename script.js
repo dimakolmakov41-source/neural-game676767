@@ -236,15 +236,12 @@ window.addEventListener('load', () => {
     }
 
     // ===== ЛИДЕРБОРД =====
-    function getNickname() {
-        return localStorage.getItem('playerNickname') || '';
-    }
+    function getNickname() { return localStorage.getItem('playerNickname') || ''; }
     function setNickname(name) {
         localStorage.setItem('playerNickname', name);
         const el = document.getElementById('leaderboardNick');
         if (el) el.innerText = name;
     }
-
     function openNickModal() {
         const modal = document.getElementById('nickModal');
         const input = document.getElementById('nickInput');
@@ -253,10 +250,7 @@ window.addEventListener('load', () => {
         modal.classList.add('show');
         setTimeout(() => input.focus(), 200);
     }
-    function closeNickModal() {
-        document.getElementById('nickModal')?.classList.remove('show');
-    }
-
+    function closeNickModal() { document.getElementById('nickModal')?.classList.remove('show'); }
     function saveNick() {
         const input = document.getElementById('nickInput');
         if (!input) return;
@@ -269,7 +263,6 @@ window.addEventListener('load', () => {
         showToast("✅ Ник сохранён: " + name);
         sendScoreToLeaderboard();
     }
-
     function sendScoreToLeaderboard() {
         const nick = getNickname();
         if (!nick) { showToast("❌ Сначала введи ник"); return; }
@@ -280,15 +273,9 @@ window.addEventListener('load', () => {
             points: Math.floor(points),
             stars: stars,
             timestamp: Date.now()
-        }).then(() => {
-            showToast("✅ Счёт отправлен!");
-            loadLeaderboard();
-        }).catch((err) => {
-            console.log(err);
-            showToast("❌ Ошибка отправки");
-        });
+        }).then(() => { showToast("✅ Счёт отправлен!"); loadLeaderboard(); })
+          .catch((err) => { console.log(err); showToast("❌ Ошибка отправки"); });
     }
-
     function loadLeaderboard() {
         const list = document.getElementById('leaderboardList');
         const loading = document.getElementById('leaderboardLoading');
@@ -320,11 +307,7 @@ window.addEventListener('load', () => {
                 if (p.name === myNick) cls += ' lb-me';
                 const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
                 const pts = (p.points || 0).toLocaleString('ru-RU');
-                html += `<div class="${cls}">
-                    <span class="lb-rank">${medal}</span>
-                    <span class="lb-name">${p.name}</span>
-                    <span class="lb-points">🧠 ${pts}</span>
-                </div>`;
+                html += `<div class="${cls}"><span class="lb-rank">${medal}</span><span class="lb-name">${p.name}</span><span class="lb-points">🧠 ${pts}</span></div>`;
             });
             list.innerHTML = html;
         }).catch((err) => {
@@ -332,13 +315,9 @@ window.addEventListener('load', () => {
             if (loading) loading.innerText = "❌ Ошибка загрузки";
         });
     }
-
     function openLeaderboard() {
         const nick = getNickname();
-        if (!nick) {
-            openNickModal();
-            return;
-        }
+        if (!nick) { openNickModal(); return; }
         document.getElementById('leaderboardModal')?.classList.add('show');
         document.getElementById('leaderboardNick').innerText = nick;
         loadLeaderboard();
@@ -885,7 +864,6 @@ window.addEventListener('load', () => {
     document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
     document.getElementById('testBtn')?.addEventListener('click', () => showToast("🧪 Тест кнопка работает!"));
 
-    // Кнопки лидерборда
     document.getElementById('leadersBtn')?.addEventListener('click', openLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal')?.classList.remove('show'));
     document.getElementById('sendScoreBtn')?.addEventListener('click', sendScoreToLeaderboard);
@@ -1046,14 +1024,14 @@ window.addEventListener('load', () => {
         }
         if (adminCurrentTab === 'visual') {
             body.innerHTML = `
-                <div class="admin-item"><span>Фон: Ранняя осень</span><button data-bg="early_autumn">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Золотая</span><button data-bg="golden">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Дождливая</span><button data-bg="rainy">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Поздняя</span><button data-bg="late">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Лес</span><button data-bg="forest">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Парк</span><button data-bg="park">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Горы</span><button data-bg="mountains">Вкл</button></div>
-                <div class="admin-item"><span>Фон: Деревня</span><button data-bg="village">Вкл</button></div>
+                <div class="admin-item" data-bg-row="true"><span>Фон: Ранняя осень</span><button data-bg="early_autumn">Вкл</button></div>
+                <div class="admin-item" data-bg-row="true"><span>Фон: Золотая</span><button data-bg="golden">Вкл</button></div>
+                <div class="admin-item" data-bg-row="true"><span>Фон: Дождливая</span><button data-bg="rainy">Вкл</button></div>
+                <div class="admin-item" data-bg-row="true"><span>Фон: Поздняя</span><button data-bg="late">Вкл</button></div>
+                <div class="admin-item" data-bg-row="true"><span>Фон: Лес</span><button data-bg="forest">Вкл</button></div>
+                <div class="admin-item" data-bg-row="true"><span>Фон: Парк</span><button data-bg="park">Вкл</button></div>
+                <div class="admin-item" data-bg-row="true"><span>Фон: Горы</span><button data-bg="mountains">Вкл</button></div>
+                <div class="admin-item" data-bg-row="true"><span>Фон: Деревня</span><button data-bg="village">Вкл</button></div>
                 <div class="admin-item"><span>Мозг: 🧠 обычный</span><button id="brainNormal">Вкл</button></div>
                 <div class="admin-item"><span>Мозг: 🎃 тыква</span><button id="brainPumpkin">Вкл</button></div>
                 <div class="admin-item"><span>Мозг: 👽 пришелец</span><button id="brainAlien">Вкл</button></div>
