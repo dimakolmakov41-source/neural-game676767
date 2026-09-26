@@ -85,122 +85,215 @@ body.bg-newyear .game-container {
     filter: drop-shadow(0 0 10px #ff0000);
 }
 
-.game-container {
-    width: 100%; max-width: 420px;
-    background: rgba(18, 28, 40, 0.85);
-    backdrop-filter: blur(12px);
-    border-radius: 48px;
-    border: 1px solid rgba(100, 180, 255, 0.3);
-    padding: 20px 16px; margin: 0 auto; color: white;
-    text-shadow: 0 0 5px black;
+/* ===== ХАКЕРСКИЙ РЕЖИМ (AI Pass 7) ===== */
+body.bg-hacker {
+    background: #000a00 !important;
+    background-image:
+        linear-gradient(rgba(0,255,65,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,65,0.06) 1px, transparent 1px) !important;
+    background-size: 24px 24px !important;
+    color: #00ff41;
+    text-shadow: 0 0 5px #00ff41, 0 0 10px rgba(0,255,65,0.5);
+    position: relative;
+    animation: hackerBgPulse 6s ease-in-out infinite;
 }
-
-.main-menu { text-align: center; }
-.main-menu.hidden, .game-interface.hidden { display: none; }
-
-.menu-btn, .action-btn {
-    background: linear-gradient(145deg, #2a4b6e, #1a3150);
-    border: 2px solid #7aa5d9;
-    color: white; padding: 12px; border-radius: 60px;
-    font-size: 14px; font-weight: 700; cursor: pointer;
-    text-align: center; flex: 1; min-width: 100px;
-    opacity: 0; transform: translateY(30px);
-    animation: btnFlyIn 0.4s forwards;
-    transition: 0.1s; text-shadow: 0 0 5px black;
+@keyframes hackerBgPulse {
+    0%, 100% { background-color: #000a00; }
+    50% { background-color: #001200; }
 }
-.menu-btn:hover, .action-btn:hover {
-    background: linear-gradient(145deg, #3a6b8e, #2a4160);
-    box-shadow: 0 0 10px #7aa5d9;
-    transform: scale(1.02);
+body.bg-hacker::before {
+    content: "";
+    position: fixed;
+    left: 0; right: 0; height: 100vh;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,255,65,0.08) 50%, transparent 100%);
+    pointer-events: none;
+    animation: hackerBgScan 6s linear infinite;
+    z-index: 1;
 }
-@keyframes btnFlyIn { to { opacity: 1; transform: translateY(0); } }
-.menu-buttons-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
-.game-title { color: #ffd966; font-size: 26px; font-weight: 800; text-shadow: 0 0 20px #ffaa00, 0 0 40px black; animation: glitch 3s infinite; }
-@keyframes glitch { 0%,100% { text-shadow: 0 0 20px #ffaa00, 0 0 40px black; } 50% { text-shadow: -2px 0 red, 2px 0 blue, 0 0 20px black; } }
-
-.game-version { color: #88aaff; font-size: 12px; margin-bottom: 15px; cursor: pointer; display: inline-block; text-shadow: 0 0 5px black; }
-.game-version:active { color: #ffaa00; }
-
-.stats-panel-extended {
-    background: rgba(0,0,0,0.6);
-    border-radius: 30px; padding: 10px; margin: 10px 0;
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+@keyframes hackerBgScan {
+    0% { transform: translateY(-100vh); }
+    100% { transform: translateY(100vh); }
 }
-.stat-card { background: #0a1b2e; border-radius: 20px; padding: 5px; text-align: center; }
-.stat-card-value { color: #ffd966; font-size: 16px; font-weight: 800; text-shadow: 0 0 5px black; }
-.stat-card-label { color: #aac8f0; font-size: 9px; text-shadow: 0 0 5px black; }
-
-.music-toggle {
-    position: fixed; bottom: 20px; right: 20px;
-    background: #1a3150; border-radius: 50%;
-    width: 45px; height: 45px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 100; font-size: 24px;
-    border: 2px solid #ffd966;
+body.bg-hacker::after {
+    content: "01001000 01000001 01000011 01001011 01000101 01010010 00100000 01001101 01001111 01000100 01000101";
+    position: fixed;
+    bottom: 4px;
+    left: 0; right: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: #00ff41;
+    opacity: 0.25;
+    letter-spacing: 2px;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: hackerBinFlicker 3s infinite;
+    z-index: 1;
 }
-
-.brain-container {
-    display: flex; flex-direction: column; align-items: center;
-    margin: 20px 0; position: relative;
+@keyframes hackerBinFlicker {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 0.08; }
 }
-.brain {
-    width: 170px; height: 170px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: 0.08s;
-    background: radial-gradient(circle at 30% 30%, #ffaa00, #ff5500);
-    box-shadow: 0 15px 0 #aa4400, 0 0 20px #ffaa00;
-    border: 3px solid #ffffaa; position: relative;
-    animation: brainFloat 2s ease-in-out infinite;
+body.bg-hacker .game-container {
+    background: rgba(0, 15, 0, 0.92);
+    border: 2px solid #00ff41;
+    box-shadow: 0 0 30px rgba(0,255,65,0.5), inset 0 0 30px rgba(0,255,65,0.08);
+    position: relative;
+    z-index: 2;
 }
-.brain.halloween-brain {
-    background: radial-gradient(circle at 30% 30%, #ff8800, #cc3300);
-    box-shadow: 0 15px 0 #661100, 0 0 30px #ff4400;
-    border-color: #ff8800;
+body.bg-hacker .top-bar,
+body.bg-hacker .diamond-bar {
+    background: rgba(0, 25, 0, 0.9);
+    border: 1px solid rgba(0,255,65,0.4);
+    color: #00ff41;
+    text-shadow: 0 0 6px #00ff41;
+    font-family: 'Courier New', monospace;
 }
-.brain:active { transform: scale(0.96); box-shadow: 0 8px 0 #aa4400; }
-@keyframes brainFloat { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
-.brain .skin-emoji { font-size: 70px; z-index: 2; }
-.brain .eyes { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 30px; pointer-events: none; }
-.eye { width: 22px; height: 22px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.pupil { width: 10px; height: 10px; background: black; border-radius: 50%; transition: transform 0.05s; }
-.combo-text {
-    position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
-    font-size: 18px; font-weight: 800; color: #ffdd44;
-    text-shadow: 0 0 10px #ff8800; opacity: 0; transition: opacity 0.2s;
+body.bg-hacker .stat-card {
+    background: linear-gradient(145deg, #001a00, #000a00);
+    border: 1px solid rgba(0,255,65,0.4);
+    box-shadow: inset 0 0 8px rgba(0,255,65,0.15);
 }
-.combo-text.show { opacity: 1; }
-
-.brain .sleep-msg {
-    position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.8); color: #ffaa00;
-    padding: 4px 12px; border-radius: 30px;
-    font-size: 14px; font-weight: bold; opacity: 0;
-    transition: opacity 0.3s; pointer-events: none;
-    white-space: nowrap; text-shadow: 0 0 5px black;
+body.bg-hacker .stat-card-value {
+    color: #00ff41;
+    text-shadow: 0 0 8px #00ff41;
+    font-family: 'Courier New', monospace;
 }
-.brain .sleep-msg.show { opacity: 1; }
-
-/* ===== КНОПКА БУСТА ===== */
-.boost-btn {
-    background: linear-gradient(145deg, #ffaa00, #cc6600);
-    border: 2px solid #ffdd66;
-    border-radius: 40px; color: white;
-    font-size: 15px; font-weight: 900;
-    text-align: center; padding: 12px; margin: 10px 0;
-    cursor: pointer; text-shadow: 0 0 5px black;
-    box-shadow: 0 0 15px rgba(255, 170, 0, 0.5);
-    transition: 0.15s;
+body.bg-hacker .stat-card-label {
+    color: #00aa22;
+    font-family: 'Courier New', monospace;
 }
-.boost-btn:active { transform: scale(0.97); }
-.boost-btn.active {
-    background: linear-gradient(145deg, #2e7d32, #1a5a20);
-    border-color: #66cc66;
-    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
-    animation: boostPulse 1s ease-in-out infinite;
+body.bg-hacker .stats-panel-extended {
+    background: rgba(0, 20, 0, 0.7);
+    border: 1px solid rgba(0,255,65,0.3);
 }
-@keyframes boostPulse {
-    0%,100% { box-shadow: 0 0 15px rgba(76,175,80,0.5); }
-    50% { box-shadow: 0 0 25px rgba(76,175,80,0.9); }
+body.bg-hacker .game-title,
+body.bg-hacker #gameTitle {
+    color: #00ff41;
+    text-shadow: 0 0 10px #00ff41, 0 0 25px #00ff41, 0 0 40px #00aa22;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 3px;
+    animation: hackerTitleGlitch 4s infinite;
+}
+@keyframes hackerTitleGlitch {
+    0%, 90%, 100% {
+        transform: translate(0, 0);
+        text-shadow: 0 0 10px #00ff41, 0 0 25px #00ff41, 0 0 40px #00aa22;
+    }
+    92% {
+        transform: translate(-2px, 1px);
+        text-shadow: -3px 0 #ff0040, 3px 0 #00ffff, 0 0 10px #00ff41;
+    }
+    94% {
+        transform: translate(2px, -1px);
+        text-shadow: 3px 0 #ff0040, -3px 0 #00ffff, 0 0 10px #00ff41;
+    }
+    96% {
+        transform: translate(-1px, 2px);
+        text-shadow: -2px 0 #ff0040, 2px 0 #00ffff, 0 0 10px #00ff41;
+    }
+}
+body.bg-hacker .game-version {
+    color: #00aa22;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 5px #00ff41;
+}
+body.bg-hacker .menu-btn,
+body.bg-hacker .action-btn {
+    background: linear-gradient(145deg, #003300, #001a00);
+    border: 2px solid #00ff41;
+    color: #00ff41;
+    box-shadow: 0 0 12px rgba(0,255,65,0.5), inset 0 0 8px rgba(0,255,65,0.15);
+    text-shadow: 0 0 6px #00ff41;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+body.bg-hacker .menu-btn:hover,
+body.bg-hacker .action-btn:hover {
+    background: linear-gradient(145deg, #005500, #003300);
+    box-shadow: 0 0 22px rgba(0,255,65,0.9);
+    transform: scale(1.03);
+}
+body.bg-hacker .timers {
+    background: rgba(0, 20, 0, 0.85);
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    text-shadow: 0 0 6px #00ff41;
+    font-family: 'Courier New', monospace;
+    box-shadow: inset 0 0 8px rgba(0,255,65,0.2);
+}
+body.bg-hacker .brain {
+    background: radial-gradient(circle at 30% 30%, #00cc33, #003300);
+    box-shadow: 0 15px 0 #001a00, 0 0 35px #00ff41, 0 0 60px rgba(0,255,65,0.5);
+    border: 3px solid #00ff41;
+}
+body.bg-hacker .brain .skin-emoji {
+    filter: hue-rotate(80deg) brightness(1.1) drop-shadow(0 0 10px #00ff41);
+}
+body.bg-hacker .eye {
+    background: #00ff41;
+    box-shadow: 0 0 8px #00ff41;
+}
+body.bg-hacker .pupil {
+    background: #000000;
+}
+body.bg-hacker .brain .sleep-msg {
+    background: rgba(0, 20, 0, 0.95);
+    color: #00ff41;
+    border: 1px solid #00ff41;
+    text-shadow: 0 0 5px #00ff41;
+    font-family: 'Courier New', monospace;
+}
+body.bg-hacker .click-hint {
+    color: #00ff41;
+    text-shadow: 0 0 10px #00ff41, 0 0 20px #00aa22;
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+}
+body.bg-hacker .combo-text {
+    color: #00ff41;
+    text-shadow: 0 0 10px #00ff41, 0 0 20px #00aa22;
+    font-family: 'Courier New', monospace;
+}
+body.bg-hacker .save-badge {
+    color: #00ff41;
+    text-shadow: 0 0 5px #00ff41;
+    font-family: 'Courier New', monospace;
+}
+body.bg-hacker .boost-btn {
+    background: linear-gradient(145deg, #003300, #001a00);
+    border: 2px solid #00ff41;
+    color: #00ff41;
+    box-shadow: 0 0 15px rgba(0,255,65,0.6), inset 0 0 10px rgba(0,255,65,0.2);
+    text-shadow: 0 0 6px #00ff41;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+body.bg-hacker .boost-btn.active {
+    background: linear-gradient(145deg, #00aa22, #006600);
+    border-color: #00ff41;
+    color: #000000;
+    text-shadow: none;
+    box-shadow: 0 0 25px rgba(0,255,65,0.9), inset 0 0 15px rgba(255,255,255,0.3);
+    animation: hackerBoostPulse 0.8s ease-in-out infinite;
+}
+@keyframes hackerBoostPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(0,255,65,0.7); }
+    50% { box-shadow: 0 0 35px rgba(0,255,65,1); }
+}
+body.bg-hacker .music-toggle {
+    background: #001a00;
+    border: 2px solid #00ff41;
+    box-shadow: 0 0 12px rgba(0,255,65,0.6);
+}
+body.bg-hacker .toast {
+    background: linear-gradient(145deg, #00aa22, #005500);
+    color: #000000;
+    border: 1px solid #00ff41;
+    box-shadow: 0 0 15px rgba(0,255,65,0.7);
+    font-family: 'Courier New', monospace;
+    text-shadow: none;
 }
 
 /* ========== ОКОШКО УДАЛЕНИЯ АЛМАЗОВ ========== */
@@ -665,6 +758,31 @@ body.bg-newyear .game-container {
 .pagination { display: flex; justify-content: center; gap: 15px; margin: 10px 0; }
 .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; text-shadow: 0 0 5px black; }
 .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
+body.bg-hacker .shop-item {
+    background: linear-gradient(145deg, #001a00, #000a00);
+    border: 1px solid rgba(0,255,65,0.4);
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+}
+body.bg-hacker .shop-item:hover {
+    background: linear-gradient(145deg, #003300, #001a00);
+    box-shadow: 0 0 10px rgba(0,255,65,0.5);
+}
+body.bg-hacker .page-btn {
+    background: #003300;
+    color: #00ff41;
+    border: 1px solid #00ff41;
+    box-shadow: 0 0 8px rgba(0,255,65,0.5);
+}
+body.bg-hacker .shop-tab.active {
+    background: #00aa22;
+    color: #000000;
+}
+body.bg-hacker .shop-tab {
+    background: #001a00;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+}
 
 .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
