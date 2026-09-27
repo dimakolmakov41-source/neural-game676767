@@ -231,6 +231,77 @@ window.addEventListener('load', () => {
         } else showToast("❌ Не хватает очков");
     }
 
+    // ===== ЗВЁЗДНЫЙ ОБМЕН =====
+    const EXCHANGES = [
+        { id: 'ex1', type: 'starsToPoints', cost: 100, reward: 1000000, label: '100⭐ = 1000000🧠' },
+        { id: 'ex2', type: 'starsToPoints', cost: 90, reward: 100000, label: '90⭐ = 100000🧠' },
+        { id: 'ex3', type: 'starsToPoints', cost: 50, reward: 10000, label: '50⭐ = 10000🧠' },
+        { id: 'ex4', type: 'pointsToStars', cost: 1000000, reward: 100, label: '1000000🧠 = 100⭐' },
+        { id: 'soon', type: 'soon', label: 'скоро', disabled: true }
+    ];
+
+    function renderShopStars() {
+        const container = document.getElementById('shopStars');
+        if (!container) return;
+        let html = '';
+        EXCHANGES.forEach(ex => {
+            const cls = ex.disabled ? 'exchange-item disabled' : 'exchange-item';
+            html += `<div class="${cls}" data-ex="${ex.id}">${ex.label}</div>`;
+        });
+        container.innerHTML = html;
+        document.querySelectorAll('#shopStars .exchange-item').forEach(el => {
+            const ex = EXCHANGES.find(e => e.id === el.dataset.ex);
+            if (ex && !ex.disabled) {
+                el.addEventListener('click', () => doExchange(ex));
+            } else if (ex && ex.disabled) {
+                el.addEventListener('click', () => showToast("⏳ Скоро появится!"));
+            }
+        });
+    }
+
+    function doExchange(ex) {
+        if (isBanned) return;
+        if (ex.type === 'starsToPoints') {
+            if (stars < ex.cost) { showToast(`❌ Нужно ${ex.cost}⭐`); return; }
+            stars -= ex.cost;
+            points += ex.reward;
+            updateUI(); saveGame();
+            showToast(`✅ Обмен: -${ex.cost}⭐ → +${ex.reward}🧠`);
+            playBuySound();
+        } else if (ex.type === 'pointsToStars') {
+            if (points < ex.cost) { showToast(`❌ Нужно ${ex.cost}🧠`); return; }
+            points -= ex.cost;
+            stars += ex.reward;
+            totalStarsEarned += ex.reward;
+            updateUI(); saveGame();
+            showToast(`✅ Обмен: -${ex.cost}🧠 → +${ex.reward}⭐`);
+            playBuySound();
+        }
+    }
+
+    function switchShopTab(tab) {
+        const tabNeurons = document.querySelector('.shop-tab[data-tab="neurons"]');
+        const tabStars = document.querySelector('.shop-tab[data-tab="stars"]');
+        const listNeurons = document.getElementById('shopNeurons');
+        const listStars = document.getElementById('shopStars');
+        const buyAllBtn = document.getElementById('buyAllBtn');
+        if (tab === 'stars') {
+            if (tabNeurons) tabNeurons.classList.remove('active');
+            if (tabStars) tabStars.classList.add('active');
+            if (listNeurons) listNeurons.style.display = 'none';
+            if (listStars) listStars.style.display = 'block';
+            if (buyAllBtn) buyAllBtn.style.display = 'none';
+            renderShopStars();
+        } else {
+            if (tabStars) tabStars.classList.remove('active');
+            if (tabNeurons) tabNeurons.classList.add('active');
+            if (listStars) listStars.style.display = 'none';
+            if (listNeurons) listNeurons.style.display = 'block';
+            if (buyAllBtn) buyAllBtn.style.display = '';
+            renderShopNeurons();
+        }
+    }
+
     function isBoostActive() { return Date.now() < boostEndTime; }
     function getBoostRemaining() { return Math.max(0, boostEndTime - Date.now()); }
     function updateBoostUI() {
@@ -324,31 +395,25 @@ window.addEventListener('load', () => {
         if (season === '8') {
             for (let i = 1; i <= 40; i++) {
                 passTasks.push({
-                    level: i,
-                    targetClicks: i * 500,
-                    rewardPoints: 2000,
-                    rewardStars: 5,
-                    completed: false,
-                    claimed: false
+                    level: i, targetClicks: i * 500,
+                    rewardPoints: 2000, rewardStars: 5,
+                    completed: false, claimed: false
                 });
             }
         } else if (season === '7') {
             for (let i = 1; i <= 30; i++) {
-                let targetClicks, rewardPoints, rewardStars;
-                if (i <= 10) { targetClicks = i * 500; rewardPoints = i * 700; rewardStars = i * 7; }
-                else if (i <= 20) { targetClicks = i * 600; rewardPoints = i * 1000; rewardStars = i * 10; }
-                else { targetClicks = i * 800; rewardPoints = i * 1500; rewardStars = i * 15; }
-                passTasks.push({ level: i, targetClicks, rewardPoints, rewardStars, completed: false, claimed: false });
+                let tc, rp, rs;
+                if (i <= 10) { tc = i * 500; rp = i * 700; rs = i * 7; }
+                else if (i <= 20) { tc = i * 600; rp = i * 1000; rs = i * 10; }
+                else { tc = i * 800; rp = i * 1500; rs = i * 15; }
+                passTasks.push({ level: i, targetClicks: tc, rewardPoints: rp, rewardStars: rs, completed: false, claimed: false });
             }
         } else {
             for (let i = 1; i <= 20; i++) {
                 passTasks.push({
-                    level: i,
-                    targetClicks: i * 500,
-                    rewardPoints: i * 500,
-                    rewardStars: i * 5,
-                    completed: false,
-                    claimed: false
+                    level: i, targetClicks: i * 500,
+                    rewardPoints: i * 500, rewardStars: i * 5,
+                    completed: false, claimed: false
                 });
             }
         }
@@ -361,9 +426,7 @@ window.addEventListener('load', () => {
         else if (now >= pass7StartDate) activeSeason = '7';
         else if (now >= pass6StartDate) activeSeason = '6';
         else activeSeason = '0';
-
         fillPassTasks(activeSeason);
-
         if (savedSeason !== activeSeason) {
             passCurrentTask = 0;
             passRewardSeconds = getPassRewardSeconds();
@@ -803,7 +866,10 @@ window.addEventListener('load', () => {
         document.getElementById('mainMenu').classList.remove('hidden');
         document.getElementById('gameInterface').classList.add('hidden');
     });
-    document.getElementById('openShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.add('show'));
+    document.getElementById('openShopBtn')?.addEventListener('click', () => {
+        document.getElementById('shopPanel').classList.add('show');
+        switchShopTab('neurons');
+    });
     document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
     document.getElementById('boostBtn')?.addEventListener('click', buyBoost);
@@ -814,6 +880,11 @@ window.addEventListener('load', () => {
     });
     document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
     document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
+
+    // ===== Обработчики вкладок магазина =====
+    document.querySelectorAll('.shop-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchShopTab(tab.dataset.tab));
+    });
 
     document.getElementById('openTasksBtn')?.addEventListener('click', () => {
         renderTasksList();
