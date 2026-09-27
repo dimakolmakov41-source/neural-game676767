@@ -848,6 +848,66 @@ body.bg-hacker .shop-tab {
 .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; text-shadow: 0 0 5px black; }
 .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
 
+/* ===== ВКЛАДКИ МАГАЗИНА (НЕЙРОСЕТИ / ЗВЁЗДЫ) ===== */
+.shop-tabs-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.shop-tabs-row .shop-tab {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 10px 8px;
+    letter-spacing: 1px;
+}
+
+/* ===== ЗВЁЗДНЫЙ ОБМЕН ===== */
+.exchange-item {
+    background: linear-gradient(145deg, #1a3150, #0a1b2e);
+    border-radius: 40px;
+    padding: 18px 20px;
+    margin: 8px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+    text-shadow: 0 0 6px black;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: 0.15s;
+    text-align: center;
+}
+.exchange-item:active { transform: scale(0.97); }
+.exchange-item:hover {
+    background: linear-gradient(145deg, #2a4160, #1a3150);
+    box-shadow: 0 0 15px rgba(100, 180, 255, 0.4);
+}
+.exchange-item.disabled {
+    background: linear-gradient(145deg, #1a1a2e, #0a0a1e);
+    color: #666688;
+    cursor: not-allowed;
+    opacity: 0.7;
+    font-style: italic;
+}
+.exchange-item.disabled:hover {
+    background: linear-gradient(145deg, #1a1a2e, #0a0a1e);
+    box-shadow: none;
+    transform: none;
+}
+body.bg-hacker .exchange-item {
+    background: linear-gradient(145deg, #001a00, #000a00);
+    border: 1px solid rgba(0,255,65,0.4);
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+}
+body.bg-hacker .exchange-item.disabled {
+    color: #00aa22;
+    opacity: 0.5;
+}
+
 .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.95);
