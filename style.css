@@ -446,7 +446,6 @@ body.bg-hacker .shop-tab {
     50% { box-shadow: 0 0 25px rgba(76,175,80,0.9); }
 }
 
-/* ===== РУЛЕТКА ===== */
 .roulette-btn {
     background: linear-gradient(145deg, #8c5cd4, #5a3b8e);
     border: 2px solid #c8a0ff;
@@ -570,7 +569,6 @@ body.bg-hacker .roulette-btn {
     font-size: 14px;
 }
 
-/* ===== ФАКТ ДНЯ ===== */
 .fact-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.9);
@@ -620,7 +618,6 @@ body.bg-hacker .roulette-btn {
 }
 .fact-btn:active { transform: scale(0.97); }
 
-/* ===== КНОПКИ ЦВЕТА ===== */
 .color-btn {
     width: 44px;
     height: 44px;
@@ -645,7 +642,6 @@ body.bg-hacker .roulette-btn {
 .color-purple { background: linear-gradient(145deg, #8c5cd4, #5a3b8e); }
 .color-gold { background: linear-gradient(145deg, #ffd966, #cc8800); }
 
-/* ===== ТЕМЫ КНОПОК ===== */
 body.btn-green .menu-btn,
 body.btn-green .action-btn,
 body.btn-green .boost-btn,
