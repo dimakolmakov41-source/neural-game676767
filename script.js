@@ -1,6 +1,34 @@
 // ===== ВЕРСИЯ =====
 const GAME_VERSION = "12.1";
 
+// ===== SUPABASE =====
+const SUPABASE_URL = 'https://pqtfssgndjzyuolftvlh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_dblP1YXyx4mVb2l8YBOuAg_fl8Jc8QL';
+let supabaseClient = null;
+let passData = [];
+
+try {
+    if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+} catch(e) { console.log('Supabase init error:', e); }
+
+async function loadPassData() {
+    if (!supabaseClient) {
+        console.log('Supabase не подключён');
+        return;
+    }
+    try {
+        const { data, error } = await supabaseClient.from('ai_pass').select('*').order('season');
+        if (error) { console.log('Supabase error:', error); return; }
+        if (data) passData = data;
+        console.log('AI Pass data loaded:', passData);
+        applyPassStyle();
+        renderPassBadges();
+        updatePassEndTimer();
+    } catch(e) { console.log('loadPassData error:', e); }
+}
+
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
     ru: {
@@ -27,7 +55,6 @@ const TRANSLATIONS = {
         combo: "🔥 x2 КОМБО!",
         boost: "⚡ БУСТ X5 — 20⭐",
         boost_active: "⚡ X5 АКТИВЕН —",
-        roulette: "🎰 РУЛЕТКА — 5⭐",
         open_tasks: "📋 ОТКРЫТЬ ЗАДАНИЯ",
         shop_neurons: "🧠 НЕЙРОСЕТИ",
         shop_stars: "⭐ ЗВЁЗДЫ",
@@ -36,9 +63,7 @@ const TRANSLATIONS = {
         back_menu: "◀ МЕНЮ",
         shop: "🛒 МАГАЗИН",
         autosave: "💾 автосохранение",
-        yes: "Да",
-        no: "Нет",
-        ok: "ПОНЯЛ",
+        yes: "Да", no: "Нет", ok: "ПОНЯЛ",
         robot1: ": Привет я робот !<br>Я вижу ты тут впервые ?",
         robot2: ": Нажми на мозг !",
         tutorial_text: "Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)",
@@ -46,63 +71,39 @@ const TRANSLATIONS = {
         conv2: "Алмазы полностью удалены",
         settings_title: "⚙️ НАСТРОЙКИ",
         bg_choose: "🌄 Выбор фона",
-        bg_early: "Ранняя осень",
-        bg_golden: "Золотая",
-        bg_rainy: "Дождливая",
-        bg_late: "Поздняя",
-        bg_forest: "Лес",
-        bg_park: "Парк",
-        bg_mountains: "Горы",
-        bg_village: "Деревня",
+        bg_early: "Ранняя осень", bg_golden: "Золотая", bg_rainy: "Дождливая", bg_late: "Поздняя",
+        bg_forest: "Лес", bg_park: "Парк", bg_mountains: "Горы", bg_village: "Деревня",
         btn_color: "🎨 Цвет кнопок",
         save_progress: "💾 Сохранить прогресс",
         download_json: "Скачать JSON",
         load_progress: "📂 Загрузить прогресс",
         choose_file: "Выбрать файл",
-        promo: "🎫 Промокоды",
-        open: "Открыть",
-        sound: "🔊 Звук клика",
-        sound_toggle: "Сменить",
-        fullscreen: "⛶ Полный экран",
-        on: "Включить",
-        off: "Выключить",
+        promo: "🎫 Промокоды", open: "Открыть",
+        sound: "🔊 Звук клика", sound_toggle: "Сменить",
+        fullscreen: "⛶ Полный экран", on: "Включить", off: "Выключить",
         language: "🌐 Язык / Language",
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
-        promo_title: "🎫 ПРОМОКОД",
-        activate: "АКТИВИРОВАТЬ",
+        promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.1: Рулетка 🎰, ежедневный факт 🧠, смена цвета кнопок 🎨, кнопки «В начало/Конец» в магазине.",
+        news_text: "v12.1: Синхронизация AI Pass через Supabase 🌐 — таймер одинаковый у всех!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
-        pass_tasks: "заданий",
-        level: "Уровень",
-        clicks_done: "кликов",
-        done: "✅ ВЫПОЛНЕНО",
-        claim: "ЗАБРАТЬ",
+        level: "Уровень", clicks_done: "кликов",
+        done: "✅ ВЫПОЛНЕНО", claim: "ЗАБРАТЬ",
         lock_first: "🔒 Сначала пройди уровень",
         until_end: "До конца AI Pass",
-        days: "дн.",
-        hours: "ч.",
-        minutes: "мин.",
+        days: "дн.", hours: "ч.", minutes: "мин.",
         pass_finished: "ЗАВЕРШЁН!",
         soon: "скоро",
-        need_stars: "Нужно",
-        need_points: "Нужно",
-        exchange_ok: "Обмен выполнен!",
-        bought: "куплена!",
-        not_enough: "❌ Не хватает очков",
+        need_stars: "Нужно", need_points: "Нужно",
+        bought: "куплена!", not_enough: "❌ Не хватает очков",
         boost_already: "⚡ Буст уже активен",
         boost_activated: "⚡ БУСТ X5 АКТИВЕН (5 минут)!",
         boost_ended: "⏳ Буст закончился",
-        promo_ok: "✅ Промокод активирован!",
-        promo_bad: "❌ Неверный код",
-        star_got: "⭐ ЗВЁЗДЫ! +3",
-        candy_got: "🍬 КОНФЕТЫ! +3",
-        snowflake_got: "❄️ СНЕЖИНКИ! +3",
-        diamond_got: "💎 АЛМАЗ!",
+        promo_ok: "✅ Промокод активирован!", promo_bad: "❌ Неверный код",
+        star_got: "⭐ ЗВЁЗДЫ! +3", candy_got: "🍬 КОНФЕТЫ! +3", snowflake_got: "❄️ СНЕЖИНКИ! +3",
         triple_click: "⚡ ТРОЙНОЙ КЛИК! x3!",
-        banned: "🌚 Ты забанен на",
-        banned_min: "минут",
+        banned: "🌚 Ты забанен на", banned_min: "минут",
         ban_lifted: "✅ Бан снят. Не повторяй.",
         copied: "✅ Прогресс скопирован!",
         saved: "💾 Прогресс сохранён!",
@@ -112,26 +113,18 @@ const TRANSLATIONS = {
         bought_count: "Куплено сетей",
         all_neurons: "Все нейросети куплены!",
         all_passes: "Все AI Pass открыты!",
-        god_on: "БОГ ВКЛ",
-        god_off: "БОГ ВЫКЛ",
-        points_given: "+1000 очков",
-        stars_given: "+100 звёзд",
+        god_on: "БОГ ВКЛ", god_off: "БОГ ВЫКЛ",
+        points_given: "+1000 очков", stars_given: "+100 звёзд",
         soon_feature: "⏳ Скоро появится!",
-        change: "Сменить",
-        task_claimed: "Уровень",
-        task_received: "получен!",
+        task_claimed: "Уровень", task_received: "получен!",
         pass_reward: "Награда AI Pass",
         fact_title: "ФАКТ ДНЯ",
-        roulette_title: "🎰 РУЛЕТКА 🎰",
-        roulette_cost: "5⭐ за вращение",
-        roulette_spin: "🎲 КРУТИТЬ",
-        roulette_spinning: "🎲 КРУТИТСЯ...",
         roulette_no_stars: "❌ Нужно 5⭐",
         roulette_win: "🎉 ВЫИГРЫШ",
-        first_page: "⏮ НАЧАЛО",
-        last_page: "КОНЕЦ ⏭",
-        prev_page: "⬅️ НАЗАД",
-        next_page: "ВПЕРЁД ➡️"
+        roulette_spinning: "🎲 КРУТИТСЯ...",
+        roulette_spin: "🎲 КРУТИТЬ",
+        first_page: "⏮ НАЧАЛО", last_page: "КОНЕЦ ⏭",
+        prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️"
     },
     en: {
         loading: "LOADING...",
@@ -139,129 +132,67 @@ const TRANSLATIONS = {
         halloween_title: "🎃 CLICKER: HALLOWEEN NEURAL",
         newyear_title: "🎄 CLICKER: NEW YEAR EVOLUTION",
         hacker_title: "> CLICKER: NEURAL EVOLUTION _",
-        play: "🎮 PLAY",
-        settings: "⚙️ SETTINGS",
-        news: "📢 NEWS",
-        share: "📤 SHARE",
+        play: "🎮 PLAY", settings: "⚙️ SETTINGS", news: "📢 NEWS", share: "📤 SHARE",
         min: "min",
-        stat_total_clicks: "Total clicks",
-        stat_neurons: "Neurons",
-        stat_session: "Session",
-        reload: "🔄 RELOAD:",
-        halloween_reload: "⏳ TO HALLOWEEN:",
-        newyear_reload: "🎄 NEW YEAR:",
-        hacker_reload: "> RELOAD:",
-        sleep: "😴 Sleeping?",
-        halloween_sleep: "🎃 Scared?",
-        newyear_sleep: "❄️ Happy New Year!",
-        combo: "🔥 x2 COMBO!",
-        boost: "⚡ BOOST X5 — 20⭐",
-        boost_active: "⚡ X5 ACTIVE —",
-        roulette: "🎰 ROULETTE — 5⭐",
+        stat_total_clicks: "Total clicks", stat_neurons: "Neurons", stat_session: "Session",
+        reload: "🔄 RELOAD:", halloween_reload: "⏳ TO HALLOWEEN:", newyear_reload: "🎄 NEW YEAR:", hacker_reload: "> RELOAD:",
+        sleep: "😴 Sleeping?", halloween_sleep: "🎃 Scared?", newyear_sleep: "❄️ Happy New Year!",
+        combo: "🔥 x2 COMBO!", boost: "⚡ BOOST X5 — 20⭐", boost_active: "⚡ X5 ACTIVE —",
         open_tasks: "📋 OPEN TASKS",
-        shop_neurons: "🧠 NEURONS",
-        shop_stars: "⭐ STARS",
-        buy_all: "💰 BUY ALL AVAILABLE",
-        close: "CLOSE",
-        back_menu: "◀ MENU",
-        shop: "🛒 SHOP",
-        autosave: "💾 autosave",
-        yes: "Yes",
-        no: "No",
-        ok: "GOT IT",
+        shop_neurons: "🧠 NEURONS", shop_stars: "⭐ STARS",
+        buy_all: "💰 BUY ALL AVAILABLE", close: "CLOSE",
+        back_menu: "◀ MENU", shop: "🛒 SHOP", autosave: "💾 autosave",
+        yes: "Yes", no: "No", ok: "GOT IT",
         robot1: ": Hi I'm a robot !<br>I see you're new here?",
         robot2: ": Tap the brain!",
         tutorial_text: "Then scroll down and tap<br>shop, then buy any<br>neuron (tap it)",
-        conv1: "Your diamonds converted to stars",
-        conv2: "Diamonds fully removed",
+        conv1: "Your diamonds converted to stars", conv2: "Diamonds fully removed",
         settings_title: "⚙️ SETTINGS",
         bg_choose: "🌄 Background",
-        bg_early: "Early autumn",
-        bg_golden: "Golden",
-        bg_rainy: "Rainy",
-        bg_late: "Late autumn",
-        bg_forest: "Forest",
-        bg_park: "Park",
-        bg_mountains: "Mountains",
-        bg_village: "Village",
+        bg_early: "Early autumn", bg_golden: "Golden", bg_rainy: "Rainy", bg_late: "Late autumn",
+        bg_forest: "Forest", bg_park: "Park", bg_mountains: "Mountains", bg_village: "Village",
         btn_color: "🎨 Button color",
-        save_progress: "💾 Save progress",
-        download_json: "Download JSON",
-        load_progress: "📂 Load progress",
-        choose_file: "Choose file",
-        promo: "🎫 Promo codes",
-        open: "Open",
-        sound: "🔊 Click sound",
-        sound_toggle: "Change",
-        fullscreen: "⛶ Fullscreen",
-        on: "Enable",
-        off: "Disable",
-        language: "🌐 Language / Язык",
-        reset_all: "⚠️ RESET ALL",
-        promo_title: "🎫 PROMO CODE",
-        activate: "ACTIVATE",
+        save_progress: "💾 Save progress", download_json: "Download JSON",
+        load_progress: "📂 Load progress", choose_file: "Choose file",
+        promo: "🎫 Promo codes", open: "Open",
+        sound: "🔊 Click sound", sound_toggle: "Change",
+        fullscreen: "⛶ Fullscreen", on: "Enable", off: "Disable",
+        language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
+        promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.1: Roulette 🎰, daily fact 🧠, button color change 🎨, 'First/Last page' buttons in shop.",
+        news_text: "v12.1: AI Pass sync via Supabase 🌐 — same timer for everyone!",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
-        pass_tasks: "tasks",
-        level: "Level",
-        clicks_done: "clicks",
-        done: "✅ DONE",
-        claim: "CLAIM",
+        level: "Level", clicks_done: "clicks",
+        done: "✅ DONE", claim: "CLAIM",
         lock_first: "🔒 Complete level first",
         until_end: "Until AI Pass",
-        days: "d",
-        hours: "h",
-        minutes: "m",
-        pass_finished: "FINISHED!",
-        soon: "soon",
-        need_stars: "Need",
-        need_points: "Need",
-        exchange_ok: "Exchange done!",
-        bought: "bought!",
-        not_enough: "❌ Not enough points",
+        days: "d", hours: "h", minutes: "m",
+        pass_finished: "FINISHED!", soon: "soon",
+        need_stars: "Need", need_points: "Need",
+        bought: "bought!", not_enough: "❌ Not enough points",
         boost_already: "⚡ Boost already active",
         boost_activated: "⚡ BOOST X5 ACTIVE (5 min)!",
         boost_ended: "⏳ Boost ended",
-        promo_ok: "✅ Promo activated!",
-        promo_bad: "❌ Invalid code",
-        star_got: "⭐ STARS! +3",
-        candy_got: "🍬 CANDY! +3",
-        snowflake_got: "❄️ SNOWFLAKES! +3",
-        diamond_got: "💎 DIAMOND!",
+        promo_ok: "✅ Promo activated!", promo_bad: "❌ Invalid code",
+        star_got: "⭐ STARS! +3", candy_got: "🍬 CANDY! +3", snowflake_got: "❄️ SNOWFLAKES! +3",
         triple_click: "⚡ TRIPLE CLICK! x3!",
-        banned: "🌚 You are banned for",
-        banned_min: "min",
+        banned: "🌚 You are banned for", banned_min: "min",
         ban_lifted: "✅ Ban lifted. Don't repeat.",
-        copied: "✅ Progress copied!",
-        saved: "💾 Progress saved!",
-        loaded: "📂 Loaded! Reloading...",
-        load_error: "❌ Load error",
+        copied: "✅ Progress copied!", saved: "💾 Progress saved!",
+        loaded: "📂 Loaded! Reloading...", load_error: "❌ Load error",
         reload_toast: "Reloading...",
         bought_count: "Bought neurons",
-        all_neurons: "All neurons bought!",
-        all_passes: "All AI Passes opened!",
-        god_on: "GOD ON",
-        god_off: "GOD OFF",
-        points_given: "+1000 points",
-        stars_given: "+100 stars",
+        all_neurons: "All neurons bought!", all_passes: "All AI Passes opened!",
+        god_on: "GOD ON", god_off: "GOD OFF",
+        points_given: "+1000 points", stars_given: "+100 stars",
         soon_feature: "⏳ Coming soon!",
-        change: "Change",
-        task_claimed: "Level",
-        task_received: "received!",
-        pass_reward: "AI Pass reward",
-        fact_title: "FACT OF THE DAY",
-        roulette_title: "🎰 ROULETTE 🎰",
-        roulette_cost: "5⭐ per spin",
-        roulette_spin: "🎲 SPIN",
-        roulette_spinning: "🎲 SPINNING...",
-        roulette_no_stars: "❌ Need 5⭐",
-        roulette_win: "🎉 YOU WON",
-        first_page: "⏮ FIRST",
-        last_page: "LAST ⏭",
-        prev_page: "⬅️ BACK",
-        next_page: "NEXT ➡️"
+        task_claimed: "Level", task_received: "received!",
+        pass_reward: "AI Pass reward", fact_title: "FACT OF THE DAY",
+        roulette_no_stars: "❌ Need 5⭐", roulette_win: "🎉 YOU WON",
+        roulette_spinning: "🎲 SPINNING...", roulette_spin: "🎲 SPIN",
+        first_page: "⏮ FIRST", last_page: "LAST ⏭",
+        prev_page: "⬅️ BACK", next_page: "NEXT ➡️"
     }
 };
 
@@ -305,7 +236,7 @@ function setLanguage(lang) {
     }
 }
 
-// ===== ЕЖЕДНЕВНЫЕ ФАКТЫ =====
+// ===== ФАКТЫ =====
 const FACTS = {
     ru: [
         "Первый перцептрон создан в 1958 году Фрэнком Розенблаттом.",
@@ -426,10 +357,8 @@ function isNewYear() {
     return (m === 11 && d === 31) || (m === 0 && d === 1);
 }
 function isHackerMode() {
-    const now = new Date();
-    const start = new Date(2026, 8, 29, 0, 0, 0);
-    const end = new Date(2026, 9, 8, 23, 59, 59);
-    return now >= start && now <= end;
+    const season = getActivePassNumber();
+    return season === 7;
 }
 
 function applyTheme() {
@@ -731,12 +660,11 @@ window.addEventListener('load', () => {
         }
     }
 
-    // ===== РУЛЕТКА =====
     const ROULETTE_PRIZES = [
         { emoji: '💰', type: 'points', min: 50000, max: 500000 },
         { emoji: '⭐', type: 'stars', min: 10, max: 50 },
         { emoji: '🧠', type: 'points', min: 100000, max: 1000000 },
-        { emoji: '💎', type: 'stars', min: 5, max: 20 },
+        { emoji: '🌟', type: 'stars', min: 5, max: 20 },
         { emoji: '⚡', type: 'boost', duration: 10 * 60 * 1000 },
         { emoji: '🎁', type: 'points', min: 10000, max: 100000 },
         { emoji: '💥', type: 'points', min: 500000, max: 2000000 },
@@ -845,22 +773,27 @@ window.addEventListener('load', () => {
         showToast(t('boost_activated')); playBuySound();
     }
 
+    // ===== AI PASS (из Supabase) =====
     let passTasks = [], passCurrentTask = 0;
-    const pass6StartDate = new Date(2026, 8, 21, 0, 0, 0);
-    const pass6EndDate = new Date(2026, 8, 29, 0, 0, 0);
-    const pass7StartDate = new Date(2026, 8, 29, 0, 0, 0);
-    const pass7EndDate = new Date(2026, 9, 8, 0, 0, 0);
-    const pass8StartDate = new Date(2026, 9, 8, 0, 0, 0);
-    const pass8EndDate = new Date(2026, 9, 31, 23, 59, 59);
-    let passEndTimerInterval = null, passRewardSeconds = 1500, passRewardInterval = null;
+    let passEndTimerInterval = null, passRewardSeconds = 600, passRewardInterval = null;
 
     function getActivePassNumber() {
-        const now = new Date();
-        if (now >= pass8StartDate) return 8;
-        if (now >= pass7StartDate) return 7;
-        if (now >= pass6StartDate) return 6;
+        if (!passData || passData.length === 0) return 0;
+        const now = Date.now();
+        for (const p of passData) {
+            const start = new Date(p.start_time).getTime();
+            const end = new Date(p.end_time).getTime();
+            if (now >= start && now <= end) return p.season;
+        }
         return 0;
     }
+
+    function getPassEndTime(season) {
+        if (!passData) return 0;
+        const p = passData.find(x => x.season === season);
+        return p ? new Date(p.end_time).getTime() : 0;
+    }
+
     function getPassRewardSeconds() {
         const num = getActivePassNumber();
         if (num === 8) return 1500;
@@ -872,6 +805,7 @@ window.addEventListener('load', () => {
         if (num === 7) return { points: 1500, stars: 15 };
         return { points: 500, stars: 5 };
     }
+
     function applyPassStyle() {
         const container = document.getElementById('passContainer');
         const title = document.getElementById('passTitle');
@@ -896,13 +830,14 @@ window.addEventListener('load', () => {
             if (tasksTitle) tasksTitle.innerHTML = t('pass_no_active');
         }
     }
+
     function fillPassTasks(season) {
         passTasks = [];
-        if (season === '8') {
+        if (season === 8) {
             for (let i = 1; i <= 40; i++) {
                 passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: 2000, rewardStars: 5, completed: false, claimed: false });
             }
-        } else if (season === '7') {
+        } else if (season === 7) {
             for (let i = 1; i <= 30; i++) {
                 let tc, rp, rs;
                 if (i <= 10) { tc = i * 500; rp = i * 700; rs = i * 7; }
@@ -910,28 +845,33 @@ window.addEventListener('load', () => {
                 else { tc = i * 800; rp = i * 1500; rs = i * 15; }
                 passTasks.push({ level: i, targetClicks: tc, rewardPoints: rp, rewardStars: rs, completed: false, claimed: false });
             }
-        } else {
+        } else if (season === 6) {
             for (let i = 1; i <= 20; i++) {
                 passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: i * 500, rewardStars: i * 5, completed: false, claimed: false });
             }
         }
     }
+
     function initPassSeason(skipSave) {
-        const savedSeason = localStorage.getItem('aiPassSeason');
-        const now = new Date();
-        let activeSeason;
-        if (now >= pass8StartDate) activeSeason = '8';
-        else if (now >= pass7StartDate) activeSeason = '7';
-        else if (now >= pass6StartDate) activeSeason = '6';
-        else activeSeason = '0';
+        const now = Date.now();
+        let activeSeason = 0;
+        if (passData) {
+            for (const p of passData) {
+                const start = new Date(p.start_time).getTime();
+                const end = new Date(p.end_time).getTime();
+                if (now >= start && now <= end) { activeSeason = p.season; break; }
+            }
+        }
+        const savedSeason = parseInt(localStorage.getItem('aiPassSeason')) || 0;
         fillPassTasks(activeSeason);
         if (savedSeason !== activeSeason) {
             passCurrentTask = 0;
             passRewardSeconds = getPassRewardSeconds();
-            localStorage.setItem('aiPassSeason', activeSeason);
+            localStorage.setItem('aiPassSeason', String(activeSeason));
             if (!skipSave) saveGame();
         }
     }
+
     function renderPassBadges() {
         const container = document.getElementById('passLevels');
         if (!container) return;
@@ -951,6 +891,7 @@ window.addEventListener('load', () => {
             pf.style.width = (passTasks.length > 0 ? (claimed / passTasks.length) * 100 : 0) + '%';
         }
     }
+
     function updatePassRewardTimerDisplay() {
         const el = document.getElementById('passTimer');
         if (!el) return;
@@ -977,6 +918,7 @@ window.addEventListener('load', () => {
             updatePassRewardTimerDisplay();
         }, 1000);
     }
+
     function renderTasksList() {
         const container = document.getElementById('tasksList');
         if (!container) return;
@@ -1001,6 +943,7 @@ window.addEventListener('load', () => {
             btn.addEventListener('click', () => claimTask(parseInt(btn.dataset.idx)));
         });
     }
+
     function claimTask(idx) {
         const task = passTasks[idx];
         if (!task || task.claimed || idx !== passCurrentTask) return;
@@ -1011,22 +954,21 @@ window.addEventListener('load', () => {
         updateUI(); renderPassBadges(); renderTasksList(); saveGame();
         showToast(`🎉 ${t('task_claimed')} ${task.level} ${t('task_received')}`); playBuySound();
     }
+
     function checkPassProgress() {
         const modal = document.getElementById('passTasksModal');
         if (modal && modal.classList.contains('show')) renderTasksList();
     }
+
     function updatePassEndTimer() {
         const el = document.getElementById('passEndTimer');
         if (!el) return;
         const num = getActivePassNumber();
         if (num === 0) { el.innerHTML = `⏳ ${t('pass_no_active')}`; return; }
-        const now = new Date();
-        let endDate;
-        if (num === 8) endDate = pass8EndDate;
-        else if (num === 7) endDate = pass7EndDate;
-        else endDate = pass6EndDate;
+        const now = Date.now();
+        const endDate = getPassEndTime(num);
         const diff = endDate - now;
-        if (diff <= 0) { el.innerHTML = `⏳ AI PASS ${num} ${t('pass_finished')}`; if (passEndTimerInterval) clearInterval(passEndTimerInterval); return; }
+        if (diff <= 0) { el.innerHTML = `⏳ AI PASS ${num} ${t('pass_finished')}`; return; }
         const days = Math.floor(diff / 86400000);
         const hours = Math.floor((diff % 86400000) / 3600000);
         const minutes = Math.floor((diff % 3600000) / 60000);
@@ -1135,14 +1077,14 @@ window.addEventListener('load', () => {
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
-            passSeason: localStorage.getItem('aiPassSeason') || '6',
+            passSeason: localStorage.getItem('aiPassSeason') || '0',
             boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION
         };
         localStorage.setItem('neuralEvoSave', JSON.stringify(save));
     }
     function loadGame() {
         initPassSeason(true);
-        const activeSeason = localStorage.getItem('aiPassSeason') || '6';
+        const activeSeason = localStorage.getItem('aiPassSeason') || '0';
         let _showAnim = false, _oldDiamondsForAnim = 0;
         const saved = localStorage.getItem('neuralEvoSave');
         if (saved) {
@@ -1161,7 +1103,7 @@ window.addEventListener('load', () => {
                 comboCounter = d.comboCounter || 0;
                 boostEndTime = d.boostEndTime || 0;
                 if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; });
-                if (d.passSeason === activeSeason && d.passTasks) {
+                if (String(d.passSeason) === String(activeSeason) && d.passTasks) {
                     d.passTasks.forEach((data, i) => {
                         if (passTasks[i]) { passTasks[i].claimed = data.claimed; passTasks[i].completed = data.completed; }
                     });
@@ -1606,7 +1548,7 @@ window.addEventListener('load', () => {
             };
             document.getElementById('admResetTutorial').onclick = () => {
                 localStorage.removeItem('tutorialDone');
-                showToast("✅ Tutorial reset! / Обучение сброшено!");
+                showToast("✅ Tutorial reset!");
             };
         }
     }
@@ -1634,4 +1576,5 @@ window.addEventListener('load', () => {
     applyTranslations();
     loadGame();
     checkDailyFact();
+    loadPassData();
 });
