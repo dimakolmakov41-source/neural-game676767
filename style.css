@@ -848,7 +848,6 @@ body.bg-hacker .shop-tab {
 .page-btn { background: #ffaa00; color: #1a1a2e; border: none; padding: 5px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; text-shadow: 0 0 5px black; }
 .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
 
-/* ===== ВКЛАДКИ МАГАЗИНА (НЕЙРОСЕТИ / ЗВЁЗДЫ) ===== */
 .shop-tabs-row {
     display: flex;
     gap: 10px;
@@ -862,7 +861,6 @@ body.bg-hacker .shop-tab {
     letter-spacing: 1px;
 }
 
-/* ===== ЗВЁЗДНЫЙ ОБМЕН ===== */
 .exchange-item {
     background: linear-gradient(145deg, #1a3150, #0a1b2e);
     border-radius: 40px;
@@ -1100,3 +1098,35 @@ body.bg-hacker .exchange-item.disabled {
 
 #bgSettingItem { display: none !important; }
 .admin-item[data-bg-row="true"] { display: none !important; }
+
+/* ===== КНОПКИ ЯЗЫКА ===== */
+.lang-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+.lang-btn {
+    flex: 1;
+    background: linear-gradient(145deg, #2a4b6e, #1a3150);
+    border: 2px solid #7aa5d9;
+    color: white;
+    padding: 10px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    transition: 0.15s;
+}
+.lang-btn:active { transform: scale(0.96); }
+.lang-btn:hover {
+    background: linear-gradient(145deg, #3a6b8e, #2a4160);
+    box-shadow: 0 0 10px #7aa5d9;
+}
+.lang-btn.active {
+    background: linear-gradient(145deg, #2e7d32, #1a5a20);
+    border-color: #66cc66;
+    box-shadow: 0 0 15px rgba(76,175,80,0.6);
+}
