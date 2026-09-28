@@ -249,19 +249,16 @@ function applyTranslations() {
         const key = el.dataset.i18n;
         el.innerText = t(key);
     });
-    // Особые элементы с HTML внутри
     const r1 = document.getElementById('robotText1');
     if (r1) r1.innerHTML = t('robot1');
     const r2 = document.getElementById('robotText2');
     if (r2) r2.innerHTML = t('robot2');
     const tt = document.getElementById('tutorialText');
     if (tt) tt.innerHTML = t('tutorial_text');
-    // Обновляем динамические элементы
     if (typeof updateBoostUI === 'function') updateBoostUI();
     if (typeof applyPassStyle === 'function') applyPassStyle();
     if (typeof applyTheme === 'function') applyTheme();
     if (typeof updatePassEndTimer === 'function') updatePassEndTimer();
-    // Кнопки языка
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === currentLang);
     });
@@ -317,8 +314,8 @@ function isNewYear() {
 }
 function isHackerMode() {
     const now = new Date();
-    const start = new Date(2026, 8, 30, 0, 0, 0);
-    const end = new Date(2026, 9, 9, 23, 59, 59);
+    const start = new Date(2026, 8, 29, 0, 0, 0);
+    const end = new Date(2026, 9, 8, 23, 59, 59);
     return now >= start && now <= end;
 }
 
@@ -622,10 +619,10 @@ window.addEventListener('load', () => {
 
     let passTasks = [], passCurrentTask = 0;
     const pass6StartDate = new Date(2026, 8, 21, 0, 0, 0);
-    const pass6EndDate = new Date(2026, 8, 30, 0, 0, 0);
-    const pass7StartDate = new Date(2026, 8, 30, 0, 0, 0);
-    const pass7EndDate = new Date(2026, 9, 9, 0, 0, 0);
-    const pass8StartDate = new Date(2026, 9, 9, 0, 0, 0);
+    const pass6EndDate = new Date(2026, 8, 29, 0, 0, 0);
+    const pass7StartDate = new Date(2026, 8, 29, 0, 0, 0);
+    const pass7EndDate = new Date(2026, 9, 8, 0, 0, 0);
+    const pass8StartDate = new Date(2026, 9, 8, 0, 0, 0);
     const pass8EndDate = new Date(2026, 9, 31, 23, 59, 59);
     let passEndTimerInterval = null, passRewardSeconds = 1500, passRewardInterval = null;
 
@@ -1152,7 +1149,6 @@ window.addEventListener('load', () => {
     document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
     document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
 
-    // Кнопки языка в туториале
     document.getElementById('langRu')?.addEventListener('click', () => setLanguage('ru'));
     document.getElementById('langEn')?.addEventListener('click', () => setLanguage('en'));
     document.getElementById('setLangRu')?.addEventListener('click', () => setLanguage('ru'));
@@ -1392,7 +1388,6 @@ window.addEventListener('load', () => {
         if (e.target.id === 'adminOverlay') document.getElementById('adminOverlay').classList.remove('show');
     });
 
-    // Применяем переводы
     applyTranslations();
     loadGame();
 });
