@@ -4,49 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=11.19">
+    <link rel="stylesheet" href="style.css?v=12.0">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
-        <div class="loading-text">ЗАГРУЗКА...</div>
-        <div class="loading-sub">Кликер: Эволюция Нейросетей v11.19</div>
+        <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
+        <div class="loading-sub">v12.0</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
 
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
-            <div class="game-title" id="gameTitle">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v11.19</div>
+            <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
+            <div class="game-version" id="menuVersion">v12.0</div>
             <div class="menu-buttons-row">
-                <div class="menu-btn" id="playBtn">🎮 ИГРАТЬ</div>
-                <div class="menu-btn" id="settingsBtn">⚙️ НАСТРОЙКИ</div>
+                <div class="menu-btn" id="playBtn" data-i18n="play">🎮 ИГРАТЬ</div>
+                <div class="menu-btn" id="settingsBtn" data-i18n="settings">⚙️ НАСТРОЙКИ</div>
             </div>
             <div class="menu-buttons-row">
-                <div class="menu-btn" id="newsBtn">📢 НОВОСТИ</div>
-                <div class="menu-btn" id="shareBtn">📤 ПОДЕЛИТЬСЯ</div>
+                <div class="menu-btn" id="newsBtn" data-i18n="news">📢 НОВОСТИ</div>
+                <div class="menu-btn" id="shareBtn" data-i18n="share">📤 ПОДЕЛИТЬСЯ</div>
             </div>
         </div>
 
         <div id="gameInterface" class="game-interface hidden">
             <div class="top-bar"><div>🧠 <span id="points">100</span></div><div>⚡ <span id="power">1</span></div></div>
-            <div class="diamond-bar"><div id="starLabel">⭐ <span id="stars">0</span></div><div>⏱️ <span id="playtime">0</span> мин</div></div>
+            <div class="diamond-bar"><div id="starLabel">⭐ <span id="stars">0</span></div><div>⏱️ <span id="playtime">0</span> <span data-i18n="min">мин</span></div></div>
 
             <div class="stats-panel-extended">
-                <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label">Всего кликов</div></div>
-                <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label">Нейросетей</div></div>
-                <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label">За сессию</div></div>
+                <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label" data-i18n="stat_total_clicks">Всего кликов</div></div>
+                <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label" data-i18n="stat_neurons">Нейросетей</div></div>
+                <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label" data-i18n="stat_session">За сессию</div></div>
             </div>
 
-            <div class="timers" id="reloadTimer">🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span></div>
+            <div class="timers" id="reloadTimer"><span data-i18n="reload">🔄 ПЕРЕЗАГРУЗКА:</span> <span id="reloadCountdown">5:00</span></div>
 
             <div class="brain-container">
                 <div id="clickableObject" class="brain">
                     <span class="skin-emoji" id="brainEmoji">🧠</span>
                     <div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>
-                    <div class="sleep-msg" id="sleepMsg">😴 Спишь?</div>
-                    <div class="combo-text" id="comboText">🔥 x2 КОМБО!</div>
+                    <div class="sleep-msg" id="sleepMsg" data-i18n="sleep">😴 Спишь?</div>
+                    <div class="combo-text" id="comboText" data-i18n="combo">🔥 x2 КОМБО!</div>
                 </div>
             </div>
 
@@ -63,23 +63,23 @@
                     <div class="pass-progress-fill" id="passProgressFill"></div>
                 </div>
                 <div class="pass-levels" id="passLevels"></div>
-                <button class="open-tasks-btn" id="openTasksBtn">📋 ОТКРЫТЬ ЗАДАНИЯ</button>
+                <button class="open-tasks-btn" id="openTasksBtn" data-i18n="open_tasks">📋 ОТКРЫТЬ ЗАДАНИЯ</button>
                 <div class="pass-end" id="passEndTimer">⏳ -- дн. -- ч. -- мин.</div>
             </div>
 
             <div class="shop-panel" id="shopPanel">
                 <div class="shop-tabs-row">
-                    <div class="shop-tab active" data-tab="neurons">🧠 НЕЙРОСЕТИ</div>
-                    <div class="shop-tab" data-tab="stars">⭐ ЗВЁЗДЫ</div>
+                    <div class="shop-tab active" data-tab="neurons" data-i18n="shop_neurons">🧠 НЕЙРОСЕТИ</div>
+                    <div class="shop-tab" data-tab="stars" data-i18n="shop_stars">⭐ ЗВЁЗДЫ</div>
                 </div>
                 <div id="shopNeurons" class="shop-list"></div>
                 <div id="shopStars" class="shop-list" style="display:none;"></div>
-                <div class="action-btn" id="buyAllBtn" style="background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; margin-bottom: 6px;">💰 КУПИТЬ ВСЁ ДОСТУПНОЕ</div>
-                <div class="action-btn" id="closeShopBtn">ЗАКРЫТЬ</div>
+                <div class="action-btn" id="buyAllBtn" style="background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; margin-bottom: 6px;" data-i18n="buy_all">💰 КУПИТЬ ВСЁ ДОСТУПНОЕ</div>
+                <div class="action-btn" id="closeShopBtn" data-i18n="close">ЗАКРЫТЬ</div>
             </div>
 
-            <div class="action-buttons"><div class="action-btn" id="backToMenu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn">🛒 МАГАЗИН</div></div>
-            <div class="save-badge">💾 автосохранение</div>
+            <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn" data-i18n="shop">🛒 МАГАЗИН</div></div>
+            <div class="save-badge" data-i18n="autosave">💾 автосохранение</div>
         </div>
     </div>
 
@@ -88,23 +88,27 @@
             <div class="tutorial-step" id="tutorialStep1">
                 <div class="tutorial-robot">
                     <span class="robot-emoji">🤖</span>
-                    <span class="robot-text">: Привет я робот !<br>Я вижу ты тут впервые ?</span>
+                    <span class="robot-text" id="robotText1">: Привет я робот !<br>Я вижу ты тут впервые ?</span>
                 </div>
                 <div class="tutorial-buttons">
-                    <button class="tutorial-btn-yes" id="tutorialYes">Да</button>
-                    <button class="tutorial-btn-no" id="tutorialNo">Нет</button>
+                    <button class="tutorial-btn-yes" id="tutorialYes" data-i18n="yes">Да</button>
+                    <button class="tutorial-btn-no" id="tutorialNo" data-i18n="no">Нет</button>
+                </div>
+                <div class="lang-buttons">
+                    <button class="lang-btn" id="langRu">🇷🇺 Русский</button>
+                    <button class="lang-btn" id="langEn">🇬🇧 English</button>
                 </div>
             </div>
             <div class="tutorial-step hidden" id="tutorialStep2">
                 <div class="tutorial-robot">
                     <span class="robot-emoji">🤖</span>
-                    <span class="robot-text">: Нажми на мозг !</span>
+                    <span class="robot-text" id="robotText2">: Нажми на мозг !</span>
                 </div>
-                <div class="tutorial-text">
+                <div class="tutorial-text" id="tutorialText">
                     Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)
                 </div>
                 <div class="tutorial-hand">👇</div>
-                <button class="tutorial-btn-ok" id="tutorialOk">ПОНЯЛ</button>
+                <button class="tutorial-btn-ok" id="tutorialOk" data-i18n="ok">ПОНЯЛ</button>
             </div>
         </div>
     </div>
@@ -119,14 +123,14 @@
                 </div>
             </div>
             <div class="diamond-removal-step hidden" id="diamondStep2">
-                <div class="diamond-removal-text">Ваши алмазы конвертированы в звёзды</div>
-                <div class="diamond-removal-text">Алмазы полностью удалены</div>
+                <div class="diamond-removal-text" data-i18n="conv1">Ваши алмазы конвертированы в звёзды</div>
+                <div class="diamond-removal-text" data-i18n="conv2">Алмазы полностью удалены</div>
                 <div class="diamond-removal-row">
                     <span class="dr-emoji">💎</span>
                     <span class="dr-dash">- - - - -&gt;</span>
                     <span class="dr-emoji">⭐</span>
                 </div>
-                <button class="diamond-removal-btn" id="diamondRemovalOk">ПОНЯЛ</button>
+                <button class="diamond-removal-btn" id="diamondRemovalOk" data-i18n="ok">ПОНЯЛ</button>
             </div>
         </div>
     </div>
@@ -148,54 +152,61 @@
         <div class="pass-tasks-content">
             <div class="pass-tasks-title" id="passTasksTitle">🤖 ЗАДАНИЯ AI PASS 6 🤖</div>
             <div id="tasksList"></div>
-            <button class="close-tasks-btn" id="closeTasksBtn">ЗАКРЫТЬ</button>
+            <button class="close-tasks-btn" id="closeTasksBtn" data-i18n="close">ЗАКРЫТЬ</button>
         </div>
     </div>
 
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-title">⚙️ НАСТРОЙКИ</div>
+            <div class="modal-title" data-i18n="settings_title">⚙️ НАСТРОЙКИ</div>
             <div class="setting-item" id="bgSettingItem">
-                <span>🌄 Выбор фона</span>
+                <span data-i18n="bg_choose">🌄 Выбор фона</span>
                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                    <button class="modal-btn" id="bgEarlyAutumn">Ранняя осень</button>
-                    <button class="modal-btn" id="bgGolden">Золотая</button>
-                    <button class="modal-btn" id="bgRainy">Дождливая</button>
-                    <button class="modal-btn" id="bgLate">Поздняя</button>
-                    <button class="modal-btn" id="bgForest">Лес</button>
-                    <button class="modal-btn" id="bgPark">Парк</button>
-                    <button class="modal-btn" id="bgMountains">Горы</button>
-                    <button class="modal-btn" id="bgVillage">Деревня</button>
+                    <button class="modal-btn" id="bgEarlyAutumn" data-i18n="bg_early">Ранняя осень</button>
+                    <button class="modal-btn" id="bgGolden" data-i18n="bg_golden">Золотая</button>
+                    <button class="modal-btn" id="bgRainy" data-i18n="bg_rainy">Дождливая</button>
+                    <button class="modal-btn" id="bgLate" data-i18n="bg_late">Поздняя</button>
+                    <button class="modal-btn" id="bgForest" data-i18n="bg_forest">Лес</button>
+                    <button class="modal-btn" id="bgPark" data-i18n="bg_park">Парк</button>
+                    <button class="modal-btn" id="bgMountains" data-i18n="bg_mountains">Горы</button>
+                    <button class="modal-btn" id="bgVillage" data-i18n="bg_village">Деревня</button>
                 </div>
             </div>
             <div class="setting-item">
-                <span>💾 Сохранить прогресс</span>
-                <button class="modal-btn" id="exportSaveBtn">Скачать JSON</button>
+                <span data-i18n="save_progress">💾 Сохранить прогресс</span>
+                <button class="modal-btn" id="exportSaveBtn" data-i18n="download_json">Скачать JSON</button>
             </div>
             <div class="setting-item">
-                <span>📂 Загрузить прогресс</span>
-                <button class="modal-btn" id="importSaveBtn">Выбрать файл</button>
+                <span data-i18n="load_progress">📂 Загрузить прогресс</span>
+                <button class="modal-btn" id="importSaveBtn" data-i18n="choose_file">Выбрать файл</button>
             </div>
             <div class="setting-item">
-                <span>🎫 Промокоды</span>
-                <button class="modal-btn" id="promoBtn">Открыть</button>
+                <span data-i18n="promo">🎫 Промокоды</span>
+                <button class="modal-btn" id="promoBtn" data-i18n="open">Открыть</button>
             </div>
             <div class="setting-item">
-                <span>🔊 Звук клика</span>
+                <span data-i18n="sound">🔊 Звук клика</span>
                 <button class="modal-btn" id="soundToggleBtn">Сменить (Обычный)</button>
             </div>
             <div class="setting-item">
-                <span>⛶ Полный экран</span>
-                <button class="modal-btn" id="fullscreenBtn">Включить</button>
+                <span data-i18n="fullscreen">⛶ Полный экран</span>
+                <button class="modal-btn" id="fullscreenBtn" data-i18n="on">Включить</button>
             </div>
-            <button class="modal-btn" id="closeSettings">ЗАКРЫТЬ</button>
-            <div class="reset-btn" id="resetGameBtn">⚠️ СБРОСИТЬ ВСЁ</div>
+            <div class="setting-item">
+                <span data-i18n="language">🌐 Язык / Language</span>
+                <div style="display:flex; gap:5px;">
+                    <button class="modal-btn" id="setLangRu">🇷🇺 Рус</button>
+                    <button class="modal-btn" id="setLangEn">🇬🇧 Eng</button>
+                </div>
+            </div>
+            <button class="modal-btn" id="closeSettings" data-i18n="close">ЗАКРЫТЬ</button>
+            <div class="reset-btn" id="resetGameBtn" data-i18n="reset_all">⚠️ СБРОСИТЬ ВСЁ</div>
         </div>
     </div>
 
-    <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title">📢 НОВОСТИ</div><div class="modal-text">v11.19: Новая вкладка «⭐ Звёзды» в магазине — обмен звёзд на очки! 🎃 AI Pass 8 скоро, с 9 по 31 октября.</div><button class="modal-btn" id="closeNewsBtn">ЗАКРЫТЬ</button></div></div>
+    <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="promo_title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn" data-i18n="activate">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="news_title">📢 НОВОСТИ</div><div class="modal-text" data-i18n="news_text">v12.0: Добавлена смена языка (Русский/English)! Вкладка «⭐ Звёзды» в магазине.</div><button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
 
-    <script src="script.js?v=11.19"></script>
+    <script src="script.js?v=12.0"></script>
 </body>
 </html>
