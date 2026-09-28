@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.0";
+const GAME_VERSION = "12.1";
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -27,6 +27,7 @@ const TRANSLATIONS = {
         combo: "🔥 x2 КОМБО!",
         boost: "⚡ БУСТ X5 — 20⭐",
         boost_active: "⚡ X5 АКТИВЕН —",
+        roulette: "🎰 РУЛЕТКА — 5⭐",
         open_tasks: "📋 ОТКРЫТЬ ЗАДАНИЯ",
         shop_neurons: "🧠 НЕЙРОСЕТИ",
         shop_stars: "⭐ ЗВЁЗДЫ",
@@ -53,6 +54,7 @@ const TRANSLATIONS = {
         bg_park: "Парк",
         bg_mountains: "Горы",
         bg_village: "Деревня",
+        btn_color: "🎨 Цвет кнопок",
         save_progress: "💾 Сохранить прогресс",
         download_json: "Скачать JSON",
         load_progress: "📂 Загрузить прогресс",
@@ -69,7 +71,7 @@ const TRANSLATIONS = {
         promo_title: "🎫 ПРОМОКОД",
         activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.0: Добавлена смена языка (Русский/English)! Вкладка «⭐ Звёзды» в магазине.",
+        news_text: "v12.1: Рулетка 🎰, ежедневный факт 🧠, смена цвета кнопок 🎨, кнопки «В начало/Конец» в магазине.",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         pass_tasks: "заданий",
@@ -118,7 +120,18 @@ const TRANSLATIONS = {
         change: "Сменить",
         task_claimed: "Уровень",
         task_received: "получен!",
-        pass_reward: "Награда AI Pass"
+        pass_reward: "Награда AI Pass",
+        fact_title: "ФАКТ ДНЯ",
+        roulette_title: "🎰 РУЛЕТКА 🎰",
+        roulette_cost: "5⭐ за вращение",
+        roulette_spin: "🎲 КРУТИТЬ",
+        roulette_spinning: "🎲 КРУТИТСЯ...",
+        roulette_no_stars: "❌ Нужно 5⭐",
+        roulette_win: "🎉 ВЫИГРЫШ",
+        first_page: "⏮ НАЧАЛО",
+        last_page: "КОНЕЦ ⏭",
+        prev_page: "⬅️ НАЗАД",
+        next_page: "ВПЕРЁД ➡️"
     },
     en: {
         loading: "LOADING...",
@@ -144,6 +157,7 @@ const TRANSLATIONS = {
         combo: "🔥 x2 COMBO!",
         boost: "⚡ BOOST X5 — 20⭐",
         boost_active: "⚡ X5 ACTIVE —",
+        roulette: "🎰 ROULETTE — 5⭐",
         open_tasks: "📋 OPEN TASKS",
         shop_neurons: "🧠 NEURONS",
         shop_stars: "⭐ STARS",
@@ -170,6 +184,7 @@ const TRANSLATIONS = {
         bg_park: "Park",
         bg_mountains: "Mountains",
         bg_village: "Village",
+        btn_color: "🎨 Button color",
         save_progress: "💾 Save progress",
         download_json: "Download JSON",
         load_progress: "📂 Load progress",
@@ -186,7 +201,7 @@ const TRANSLATIONS = {
         promo_title: "🎫 PROMO CODE",
         activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.0: Language switch added (Russian/English)! New '⭐ Stars' tab in the shop.",
+        news_text: "v12.1: Roulette 🎰, daily fact 🧠, button color change 🎨, 'First/Last page' buttons in shop.",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         pass_tasks: "tasks",
@@ -235,7 +250,18 @@ const TRANSLATIONS = {
         change: "Change",
         task_claimed: "Level",
         task_received: "received!",
-        pass_reward: "AI Pass reward"
+        pass_reward: "AI Pass reward",
+        fact_title: "FACT OF THE DAY",
+        roulette_title: "🎰 ROULETTE 🎰",
+        roulette_cost: "5⭐ per spin",
+        roulette_spin: "🎲 SPIN",
+        roulette_spinning: "🎲 SPINNING...",
+        roulette_no_stars: "❌ Need 5⭐",
+        roulette_win: "🎉 YOU WON",
+        first_page: "⏮ FIRST",
+        last_page: "LAST ⏭",
+        prev_page: "⬅️ BACK",
+        next_page: "NEXT ➡️"
     }
 };
 
@@ -276,6 +302,93 @@ function setLanguage(lang) {
     applyTranslations();
     if (typeof showToast === 'function') {
         showToast(lang === 'ru' ? "✅ Язык: Русский" : "✅ Language: English");
+    }
+}
+
+// ===== ЕЖЕДНЕВНЫЕ ФАКТЫ =====
+const FACTS = {
+    ru: [
+        "Первый перцептрон создан в 1958 году Фрэнком Розенблаттом.",
+        "Название «нейросеть» появилось в 1940-х годах.",
+        "ChatGPT обучался на 570 ГБ текста.",
+        "Человеческий мозг содержит около 86 миллиардов нейронов.",
+        "GPT расшифровывается как Generative Pre-trained Transformer.",
+        "Нейросети умеют распознавать лица лучше людей.",
+        "AlphaGo победила чемпиона мира по го в 2016 году.",
+        "Термин «искусственный интеллект» придуман в 1956 году.",
+        "DALL-E создаёт картинки по текстовому описанию.",
+        "Нейросети используются в медицине для диагностики рака.",
+        "Первый ИИ-чатбот ELIZA создан в 1966 году.",
+        "Tesla использует нейросети для автопилота.",
+        "Midjourney — одна из самых популярных нейросетей для рисования.",
+        "Нейросети могут предсказывать погоду точнее человека.",
+        "Siri и Alexa работают на нейросетях.",
+        "Обучение большой нейросети может стоить миллионы долларов.",
+        "Нейросети помогают находить новые лекарства.",
+        "Трансформеры — это архитектура, а не только фильм.",
+        "GPT-3 содержит 175 миллиардов параметров.",
+        "Нейросеть может обыграть человека в покер.",
+        "Компьютерное зрение используется в дронах.",
+        "Нейросети пишут музыку и стихи.",
+        "Yandex тоже разрабатывает свои нейросети.",
+        "Первая нейросеть называлась «перцептрон».",
+        "ИИ помогает переводить редкие языки.",
+        "Голосовые помощники используют нейросети.",
+        "Нейросети могут генерировать видео.",
+        "ИИ учится на миллионах примеров.",
+        "Роботы-пылесосы используют нейросети для навигации.",
+        "Нейросети помогают в космических исследованиях."
+    ],
+    en: [
+        "The first perceptron was created in 1958 by Frank Rosenblatt.",
+        "The term 'neural network' appeared in the 1940s.",
+        "ChatGPT was trained on 570 GB of text.",
+        "The human brain contains about 86 billion neurons.",
+        "GPT stands for Generative Pre-trained Transformer.",
+        "Neural networks can recognize faces better than humans.",
+        "AlphaGo beat the world Go champion in 2016.",
+        "The term 'artificial intelligence' was coined in 1956.",
+        "DALL-E creates images from text descriptions.",
+        "Neural networks are used in medicine for cancer diagnosis.",
+        "The first AI chatbot ELIZA was created in 1966.",
+        "Tesla uses neural networks for autopilot.",
+        "Midjourney is one of the most popular image AIs.",
+        "Neural networks can predict weather better than humans.",
+        "Siri and Alexa run on neural networks.",
+        "Training a large neural network can cost millions.",
+        "Neural networks help find new drugs.",
+        "Transformers are an architecture, not just a movie.",
+        "GPT-3 has 175 billion parameters.",
+        "A neural network can beat humans at poker.",
+        "Computer vision is used in drones.",
+        "Neural networks write music and poetry.",
+        "Yandex also develops its own neural networks.",
+        "The first neural network was called 'perceptron'.",
+        "AI helps translate rare languages.",
+        "Voice assistants use neural networks.",
+        "Neural networks can generate video.",
+        "AI learns from millions of examples.",
+        "Robot vacuums use neural networks for navigation.",
+        "Neural networks help in space exploration."
+    ]
+};
+
+function getFactOfDay() {
+    const now = new Date();
+    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const facts = FACTS[currentLang];
+    return facts[dayOfYear % facts.length];
+}
+
+function checkDailyFact() {
+    const today = new Date().toISOString().slice(0, 10);
+    const lastShown = localStorage.getItem('factShownDate');
+    if (lastShown !== today) {
+        localStorage.setItem('factShownDate', today);
+        const factText = document.getElementById('factText');
+        if (factText) factText.innerText = getFactOfDay();
+        const factOverlay = document.getElementById('factOverlay');
+        if (factOverlay) setTimeout(() => factOverlay.classList.add('show'), 2500);
     }
 }
 
@@ -379,6 +492,15 @@ function applyTheme() {
     }
 }
 
+function applyButtonColor(color) {
+    document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold');
+    if (color && color !== 'blue') document.body.classList.add('btn-' + color);
+    localStorage.setItem('btnColor', color || 'blue');
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.color === (color || 'blue'));
+    });
+}
+
 window.addEventListener('load', () => {
     setTimeout(() => {
         const ls = document.getElementById('loadingScreen');
@@ -436,6 +558,9 @@ window.addEventListener('load', () => {
     const BOOST_MULTIPLIER = 5, BOOST_PRICE = 20, BOOST_DURATION = 5 * 60 * 1000;
     let boostEndTime = 0, boostInterval = null;
 
+    const ROULETTE_PRICE = 5;
+    let rouletteSpinning = false;
+
     Object.defineProperty(window, '__stars', { get: () => stars });
 
     const neuralNames = [
@@ -470,20 +595,46 @@ window.addEventListener('load', () => {
     function renderShopNeurons() {
         const start = currentPage * ITEMS_PER_PAGE, end = Math.min(start + ITEMS_PER_PAGE, upgrades.length);
         let html = '';
-        if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="prevPageBtn">⬅️</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn">➡️</button></div>`;
+        if (totalPages > 1) {
+            html += `<div class="pagination">`;
+            html += `<button class="page-btn" id="firstPageBtn">${t('first_page')}</button>`;
+            html += `<button class="page-btn" id="prevPageBtn">${t('prev_page')}</button>`;
+            html += `<span>${currentPage+1}/${totalPages}</span>`;
+            html += `<button class="page-btn" id="nextPageBtn">${t('next_page')}</button>`;
+            html += `<button class="page-btn" id="lastPageBtn">${t('last_page')}</button>`;
+            html += `</div>`;
+        }
         for (let i = start; i < end; i++) {
             const u = upgrades[i];
             html += `<div class="shop-item" data-id="${u.id}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅' : `💰 ${u.price}`}</span></div>`;
         }
-        if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="prevPageBtn2">⬅️</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">➡️</button></div>`;
+        if (totalPages > 1) {
+            html += `<div class="pagination">`;
+            html += `<button class="page-btn" id="firstPageBtn2">${t('first_page')}</button>`;
+            html += `<button class="page-btn" id="prevPageBtn2">${t('prev_page')}</button>`;
+            html += `<span>${currentPage+1}/${totalPages}</span>`;
+            html += `<button class="page-btn" id="nextPageBtn2">${t('next_page')}</button>`;
+            html += `<button class="page-btn" id="lastPageBtn2">${t('last_page')}</button>`;
+            html += `</div>`;
+        }
         document.getElementById('shopNeurons').innerHTML = html;
         document.querySelectorAll('#shopNeurons .shop-item').forEach(el => {
             const id = parseInt(el.dataset.id);
             const u = upgrades[id];
             if (!u.purchased) el.addEventListener('click', () => buyUpgrade(id));
         });
-        document.querySelectorAll('#prevPageBtn, #prevPageBtn2').forEach(btn => btn.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
-        document.querySelectorAll('#nextPageBtn, #nextPageBtn2').forEach(btn => btn.addEventListener('click', () => { if (currentPage < totalPages - 1) { currentPage++; renderShopNeurons(); } }));
+        ['firstPageBtn', 'firstPageBtn2'].forEach(id => {
+            document.getElementById(id)?.addEventListener('click', () => { currentPage = 0; renderShopNeurons(); });
+        });
+        ['lastPageBtn', 'lastPageBtn2'].forEach(id => {
+            document.getElementById(id)?.addEventListener('click', () => { currentPage = totalPages - 1; renderShopNeurons(); });
+        });
+        ['prevPageBtn', 'prevPageBtn2'].forEach(id => {
+            document.getElementById(id)?.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } });
+        });
+        ['nextPageBtn', 'nextPageBtn2'].forEach(id => {
+            document.getElementById(id)?.addEventListener('click', () => { if (currentPage < totalPages - 1) { currentPage++; renderShopNeurons(); } });
+        });
     }
 
     function buyUpgrade(id) {
@@ -578,6 +729,83 @@ window.addEventListener('load', () => {
             if (buyAllBtn) buyAllBtn.style.display = '';
             renderShopNeurons();
         }
+    }
+
+    // ===== РУЛЕТКА =====
+    const ROULETTE_PRIZES = [
+        { emoji: '💰', type: 'points', min: 50000, max: 500000 },
+        { emoji: '⭐', type: 'stars', min: 10, max: 50 },
+        { emoji: '🧠', type: 'points', min: 100000, max: 1000000 },
+        { emoji: '💎', type: 'stars', min: 5, max: 20 },
+        { emoji: '⚡', type: 'boost', duration: 10 * 60 * 1000 },
+        { emoji: '🎁', type: 'points', min: 10000, max: 100000 },
+        { emoji: '💥', type: 'points', min: 500000, max: 2000000 },
+        { emoji: '👑', type: 'stars', min: 50, max: 200 }
+    ];
+
+    function openRoulette() {
+        if (isBanned) return;
+        document.getElementById('rouletteOverlay')?.classList.add('show');
+    }
+
+    function spinRoulette() {
+        if (rouletteSpinning) return;
+        if (stars < ROULETTE_PRICE) { showToast(t('roulette_no_stars')); return; }
+        stars -= ROULETTE_PRICE;
+        updateUI(); saveGame();
+
+        rouletteSpinning = true;
+        const spinBtn = document.getElementById('rouletteSpinBtn');
+        if (spinBtn) { spinBtn.disabled = true; spinBtn.innerText = t('roulette_spinning'); }
+
+        const slots = document.querySelectorAll('#rouletteWheel .roulette-slot');
+        slots.forEach(s => s.classList.remove('win'));
+
+        let counter = 0;
+        const totalSpins = 20;
+        const finalIdx = Math.floor(Math.random() * slots.length);
+
+        const spinInterval = setInterval(() => {
+            slots.forEach(s => s.classList.remove('win'));
+            const idx = counter % slots.length;
+            slots[idx].classList.add('win');
+            counter++;
+            playClickSound();
+            if (counter >= totalSpins + finalIdx) {
+                clearInterval(spinInterval);
+                slots.forEach(s => s.classList.remove('win'));
+                slots[finalIdx].classList.add('win');
+                giveRoulettePrize(finalIdx);
+                rouletteSpinning = false;
+                if (spinBtn) { spinBtn.disabled = false; spinBtn.innerText = t('roulette_spin'); }
+            }
+        }, 80);
+    }
+
+    function giveRoulettePrize(idx) {
+        const slot = document.querySelectorAll('#rouletteWheel .roulette-slot')[idx];
+        const emoji = slot ? slot.innerText : '🎁';
+        let prize = ROULETTE_PRIZES.find(p => p.emoji === emoji) || ROULETTE_PRIZES[0];
+        let msg = '';
+
+        if (prize.type === 'points') {
+            const amount = Math.floor(prize.min + Math.random() * (prize.max - prize.min));
+            points += amount;
+            msg = `+${amount.toLocaleString()}🧠`;
+        } else if (prize.type === 'stars') {
+            const amount = Math.floor(prize.min + Math.random() * (prize.max - prize.min));
+            stars += amount;
+            totalStarsEarned += amount;
+            msg = `+${amount}⭐`;
+        } else if (prize.type === 'boost') {
+            boostEndTime = Date.now() + prize.duration;
+            updateBoostUI();
+            msg = `⚡ Буст X5 на 10 минут!`;
+        }
+
+        updateUI(); saveGame();
+        showToast(`${t('roulette_win')}: ${emoji} ${msg}`);
+        playBuySound();
     }
 
     function isBoostActive() { return Date.now() < boostEndTime; }
@@ -954,6 +1182,8 @@ window.addEventListener('load', () => {
         playtimeInterval = setInterval(() => updatePlaytime(), 60000);
         startSleepMsgTimer();
         applyBanState(); applyTheme(); applyPassStyle();
+        const savedColor = localStorage.getItem('btnColor') || 'blue';
+        applyButtonColor(savedColor);
         if (_showAnim && !localStorage.getItem('diamondConverted')) {
             localStorage.setItem('diamondConverted', 'true');
             saveGame();
@@ -1012,6 +1242,8 @@ window.addEventListener('load', () => {
         if (isHalloween() || isNewYear() || isHackerMode()) { applyTheme(); return; }
         document.body.className = '';
         document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
+        const savedColor = localStorage.getItem('btnColor') || 'blue';
+        applyButtonColor(savedColor);
         localStorage.setItem('selectedBg', theme);
     }
     const savedBg = localStorage.getItem('selectedBg');
@@ -1141,6 +1373,10 @@ window.addEventListener('load', () => {
     document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
     document.getElementById('boostBtn')?.addEventListener('click', buyBoost);
+    document.getElementById('rouletteBtn')?.addEventListener('click', openRoulette);
+    document.getElementById('rouletteSpinBtn')?.addEventListener('click', spinRoulette);
+    document.getElementById('rouletteCloseBtn')?.addEventListener('click', () => document.getElementById('rouletteOverlay')?.classList.remove('show'));
+    document.getElementById('factCloseBtn')?.addEventListener('click', () => document.getElementById('factOverlay')?.classList.remove('show'));
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
     document.getElementById('resetGameBtn')?.addEventListener('click', () => {
@@ -1153,6 +1389,13 @@ window.addEventListener('load', () => {
     document.getElementById('langEn')?.addEventListener('click', () => setLanguage('en'));
     document.getElementById('setLangRu')?.addEventListener('click', () => setLanguage('ru'));
     document.getElementById('setLangEn')?.addEventListener('click', () => setLanguage('en'));
+
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            applyButtonColor(btn.dataset.color);
+            showToast(`🎨 ${btn.dataset.color}`);
+        });
+    });
 
     document.querySelectorAll('.shop-tab').forEach(tab => {
         tab.addEventListener('click', () => switchShopTab(tab.dataset.tab));
@@ -1390,4 +1633,5 @@ window.addEventListener('load', () => {
 
     applyTranslations();
     loadGame();
+    checkDailyFact();
 });
