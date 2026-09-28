@@ -1,5 +1,286 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "11.19";
+const GAME_VERSION = "12.0";
+
+// ===== ЯЗЫК =====
+const TRANSLATIONS = {
+    ru: {
+        loading: "ЗАГРУЗКА...",
+        title: "🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ",
+        halloween_title: "🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ",
+        newyear_title: "🎄 КЛИКЕР: НОВОГОДНЯЯ ЭВОЛЮЦИЯ",
+        hacker_title: "> КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ _",
+        play: "🎮 ИГРАТЬ",
+        settings: "⚙️ НАСТРОЙКИ",
+        news: "📢 НОВОСТИ",
+        share: "📤 ПОДЕЛИТЬСЯ",
+        min: "мин",
+        stat_total_clicks: "Всего кликов",
+        stat_neurons: "Нейросетей",
+        stat_session: "За сессию",
+        reload: "🔄 ПЕРЕЗАГРУЗКА:",
+        halloween_reload: "⏳ ДО ХЭЛЛОУИНА:",
+        newyear_reload: "🎄 НОВЫЙ ГОД:",
+        hacker_reload: "> ПЕРЕЗАГРУЗКА:",
+        sleep: "😴 Спишь?",
+        halloween_sleep: "🎃 Страшно?",
+        newyear_sleep: "❄️ С Новым Годом!",
+        combo: "🔥 x2 КОМБО!",
+        boost: "⚡ БУСТ X5 — 20⭐",
+        boost_active: "⚡ X5 АКТИВЕН —",
+        open_tasks: "📋 ОТКРЫТЬ ЗАДАНИЯ",
+        shop_neurons: "🧠 НЕЙРОСЕТИ",
+        shop_stars: "⭐ ЗВЁЗДЫ",
+        buy_all: "💰 КУПИТЬ ВСЁ ДОСТУПНОЕ",
+        close: "ЗАКРЫТЬ",
+        back_menu: "◀ МЕНЮ",
+        shop: "🛒 МАГАЗИН",
+        autosave: "💾 автосохранение",
+        yes: "Да",
+        no: "Нет",
+        ok: "ПОНЯЛ",
+        robot1: ": Привет я робот !<br>Я вижу ты тут впервые ?",
+        robot2: ": Нажми на мозг !",
+        tutorial_text: "Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)",
+        conv1: "Ваши алмазы конвертированы в звёзды",
+        conv2: "Алмазы полностью удалены",
+        settings_title: "⚙️ НАСТРОЙКИ",
+        bg_choose: "🌄 Выбор фона",
+        bg_early: "Ранняя осень",
+        bg_golden: "Золотая",
+        bg_rainy: "Дождливая",
+        bg_late: "Поздняя",
+        bg_forest: "Лес",
+        bg_park: "Парк",
+        bg_mountains: "Горы",
+        bg_village: "Деревня",
+        save_progress: "💾 Сохранить прогресс",
+        download_json: "Скачать JSON",
+        load_progress: "📂 Загрузить прогресс",
+        choose_file: "Выбрать файл",
+        promo: "🎫 Промокоды",
+        open: "Открыть",
+        sound: "🔊 Звук клика",
+        sound_toggle: "Сменить",
+        fullscreen: "⛶ Полный экран",
+        on: "Включить",
+        off: "Выключить",
+        language: "🌐 Язык / Language",
+        reset_all: "⚠️ СБРОСИТЬ ВСЁ",
+        promo_title: "🎫 ПРОМОКОД",
+        activate: "АКТИВИРОВАТЬ",
+        news_title: "📢 НОВОСТИ",
+        news_text: "v12.0: Добавлена смена языка (Русский/English)! Вкладка «⭐ Звёзды» в магазине.",
+        pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
+        pass_tasks_title: "ЗАДАНИЯ",
+        pass_tasks: "заданий",
+        level: "Уровень",
+        clicks_done: "кликов",
+        done: "✅ ВЫПОЛНЕНО",
+        claim: "ЗАБРАТЬ",
+        lock_first: "🔒 Сначала пройди уровень",
+        until_end: "До конца AI Pass",
+        days: "дн.",
+        hours: "ч.",
+        minutes: "мин.",
+        pass_finished: "ЗАВЕРШЁН!",
+        soon: "скоро",
+        need_stars: "Нужно",
+        need_points: "Нужно",
+        exchange_ok: "Обмен выполнен!",
+        bought: "куплена!",
+        not_enough: "❌ Не хватает очков",
+        boost_already: "⚡ Буст уже активен",
+        boost_activated: "⚡ БУСТ X5 АКТИВЕН (5 минут)!",
+        boost_ended: "⏳ Буст закончился",
+        promo_ok: "✅ Промокод активирован!",
+        promo_bad: "❌ Неверный код",
+        star_got: "⭐ ЗВЁЗДЫ! +3",
+        candy_got: "🍬 КОНФЕТЫ! +3",
+        snowflake_got: "❄️ СНЕЖИНКИ! +3",
+        diamond_got: "💎 АЛМАЗ!",
+        triple_click: "⚡ ТРОЙНОЙ КЛИК! x3!",
+        banned: "🌚 Ты забанен на",
+        banned_min: "минут",
+        ban_lifted: "✅ Бан снят. Не повторяй.",
+        copied: "✅ Прогресс скопирован!",
+        saved: "💾 Прогресс сохранён!",
+        loaded: "📂 Загружено! Перезагружаю...",
+        load_error: "❌ Ошибка загрузки",
+        reload_toast: "Перезагрузка...",
+        bought_count: "Куплено сетей",
+        all_neurons: "Все нейросети куплены!",
+        all_passes: "Все AI Pass открыты!",
+        god_on: "БОГ ВКЛ",
+        god_off: "БОГ ВЫКЛ",
+        points_given: "+1000 очков",
+        stars_given: "+100 звёзд",
+        soon_feature: "⏳ Скоро появится!",
+        change: "Сменить",
+        task_claimed: "Уровень",
+        task_received: "получен!",
+        pass_reward: "Награда AI Pass"
+    },
+    en: {
+        loading: "LOADING...",
+        title: "🧠 CLICKER: NEURAL EVOLUTION",
+        halloween_title: "🎃 CLICKER: HALLOWEEN NEURAL",
+        newyear_title: "🎄 CLICKER: NEW YEAR EVOLUTION",
+        hacker_title: "> CLICKER: NEURAL EVOLUTION _",
+        play: "🎮 PLAY",
+        settings: "⚙️ SETTINGS",
+        news: "📢 NEWS",
+        share: "📤 SHARE",
+        min: "min",
+        stat_total_clicks: "Total clicks",
+        stat_neurons: "Neurons",
+        stat_session: "Session",
+        reload: "🔄 RELOAD:",
+        halloween_reload: "⏳ TO HALLOWEEN:",
+        newyear_reload: "🎄 NEW YEAR:",
+        hacker_reload: "> RELOAD:",
+        sleep: "😴 Sleeping?",
+        halloween_sleep: "🎃 Scared?",
+        newyear_sleep: "❄️ Happy New Year!",
+        combo: "🔥 x2 COMBO!",
+        boost: "⚡ BOOST X5 — 20⭐",
+        boost_active: "⚡ X5 ACTIVE —",
+        open_tasks: "📋 OPEN TASKS",
+        shop_neurons: "🧠 NEURONS",
+        shop_stars: "⭐ STARS",
+        buy_all: "💰 BUY ALL AVAILABLE",
+        close: "CLOSE",
+        back_menu: "◀ MENU",
+        shop: "🛒 SHOP",
+        autosave: "💾 autosave",
+        yes: "Yes",
+        no: "No",
+        ok: "GOT IT",
+        robot1: ": Hi I'm a robot !<br>I see you're new here?",
+        robot2: ": Tap the brain!",
+        tutorial_text: "Then scroll down and tap<br>shop, then buy any<br>neuron (tap it)",
+        conv1: "Your diamonds converted to stars",
+        conv2: "Diamonds fully removed",
+        settings_title: "⚙️ SETTINGS",
+        bg_choose: "🌄 Background",
+        bg_early: "Early autumn",
+        bg_golden: "Golden",
+        bg_rainy: "Rainy",
+        bg_late: "Late autumn",
+        bg_forest: "Forest",
+        bg_park: "Park",
+        bg_mountains: "Mountains",
+        bg_village: "Village",
+        save_progress: "💾 Save progress",
+        download_json: "Download JSON",
+        load_progress: "📂 Load progress",
+        choose_file: "Choose file",
+        promo: "🎫 Promo codes",
+        open: "Open",
+        sound: "🔊 Click sound",
+        sound_toggle: "Change",
+        fullscreen: "⛶ Fullscreen",
+        on: "Enable",
+        off: "Disable",
+        language: "🌐 Language / Язык",
+        reset_all: "⚠️ RESET ALL",
+        promo_title: "🎫 PROMO CODE",
+        activate: "ACTIVATE",
+        news_title: "📢 NEWS",
+        news_text: "v12.0: Language switch added (Russian/English)! New '⭐ Stars' tab in the shop.",
+        pass_no_active: "✨ NO ACTIVE PASS ✨",
+        pass_tasks_title: "TASKS",
+        pass_tasks: "tasks",
+        level: "Level",
+        clicks_done: "clicks",
+        done: "✅ DONE",
+        claim: "CLAIM",
+        lock_first: "🔒 Complete level first",
+        until_end: "Until AI Pass",
+        days: "d",
+        hours: "h",
+        minutes: "m",
+        pass_finished: "FINISHED!",
+        soon: "soon",
+        need_stars: "Need",
+        need_points: "Need",
+        exchange_ok: "Exchange done!",
+        bought: "bought!",
+        not_enough: "❌ Not enough points",
+        boost_already: "⚡ Boost already active",
+        boost_activated: "⚡ BOOST X5 ACTIVE (5 min)!",
+        boost_ended: "⏳ Boost ended",
+        promo_ok: "✅ Promo activated!",
+        promo_bad: "❌ Invalid code",
+        star_got: "⭐ STARS! +3",
+        candy_got: "🍬 CANDY! +3",
+        snowflake_got: "❄️ SNOWFLAKES! +3",
+        diamond_got: "💎 DIAMOND!",
+        triple_click: "⚡ TRIPLE CLICK! x3!",
+        banned: "🌚 You are banned for",
+        banned_min: "min",
+        ban_lifted: "✅ Ban lifted. Don't repeat.",
+        copied: "✅ Progress copied!",
+        saved: "💾 Progress saved!",
+        loaded: "📂 Loaded! Reloading...",
+        load_error: "❌ Load error",
+        reload_toast: "Reloading...",
+        bought_count: "Bought neurons",
+        all_neurons: "All neurons bought!",
+        all_passes: "All AI Passes opened!",
+        god_on: "GOD ON",
+        god_off: "GOD OFF",
+        points_given: "+1000 points",
+        stars_given: "+100 stars",
+        soon_feature: "⏳ Coming soon!",
+        change: "Change",
+        task_claimed: "Level",
+        task_received: "received!",
+        pass_reward: "AI Pass reward"
+    }
+};
+
+let currentLang = localStorage.getItem('gameLang') || 'ru';
+function t(key) {
+    return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.ru[key] || key;
+}
+
+function applyTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        el.innerText = t(key);
+    });
+    // Особые элементы с HTML внутри
+    const r1 = document.getElementById('robotText1');
+    if (r1) r1.innerHTML = t('robot1');
+    const r2 = document.getElementById('robotText2');
+    if (r2) r2.innerHTML = t('robot2');
+    const tt = document.getElementById('tutorialText');
+    if (tt) tt.innerHTML = t('tutorial_text');
+    // Обновляем динамические элементы
+    if (typeof updateBoostUI === 'function') updateBoostUI();
+    if (typeof applyPassStyle === 'function') applyPassStyle();
+    if (typeof applyTheme === 'function') applyTheme();
+    if (typeof updatePassEndTimer === 'function') updatePassEndTimer();
+    // Кнопки языка
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
+    document.querySelectorAll('#setLangRu, #setLangEn').forEach(btn => {
+        const isRu = btn.id === 'setLangRu';
+        const isActive = (isRu && currentLang === 'ru') || (!isRu && currentLang === 'en');
+        btn.classList.toggle('active', isActive);
+    });
+}
+
+function setLanguage(lang) {
+    if (lang !== 'ru' && lang !== 'en') return;
+    currentLang = lang;
+    localStorage.setItem('gameLang', lang);
+    applyTranslations();
+    if (typeof showToast === 'function') {
+        showToast(lang === 'ru' ? "✅ Язык: Русский" : "✅ Language: English");
+    }
+}
 
 let _pendingDiamondConversion = 0;
 (function captureOldDiamonds() {
@@ -61,9 +342,9 @@ function applyTheme() {
         if (brain) brain.classList.add('halloween-brain');
         if (brainEmoji) brainEmoji.innerText = '🎃';
         if (starLabel) starLabel.innerHTML = '🍬 <span id="stars">' + (window.__stars || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = '🎃 Страшно?';
-        if (reloadTimer) reloadTimer.innerHTML = '⏳ ДО ХЭЛЛОУИНА: <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = '🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ';
+        if (sleepMsg) sleepMsg.innerText = t('halloween_sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('halloween_reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('halloween_title');
     } else if (isNewYear()) {
         body.classList.add('bg-newyear');
         if (brain) {
@@ -75,16 +356,16 @@ function applyTheme() {
         }
         if (brainEmoji) brainEmoji.innerText = '🧠';
         if (starLabel) starLabel.innerHTML = '❄️ <span id="stars">' + (window.__stars || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = '❄️ С Новым Годом!';
-        if (reloadTimer) reloadTimer.innerHTML = '🎄 НОВЫЙ ГОД: <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = '🎄 КЛИКЕР: НОВОГОДНЯЯ ЭВОЛЮЦИЯ';
+        if (sleepMsg) sleepMsg.innerText = t('newyear_sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('newyear_reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('newyear_title');
     } else if (isHackerMode()) {
         body.classList.add('bg-hacker');
         if (brainEmoji) brainEmoji.innerText = '🧠';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = '😴 Спишь?';
-        if (reloadTimer) reloadTimer.innerHTML = '> ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span> _';
-        if (title) title.innerText = '> КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ _';
+        if (sleepMsg) sleepMsg.innerText = t('sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('hacker_reload') + ' <span id="reloadCountdown">5:00</span> _';
+        if (title) title.innerText = t('hacker_title');
     } else {
         const savedBg = localStorage.getItem('selectedBg') || 'early_autumn';
         const bgThemes = {
@@ -95,9 +376,9 @@ function applyTheme() {
         body.classList.add(bgThemes[savedBg] || 'bg-early-autumn');
         if (brainEmoji) brainEmoji.innerText = '🧠';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = '😴 Спишь?';
-        if (reloadTimer) reloadTimer.innerHTML = '🔄 ПЕРЕЗАГРУЗКА: <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = '🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ';
+        if (sleepMsg) sleepMsg.innerText = t('sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('title');
     }
 }
 
@@ -132,14 +413,14 @@ window.addEventListener('load', () => {
             document.body.style.filter = "grayscale(1) brightness(0.5)";
             document.body.style.pointerEvents = "none";
             const remaining = Math.ceil((banEnd - Date.now()) / 1000);
-            showToast(`🌚 Ты забанен на ${Math.ceil(remaining / 60)} минут`);
+            showToast(`${t('banned')} ${Math.ceil(remaining / 60)} ${t('banned_min')}`);
             if (banTimer) clearTimeout(banTimer);
             banTimer = setTimeout(() => {
                 localStorage.removeItem('banEnd');
                 isBanned = false;
                 document.body.style.filter = "";
                 document.body.style.pointerEvents = "";
-                showToast("✅ Бан снят. Не повторяй.");
+                showToast(t('ban_lifted'));
             }, banEnd - Date.now());
         } else {
             localStorage.removeItem('banEnd');
@@ -213,8 +494,8 @@ window.addEventListener('load', () => {
         if (!u.purchased && points >= u.price) {
             points -= u.price; u.purchased = true; purchasedCount++;
             updateUI(); renderShopNeurons(); saveGame();
-            showToast(`✅ ${u.name} куплена!`); playBuySound();
-        } else showToast("❌ Не хватает очков");
+            showToast(`✅ ${u.name} ${t('bought')}`); playBuySound();
+        } else showToast(t('not_enough'));
     }
 
     function buyAllAvailable() {
@@ -227,17 +508,16 @@ window.addEventListener('load', () => {
         if (bought > 0) {
             purchasedCount = upgrades.filter(u => u.purchased).length;
             updateUI(); renderShopNeurons(); saveGame();
-            showToast(`💰 Куплено сетей: ${bought}!`); playBuySound();
-        } else showToast("❌ Не хватает очков");
+            showToast(`💰 ${t('bought_count')}: ${bought}!`); playBuySound();
+        } else showToast(t('not_enough'));
     }
 
-    // ===== ЗВЁЗДНЫЙ ОБМЕН =====
     const EXCHANGES = [
         { id: 'ex1', type: 'starsToPoints', cost: 100, reward: 1000000, label: '100⭐ = 1000000🧠' },
         { id: 'ex2', type: 'starsToPoints', cost: 90, reward: 100000, label: '90⭐ = 100000🧠' },
         { id: 'ex3', type: 'starsToPoints', cost: 50, reward: 10000, label: '50⭐ = 10000🧠' },
         { id: 'ex4', type: 'pointsToStars', cost: 1000000, reward: 100, label: '1000000🧠 = 100⭐' },
-        { id: 'soon', type: 'soon', label: 'скоро', disabled: true }
+        { id: 'soon', type: 'soon', label: 'soon', disabled: true }
     ];
 
     function renderShopStars() {
@@ -246,7 +526,8 @@ window.addEventListener('load', () => {
         let html = '';
         EXCHANGES.forEach(ex => {
             const cls = ex.disabled ? 'exchange-item disabled' : 'exchange-item';
-            html += `<div class="${cls}" data-ex="${ex.id}">${ex.label}</div>`;
+            const label = ex.disabled ? t('soon') : ex.label;
+            html += `<div class="${cls}" data-ex="${ex.id}">${label}</div>`;
         });
         container.innerHTML = html;
         document.querySelectorAll('#shopStars .exchange-item').forEach(el => {
@@ -254,7 +535,7 @@ window.addEventListener('load', () => {
             if (ex && !ex.disabled) {
                 el.addEventListener('click', () => doExchange(ex));
             } else if (ex && ex.disabled) {
-                el.addEventListener('click', () => showToast("⏳ Скоро появится!"));
+                el.addEventListener('click', () => showToast(t('soon_feature')));
             }
         });
     }
@@ -262,19 +543,19 @@ window.addEventListener('load', () => {
     function doExchange(ex) {
         if (isBanned) return;
         if (ex.type === 'starsToPoints') {
-            if (stars < ex.cost) { showToast(`❌ Нужно ${ex.cost}⭐`); return; }
+            if (stars < ex.cost) { showToast(`❌ ${t('need_stars')} ${ex.cost}⭐`); return; }
             stars -= ex.cost;
             points += ex.reward;
             updateUI(); saveGame();
-            showToast(`✅ Обмен: -${ex.cost}⭐ → +${ex.reward}🧠`);
+            showToast(`✅ -${ex.cost}⭐ → +${ex.reward}🧠`);
             playBuySound();
         } else if (ex.type === 'pointsToStars') {
-            if (points < ex.cost) { showToast(`❌ Нужно ${ex.cost}🧠`); return; }
+            if (points < ex.cost) { showToast(`❌ ${t('need_points')} ${ex.cost}🧠`); return; }
             points -= ex.cost;
             stars += ex.reward;
             totalStarsEarned += ex.reward;
             updateUI(); saveGame();
-            showToast(`✅ Обмен: -${ex.cost}🧠 → +${ex.reward}⭐`);
+            showToast(`✅ -${ex.cost}🧠 → +${ex.reward}⭐`);
             playBuySound();
         }
     }
@@ -311,10 +592,10 @@ window.addEventListener('load', () => {
             const ms = getBoostRemaining();
             const m = Math.floor(ms / 60000);
             const s = Math.floor((ms % 60000) / 1000);
-            btn.innerText = `⚡ X5 АКТИВЕН — ${m}:${s.toString().padStart(2, '0')}`;
+            btn.innerText = `${t('boost_active')} ${m}:${s.toString().padStart(2, '0')}`;
             btn.classList.add('active');
         } else {
-            btn.innerText = `⚡ БУСТ X5 — ${BOOST_PRICE}⭐`;
+            btn.innerText = t('boost');
             btn.classList.remove('active');
         }
     }
@@ -325,18 +606,18 @@ window.addEventListener('load', () => {
             if (isBoostActive()) updateBoostUI();
             else {
                 updateBoostUI();
-                if (boostEndTime > 0) { boostEndTime = 0; showToast("⏳ Буст закончился"); updateUI(); }
+                if (boostEndTime > 0) { boostEndTime = 0; showToast(t('boost_ended')); updateUI(); }
             }
         }, 1000);
     }
     function buyBoost() {
         if (isBanned) return;
-        if (isBoostActive()) { showToast("⚡ Буст уже активен"); return; }
-        if (stars < BOOST_PRICE) { showToast(`❌ Нужно ${BOOST_PRICE}⭐`); return; }
+        if (isBoostActive()) { showToast(t('boost_already')); return; }
+        if (stars < BOOST_PRICE) { showToast(`❌ ${t('need_stars')} ${BOOST_PRICE}⭐`); return; }
         stars -= BOOST_PRICE;
         boostEndTime = Date.now() + BOOST_DURATION;
         updateUI(); updateBoostUI(); saveGame();
-        showToast(`⚡ БУСТ X5 АКТИВЕН (5 минут)!`); playBuySound();
+        showToast(t('boost_activated')); playBuySound();
     }
 
     let passTasks = [], passCurrentTask = 0;
@@ -376,29 +657,25 @@ window.addEventListener('load', () => {
         if (num === 8) {
             container.classList.add('pass-v8');
             title.innerHTML = '🎃 AI PASS 8 🎃';
-            if (tasksTitle) tasksTitle.innerHTML = '🎃 ЗАДАНИЯ AI PASS 8 🎃';
+            if (tasksTitle) tasksTitle.innerHTML = '🎃 ' + t('pass_tasks_title') + ' AI PASS 8 🎃';
         } else if (num === 7) {
             container.classList.add('pass-v7');
             title.innerHTML = '> AI PASS 7 _';
-            if (tasksTitle) tasksTitle.innerHTML = '> ЗАДАНИЯ AI PASS 7 _';
+            if (tasksTitle) tasksTitle.innerHTML = '> ' + t('pass_tasks_title') + ' AI PASS 7 _';
         } else if (num === 6) {
             container.classList.add('pass-v6');
             title.innerHTML = '🤖 AI PASS 6 🤖';
-            if (tasksTitle) tasksTitle.innerHTML = '🤖 ЗАДАНИЯ AI PASS 6 🤖';
+            if (tasksTitle) tasksTitle.innerHTML = '🤖 ' + t('pass_tasks_title') + ' AI PASS 6 🤖';
         } else {
-            title.innerHTML = '✨ НЕТ АКТИВНОГО ПАССА ✨';
-            if (tasksTitle) tasksTitle.innerHTML = '✨ НЕТ АКТИВНОГО ПАССА ✨';
+            title.innerHTML = t('pass_no_active');
+            if (tasksTitle) tasksTitle.innerHTML = t('pass_no_active');
         }
     }
     function fillPassTasks(season) {
         passTasks = [];
         if (season === '8') {
             for (let i = 1; i <= 40; i++) {
-                passTasks.push({
-                    level: i, targetClicks: i * 500,
-                    rewardPoints: 2000, rewardStars: 5,
-                    completed: false, claimed: false
-                });
+                passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: 2000, rewardStars: 5, completed: false, claimed: false });
             }
         } else if (season === '7') {
             for (let i = 1; i <= 30; i++) {
@@ -410,11 +687,7 @@ window.addEventListener('load', () => {
             }
         } else {
             for (let i = 1; i <= 20; i++) {
-                passTasks.push({
-                    level: i, targetClicks: i * 500,
-                    rewardPoints: i * 500, rewardStars: i * 5,
-                    completed: false, claimed: false
-                });
+                passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: i * 500, rewardStars: i * 5, completed: false, claimed: false });
             }
         }
     }
@@ -471,7 +744,7 @@ window.addEventListener('load', () => {
                     const r = getPassRewardRewards();
                     points += r.points; stars += r.stars; totalStarsEarned += r.stars;
                     updateUI(); saveGame();
-                    showToast(`🎁 Награда AI Pass ${num}! +${r.points}🧠 +${r.stars}⭐`);
+                    showToast(`🎁 ${t('pass_reward')} ${num}! +${r.points}🧠 +${r.stars}⭐`);
                     playBuySound();
                 }
                 passRewardSeconds = getPassRewardSeconds();
@@ -485,18 +758,18 @@ window.addEventListener('load', () => {
         let html = '';
         passTasks.forEach((task, idx) => {
             let cls = 'task-item', statusText = '', claimBtn = '';
-            if (task.claimed) { cls += ' completed'; statusText = '✅ ВЫПОЛНЕНО'; }
+            if (task.claimed) { cls += ' completed'; statusText = t('done'); }
             else if (idx === passCurrentTask) {
                 cls += ' current';
                 const progress = Math.min(totalClicks, task.targetClicks);
                 const percent = Math.min(100, (progress / task.targetClicks) * 100);
-                statusText = `${progress} / ${task.targetClicks} кликов`;
-                if (totalClicks >= task.targetClicks) claimBtn = `<button class="task-claim-btn" data-idx="${idx}">ЗАБРАТЬ</button>`;
-                html += `<div class="${cls}"><div class="task-header"><span class="task-level">🎯 Уровень ${task.level}</span><span class="task-reward">+${task.rewardPoints}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">Сделай ${task.targetClicks} кликов</div><div class="task-progress-bar"><div class="task-progress-fill" style="width:${percent}%"></div></div><div class="task-progress-text">${statusText}</div>${claimBtn}</div>`;
+                statusText = `${progress} / ${task.targetClicks} ${t('clicks_done')}`;
+                if (totalClicks >= task.targetClicks) claimBtn = `<button class="task-claim-btn" data-idx="${idx}">${t('claim')}</button>`;
+                html += `<div class="${cls}"><div class="task-header"><span class="task-level">🎯 ${t('level')} ${task.level}</span><span class="task-reward">+${task.rewardPoints}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">${task.targetClicks} ${t('clicks_done')}</div><div class="task-progress-bar"><div class="task-progress-fill" style="width:${percent}%"></div></div><div class="task-progress-text">${statusText}</div>${claimBtn}</div>`;
                 return;
-            } else if (idx < passCurrentTask) { cls += ' completed'; statusText = '✅ ВЫПОЛНЕНО'; }
-            else statusText = `🔒 Сначала пройди уровень ${idx}`;
-            html += `<div class="${cls}"><div class="task-header"><span class="task-level">${idx === passCurrentTask ? '🎯' : '🔒'} Уровень ${task.level}</span><span class="task-reward">+${task.rewardPoints}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">Сделай ${task.targetClicks} кликов</div><div class="task-progress-text">${statusText}</div></div>`;
+            } else if (idx < passCurrentTask) { cls += ' completed'; statusText = t('done'); }
+            else statusText = `${t('lock_first')} ${idx}`;
+            html += `<div class="${cls}"><div class="task-header"><span class="task-level">${idx === passCurrentTask ? '🎯' : '🔒'} ${t('level')} ${task.level}</span><span class="task-reward">+${task.rewardPoints}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">${task.targetClicks} ${t('clicks_done')}</div><div class="task-progress-text">${statusText}</div></div>`;
         });
         container.innerHTML = html;
         document.querySelectorAll('.task-claim-btn').forEach(btn => {
@@ -511,7 +784,7 @@ window.addEventListener('load', () => {
         points += task.rewardPoints; stars += task.rewardStars;
         totalStarsEarned += task.rewardStars; passCurrentTask++;
         updateUI(); renderPassBadges(); renderTasksList(); saveGame();
-        showToast(`🎉 Уровень ${task.level} получен!`); playBuySound();
+        showToast(`🎉 ${t('task_claimed')} ${task.level} ${t('task_received')}`); playBuySound();
     }
     function checkPassProgress() {
         const modal = document.getElementById('passTasksModal');
@@ -521,18 +794,18 @@ window.addEventListener('load', () => {
         const el = document.getElementById('passEndTimer');
         if (!el) return;
         const num = getActivePassNumber();
-        if (num === 0) { el.innerHTML = `⏳ Нет активного пасса`; return; }
+        if (num === 0) { el.innerHTML = `⏳ ${t('pass_no_active')}`; return; }
         const now = new Date();
         let endDate;
         if (num === 8) endDate = pass8EndDate;
         else if (num === 7) endDate = pass7EndDate;
         else endDate = pass6EndDate;
         const diff = endDate - now;
-        if (diff <= 0) { el.innerHTML = `⏳ AI PASS ${num} ЗАВЕРШЁН!`; if (passEndTimerInterval) clearInterval(passEndTimerInterval); return; }
+        if (diff <= 0) { el.innerHTML = `⏳ AI PASS ${num} ${t('pass_finished')}`; if (passEndTimerInterval) clearInterval(passEndTimerInterval); return; }
         const days = Math.floor(diff / 86400000);
         const hours = Math.floor((diff % 86400000) / 3600000);
         const minutes = Math.floor((diff % 3600000) / 60000);
-        el.innerHTML = `⏳ До конца AI Pass ${num}: ${days} дн. ${hours} ч. ${minutes} мин.`;
+        el.innerHTML = `⏳ ${t('until_end')} ${num}: ${days} ${t('days')} ${hours} ${t('hours')} ${minutes} ${t('minutes')}`;
     }
     function startPassEndTimer() {
         if (passEndTimerInterval) clearInterval(passEndTimerInterval);
@@ -599,9 +872,9 @@ window.addEventListener('load', () => {
     }
     function shareProgress() {
         const num = getActivePassNumber();
-        const text = `🧠 Мой прогресс в игре "Кликер: Эволюция Нейросетей":\n🧠 Очки: ${Math.floor(points)}\n⭐ Звёзды: ${stars}\n🖱️ Всего кликов: ${totalClicks}\n🧬 Нейросетей: ${purchasedCount}/${upgrades.length}\n🤖 AI Pass ${num} уровней: ${passTasks.filter(t=>t.claimed).length}/${passTasks.length}\n📅 Версия ${GAME_VERSION}`;
+        const text = `🧠 ${t('title')}:\n🧠 ${Math.floor(points)}\n⭐ ${stars}\n🖱️ ${totalClicks}\n🧬 ${purchasedCount}/${upgrades.length}\n🤖 AI Pass ${num}: ${passTasks.filter(t=>t.claimed).length}/${passTasks.length}\n📅 ${GAME_VERSION}`;
         navigator.clipboard.writeText(text);
-        showToast("✅ Прогресс скопирован!");
+        showToast(t('copied'));
     }
     function getClickPower() {
         let base = 1;
@@ -625,10 +898,10 @@ window.addEventListener('load', () => {
         checkPassProgress();
     }
     function showToast(msg) {
-        const t = document.createElement('div');
-        t.className = 'toast'; t.innerText = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 2500);
+        const t2 = document.createElement('div');
+        t2.className = 'toast'; t2.innerText = msg;
+        document.body.appendChild(t2);
+        setTimeout(() => t2.remove(), 2500);
     }
     function saveGame() {
         const save = {
@@ -683,8 +956,6 @@ window.addEventListener('load', () => {
         if (playtimeInterval) clearInterval(playtimeInterval);
         playtimeInterval = setInterval(() => updatePlaytime(), 60000);
         startSleepMsgTimer();
-        const stb = document.getElementById('soundToggleBtn');
-        if (stb) stb.innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
         applyBanState(); applyTheme(); applyPassStyle();
         if (_showAnim && !localStorage.getItem('diamondConverted')) {
             localStorage.setItem('diamondConverted', 'true');
@@ -720,7 +991,7 @@ window.addEventListener('load', () => {
         const a = document.createElement("a");
         a.href = url; a.download = "neural_evolution_save.json"; a.click();
         URL.revokeObjectURL(url);
-        showToast("💾 Прогресс сохранён!");
+        showToast(t('saved'));
     }
     function importProgress(file) {
         const reader = new FileReader();
@@ -729,9 +1000,9 @@ window.addEventListener('load', () => {
                 const data = JSON.parse(e.target.result);
                 data.gameVersion = GAME_VERSION;
                 localStorage.setItem('neuralEvoSave', JSON.stringify(data));
-                showToast("📂 Загружено! Перезагружаю...");
+                showToast(t('loaded'));
                 setTimeout(() => location.reload(), 1000);
-            } catch(error) { showToast("❌ Ошибка загрузки"); }
+            } catch(error) { showToast(t('load_error')); }
         };
         reader.readAsText(file);
     }
@@ -759,7 +1030,7 @@ window.addEventListener('load', () => {
             finalGain = gain * 2;
             const comboText = document.getElementById('comboText');
             if (comboText) {
-                comboText.innerText = "🔥 x2 КОМБО!";
+                comboText.innerText = t('combo');
                 comboText.classList.add('show');
                 setTimeout(() => comboText.classList.remove('show'), 800);
             }
@@ -768,14 +1039,14 @@ window.addEventListener('load', () => {
         if (Math.random() < 0.02) {
             finalGain = finalGain * 3;
             spawnFloatText(x, y - 40, "⚡ x3!");
-            showToast("⚡ ТРОЙНОЙ КЛИК! x3!"); playBuySound();
+            showToast(t('triple_click')); playBuySound();
         }
         points += finalGain; totalClicks++; sessionClicks++; playClickSound();
         if (Math.random() < 0.001) {
             stars += 3; totalStarsEarned += 3;
-            if (isHalloween()) showToast("🍬 КОНФЕТЫ! +3");
-            else if (isNewYear()) showToast("❄️ СНЕЖИНКИ! +3");
-            else showToast("⭐ ЗВЁЗДЫ! +3");
+            if (isHalloween()) showToast(t('candy_got'));
+            else if (isNewYear()) showToast(t('snowflake_got'));
+            else showToast(t('star_got'));
             playBuySound();
             spawnFloatText(x, y - 30, isHalloween() ? "🍬🍬🍬" : (isNewYear() ? "❄️❄️❄️" : "⭐⭐⭐"));
         }
@@ -876,12 +1147,17 @@ window.addEventListener('load', () => {
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
     document.getElementById('resetGameBtn')?.addEventListener('click', () => {
-        if (confirm("Сбросить всё?")) { localStorage.clear(); location.reload(); }
+        if (confirm("Сбросить всё? / Reset all?")) { localStorage.clear(); location.reload(); }
     });
     document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
     document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
 
-    // ===== Обработчики вкладок магазина =====
+    // Кнопки языка в туториале
+    document.getElementById('langRu')?.addEventListener('click', () => setLanguage('ru'));
+    document.getElementById('langEn')?.addEventListener('click', () => setLanguage('en'));
+    document.getElementById('setLangRu')?.addEventListener('click', () => setLanguage('ru'));
+    document.getElementById('setLangEn')?.addEventListener('click', () => setLanguage('en'));
+
     document.querySelectorAll('.shop-tab').forEach(tab => {
         tab.addEventListener('click', () => switchShopTab(tab.dataset.tab));
     });
@@ -916,13 +1192,13 @@ window.addEventListener('load', () => {
             if (!isFull) {
                 if (el.requestFullscreen) el.requestFullscreen();
                 else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-                fullscreenBtn.innerText = 'Выключить';
-                showToast("⛶ Полный экран");
+                fullscreenBtn.innerText = t('off');
+                showToast("⛶ " + t('fullscreen'));
             } else {
                 if (document.exitFullscreen) document.exitFullscreen();
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                fullscreenBtn.innerText = 'Включить';
-                showToast("⛶ Обычный режим");
+                fullscreenBtn.innerText = t('on');
+                showToast("⛶ " + t('fullscreen'));
             }
         });
     }
@@ -958,18 +1234,18 @@ window.addEventListener('load', () => {
             points += promo.points; stars += promo.stars;
             totalStarsEarned += promo.stars;
             updateUI(); saveGame();
-            showToast("✅ Промокод активирован!");
+            showToast(t('promo_ok'));
             document.getElementById('promoInput').value = '';
             document.getElementById('promoModal').classList.remove('show');
-        } else showToast("❌ Неверный код");
+        } else showToast(t('promo_bad'));
     });
 
     document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
         if (isBanned) return;
         currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
-        document.getElementById('soundToggleBtn').innerText = `Сменить (${soundProfiles[currentSoundProfile].name})`;
+        document.getElementById('soundToggleBtn').innerText = `${t('sound_toggle')} (${soundProfiles[currentSoundProfile].name})`;
         saveGame();
-        showToast(`🔊 Звук: ${soundProfiles[currentSoundProfile].name}`);
+        showToast(`🔊 ${soundProfiles[currentSoundProfile].name}`);
     });
 
     document.getElementById('shareBtn')?.addEventListener('click', shareProgress);
@@ -999,7 +1275,7 @@ window.addEventListener('load', () => {
                 el.innerText = `${m}:${s.toString().padStart(2, '0')}`;
             }
             if (reloadSeconds === 0) {
-                showToast("Перезагрузка...");
+                showToast(t('reload_toast'));
                 setTimeout(() => location.reload(), 2000);
             }
         }
@@ -1019,23 +1295,23 @@ window.addEventListener('load', () => {
                 <div class="admin-item"><span>Режим Бога (x10)</span><button id="admGod">Вкл/Выкл</button></div>
                 <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
             `;
-            document.getElementById('admPoints').onclick = () => { points += 1000; updateUI(); saveGame(); showToast("+1000 очков"); };
-            document.getElementById('admStars').onclick = () => { stars += 100; totalStarsEarned += 100; updateUI(); saveGame(); showToast("+100 звёзд"); };
+            document.getElementById('admPoints').onclick = () => { points += 1000; updateUI(); saveGame(); showToast(t('points_given')); };
+            document.getElementById('admStars').onclick = () => { stars += 100; totalStarsEarned += 100; updateUI(); saveGame(); showToast(t('stars_given')); };
             document.getElementById('admBuyAll').onclick = () => {
                 upgrades.forEach((u) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } });
-                updateUI(); renderShopNeurons(); saveGame(); showToast("Все нейросети куплены!");
+                updateUI(); renderShopNeurons(); saveGame(); showToast(t('all_neurons'));
             };
             document.getElementById('admPass').onclick = () => {
-                passTasks.forEach((t) => { t.claimed = true; });
+                passTasks.forEach((t2) => { t2.claimed = true; });
                 passCurrentTask = passTasks.length;
-                renderPassBadges(); renderTasksList(); saveGame(); showToast("Все AI Pass открыты!");
+                renderPassBadges(); renderTasksList(); saveGame(); showToast(t('all_passes'));
             };
             document.getElementById('admGod').onclick = () => {
                 godMode = !godMode; updateUI(); saveGame();
-                showToast(godMode ? "БОГ ВКЛ" : "БОГ ВЫКЛ");
+                showToast(godMode ? t('god_on') : t('god_off'));
             };
             document.getElementById('admReset').onclick = () => {
-                if (confirm("Сбросить прогресс?")) { localStorage.clear(); location.reload(); }
+                if (confirm("Сбросить прогресс? / Reset progress?")) { localStorage.clear(); location.reload(); }
             };
         }
         if (adminCurrentTab === 'visual') {
@@ -1078,20 +1354,20 @@ window.addEventListener('load', () => {
                 localStorage.setItem('musicEnabled', musicEnabled);
                 const btn = document.getElementById('musicToggle');
                 if (btn) btn.innerText = musicEnabled ? '🔊' : '🔇';
-                showToast(musicEnabled ? "Звук ВКЛ" : "Звук ВЫКЛ");
+                showToast(musicEnabled ? "🔊 ON" : "🔇 OFF");
             };
             document.getElementById('admSoundProfile').onclick = () => {
                 currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
-                showToast("Звук: " + soundProfiles[currentSoundProfile].name);
+                showToast("🔊 " + soundProfiles[currentSoundProfile].name);
                 saveGame();
             };
             document.getElementById('admStats').onclick = () => {
                 console.log("Очки:", Math.floor(points), "| Звёзды:", stars, "| Клики:", totalClicks, "| Сети:", purchasedCount);
-                showToast("Смотри консоль (F12)");
+                showToast("Console (F12)");
             };
             document.getElementById('admResetTutorial').onclick = () => {
                 localStorage.removeItem('tutorialDone');
-                showToast("Обучение сброшено! Перезагрузи страницу.");
+                showToast("✅ Tutorial reset! / Обучение сброшено!");
             };
         }
     }
@@ -1116,5 +1392,7 @@ window.addEventListener('load', () => {
         if (e.target.id === 'adminOverlay') document.getElementById('adminOverlay').classList.remove('show');
     });
 
+    // Применяем переводы
+    applyTranslations();
     loadGame();
 });
