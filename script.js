@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.1";
+const GAME_VERSION = "12.2";
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -17,7 +17,7 @@ const TRANSLATIONS = {
         sleep: "😴 Спишь?", halloween_sleep: "🎃 Страшно?", newyear_sleep: "❄️ С Новым Годом!",
         combo: "🔥 x2 КОМБО!", boost: "⚡ БУСТ X5 — 20⭐", boost_active: "⚡ X5 АКТИВЕН —",
         open_tasks: "📋 ОТКРЫТЬ ЗАДАНИЯ",
-        shop_neurons: "🧠 НЕЙРОСЕТИ", shop_stars: "⭐ ЗВЁЗДЫ",
+        shop_neurons: "🧠 НЕЙРОСЕТИ", shop_stars: "⭐ ЗВЁЗДЫ", shop_skins: "🎨 СКИНЫ",
         buy_all: "💰 КУПИТЬ ВСЁ ДОСТУПНОЕ", close: "ЗАКРЫТЬ",
         back_menu: "◀ МЕНЮ", shop: "🛒 МАГАЗИН", autosave: "💾 автосохранение",
         yes: "Да", no: "Нет", ok: "ПОНЯЛ",
@@ -38,7 +38,7 @@ const TRANSLATIONS = {
         language: "🌐 Язык / Language", reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.1: Рулетка 🎰, ежедневный факт 🧠, смена цвета кнопок 🎨, кнопки «В начало/Конец» в магазине.",
+        news_text: "v12.2: Добавлены скины на мозг! 🎨 Хакерский скин бесплатно во время AI Pass 7.",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -47,6 +47,7 @@ const TRANSLATIONS = {
         days: "дн.", hours: "ч.", minutes: "мин.", pass_finished: "ЗАВЕРШЁН!",
         soon: "скоро", need_stars: "Нужно", need_points: "Нужно",
         bought: "куплена!", not_enough: "❌ Не хватает очков",
+        not_enough_stars: "❌ Не хватает звёзд",
         boost_already: "⚡ Буст уже активен",
         boost_activated: "⚡ БУСТ X5 АКТИВЕН (5 минут)!", boost_ended: "⏳ Буст закончился",
         promo_ok: "✅ Промокод активирован!", promo_bad: "❌ Неверный код",
@@ -67,7 +68,11 @@ const TRANSLATIONS = {
         roulette_no_stars: "❌ Нужно 5⭐", roulette_win: "🎉 ВЫИГРЫШ",
         roulette_spinning: "🎲 КРУТИТСЯ...", roulette_spin: "🎲 КРУТИТЬ",
         first_page: "⏮ НАЧАЛО", last_page: "КОНЕЦ ⏭",
-        prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️"
+        prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️",
+        skin_normal: "Обычный", skin_hacker: "Хакерский",
+        skin_active: "✅ АКТИВЕН", skin_buy: "Купить за", skin_free: "БЕСПЛАТНО",
+        skin_apply: "НАДЕТЬ", skin_locked: "🔒 Откроется позже",
+        skin_bought: "Скин куплен!", skin_applied: "Скин надет!"
     },
     en: {
         loading: "LOADING...",
@@ -83,7 +88,7 @@ const TRANSLATIONS = {
         sleep: "😴 Sleeping?", halloween_sleep: "🎃 Scared?", newyear_sleep: "❄️ Happy New Year!",
         combo: "🔥 x2 COMBO!", boost: "⚡ BOOST X5 — 20⭐", boost_active: "⚡ X5 ACTIVE —",
         open_tasks: "📋 OPEN TASKS",
-        shop_neurons: "🧠 NEURONS", shop_stars: "⭐ STARS",
+        shop_neurons: "🧠 NEURONS", shop_stars: "⭐ STARS", shop_skins: "🎨 SKINS",
         buy_all: "💰 BUY ALL AVAILABLE", close: "CLOSE",
         back_menu: "◀ MENU", shop: "🛒 SHOP", autosave: "💾 autosave",
         yes: "Yes", no: "No", ok: "GOT IT",
@@ -104,7 +109,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.1: Roulette 🎰, daily fact 🧠, button color change 🎨, 'First/Last page' buttons in shop.",
+        news_text: "v12.2: Brain skins added! 🎨 Hacker skin free during AI Pass 7.",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -113,6 +118,7 @@ const TRANSLATIONS = {
         days: "d", hours: "h", minutes: "m", pass_finished: "FINISHED!",
         soon: "soon", need_stars: "Need", need_points: "Need",
         bought: "bought!", not_enough: "❌ Not enough points",
+        not_enough_stars: "❌ Not enough stars",
         boost_already: "⚡ Boost already active",
         boost_activated: "⚡ BOOST X5 ACTIVE (5 min)!", boost_ended: "⏳ Boost ended",
         promo_ok: "✅ Promo activated!", promo_bad: "❌ Invalid code",
@@ -133,7 +139,11 @@ const TRANSLATIONS = {
         roulette_no_stars: "❌ Need 5⭐", roulette_win: "🎉 YOU WON",
         roulette_spinning: "🎲 SPINNING...", roulette_spin: "🎲 SPIN",
         first_page: "⏮ FIRST", last_page: "LAST ⏭",
-        prev_page: "⬅️ BACK", next_page: "NEXT ➡️"
+        prev_page: "⬅️ BACK", next_page: "NEXT ➡️",
+        skin_normal: "Normal", skin_hacker: "Hacker",
+        skin_active: "✅ ACTIVE", skin_buy: "Buy for", skin_free: "FREE",
+        skin_apply: "WEAR", skin_locked: "🔒 Unlocks later",
+        skin_bought: "Skin bought!", skin_applied: "Skin applied!"
     }
 };
 
@@ -302,6 +312,152 @@ function isHackerMode() {
     return season === 7;
 }
 
+// ===== ДАТЫ AI PASS =====
+const pass6StartDate = new Date(2026, 8, 21, 0, 0, 0);
+const pass6EndDate = new Date(2026, 8, 29, 0, 0, 0);
+const pass7StartDate = new Date(2026, 8, 29, 0, 0, 0);
+const pass7EndDate = new Date(2026, 9, 8, 0, 0, 0);
+const pass8StartDate = new Date(2026, 9, 8, 0, 0, 0);
+const pass8EndDate = new Date(2026, 9, 31, 23, 59, 59);
+
+function getActivePassNumber() {
+    const now = new Date();
+    if (now >= pass8StartDate && now <= pass8EndDate) return 8;
+    if (now >= pass7StartDate && now <= pass7EndDate) return 7;
+    if (now >= pass6StartDate && now <= pass6EndDate) return 6;
+    return 0;
+}
+
+function getPassEndTime(season) {
+    if (season === 8) return pass8EndDate.getTime();
+    if (season === 7) return pass7EndDate.getTime();
+    if (season === 6) return pass6EndDate.getTime();
+    return 0;
+}
+
+// ===== СКИНЫ =====
+const SKINS = [
+    { id: 'normal', nameKey: 'skin_normal', emoji: '🧠', price: 0, className: 'brain-skin-normal' },
+    { id: 'hacker', nameKey: 'skin_hacker', emoji: '🤖', price: 30, className: 'brain-skin-hacker' }
+];
+
+function getOwnedSkins() {
+    try {
+        const saved = localStorage.getItem('ownedSkins');
+        if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return ['normal'];
+}
+
+function setOwnedSkins(arr) {
+    localStorage.setItem('ownedSkins', JSON.stringify(arr));
+}
+
+function getActiveSkin() {
+    return localStorage.getItem('activeSkin') || 'normal';
+}
+
+function setActiveSkin(id) {
+    localStorage.setItem('activeSkin', id);
+    applySkin(id);
+}
+
+function isHackerSkinFree() {
+    return getActivePassNumber() === 7;
+}
+
+function applySkin(id) {
+    const brain = document.getElementById('clickableObject');
+    const emoji = document.getElementById('brainEmoji');
+    if (!brain || !emoji) return;
+    const skin = SKINS.find(s => s.id === id) || SKINS[0];
+    brain.classList.remove('brain-skin-normal', 'brain-skin-hacker');
+    brain.classList.add(skin.className);
+    emoji.innerText = skin.emoji;
+}
+
+function renderShopSkins() {
+    const container = document.getElementById('shopSkins');
+    if (!container) return;
+    const owned = getOwnedSkins();
+    const active = getActiveSkin();
+    const freeNow = isHackerSkinFree();
+    let html = '';
+    SKINS.forEach(skin => {
+        const isOwned = owned.includes(skin.id);
+        const isActive = active === skin.id;
+        let priceText = '';
+        let btnText = '';
+        let disabled = false;
+
+        if (skin.id === 'normal') {
+            priceText = '0⭐';
+            btnText = isActive ? t('skin_active') : t('skin_apply');
+            if (isActive) disabled = true;
+        } else if (skin.id === 'hacker') {
+            if (isOwned) {
+                priceText = '✅';
+                btnText = isActive ? t('skin_active') : t('skin_apply');
+                if (isActive) disabled = true;
+            } else if (freeNow) {
+                priceText = '🎁 ' + t('skin_free');
+                btnText = t('skin_buy') + ' 0⭐';
+            } else {
+                priceText = skin.price + '⭐';
+                btnText = t('skin_buy') + ' ' + skin.price + '⭐';
+            }
+        }
+
+        html += `<div class="skin-item${isActive ? ' skin-active' : ''}" data-skin="${skin.id}">
+            <div class="skin-emoji-big">${skin.emoji}</div>
+            <div class="skin-info">
+                <div class="skin-name">${t(skin.nameKey)}</div>
+                <div class="skin-price">${priceText}</div>
+            </div>
+            <button class="skin-btn${disabled ? ' skin-btn-active' : ''}" data-skin-btn="${skin.id}" ${disabled ? 'disabled' : ''}>${btnText}</button>
+        </div>`;
+    });
+    container.innerHTML = html;
+
+    document.querySelectorAll('[data-skin-btn]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const skinId = btn.dataset.skinBtn;
+            const skin = SKINS.find(s => s.id === skinId);
+            if (!skin) return;
+            const ownedList = getOwnedSkins();
+            if (ownedList.includes(skinId)) {
+                setActiveSkin(skinId);
+                renderShopSkins();
+                showToast(t('skin_applied'));
+                playBuySound();
+                return;
+            }
+            let cost = skin.price;
+            if (skin.id === 'hacker' && isHackerSkinFree()) cost = 0;
+            if (cost === 0) {
+                ownedList.push(skinId);
+                setOwnedSkins(ownedList);
+                setActiveSkin(skinId);
+                renderShopSkins();
+                showToast(t('skin_bought'));
+                playBuySound();
+                saveGame();
+                return;
+            }
+            if (stars < cost) { showToast(t('not_enough_stars')); return; }
+            stars -= cost;
+            ownedList.push(skinId);
+            setOwnedSkins(ownedList);
+            setActiveSkin(skinId);
+            updateUI();
+            renderShopSkins();
+            saveGame();
+            showToast(t('skin_bought'));
+            playBuySound();
+        });
+    });
+}
+
 function applyTheme() {
     const body = document.body;
     const brain = document.getElementById('clickableObject');
@@ -341,7 +497,12 @@ function applyTheme() {
         if (title) title.innerText = t('newyear_title');
     } else if (isHackerMode()) {
         body.classList.add('bg-hacker');
-        if (brainEmoji) brainEmoji.innerText = '🧠';
+        const activeSkin = getActiveSkin();
+        if (activeSkin === 'hacker') {
+            if (brainEmoji) brainEmoji.innerText = '🤖';
+        } else {
+            if (brainEmoji) brainEmoji.innerText = '🧠';
+        }
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('sleep');
         if (reloadTimer) reloadTimer.innerHTML = t('hacker_reload') + ' <span id="reloadCountdown">5:00</span> _';
@@ -354,7 +515,9 @@ function applyTheme() {
             mountains: "bg-mountains", village: "bg-village"
         };
         body.classList.add(bgThemes[savedBg] || 'bg-early-autumn');
-        if (brainEmoji) brainEmoji.innerText = '🧠';
+        const activeSkin = getActiveSkin();
+        const skin = SKINS.find(s => s.id === activeSkin) || SKINS[0];
+        if (brainEmoji) brainEmoji.innerText = skin.emoji;
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('sleep');
         if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
@@ -369,29 +532,6 @@ function applyButtonColor(color) {
     document.querySelectorAll('.color-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.color === (color || 'blue'));
     });
-}
-
-// ===== ДАТЫ AI PASS (в коде, без Supabase) =====
-const pass6StartDate = new Date(2026, 8, 21, 0, 0, 0);
-const pass6EndDate = new Date(2026, 8, 29, 0, 0, 0);
-const pass7StartDate = new Date(2026, 8, 29, 0, 0, 0);
-const pass7EndDate = new Date(2026, 9, 8, 0, 0, 0);
-const pass8StartDate = new Date(2026, 9, 8, 0, 0, 0);
-const pass8EndDate = new Date(2026, 9, 31, 23, 59, 59);
-
-function getActivePassNumber() {
-    const now = new Date();
-    if (now >= pass8StartDate && now <= pass8EndDate) return 8;
-    if (now >= pass7StartDate && now <= pass7EndDate) return 7;
-    if (now >= pass6StartDate && now <= pass6EndDate) return 6;
-    return 0;
-}
-
-function getPassEndTime(season) {
-    if (season === 8) return pass8EndDate.getTime();
-    if (season === 7) return pass7EndDate.getTime();
-    if (season === 6) return pass6EndDate.getTime();
-    return 0;
 }
 
 window.addEventListener('load', () => {
@@ -604,20 +744,32 @@ window.addEventListener('load', () => {
     function switchShopTab(tab) {
         const tabNeurons = document.querySelector('.shop-tab[data-tab="neurons"]');
         const tabStars = document.querySelector('.shop-tab[data-tab="stars"]');
+        const tabSkins = document.querySelector('.shop-tab[data-tab="skins"]');
         const listNeurons = document.getElementById('shopNeurons');
         const listStars = document.getElementById('shopStars');
+        const listSkins = document.getElementById('shopSkins');
         const buyAllBtn = document.getElementById('buyAllBtn');
+
+        [tabNeurons, tabStars, tabSkins].forEach(tb => { if (tb) tb.classList.remove('active'); });
+
         if (tab === 'stars') {
-            if (tabNeurons) tabNeurons.classList.remove('active');
             if (tabStars) tabStars.classList.add('active');
             if (listNeurons) listNeurons.style.display = 'none';
             if (listStars) listStars.style.display = 'block';
+            if (listSkins) listSkins.style.display = 'none';
             if (buyAllBtn) buyAllBtn.style.display = 'none';
             renderShopStars();
+        } else if (tab === 'skins') {
+            if (tabSkins) tabSkins.classList.add('active');
+            if (listNeurons) listNeurons.style.display = 'none';
+            if (listStars) listStars.style.display = 'none';
+            if (listSkins) listSkins.style.display = 'block';
+            if (buyAllBtn) buyAllBtn.style.display = 'none';
+            renderShopSkins();
         } else {
-            if (tabStars) tabStars.classList.remove('active');
             if (tabNeurons) tabNeurons.classList.add('active');
             if (listStars) listStars.style.display = 'none';
+            if (listSkins) listSkins.style.display = 'none';
             if (listNeurons) listNeurons.style.display = 'block';
             if (buyAllBtn) buyAllBtn.style.display = '';
             renderShopNeurons();
@@ -1017,6 +1169,8 @@ window.addEventListener('load', () => {
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
             passSeason: localStorage.getItem('aiPassSeason') || '0',
+            ownedSkins: getOwnedSkins(),
+            activeSkin: getActiveSkin(),
             boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION
         };
         localStorage.setItem('neuralEvoSave', JSON.stringify(save));
@@ -1065,6 +1219,7 @@ window.addEventListener('load', () => {
         applyBanState(); applyTheme(); applyPassStyle();
         const savedColor = localStorage.getItem('btnColor') || 'blue';
         applyButtonColor(savedColor);
+        applySkin(getActiveSkin());
         if (_showAnim && !localStorage.getItem('diamondConverted')) {
             localStorage.setItem('diamondConverted', 'true');
             saveGame();
@@ -1125,6 +1280,7 @@ window.addEventListener('load', () => {
         document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
         const savedColor = localStorage.getItem('btnColor') || 'blue';
         applyButtonColor(savedColor);
+        applySkin(getActiveSkin());
         localStorage.setItem('selectedBg', theme);
     }
     const savedBg = localStorage.getItem('selectedBg');
