@@ -97,7 +97,11 @@ const TRANSLATIONS = {
         roulette_spin: "🎲 КРУТИТЬ",
         first_page: "⏮ НАЧАЛО", last_page: "КОНЕЦ ⏭",
         prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️",
-        test_ok: "✅ ТЕСТ OK!"
+        test_ok: "✅ ТЕСТ OK!",
+        risk: "🎲 РИСК — 50/50",
+        risk_win: "🎉 УДАЧА! x2!",
+        risk_lose: "💀 ПРОВАЛ! -50%",
+        risk_no_points: "❌ Нужно минимум 100🧠"
     },
     en: {
         loading: "LOADING...",
@@ -166,7 +170,11 @@ const TRANSLATIONS = {
         roulette_spinning: "🎲 SPINNING...", roulette_spin: "🎲 SPIN",
         first_page: "⏮ FIRST", last_page: "LAST ⏭",
         prev_page: "⬅️ BACK", next_page: "NEXT ➡️",
-        test_ok: "✅ TEST OK!"
+        test_ok: "✅ TEST OK!",
+        risk: "🎲 RISK — 50/50",
+        risk_win: "🎉 LUCKY! x2!",
+        risk_lose: "💀 FAIL! -50%",
+        risk_no_points: "❌ Need at least 100🧠"
     }
 };
 
@@ -1294,6 +1302,21 @@ window.addEventListener('load', () => {
     document.getElementById('rouletteBtn')?.addEventListener('click', openRoulette);
     document.getElementById('rouletteSpinBtn')?.addEventListener('click', spinRoulette);
     document.getElementById('rouletteCloseBtn')?.addEventListener('click', () => document.getElementById('rouletteOverlay')?.classList.remove('show'));
+    document.getElementById('riskBtn')?.addEventListener('click', () => {
+        if (isBanned) return;
+        if (points < 100) { showToast(t('risk_no_points')); return; }
+        if (Math.random() < 0.5) {
+            const won = Math.floor(points);
+            points = points * 2;
+            showToast(`${t('risk_win')} +${won.toLocaleString()}🧠`);
+            playBuySound();
+        } else {
+            const lost = Math.floor(points * 0.5);
+            points = points - lost;
+            showToast(`${t('risk_lose')} -${lost.toLocaleString()}🧠`);
+        }
+        updateUI(); saveGame();
+    });
     document.getElementById('factCloseBtn')?.addEventListener('click', () => document.getElementById('factOverlay')?.classList.remove('show'));
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
