@@ -1378,3 +1378,28 @@ body.bg-hacker .exchange-item.disabled {
     border-color: #66cc66;
     box-shadow: 0 0 15px rgba(76,175,80,0.6);
 }
+
+.risk-btn {
+    background: linear-gradient(145deg, #cc2222, #880000);
+    border: 2px solid #ff6666;
+    border-radius: 40px;
+    color: white;
+    font-size: 15px;
+    font-weight: 900;
+    text-align: center;
+    padding: 12px;
+    margin: 10px 0;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(255, 50, 50, 0.5);
+    transition: 0.15s;
+}
+.risk-btn:active { transform: scale(0.97); }
+.risk-btn:hover { box-shadow: 0 0 25px rgba(255, 100, 100, 0.8); }
+body.bg-hacker .risk-btn {
+    background: linear-gradient(145deg, #330000, #1a0000);
+    border: 2px solid #ff0000;
+    color: #ff3333;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+    font-family: 'Courier New', monospace;
+}
