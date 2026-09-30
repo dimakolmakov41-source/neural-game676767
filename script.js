@@ -96,7 +96,8 @@ const TRANSLATIONS = {
         roulette_spinning: "🎲 КРУТИТСЯ...",
         roulette_spin: "🎲 КРУТИТЬ",
         first_page: "⏮ НАЧАЛО", last_page: "КОНЕЦ ⏭",
-        prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️"
+        prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️",
+        test_ok: "✅ ТЕСТ OK!"
     },
     en: {
         loading: "LOADING...",
@@ -164,7 +165,8 @@ const TRANSLATIONS = {
         roulette_no_stars: "❌ Need 5⭐", roulette_win: "🎉 YOU WON",
         roulette_spinning: "🎲 SPINNING...", roulette_spin: "🎲 SPIN",
         first_page: "⏮ FIRST", last_page: "LAST ⏭",
-        prev_page: "⬅️ BACK", next_page: "NEXT ➡️"
+        prev_page: "⬅️ BACK", next_page: "NEXT ➡️",
+        test_ok: "✅ TEST OK!"
     }
 };
 
@@ -330,8 +332,8 @@ function isNewYear() {
 }
 function isHackerMode() {
     const now = Date.now();
-    const start = Date.UTC(2026, 8, 28, 21, 0, 0); // 29 сент 00:00 МСК
-    const end = Date.UTC(2026, 9, 7, 21, 0, 0);    // 8 окт 00:00 МСК
+    const start = Date.UTC(2026, 8, 28, 21, 0, 0);
+    const end = Date.UTC(2026, 9, 7, 21, 0, 0);
     return now >= start && now <= end;
 }
 
@@ -749,12 +751,12 @@ window.addEventListener('load', () => {
 
     // ===== AI PASS (даты в коде, UTC) =====
     let passTasks = [], passCurrentTask = 0;
-    const pass6StartDate = Date.UTC(2026, 8, 20, 21, 0, 0);  // 21 сент 00:00 МСК
-    const pass6EndDate = Date.UTC(2026, 8, 28, 21, 0, 0);    // 29 сент 00:00 МСК
-    const pass7StartDate = Date.UTC(2026, 8, 28, 21, 0, 0);  // 29 сент 00:00 МСК
-    const pass7EndDate = Date.UTC(2026, 9, 7, 21, 0, 0);     // 8 окт 00:00 МСК
-    const pass8StartDate = Date.UTC(2026, 9, 7, 21, 0, 0);   // 8 окт 00:00 МСК
-    const pass8EndDate = Date.UTC(2026, 9, 31, 20, 59, 59);  // 31 окт 23:59:59 МСК
+    const pass6StartDate = Date.UTC(2026, 8, 20, 21, 0, 0);
+    const pass6EndDate = Date.UTC(2026, 8, 28, 21, 0, 0);
+    const pass7StartDate = Date.UTC(2026, 8, 28, 21, 0, 0);
+    const pass7EndDate = Date.UTC(2026, 9, 7, 21, 0, 0);
+    const pass8StartDate = Date.UTC(2026, 9, 7, 21, 0, 0);
+    const pass8EndDate = Date.UTC(2026, 9, 31, 20, 59, 59);
     let passEndTimerInterval = null, passRewardSeconds = 600, passRewardInterval = null;
 
     function getActivePassNumber() {
@@ -1273,6 +1275,10 @@ window.addEventListener('load', () => {
     document.getElementById('playBtn')?.addEventListener('click', () => {
         if (!localStorage.getItem('tutorialDone')) { showTutorial(); return; }
         goToGame();
+    });
+    document.getElementById('testBtn')?.addEventListener('click', () => {
+        showToast(t('test_ok'));
+        playBuySound();
     });
     document.getElementById('backToMenu')?.addEventListener('click', () => {
         document.getElementById('mainMenu').classList.remove('hidden');
