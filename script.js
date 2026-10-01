@@ -486,15 +486,15 @@ window.addEventListener('load', () => {
         }
     }
 
-    let points = 100, stars = 0, totalClicks = 0, purchasedCount = 1;
+    let points = 10, stars = 0, totalClicks = 0, purchasedCount = 1;
     let totalStarsEarned = 0, sessionClicks = 0;
     let godMode = false, comboCounter = 0;
     let gameStartTime = Date.now();
     let playtimeInterval = null, sleepMsgTimer = null, sleepMsgShowing = false;
     let prestigeLevel = 0, lastSaveTime = Date.now();
 
-    const PRESTIGE_REQUIREMENT = 100000000; // 100 млн
-    const PRESTIGE_BONUS_PER_LEVEL = 0.1;   // +10% за уровень
+    const PRESTIGE_REQUIREMENT = 100000000;
+    const PRESTIGE_BONUS_PER_LEVEL = 0.1;
     const OFFLINE_MAX_HOURS = 8;
     const OFFLINE_RATE = 0.3;
 
@@ -808,7 +808,7 @@ window.addEventListener('load', () => {
         }
         if (!confirm(t('prestige_confirm'))) return;
         prestigeLevel++;
-        points = 100;
+        points = 10;
         purchasedCount = 1;
         upgrades.forEach((u, i) => { u.purchased = (i === 0); });
         updateUI(); renderShopNeurons(); updatePrestigeDisplay(); saveGame();
@@ -827,7 +827,7 @@ window.addEventListener('load', () => {
     function calculateOfflineIncome() {
         const now = Date.now();
         const awayMs = now - lastSaveTime;
-        if (awayMs < 60000) return 0; // меньше минуты — не считаем
+        if (awayMs < 60000) return 0;
         const awaySec = Math.min(awayMs / 1000, OFFLINE_MAX_HOURS * 3600);
         const power = getClickPower();
         const income = Math.floor(power * awaySec * OFFLINE_RATE);
@@ -1053,7 +1053,6 @@ window.addEventListener('load', () => {
     let audioCtx = null;
     let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
 
-    // ===== ХЭЛЛОУИНСКАЯ МУЗЫКА (Web Audio API) =====
     const HALLOWEEN_MELODY = [
         { note: 110.00, dur: 500 },
         { note: 130.81, dur: 500 },
@@ -1237,7 +1236,7 @@ window.addEventListener('load', () => {
         if (saved) {
             try {
                 const d = JSON.parse(saved);
-                points = d.points || 100;
+                points = d.points || 10;
                 if (d.stars !== undefined) stars = d.stars;
                 else if (d.diamonds !== undefined) {
                     stars = Math.floor(d.diamonds / 10);
@@ -1281,7 +1280,6 @@ window.addEventListener('load', () => {
             setTimeout(() => showDiamondRemoval(), 1900);
         }
         updatePrestigeDisplay();
-        // Оффлайн доход
         const offlineIncome = calculateOfflineIncome();
         if (offlineIncome > 0) {
             points += offlineIncome;
