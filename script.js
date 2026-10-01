@@ -968,7 +968,80 @@ window.addEventListener('load', () => {
     let currentSoundProfile = 0;
     let audioCtx = null;
     let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
+
+    // ===== ХЭЛЛОУИНСКАЯ МУЗЫКА (Web Audio API) =====
+    const HALLOWEEN_MELODY = [
+        { note: 110.00, dur: 500 },
+        { note: 130.81, dur: 500 },
+        { note: 164.81, dur: 500 },
+        { note: 130.81, dur: 500 },
+        { note: 110.00, dur: 700 },
+        { note: 98.00,  dur: 700 },
+        { note: 110.00, dur: 500 },
+        { note: 164.81, dur: 1000 },
+        { note: 220.00, dur: 500 },
+        { note: 207.65, dur: 500 },
+        { note: 196.00, dur: 500 },
+        { note: 185.00, dur: 500 },
+        { note: 174.61, dur: 500 },
+        { note: 164.81, dur: 700 },
+        { note: 110.00, dur: 700 },
+        { note: 82.41,  dur: 1500 }
+    ];
+    let halloweenMusicTimer = null;
+    let halloweenMusicStep = 0;
+
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+
+    function playHalloweenNote(freq, duration) {
+        if (!audioCtx) initMusic();
+        if (!audioCtx) return;
+        try {
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc1.type = 'square';
+            osc2.type = 'sine';
+            osc1.frequency.value = freq;
+            osc2.frequency.value = freq * 0.5;
+            gain.gain.value = 0;
+            gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc1.start();
+            osc2.start();
+            osc1.stop(audioCtx.currentTime + duration / 1000);
+            osc2.stop(audioCtx.currentTime + duration / 1000);
+        } catch(e) {}
+    }
+
+    function startHalloweenMusic() {
+        if (halloweenMusicTimer) return;
+        if (!isHalloween()) return;
+        if (!musicEnabled) return;
+        halloweenMusicStep = 0;
+        function loop() {
+            if (!isHalloween() || !musicEnabled) {
+                stopHalloweenMusic();
+                return;
+            }
+            const step = HALLOWEEN_MELODY[halloweenMusicStep % HALLOWEEN_MELODY.length];
+            playHalloweenNote(step.note, step.dur);
+            halloweenMusicStep++;
+            halloweenMusicTimer = setTimeout(loop, step.dur);
+        }
+        loop();
+    }
+
+    function stopHalloweenMusic() {
+        if (halloweenMusicTimer) {
+            clearTimeout(halloweenMusicTimer);
+            halloweenMusicTimer = null;
+        }
+    }
+
     const musicBtn = document.getElementById('musicToggle');
     if (musicBtn) {
         musicBtn.innerText = musicEnabled ? '🔊' : '🔇';
@@ -976,6 +1049,13 @@ window.addEventListener('load', () => {
             musicEnabled = !musicEnabled;
             localStorage.setItem('musicEnabled', musicEnabled);
             musicBtn.innerText = musicEnabled ? '🔊' : '🔇';
+            if (musicEnabled && isHalloween()) {
+                startHalloweenMusic();
+                showToast("🎃 Музыка Хэллоуина вкл!");
+            } else {
+                stopHalloweenMusic();
+                if (isHalloween()) showToast("🔇 Музыка выкл");
+            }
         };
     }
     document.querySelectorAll('.menu-btn').forEach((btn,i)=>{ btn.style.animationDelay=`${i*0.05}s`; });
@@ -1174,6 +1254,7 @@ window.addEventListener('load', () => {
 
     function processSingleClick(gain, x, y) {
         if (isBanned) return;
+        if (isHalloween() && musicEnabled && !halloweenMusicTimer) startHalloweenMusic();
         hideSleepMsg();
         comboCounter++;
         let finalGain = gain;
@@ -1281,6 +1362,7 @@ window.addEventListener('load', () => {
         tutorialOverlay?.classList.remove('show'); goToGame();
     });
     document.getElementById('playBtn')?.addEventListener('click', () => {
+        if (isHalloween() && musicEnabled && !halloweenMusicTimer) startHalloweenMusic();
         if (!localStorage.getItem('tutorialDone')) { showTutorial(); return; }
         goToGame();
     });
@@ -1534,6 +1616,8 @@ window.addEventListener('load', () => {
                 localStorage.setItem('musicEnabled', musicEnabled);
                 const btn = document.getElementById('musicToggle');
                 if (btn) btn.innerText = musicEnabled ? '🔊' : '🔇';
+                if (musicEnabled && isHalloween()) startHalloweenMusic();
+                else stopHalloweenMusic();
                 showToast(musicEnabled ? "🔊 ON" : "🔇 OFF");
             };
             document.getElementById('admSoundProfile').onclick = () => {
