@@ -330,7 +330,7 @@ function isHalloween() {
     const now = new Date();
     const m = now.getMonth();
     const d = now.getDate();
-    return m === 9 && d >= 25 && d <= 31;
+    return m === 9 && d >= 5 && d <= 31;
 }
 function isNewYear() {
     const now = new Date();
@@ -341,7 +341,7 @@ function isNewYear() {
 function isHackerMode() {
     const now = Date.now();
     const start = Date.UTC(2026, 8, 28, 21, 0, 0);
-    const end = Date.UTC(2026, 9, 7, 21, 0, 0);
+    const end = Date.UTC(2026, 9, 4, 21, 0, 0);
     return now >= start && now <= end;
 }
 
@@ -762,8 +762,8 @@ window.addEventListener('load', () => {
     const pass6StartDate = Date.UTC(2026, 8, 20, 21, 0, 0);
     const pass6EndDate = Date.UTC(2026, 8, 28, 21, 0, 0);
     const pass7StartDate = Date.UTC(2026, 8, 28, 21, 0, 0);
-    const pass7EndDate = Date.UTC(2026, 9, 7, 21, 0, 0);
-    const pass8StartDate = Date.UTC(2026, 9, 7, 21, 0, 0);
+    const pass7EndDate = Date.UTC(2026, 9, 4, 21, 0, 0);
+    const pass8StartDate = Date.UTC(2026, 9, 4, 21, 0, 0);
     const pass8EndDate = Date.UTC(2026, 9, 31, 20, 59, 59);
     let passEndTimerInterval = null, passRewardSeconds = 600, passRewardInterval = null;
 
