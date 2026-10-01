@@ -351,6 +351,10 @@ body.bg-hacker .shop-tab {
     opacity: 0; transform: translateY(30px);
     animation: btnFlyIn 0.4s forwards;
     transition: 0.1s; text-shadow: 0 0 5px black;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .menu-btn:hover, .action-btn:hover {
     background: linear-gradient(145deg, #3a6b8e, #2a4160);
@@ -444,6 +448,31 @@ body.bg-hacker .shop-tab {
 @keyframes boostPulse {
     0%,100% { box-shadow: 0 0 15px rgba(76,175,80,0.5); }
     50% { box-shadow: 0 0 25px rgba(76,175,80,0.9); }
+}
+
+.risk-btn {
+    background: linear-gradient(145deg, #cc2222, #880000);
+    border: 2px solid #ff6666;
+    border-radius: 40px;
+    color: white;
+    font-size: 15px;
+    font-weight: 900;
+    text-align: center;
+    padding: 12px;
+    margin: 10px 0;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(255, 50, 50, 0.5);
+    transition: 0.15s;
+}
+.risk-btn:active { transform: scale(0.97); }
+.risk-btn:hover { box-shadow: 0 0 25px rgba(255, 100, 100, 0.8); }
+body.bg-hacker .risk-btn {
+    background: linear-gradient(145deg, #330000, #1a0000);
+    border: 2px solid #ff0000;
+    color: #ff3333;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+    font-family: 'Courier New', monospace;
 }
 
 .roulette-btn {
@@ -617,6 +646,112 @@ body.bg-hacker .roulette-btn {
     box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
 }
 .fact-btn:active { transform: scale(0.97); }
+
+.offline-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5500; padding: 20px;
+    opacity: 0; visibility: hidden; transition: 0.3s;
+}
+.offline-overlay.show { opacity: 1; visibility: visible; }
+.offline-content {
+    background: linear-gradient(145deg, #1d4a2e, #112233);
+    border: 3px solid #66ff88;
+    border-radius: 30px;
+    padding: 30px 20px;
+    width: 100%; max-width: 380px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(100, 255, 150, 0.6);
+    color: white;
+}
+.offline-emoji { font-size: 60px; margin-bottom: 10px; }
+.offline-title {
+    font-size: 22px; font-weight: 900;
+    color: #88ffaa;
+    text-shadow: 0 0 15px #4aff7e;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+}
+.offline-text {
+    font-size: 15px;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+.offline-reward {
+    font-size: 26px;
+    font-weight: 900;
+    color: #ffd966;
+    text-shadow: 0 0 15px #ffaa00;
+    margin: 15px 0 20px;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 20px;
+}
+.offline-btn {
+    background: linear-gradient(145deg, #2e7d32, #1a5a20);
+    border: 2px solid #66cc66;
+    color: white;
+    padding: 12px 40px;
+    border-radius: 40px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+}
+.offline-btn:active { transform: scale(0.97); }
+
+.prestige-modal-content {
+    background: linear-gradient(145deg, #3a2a4e, #1a0a3e) !important;
+    border: 3px solid #d4a0ff !important;
+    box-shadow: 0 0 40px rgba(200, 100, 255, 0.6) !important;
+}
+.prestige-info {
+    margin: 15px 0;
+    text-align: left;
+    padding: 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+}
+.prestige-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 15px;
+    color: #ffffff;
+}
+.prestige-row b {
+    color: #ffd966;
+    text-shadow: 0 0 5px #ffaa00;
+}
+.prestige-warning {
+    font-size: 12px;
+    color: #ffaa88;
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(255, 50, 50, 0.15);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 100, 100, 0.3);
+}
+.prestige-confirm-btn {
+    background: linear-gradient(145deg, #8c5cd4, #5a3b8e) !important;
+    border: 2px solid #d4a0ff !important;
+    font-size: 16px;
+    padding: 12px 20px !important;
+    box-shadow: 0 0 15px rgba(200, 160, 255, 0.6);
+}
+.prestige-confirm-btn:active { transform: scale(0.96); }
+
+.telegram-btn {
+    background: linear-gradient(145deg, #229ED9, #196e9e) !important;
+    border-color: #5ec1ea !important;
+    box-shadow: 0 0 10px rgba(34, 158, 217, 0.6);
+}
+.telegram-btn:hover {
+    background: linear-gradient(145deg, #35a8e3, #229ED9) !important;
+    box-shadow: 0 0 20px rgba(34, 158, 217, 0.9) !important;
+}
 
 .color-btn {
     width: 44px;
@@ -1377,29 +1512,4 @@ body.bg-hacker .exchange-item.disabled {
     background: linear-gradient(145deg, #2e7d32, #1a5a20);
     border-color: #66cc66;
     box-shadow: 0 0 15px rgba(76,175,80,0.6);
-}
-
-.risk-btn {
-    background: linear-gradient(145deg, #cc2222, #880000);
-    border: 2px solid #ff6666;
-    border-radius: 40px;
-    color: white;
-    font-size: 15px;
-    font-weight: 900;
-    text-align: center;
-    padding: 12px;
-    margin: 10px 0;
-    cursor: pointer;
-    text-shadow: 0 0 5px black;
-    box-shadow: 0 0 15px rgba(255, 50, 50, 0.5);
-    transition: 0.15s;
-}
-.risk-btn:active { transform: scale(0.97); }
-.risk-btn:hover { box-shadow: 0 0 25px rgba(255, 100, 100, 0.8); }
-body.bg-hacker .risk-btn {
-    background: linear-gradient(145deg, #330000, #1a0000);
-    border: 2px solid #ff0000;
-    color: #ff3333;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-    font-family: 'Courier New', monospace;
 }
