@@ -1,5 +1,6 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.2";
+const GAME_VERSION = "12.3";
+const ADMIN_PASSWORD = "6769";
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -57,7 +58,7 @@ const TRANSLATIONS = {
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.2: Оффлайн доход 📴, Престиж 🌟, ссылка на Telegram 💬.",
+        news_text: "v12.3: Новая админка с паролем 🔐, редактор игры 🎨.",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -113,7 +114,15 @@ const TRANSLATIONS = {
         prestige_confirm: "Точно престиж? Очки и сети сбросятся!",
         offline_title: "С ВОЗВРАЩЕНИЕМ!",
         offline_text: "Пока тебя не было, накапало:",
-        offline_capped: "(максимум 8 часов)"
+        offline_capped: "(максимум 8 часов)",
+        admin_wrong_pass: "❌ Неверный пароль!",
+        admin_enter_pass: "🔐 Введите пароль:",
+        editor_on: "🎨 Редактор включён! Кликай по элементам",
+        editor_off: "🎨 Редактор выключен",
+        editor_saved: "💾 Раскладка сохранена!",
+        editor_reset: "🔄 Раскладка сброшена!",
+        editor_added: "➕ Новая кнопка создана!",
+        editor_deleted: "🗑️ Элемент удалён!"
     },
     en: {
         loading: "LOADING...",
@@ -149,7 +158,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.2: Offline income 📴, Prestige 🌟, Telegram link 💬.",
+        news_text: "v12.3: New admin with password 🔐, game editor 🎨.",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -198,7 +207,15 @@ const TRANSLATIONS = {
         prestige_confirm: "Confirm prestige? Points and neurons reset!",
         offline_title: "WELCOME BACK!",
         offline_text: "While you were away, you earned:",
-        offline_capped: "(max 8 hours)"
+        offline_capped: "(max 8 hours)",
+        admin_wrong_pass: "❌ Wrong password!",
+        admin_enter_pass: "🔐 Enter password:",
+        editor_on: "🎨 Editor ON! Click on elements",
+        editor_off: "🎨 Editor OFF",
+        editor_saved: "💾 Layout saved!",
+        editor_reset: "🔄 Layout reset!",
+        editor_added: "➕ New button created!",
+        editor_deleted: "🗑️ Element deleted!"
     }
 };
 
@@ -492,6 +509,7 @@ window.addEventListener('load', () => {
     let gameStartTime = Date.now();
     let playtimeInterval = null, sleepMsgTimer = null, sleepMsgShowing = false;
     let prestigeLevel = 0, lastSaveTime = Date.now();
+    let riskChance = 0.5;
 
     const PRESTIGE_REQUIREMENT = 100000000;
     const PRESTIGE_BONUS_PER_LEVEL = 0.1;
@@ -787,7 +805,6 @@ window.addEventListener('load', () => {
         showToast(t('boost_activated')); playBuySound();
     }
 
-    // ===== ПРЕСТИЖ =====
     function getPrestigeMultiplier() {
         return 1 + prestigeLevel * PRESTIGE_BONUS_PER_LEVEL;
     }
@@ -823,7 +840,6 @@ window.addEventListener('load', () => {
         document.getElementById('prestigeModal')?.classList.add('show');
     }
 
-    // ===== ОФФЛАЙН ДОХОД =====
     function calculateOfflineIncome() {
         const now = Date.now();
         const awayMs = now - lastSaveTime;
@@ -841,7 +857,7 @@ window.addEventListener('load', () => {
         if (overlay) overlay.classList.add('show');
     }
 
-    // ===== AI PASS (даты в коде, UTC) =====
+    // ===== AI PASS =====
     let passTasks = [], passCurrentTask = 0;
     const pass6StartDate = Date.UTC(2026, 8, 20, 21, 0, 0);
     const pass6EndDate = Date.UTC(2026, 8, 28, 21, 0, 0);
@@ -1054,22 +1070,10 @@ window.addEventListener('load', () => {
     let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
 
     const HALLOWEEN_MELODY = [
-        { note: 110.00, dur: 500 },
-        { note: 130.81, dur: 500 },
-        { note: 164.81, dur: 500 },
-        { note: 130.81, dur: 500 },
-        { note: 110.00, dur: 700 },
-        { note: 98.00,  dur: 700 },
-        { note: 110.00, dur: 500 },
-        { note: 164.81, dur: 1000 },
-        { note: 220.00, dur: 500 },
-        { note: 207.65, dur: 500 },
-        { note: 196.00, dur: 500 },
-        { note: 185.00, dur: 500 },
-        { note: 174.61, dur: 500 },
-        { note: 164.81, dur: 700 },
-        { note: 110.00, dur: 700 },
-        { note: 82.41,  dur: 1500 }
+        { note: 110.00, dur: 500 }, { note: 130.81, dur: 500 }, { note: 164.81, dur: 500 }, { note: 130.81, dur: 500 },
+        { note: 110.00, dur: 700 }, { note: 98.00,  dur: 700 }, { note: 110.00, dur: 500 }, { note: 164.81, dur: 1000 },
+        { note: 220.00, dur: 500 }, { note: 207.65, dur: 500 }, { note: 196.00, dur: 500 }, { note: 185.00, dur: 500 },
+        { note: 174.61, dur: 500 }, { note: 164.81, dur: 700 }, { note: 110.00, dur: 700 }, { note: 82.41,  dur: 1500 }
     ];
     let halloweenMusicTimer = null;
     let halloweenMusicStep = 0;
@@ -1218,7 +1222,7 @@ window.addEventListener('load', () => {
         lastSaveTime = Date.now();
         const save = {
             points, stars, totalClicks, purchasedCount,
-            totalStarsEarned, godMode, comboCounter, prestigeLevel,
+            totalStarsEarned, godMode, comboCounter, prestigeLevel, riskChance,
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
@@ -1248,6 +1252,7 @@ window.addEventListener('load', () => {
                 godMode = d.godMode || false;
                 comboCounter = d.comboCounter || 0;
                 prestigeLevel = d.prestigeLevel || 0;
+                riskChance = d.riskChance !== undefined ? d.riskChance : 0.5;
                 boostEndTime = d.boostEndTime || 0;
                 if (d.lastSaveTime) lastSaveTime = d.lastSaveTime;
                 if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; });
@@ -1287,6 +1292,7 @@ window.addEventListener('load', () => {
             saveGame();
             updateUI();
         }
+        loadEditorLayout();
     }
     function showDiamondRemoval() {
         const overlay = document.getElementById('diamondRemovalOverlay');
@@ -1492,7 +1498,7 @@ window.addEventListener('load', () => {
     document.getElementById('riskBtn')?.addEventListener('click', () => {
         if (isBanned) return;
         if (points < 100) { showToast(t('risk_no_points')); return; }
-        if (Math.random() < 0.5) {
+        if (Math.random() < riskChance) {
             const won = Math.floor(points);
             points = points * 2;
             showToast(`${t('risk_win')} +${won.toLocaleString()}🧠`);
@@ -1649,22 +1655,199 @@ window.addEventListener('load', () => {
     }, 1000);
     setInterval(saveGame, 5000);
 
+    // ===== РЕДАКТОР ИГРЫ =====
+    let editorActive = false;
+    let editorSelected = null;
+
+    const EDITOR_ELEMENTS = [
+        '#playBtn', '#settingsBtn', '#newsBtn', '#shareBtn', '#prestigeBtn', '#testBtn',
+        '.telegram-btn', '#backToMenu', '#openShopBtn', '#buyAllBtn', '#closeShopBtn',
+        '#boostBtn', '#rouletteBtn', '#riskBtn', '#clickHint', '#gameTitle', '#menuVersion',
+        '#reloadTimer', '#stats-panel-extended', '.save-badge'
+    ];
+
+    function enterEditorMode() {
+        editorActive = true;
+        showToast(t('editor_on'));
+        document.getElementById('editorPanel').classList.add('show');
+        document.querySelectorAll(EDITOR_ELEMENTS.join(',')).forEach(el => {
+            if (!el) return;
+            el.classList.add('editor-element');
+            el.setAttribute('draggable', 'true');
+            el.addEventListener('dragstart', editorDragStart);
+            el.addEventListener('dragend', editorDragEnd);
+            el.addEventListener('click', editorElementClick, true);
+        });
+        document.addEventListener('dragover', editorDragOver);
+        document.addEventListener('drop', editorDrop);
+    }
+
+    function exitEditorMode() {
+        editorActive = false;
+        showToast(t('editor_off'));
+        document.getElementById('editorPanel').classList.remove('show');
+        document.querySelectorAll('.editor-element').forEach(el => {
+            el.classList.remove('editor-element');
+            el.removeAttribute('draggable');
+        });
+        document.removeEventListener('dragover', editorDragOver);
+        document.removeEventListener('drop', editorDrop);
+    }
+
+    function editorDragStart(e) {
+        if (!editorActive) return;
+        e.dataTransfer.setData('text/plain', '');
+        e.target.dataset.editorDrag = 'true';
+    }
+    function editorDragEnd(e) {
+        if (!editorActive) return;
+        e.target.style.position = 'fixed';
+        e.target.style.left = (e.clientX - 40) + 'px';
+        e.target.style.top = (e.clientY - 15) + 'px';
+        e.target.style.zIndex = '8000';
+        delete e.target.dataset.editorDrag;
+    }
+    function editorDragOver(e) {
+        if (!editorActive) return;
+        e.preventDefault();
+    }
+    function editorDrop(e) {
+        if (!editorActive) return;
+        e.preventDefault();
+    }
+    function editorElementClick(e) {
+        if (!editorActive) return;
+        e.preventDefault();
+        e.stopPropagation();
+        editorSelected = e.target;
+        const modal = document.getElementById('editorItemModal');
+        document.getElementById('editorText').value = e.target.innerText || '';
+        const fs = parseInt(getComputedStyle(e.target).fontSize) || 14;
+        document.getElementById('editorFontSize').value = fs;
+        document.getElementById('editorWidth').value = Math.round(e.target.offsetWidth);
+        document.getElementById('editorHeight').value = Math.round(e.target.offsetHeight);
+        modal.classList.add('show');
+    }
+
+    document.getElementById('editorApplyBtn')?.addEventListener('click', () => {
+        if (!editorSelected) return;
+        editorSelected.innerText = document.getElementById('editorText').value;
+        editorSelected.style.fontSize = document.getElementById('editorFontSize').value + 'px';
+        editorSelected.style.width = document.getElementById('editorWidth').value + 'px';
+        editorSelected.style.height = document.getElementById('editorHeight').value + 'px';
+        document.getElementById('editorItemModal').classList.remove('show');
+    });
+
+    document.getElementById('editorDeleteBtn')?.addEventListener('click', () => {
+        if (!editorSelected) return;
+        editorSelected.remove();
+        editorSelected = null;
+        document.getElementById('editorItemModal').classList.remove('show');
+        showToast(t('editor_deleted'));
+    });
+
+    document.getElementById('editorItemClose')?.addEventListener('click', () => {
+        document.getElementById('editorItemModal').classList.remove('show');
+    });
+
+    document.getElementById('editorSaveBtn')?.addEventListener('click', () => {
+        const layout = {};
+        EDITOR_ELEMENTS.forEach(sel => {
+            const el = document.querySelector(sel);
+            if (!el) return;
+            layout[sel] = {
+                left: el.style.left || '',
+                top: el.style.top || '',
+                width: el.style.width || '',
+                height: el.style.height || '',
+                fontSize: el.style.fontSize || '',
+                text: el.innerText || ''
+            };
+        });
+        localStorage.setItem('editorLayout', JSON.stringify(layout));
+        showToast(t('editor_saved'));
+    });
+
+    document.getElementById('editorResetBtn')?.addEventListener('click', () => {
+        if (!confirm('Сбросить раскладку?')) return;
+        localStorage.removeItem('editorLayout');
+        showToast(t('editor_reset'));
+        setTimeout(() => location.reload(), 800);
+    });
+
+    document.getElementById('editorAddBtn')?.addEventListener('click', () => {
+        const btn = document.createElement('div');
+        btn.className = 'menu-btn editor-element';
+        btn.innerText = '🆕 Кнопка';
+        btn.style.position = 'fixed';
+        btn.style.left = '50%';
+        btn.style.top = '50%';
+        btn.style.zIndex = '8000';
+        btn.setAttribute('draggable', 'true');
+        btn.addEventListener('dragstart', editorDragStart);
+        btn.addEventListener('dragend', editorDragEnd);
+        btn.addEventListener('click', editorElementClick, true);
+        document.body.appendChild(btn);
+        showToast(t('editor_added'));
+    });
+
+    document.getElementById('editorExitBtn')?.addEventListener('click', exitEditorMode);
+
+    function loadEditorLayout() {
+        const data = localStorage.getItem('editorLayout');
+        if (!data) return;
+        try {
+            const layout = JSON.parse(data);
+            Object.keys(layout).forEach(sel => {
+                const el = document.querySelector(sel);
+                if (!el) return;
+                const s = layout[sel];
+                if (s.left) el.style.left = s.left;
+                if (s.top) el.style.top = s.top;
+                if (s.width) el.style.width = s.width;
+                if (s.height) el.style.height = s.height;
+                if (s.fontSize) el.style.fontSize = s.fontSize;
+                if (s.text) el.innerText = s.text;
+            });
+        } catch(e) {}
+    }
+
+    // ===== АДМИН ПАНЕЛЬ =====
     let adminCurrentTab = 'game';
     function renderAdminBody() {
         const body = document.getElementById('adminBody');
         if (!body) return;
         if (adminCurrentTab === 'game') {
             body.innerHTML = `
-                <div class="admin-item"><span>+1000 очков</span><button id="admPoints">Дать</button></div>
-                <div class="admin-item"><span>+100 звёзд</span><button id="admStars">Дать</button></div>
+                <div class="admin-item"><span>Дать очков:</span><input type="number" id="admPointsInput" class="admin-input" placeholder="1000"></div>
+                <div class="admin-item"><span></span><button id="admPoints">Дать очки</button></div>
+                <div class="admin-item"><span>Дать звёзд:</span><input type="number" id="admStarsInput" class="admin-input" placeholder="100"></div>
+                <div class="admin-item"><span></span><button id="admStars">Дать звёзды</button></div>
+                <div class="admin-item"><span>Шанс риска (0-1):</span><input type="number" id="admRiskInput" class="admin-input" step="0.05" min="0" max="1" placeholder="0.5"></div>
+                <div class="admin-item"><span></span><button id="admRisk">Применить шанс</button></div>
                 <div class="admin-item"><span>Купить все нейросети</span><button id="admBuyAll">Купить</button></div>
                 <div class="admin-item"><span>Открыть все AI Pass</span><button id="admPass">Дать</button></div>
                 <div class="admin-item"><span>Режим Бога (x10)</span><button id="admGod">Вкл/Выкл</button></div>
                 <div class="admin-item"><span>+1 Престиж</span><button id="admPrestige">Дать</button></div>
+                <div class="admin-item"><span>🎨 Редактор игры</span><button id="admEditor">Открыть</button></div>
                 <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
             `;
-            document.getElementById('admPoints').onclick = () => { points += 1000; updateUI(); saveGame(); showToast(t('points_given')); };
-            document.getElementById('admStars').onclick = () => { stars += 100; totalStarsEarned += 100; updateUI(); saveGame(); showToast(t('stars_given')); };
+            document.getElementById('admPoints').onclick = () => {
+                const val = parseInt(document.getElementById('admPointsInput').value) || 1000;
+                points += val; updateUI(); saveGame();
+                showToast(`+${val}🧠`);
+            };
+            document.getElementById('admStars').onclick = () => {
+                const val = parseInt(document.getElementById('admStarsInput').value) || 100;
+                stars += val; totalStarsEarned += val; updateUI(); saveGame();
+                showToast(`+${val}⭐`);
+            };
+            document.getElementById('admRisk').onclick = () => {
+                const val = parseFloat(document.getElementById('admRiskInput').value);
+                if (isNaN(val) || val < 0 || val > 1) { showToast('❌ 0-1'); return; }
+                riskChance = val; saveGame();
+                showToast(`🎲 Шанс риска: ${Math.round(val * 100)}%`);
+            };
             document.getElementById('admBuyAll').onclick = () => {
                 upgrades.forEach((u) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } });
                 updateUI(); renderShopNeurons(); saveGame(); showToast(t('all_neurons'));
@@ -1683,63 +1866,18 @@ window.addEventListener('load', () => {
                 updatePrestigeDisplay(); updateUI(); saveGame();
                 showToast(`🌟 Престиж: ${prestigeLevel}`);
             };
+            document.getElementById('admEditor').onclick = () => {
+                document.getElementById('adminOverlay').classList.remove('show');
+                enterEditorMode();
+            };
             document.getElementById('admReset').onclick = () => {
                 if (confirm("Сбросить прогресс? / Reset progress?")) { localStorage.clear(); location.reload(); }
             };
         }
-        if (adminCurrentTab === 'visual') {
-            body.innerHTML = `
-                <div class="admin-item" data-bg-row="true"><span>Фон: Ранняя осень</span><button data-bg="early_autumn">Вкл</button></div>
-                <div class="admin-item" data-bg-row="true"><span>Фон: Золотая</span><button data-bg="golden">Вкл</button></div>
-                <div class="admin-item" data-bg-row="true"><span>Фон: Дождливая</span><button data-bg="rainy">Вкл</button></div>
-                <div class="admin-item" data-bg-row="true"><span>Фон: Поздняя</span><button data-bg="late">Вкл</button></div>
-                <div class="admin-item" data-bg-row="true"><span>Фон: Лес</span><button data-bg="forest">Вкл</button></div>
-                <div class="admin-item" data-bg-row="true"><span>Фон: Парк</span><button data-bg="park">Вкл</button></div>
-                <div class="admin-item" data-bg-row="true"><span>Фон: Горы</span><button data-bg="mountains">Вкл</button></div>
-                <div class="admin-item" data-bg-row="true"><span>Фон: Деревня</span><button data-bg="village">Вкл</button></div>
-                <div class="admin-item"><span>Мозг: 🧠 обычный</span><button id="brainNormal">Вкл</button></div>
-                <div class="admin-item"><span>Мозг: 🎃 тыква</span><button id="brainPumpkin">Вкл</button></div>
-                <div class="admin-item"><span>Мозг: 👽 пришелец</span><button id="brainAlien">Вкл</button></div>
-                <div class="admin-item"><span>Мозг: 🔥 огонь</span><button id="brainFire">Вкл</button></div>
-            `;
-            body.querySelectorAll('[data-bg]').forEach(btn => {
-                btn.onclick = () => { setBodyBg(btn.dataset.bg); showToast("Фон: " + btn.dataset.bg); };
-            });
-            document.getElementById('brainNormal').onclick = () => { const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🧠'; };
-            document.getElementById('brainPumpkin').onclick = () => { const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🎃'; };
-            document.getElementById('brainAlien').onclick = () => { const e = document.getElementById('brainEmoji'); if (e) e.innerText = '👽'; };
-            document.getElementById('brainFire').onclick = () => { const e = document.getElementById('brainEmoji'); if (e) e.innerText = '🔥'; };
-        }
         if (adminCurrentTab === 'settings') {
             body.innerHTML = `
-                <div class="admin-item"><span>Открыть настройки игры</span><button id="admOpenSettings">Открыть</button></div>
-                <div class="admin-item"><span>Вкл/Выкл звук</span><button id="admSound">Переключить</button></div>
-                <div class="admin-item"><span>Сменить звук клика</span><button id="admSoundProfile">Сменить</button></div>
-                <div class="admin-item"><span>Показать статистику</span><button id="admStats">Показать</button></div>
                 <div class="admin-item"><span>Сбросить обучение</span><button id="admResetTutorial">Сбросить</button></div>
             `;
-            document.getElementById('admOpenSettings').onclick = () => {
-                document.getElementById('adminOverlay').classList.remove('show');
-                document.getElementById('settingsModal').classList.add('show');
-            };
-            document.getElementById('admSound').onclick = () => {
-                musicEnabled = !musicEnabled;
-                localStorage.setItem('musicEnabled', musicEnabled);
-                const btn = document.getElementById('musicToggle');
-                if (btn) btn.innerText = musicEnabled ? '🔊' : '🔇';
-                if (musicEnabled && isHalloween()) startHalloweenMusic();
-                else stopHalloweenMusic();
-                showToast(musicEnabled ? "🔊 ON" : "🔇 OFF");
-            };
-            document.getElementById('admSoundProfile').onclick = () => {
-                currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length;
-                showToast("🔊 " + soundProfiles[currentSoundProfile].name);
-                saveGame();
-            };
-            document.getElementById('admStats').onclick = () => {
-                console.log("Очки:", Math.floor(points), "| Звёзды:", stars, "| Клики:", totalClicks, "| Сети:", purchasedCount, "| Престиж:", prestigeLevel);
-                showToast("Console (F12)");
-            };
             document.getElementById('admResetTutorial').onclick = () => {
                 localStorage.removeItem('tutorialDone');
                 showToast("✅ Tutorial reset!");
@@ -1749,6 +1887,11 @@ window.addEventListener('load', () => {
     function openAdminPanel() {
         const overlay = document.getElementById('adminOverlay');
         if (!overlay) return;
+        const pass = prompt(t('admin_enter_pass'));
+        if (pass !== ADMIN_PASSWORD) {
+            showToast(t('admin_wrong_pass'));
+            return;
+        }
         adminCurrentTab = 'game';
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'game'));
         renderAdminBody();
