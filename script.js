@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.1";
+const GAME_VERSION = "12.2";
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -57,7 +57,7 @@ const TRANSLATIONS = {
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.1: Рулетка 🎰, ежедневный факт 🧠, смена цвета кнопок 🎨, кнопки «В начало/Конец» в магазине.",
+        news_text: "v12.2: Оффлайн доход 📴, Престиж 🌟, ссылка на Telegram 💬.",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -101,7 +101,19 @@ const TRANSLATIONS = {
         risk: "🎲 РИСК — 50/50",
         risk_win: "🎉 УДАЧА! x2!",
         risk_lose: "💀 ПРОВАЛ! -50%",
-        risk_no_points: "❌ Нужно минимум 100🧠"
+        risk_no_points: "❌ Нужно минимум 100🧠",
+        prestige: "🌟 ПРЕСТИЖ",
+        prestige_level: "Уровень:",
+        prestige_bonus: "Бонус:",
+        prestige_need: "Нужно:",
+        prestige_warning: "⚠️ Прогресс сбросится: очки и сети. Звёзды останутся.",
+        prestige_yes: "ДА, ПРЕСТИЖ!",
+        prestige_done: "🌟 ПРЕСТИЖ! Уровень",
+        prestige_not_enough: "❌ Нужно 100 000 000 🧠",
+        prestige_confirm: "Точно престиж? Очки и сети сбросятся!",
+        offline_title: "С ВОЗВРАЩЕНИЕМ!",
+        offline_text: "Пока тебя не было, накапало:",
+        offline_capped: "(максимум 8 часов)"
     },
     en: {
         loading: "LOADING...",
@@ -137,7 +149,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.1: Roulette 🎰, daily fact 🧠, button color change 🎨, 'First/Last page' buttons in shop.",
+        news_text: "v12.2: Offline income 📴, Prestige 🌟, Telegram link 💬.",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -174,7 +186,19 @@ const TRANSLATIONS = {
         risk: "🎲 RISK — 50/50",
         risk_win: "🎉 LUCKY! x2!",
         risk_lose: "💀 FAIL! -50%",
-        risk_no_points: "❌ Need at least 100🧠"
+        risk_no_points: "❌ Need at least 100🧠",
+        prestige: "🌟 PRESTIGE",
+        prestige_level: "Level:",
+        prestige_bonus: "Bonus:",
+        prestige_need: "Need:",
+        prestige_warning: "⚠️ Progress will reset: points and neurons. Stars stay.",
+        prestige_yes: "YES, PRESTIGE!",
+        prestige_done: "🌟 PRESTIGE! Level",
+        prestige_not_enough: "❌ Need 100 000 000 🧠",
+        prestige_confirm: "Confirm prestige? Points and neurons reset!",
+        offline_title: "WELCOME BACK!",
+        offline_text: "While you were away, you earned:",
+        offline_capped: "(max 8 hours)"
     }
 };
 
@@ -467,6 +491,12 @@ window.addEventListener('load', () => {
     let godMode = false, comboCounter = 0;
     let gameStartTime = Date.now();
     let playtimeInterval = null, sleepMsgTimer = null, sleepMsgShowing = false;
+    let prestigeLevel = 0, lastSaveTime = Date.now();
+
+    const PRESTIGE_REQUIREMENT = 100000000; // 100 млн
+    const PRESTIGE_BONUS_PER_LEVEL = 0.1;   // +10% за уровень
+    const OFFLINE_MAX_HOURS = 8;
+    const OFFLINE_RATE = 0.3;
 
     const BOOST_MULTIPLIER = 5, BOOST_PRICE = 20, BOOST_DURATION = 5 * 60 * 1000;
     let boostEndTime = 0, boostInterval = null;
@@ -755,6 +785,60 @@ window.addEventListener('load', () => {
         boostEndTime = Date.now() + BOOST_DURATION;
         updateUI(); updateBoostUI(); saveGame();
         showToast(t('boost_activated')); playBuySound();
+    }
+
+    // ===== ПРЕСТИЖ =====
+    function getPrestigeMultiplier() {
+        return 1 + prestigeLevel * PRESTIGE_BONUS_PER_LEVEL;
+    }
+
+    function updatePrestigeDisplay() {
+        const lvl = document.getElementById('prestigeLevelDisplay');
+        const bns = document.getElementById('prestigeBonusDisplay');
+        const need = document.getElementById('prestigeNeedDisplay');
+        if (lvl) lvl.innerText = prestigeLevel;
+        if (bns) bns.innerText = '+' + Math.round(prestigeLevel * PRESTIGE_BONUS_PER_LEVEL * 100) + '%';
+        if (need) need.innerText = PRESTIGE_REQUIREMENT.toLocaleString() + ' 🧠';
+    }
+
+    function doPrestige() {
+        if (points < PRESTIGE_REQUIREMENT) {
+            showToast(t('prestige_not_enough'));
+            return;
+        }
+        if (!confirm(t('prestige_confirm'))) return;
+        prestigeLevel++;
+        points = 100;
+        purchasedCount = 1;
+        upgrades.forEach((u, i) => { u.purchased = (i === 0); });
+        updateUI(); renderShopNeurons(); updatePrestigeDisplay(); saveGame();
+        showToast(`🌟 ${t('prestige_done')} ${prestigeLevel}!`);
+        playBuySound();
+        document.getElementById('prestigeModal')?.classList.remove('show');
+    }
+
+    function openPrestigeModal() {
+        if (isBanned) return;
+        updatePrestigeDisplay();
+        document.getElementById('prestigeModal')?.classList.add('show');
+    }
+
+    // ===== ОФФЛАЙН ДОХОД =====
+    function calculateOfflineIncome() {
+        const now = Date.now();
+        const awayMs = now - lastSaveTime;
+        if (awayMs < 60000) return 0; // меньше минуты — не считаем
+        const awaySec = Math.min(awayMs / 1000, OFFLINE_MAX_HOURS * 3600);
+        const power = getClickPower();
+        const income = Math.floor(power * awaySec * OFFLINE_RATE);
+        return income > 0 ? income : 0;
+    }
+
+    function showOfflineReward(amount) {
+        const reward = document.getElementById('offlineReward');
+        if (reward) reward.innerText = '+' + amount.toLocaleString() + ' 🧠';
+        const overlay = document.getElementById('offlineOverlay');
+        if (overlay) overlay.classList.add('show');
     }
 
     // ===== AI PASS (даты в коде, UTC) =====
@@ -1099,7 +1183,7 @@ window.addEventListener('load', () => {
     }
     function shareProgress() {
         const num = getActivePassNumber();
-        const text = `🧠 ${t('title')}:\n🧠 ${Math.floor(points)}\n⭐ ${stars}\n🖱️ ${totalClicks}\n🧬 ${purchasedCount}/${upgrades.length}\n🤖 AI Pass ${num}: ${passTasks.filter(t=>t.claimed).length}/${passTasks.length}\n📅 ${GAME_VERSION}`;
+        const text = `🧠 ${t('title')}:\n🧠 ${Math.floor(points)}\n⭐ ${stars}\n🖱️ ${totalClicks}\n🧬 ${purchasedCount}/${upgrades.length}\n🌟 Престиж: ${prestigeLevel}\n🤖 AI Pass ${num}: ${passTasks.filter(t=>t.claimed).length}/${passTasks.length}\n📅 ${GAME_VERSION}`;
         navigator.clipboard.writeText(text);
         showToast(t('copied'));
     }
@@ -1108,6 +1192,7 @@ window.addEventListener('load', () => {
         upgrades.forEach(u => { if (u.purchased) base += u.power; });
         if (godMode) base *= 10;
         if (isBoostActive()) base *= BOOST_MULTIPLIER;
+        base *= getPrestigeMultiplier();
         return Math.floor(base);
     }
     function updateUI() {
@@ -1131,14 +1216,16 @@ window.addEventListener('load', () => {
         setTimeout(() => t2.remove(), 2500);
     }
     function saveGame() {
+        lastSaveTime = Date.now();
         const save = {
             points, stars, totalClicks, purchasedCount,
-            totalStarsEarned, godMode, comboCounter,
+            totalStarsEarned, godMode, comboCounter, prestigeLevel,
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
             passSeason: localStorage.getItem('aiPassSeason') || '0',
-            boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION
+            boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION,
+            lastSaveTime
         };
         localStorage.setItem('neuralEvoSave', JSON.stringify(save));
     }
@@ -1161,7 +1248,9 @@ window.addEventListener('load', () => {
                 totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0;
                 godMode = d.godMode || false;
                 comboCounter = d.comboCounter || 0;
+                prestigeLevel = d.prestigeLevel || 0;
                 boostEndTime = d.boostEndTime || 0;
+                if (d.lastSaveTime) lastSaveTime = d.lastSaveTime;
                 if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; });
                 if (String(d.passSeason) === String(activeSeason) && d.passTasks) {
                     d.passTasks.forEach((data, i) => {
@@ -1191,6 +1280,15 @@ window.addEventListener('load', () => {
             saveGame();
             setTimeout(() => showDiamondRemoval(), 1900);
         }
+        updatePrestigeDisplay();
+        // Оффлайн доход
+        const offlineIncome = calculateOfflineIncome();
+        if (offlineIncome > 0) {
+            points += offlineIncome;
+            setTimeout(() => showOfflineReward(offlineIncome), 2600);
+            saveGame();
+            updateUI();
+        }
     }
     function showDiamondRemoval() {
         const overlay = document.getElementById('diamondRemovalOverlay');
@@ -1206,6 +1304,10 @@ window.addEventListener('load', () => {
     }
     document.getElementById('diamondRemovalOk')?.addEventListener('click', () => {
         document.getElementById('diamondRemovalOverlay')?.classList.remove('show');
+    });
+
+    document.getElementById('offlineOkBtn')?.addEventListener('click', () => {
+        document.getElementById('offlineOverlay')?.classList.remove('show');
     });
 
     function exportProgress() {
@@ -1369,6 +1471,11 @@ window.addEventListener('load', () => {
     document.getElementById('testBtn')?.addEventListener('click', () => {
         showToast(t('test_ok'));
         playBuySound();
+    });
+    document.getElementById('prestigeBtn')?.addEventListener('click', openPrestigeModal);
+    document.getElementById('doPrestigeBtn')?.addEventListener('click', doPrestige);
+    document.getElementById('closePrestigeBtn')?.addEventListener('click', () => {
+        document.getElementById('prestigeModal')?.classList.remove('show');
     });
     document.getElementById('backToMenu')?.addEventListener('click', () => {
         document.getElementById('mainMenu').classList.remove('hidden');
@@ -1555,6 +1662,7 @@ window.addEventListener('load', () => {
                 <div class="admin-item"><span>Купить все нейросети</span><button id="admBuyAll">Купить</button></div>
                 <div class="admin-item"><span>Открыть все AI Pass</span><button id="admPass">Дать</button></div>
                 <div class="admin-item"><span>Режим Бога (x10)</span><button id="admGod">Вкл/Выкл</button></div>
+                <div class="admin-item"><span>+1 Престиж</span><button id="admPrestige">Дать</button></div>
                 <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
             `;
             document.getElementById('admPoints').onclick = () => { points += 1000; updateUI(); saveGame(); showToast(t('points_given')); };
@@ -1571,6 +1679,11 @@ window.addEventListener('load', () => {
             document.getElementById('admGod').onclick = () => {
                 godMode = !godMode; updateUI(); saveGame();
                 showToast(godMode ? t('god_on') : t('god_off'));
+            };
+            document.getElementById('admPrestige').onclick = () => {
+                prestigeLevel++;
+                updatePrestigeDisplay(); updateUI(); saveGame();
+                showToast(`🌟 Престиж: ${prestigeLevel}`);
             };
             document.getElementById('admReset').onclick = () => {
                 if (confirm("Сбросить прогресс? / Reset progress?")) { localStorage.clear(); location.reload(); }
@@ -1626,7 +1739,7 @@ window.addEventListener('load', () => {
                 saveGame();
             };
             document.getElementById('admStats').onclick = () => {
-                console.log("Очки:", Math.floor(points), "| Звёзды:", stars, "| Клики:", totalClicks, "| Сети:", purchasedCount);
+                console.log("Очки:", Math.floor(points), "| Звёзды:", stars, "| Клики:", totalClicks, "| Сети:", purchasedCount, "| Престиж:", prestigeLevel);
                 showToast("Console (F12)");
             };
             document.getElementById('admResetTutorial').onclick = () => {
