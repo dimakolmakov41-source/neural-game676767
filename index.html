@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=12.1">
+    <link rel="stylesheet" href="style.css?v=12.2">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v12.1</div>
+        <div class="loading-sub">v12.2</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -18,7 +18,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v12.1</div>
+            <div class="game-version" id="menuVersion">v12.2</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn" data-i18n="play">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn" data-i18n="settings">⚙️ НАСТРОЙКИ</div>
@@ -26,6 +26,10 @@
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="newsBtn" data-i18n="news">📢 НОВОСТИ</div>
                 <div class="menu-btn" id="shareBtn" data-i18n="share">📤 ПОДЕЛИТЬСЯ</div>
+            </div>
+            <div class="menu-buttons-row">
+                <div class="menu-btn" id="prestigeBtn" data-i18n="prestige">🌟 ПРЕСТИЖ</div>
+                <a href="https://t.me/+xUHM1A9TG4c2ODRi" target="_blank" class="menu-btn telegram-btn" id="telegramBtn">💬 TELEGRAM</a>
             </div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="testBtn">🧪 ТЕСТ КНОПКА</div>
@@ -171,6 +175,30 @@
         </div>
     </div>
 
+    <div class="offline-overlay" id="offlineOverlay">
+        <div class="offline-content">
+            <div class="offline-emoji">📴</div>
+            <div class="offline-title" data-i18n="offline_title">С ВОЗВРАЩЕНИЕМ!</div>
+            <div class="offline-text" data-i18n="offline_text">Пока тебя не было, накапало:</div>
+            <div class="offline-reward" id="offlineReward">+0🧠</div>
+            <button class="offline-btn" id="offlineOkBtn" data-i18n="ok">ПОНЯЛ</button>
+        </div>
+    </div>
+
+    <div id="prestigeModal" class="modal-overlay">
+        <div class="modal-content prestige-modal-content">
+            <div class="modal-title">🌟 ПРЕСТИЖ</div>
+            <div class="prestige-info">
+                <div class="prestige-row"><span data-i18n="prestige_level">Уровень:</span> <b id="prestigeLevelDisplay">0</b></div>
+                <div class="prestige-row"><span data-i18n="prestige_bonus">Бонус:</span> <b id="prestigeBonusDisplay">+0%</b></div>
+                <div class="prestige-row"><span data-i18n="prestige_need">Нужно:</span> <b id="prestigeNeedDisplay">100 000 000 🧠</b></div>
+            </div>
+            <div class="prestige-warning" data-i18n="prestige_warning">⚠️ Прогресс сбросится: очки и сети. Звёзды останутся.</div>
+            <button class="modal-btn prestige-confirm-btn" id="doPrestigeBtn" data-i18n="prestige_yes">ДА, ПРЕСТИЖ!</button>
+            <button class="modal-btn" id="closePrestigeBtn" data-i18n="close">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
     <div class="admin-overlay" id="adminOverlay">
         <div class="admin-panel">
             <div class="admin-header">АДМИН ПАНЕЛЬ v2</div>
@@ -251,8 +279,8 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="promo_title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn" data-i18n="activate">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="news_title">📢 НОВОСТИ</div><div class="modal-text" data-i18n="news_text">v12.1: Рулетка 🎰, ежедневный факт 🧠, смена цвета кнопок 🎨, кнопки «В начало/Конец» в магазине.</div><button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="news_title">📢 НОВОСТИ</div><div class="modal-text" data-i18n="news_text">v12.2: Оффлайн доход 📴, Престиж 🌟, ссылка на Telegram 💬.</div><button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
 
-    <script src="script.js?v=12.1"></script>
+    <script src="script.js?v=12.2"></script>
 </body>
 </html>
