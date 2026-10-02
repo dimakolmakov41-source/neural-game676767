@@ -1589,3 +1589,155 @@ body.bg-hacker .exchange-item.disabled {
     border-color: #66cc66;
     box-shadow: 0 0 15px rgba(76,175,80,0.6);
 }
+
+/* ===== АДАПТАЦИЯ ДЛЯ ПК (большие экраны) ===== */
+@media (min-width: 900px) {
+    body {
+        padding: 20px;
+    }
+    .game-container {
+        max-width: 700px;
+        padding: 30px 24px;
+        border-radius: 60px;
+    }
+    .game-title {
+        font-size: 38px;
+    }
+    .menu-btn, .action-btn {
+        font-size: 18px;
+        padding: 16px;
+        min-width: 160px;
+        border-radius: 70px;
+    }
+    .brain {
+        width: 240px;
+        height: 240px;
+    }
+    .brain .skin-emoji {
+        font-size: 100px;
+    }
+    .eye {
+        width: 30px;
+        height: 30px;
+    }
+    .pupil {
+        width: 14px;
+        height: 14px;
+    }
+    .brain .eyes {
+        padding: 0 42px;
+    }
+    .top-bar, .diamond-bar {
+        font-size: 22px;
+        padding: 14px 20px;
+    }
+    .stat-card-value {
+        font-size: 24px;
+    }
+    .stat-card-label {
+        font-size: 12px;
+    }
+    .stats-panel-extended {
+        padding: 15px;
+        gap: 12px;
+    }
+    .timers {
+        font-size: 16px;
+        padding: 12px;
+    }
+    .boost-btn, .risk-btn, .roulette-btn {
+        font-size: 20px;
+        padding: 16px;
+        border-radius: 50px;
+    }
+    .click-hint {
+        font-size: 40px;
+    }
+    .shop-item {
+        font-size: 16px;
+        padding: 12px 18px;
+    }
+    .page-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+    .shop-tab {
+        font-size: 16px;
+        padding: 12px;
+    }
+    .pass-header {
+        font-size: 20px;
+    }
+    .pass-timer-header {
+        font-size: 16px;
+        padding: 6px 16px;
+    }
+    .open-tasks-btn {
+        font-size: 18px;
+        padding: 16px;
+    }
+    .pass-badge {
+        font-size: 13px;
+        padding: 10px 4px;
+    }
+    .pass-end {
+        font-size: 14px;
+    }
+    .modal-content {
+        max-width: 500px;
+        padding: 30px;
+    }
+    .modal-title {
+        font-size: 26px;
+    }
+    .modal-btn {
+        font-size: 16px;
+        padding: 12px 20px;
+    }
+    .setting-item {
+        font-size: 18px;
+        padding: 14px;
+    }
+    .admin-panel {
+        max-width: 600px;
+    }
+    .admin-item {
+        font-size: 16px;
+        padding: 14px 18px;
+    }
+    .admin-item button {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+    .save-badge {
+        font-size: 13px;
+    }
+    .game-version {
+        font-size: 16px;
+    }
+    .loading-text {
+        font-size: 32px;
+    }
+    .music-toggle {
+        width: 55px;
+        height: 55px;
+        font-size: 28px;
+    }
+}
+
+/* ===== АДАПТАЦИЯ ДЛЯ ОЧЕНЬ БОЛЬШИХ ЭКРАНОВ ===== */
+@media (min-width: 1400px) {
+    .game-container {
+        max-width: 800px;
+    }
+    .brain {
+        width: 280px;
+        height: 280px;
+    }
+    .brain .skin-emoji {
+        font-size: 120px;
+    }
+    .game-title {
+        font-size: 44px;
+    }
+}
