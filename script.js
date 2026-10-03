@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.4";
+const GAME_VERSION = "12.5";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ЯЗЫК =====
@@ -10,6 +10,8 @@ const TRANSLATIONS = {
         halloween_title: "🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ",
         newyear_title: "🎄 КЛИКЕР: НОВОГОДНЯЯ ЭВОЛЮЦИЯ",
         hacker_title: "> КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ _",
+        birthday_title: "🎂 КЛИКЕР: ДЕНЬ РОЖДЕНИЯ ИГРЫ 🎉",
+        march8_title: "🌷 КЛИКЕР: 8 МАРТА 🌸",
         play: "🎮 ИГРАТЬ",
         settings: "⚙️ НАСТРОЙКИ",
         news: "📢 НОВОСТИ",
@@ -22,9 +24,13 @@ const TRANSLATIONS = {
         halloween_reload: "⏳ ДО ХЭЛЛОУИНА:",
         newyear_reload: "🎄 НОВЫЙ ГОД:",
         hacker_reload: "> ПЕРЕЗАГРУЗКА:",
+        birthday_reload: "🎂 ДЕНЬ РОЖДЕНИЯ:",
+        march8_reload: "🌷 8 МАРТА:",
         sleep: "😴 Спишь?",
         halloween_sleep: "🎃 Страшно?",
         newyear_sleep: "❄️ С Новым Годом!",
+        birthday_sleep: "🎉 С днём рождения!",
+        march8_sleep: "🌸 С 8 марта!",
         combo: "🔥 x2 КОМБО!",
         boost: "⚡ БУСТ X5 — 20⭐",
         boost_active: "⚡ X5 АКТИВЕН —",
@@ -58,7 +64,7 @@ const TRANSLATIONS = {
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.4: 300 новых нейросетей 🧠 (1600→1900), мощная рулетка 🎰 за 50⭐, обмен 10🧠 → 1⭐ 💱.",
+        news_text: "v12.5: Метеорит 📢, таймер бустов ⏱️, ивенты 8 марта 🌷 и День рождения 🎂.",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -122,7 +128,11 @@ const TRANSLATIONS = {
         editor_saved: "💾 Раскладка сохранена!",
         editor_reset: "🔄 Раскладка сброшена!",
         editor_added: "➕ Новая кнопка создана!",
-        editor_deleted: "🗑️ Элемент удалён!"
+        editor_deleted: "🗑️ Элемент удалён!",
+        meteor_win: "📢 МЕТЕОРИТ! +",
+        birthday_boost: "🎂 БУСТ X10! (день рождения)",
+        march8_boost: "🌷 БУСТ X15! (8 марта)",
+        event_boost_start: "🎉 Ивентовый буст активирован!"
     },
     en: {
         loading: "LOADING...",
@@ -130,11 +140,15 @@ const TRANSLATIONS = {
         halloween_title: "🎃 CLICKER: HALLOWEEN NEURAL",
         newyear_title: "🎄 CLICKER: NEW YEAR EVOLUTION",
         hacker_title: "> CLICKER: NEURAL EVOLUTION _",
+        birthday_title: "🎂 CLICKER: GAME BIRTHDAY 🎉",
+        march8_title: "🌷 CLICKER: MARCH 8 🌸",
         play: "🎮 PLAY", settings: "⚙️ SETTINGS", news: "📢 NEWS", share: "📤 SHARE",
         min: "min",
         stat_total_clicks: "Total clicks", stat_neurons: "Neurons", stat_session: "Session",
         reload: "🔄 RELOAD:", halloween_reload: "⏳ TO HALLOWEEN:", newyear_reload: "🎄 NEW YEAR:", hacker_reload: "> RELOAD:",
+        birthday_reload: "🎂 BIRTHDAY:", march8_reload: "🌷 MARCH 8:",
         sleep: "😴 Sleeping?", halloween_sleep: "🎃 Scared?", newyear_sleep: "❄️ Happy New Year!",
+        birthday_sleep: "🎉 Happy birthday!", march8_sleep: "🌸 Happy March 8!",
         combo: "🔥 x2 COMBO!", boost: "⚡ BOOST X5 — 20⭐", boost_active: "⚡ X5 ACTIVE —",
         open_tasks: "📋 OPEN TASKS",
         shop_neurons: "🧠 NEURONS", shop_stars: "⭐ STARS",
@@ -158,7 +172,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.4: 300 new neurons 🧠 (1600→1900), powerful roulette 🎰 for 50⭐, exchange 10🧠 → 1⭐ 💱.",
+        news_text: "v12.5: Meteor 📢, boost timer ⏱️, March 8 🌷 and Birthday 🎂 events.",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -215,7 +229,11 @@ const TRANSLATIONS = {
         editor_saved: "💾 Layout saved!",
         editor_reset: "🔄 Layout reset!",
         editor_added: "➕ New button created!",
-        editor_deleted: "🗑️ Element deleted!"
+        editor_deleted: "🗑️ Element deleted!",
+        meteor_win: "📢 METEOR! +",
+        birthday_boost: "🎂 BOOST X10! (birthday)",
+        march8_boost: "🌷 BOOST X15! (March 8)",
+        event_boost_start: "🎉 Event boost activated!"
     }
 };
 
@@ -385,6 +403,14 @@ function isHackerMode() {
     const end = Date.UTC(2026, 9, 4, 21, 0, 0);
     return now >= start && now <= end;
 }
+function isBirthday() {
+    const now = new Date();
+    return now.getMonth() === 2 && now.getDate() === 17;
+}
+function isMarch8() {
+    const now = new Date();
+    return now.getMonth() === 2 && now.getDate() === 8;
+}
 
 function applyTheme() {
     const body = document.body;
@@ -394,14 +420,39 @@ function applyTheme() {
     const sleepMsg = document.getElementById('sleepMsg');
     const reloadTimer = document.getElementById('reloadTimer');
     const title = document.getElementById('gameTitle');
+    const partyHat = document.getElementById('partyHat');
+    const flowerDecor = document.getElementById('flowerDecor');
+    const brainSpeech = document.getElementById('brainSpeech');
 
-    body.classList.remove('bg-halloween', 'bg-newyear', 'bg-hacker');
+    body.classList.remove('bg-halloween', 'bg-newyear', 'bg-hacker', 'bg-birthday', 'bg-march8');
     body.classList.remove('bg-early-autumn', 'bg-golden', 'bg-rainy', 'bg-late', 'bg-forest', 'bg-park', 'bg-mountains', 'bg-village');
-    if (brain) brain.classList.remove('halloween-brain', 'newyear-brain');
+    if (brain) brain.classList.remove('halloween-brain', 'newyear-brain', 'birthday-brain', 'march8-brain');
     const oldHat = brain ? brain.querySelector('.santa-hat') : null;
     if (oldHat) oldHat.remove();
+    if (partyHat) partyHat.style.display = 'none';
+    if (flowerDecor) flowerDecor.style.display = 'none';
+    if (brainSpeech) brainSpeech.style.display = 'none';
 
-    if (isHalloween()) {
+    if (isBirthday()) {
+        body.classList.add('bg-birthday');
+        if (brain) brain.classList.add('birthday-brain');
+        if (brainEmoji) brainEmoji.innerText = '🎂';
+        if (partyHat) partyHat.style.display = 'block';
+        if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
+        if (sleepMsg) sleepMsg.innerText = t('birthday_sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('birthday_reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('birthday_title');
+    } else if (isMarch8()) {
+        body.classList.add('bg-march8');
+        if (brain) brain.classList.add('march8-brain');
+        if (brainEmoji) brainEmoji.innerText = '🧠';
+        if (flowerDecor) flowerDecor.style.display = 'block';
+        if (brainSpeech) brainSpeech.style.display = 'block';
+        if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
+        if (sleepMsg) sleepMsg.innerText = t('march8_sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('march8_reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('march8_title');
+    } else if (isHalloween()) {
         body.classList.add('bg-halloween');
         if (brain) brain.classList.add('halloween-brain');
         if (brainEmoji) brainEmoji.innerText = '🎃';
@@ -518,6 +569,14 @@ window.addEventListener('load', () => {
 
     const BOOST_MULTIPLIER = 5, BOOST_PRICE = 20, BOOST_DURATION = 5 * 60 * 1000;
     let boostEndTime = 0, boostInterval = null;
+
+    const BIRTHDAY_BOOST_MULT = 10;
+    const BIRTHDAY_BOOST_DURATION = (60 * 3600 + 10 * 60 + 10) * 1000;
+    let birthdayBoostEndTime = 0;
+
+    const MARCH8_BOOST_MULT = 15;
+    const MARCH8_BOOST_DURATION = 70 * 3600 * 1000;
+    let march8BoostEndTime = 0;
 
     const ROULETTE_PRICE = 50;
     let rouletteSpinning = false;
@@ -838,6 +897,11 @@ window.addEventListener('load', () => {
 
     function isBoostActive() { return Date.now() < boostEndTime; }
     function getBoostRemaining() { return Math.max(0, boostEndTime - Date.now()); }
+    function isBirthdayBoostActive() { return Date.now() < birthdayBoostEndTime; }
+    function getBirthdayBoostRemaining() { return Math.max(0, birthdayBoostEndTime - Date.now()); }
+    function isMarch8BoostActive() { return Date.now() < march8BoostEndTime; }
+    function getMarch8BoostRemaining() { return Math.max(0, march8BoostEndTime - Date.now()); }
+
     function updateBoostUI() {
         const btn = document.getElementById('boostBtn');
         if (!btn) return;
@@ -851,15 +915,49 @@ window.addEventListener('load', () => {
             btn.innerText = t('boost');
             btn.classList.remove('active');
         }
+        updateBoostTimersPanel();
     }
+
+    function updateBoostTimersPanel() {
+        const panel = document.getElementById('boostTimerPanel');
+        if (!panel) return;
+        let html = '';
+        if (isBoostActive()) {
+            const ms = getBoostRemaining();
+            const h = Math.floor(ms / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            html += `<div class="boost-timer-item">⚡×5: ${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}</div>`;
+        }
+        if (isBirthdayBoostActive()) {
+            const ms = getBirthdayBoostRemaining();
+            const h = Math.floor(ms / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            html += `<div class="boost-timer-item">🎂×10: ${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}</div>`;
+        }
+        if (isMarch8BoostActive()) {
+            const ms = getMarch8BoostRemaining();
+            const h = Math.floor(ms / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            html += `<div class="boost-timer-item">🌷×15: ${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}</div>`;
+        }
+        panel.innerHTML = html;
+    }
+
     function startBoostTimer() {
         if (boostInterval) clearInterval(boostInterval);
         updateBoostUI();
         boostInterval = setInterval(() => {
+            if (isBoostActive() || isBirthdayBoostActive() || isMarch8BoostActive()) updateBoostTimersPanel();
             if (isBoostActive()) updateBoostUI();
             else {
-                updateBoostUI();
-                if (boostEndTime > 0) { boostEndTime = 0; showToast(t('boost_ended')); updateUI(); }
+                if (boostEndTime > 0) {
+                    boostEndTime = 0;
+                    showToast(t('boost_ended'));
+                    updateUI();
+                }
             }
         }, 1000);
     }
@@ -871,6 +969,43 @@ window.addEventListener('load', () => {
         boostEndTime = Date.now() + BOOST_DURATION;
         updateUI(); updateBoostUI(); saveGame();
         showToast(t('boost_activated')); playBuySound();
+    }
+
+    // ===== МЕТЕОРИТ =====
+    let meteorTimer = null;
+    function startMeteorTimer() {
+        if (meteorTimer) clearTimeout(meteorTimer);
+        const delay = 60000 + Math.random() * 120000;
+        meteorTimer = setTimeout(spawnMeteor, delay);
+    }
+    function spawnMeteor() {
+        if (isBanned) { startMeteorTimer(); return; }
+        const meteor = document.createElement('div');
+        meteor.className = 'meteor';
+        meteor.innerText = '📢';
+        const startY = Math.random() * (window.innerHeight - 100);
+        meteor.style.top = startY + 'px';
+        meteor.style.left = '-100px';
+        document.body.appendChild(meteor);
+        meteor.addEventListener('click', () => {
+            const reward = Math.floor(500 + Math.random() * 9500);
+            points += reward;
+            updateUI(); saveGame();
+            showToast(`${t('meteor_win')}${reward}🧠`);
+            playBuySound();
+            meteor.remove();
+            startMeteorTimer();
+        });
+        let pos = -100;
+        const interval = setInterval(() => {
+            pos += 6;
+            meteor.style.left = pos + 'px';
+            if (pos > window.innerWidth + 50) {
+                clearInterval(interval);
+                meteor.remove();
+                startMeteorTimer();
+            }
+        }, 30);
     }
 
     function getPrestigeMultiplier() {
@@ -927,8 +1062,6 @@ window.addEventListener('load', () => {
 
     // ===== AI PASS =====
     let passTasks = [], passCurrentTask = 0;
-    const pass6StartDate = Date.UTC(2026, 8, 20, 21, 0, 0);
-    const pass6EndDate = Date.UTC(2026, 8, 28, 21, 0, 0);
     const pass7StartDate = Date.UTC(2026, 8, 28, 21, 0, 0);
     const pass7EndDate = Date.UTC(2026, 9, 4, 21, 0, 0);
     const pass8StartDate = Date.UTC(2026, 9, 4, 21, 0, 0);
@@ -939,14 +1072,12 @@ window.addEventListener('load', () => {
         const now = Date.now();
         if (now >= pass8StartDate && now <= pass8EndDate) return 8;
         if (now >= pass7StartDate && now <= pass7EndDate) return 7;
-        if (now >= pass6StartDate && now <= pass6EndDate) return 6;
         return 0;
     }
 
     function getPassEndTime(season) {
         if (season === 8) return pass8EndDate;
         if (season === 7) return pass7EndDate;
-        if (season === 6) return pass6EndDate;
         return 0;
     }
 
@@ -968,7 +1099,7 @@ window.addEventListener('load', () => {
         const tasksTitle = document.getElementById('passTasksTitle');
         if (!container || !title) return;
         const num = getActivePassNumber();
-        container.classList.remove('pass-v6', 'pass-v7', 'pass-v8');
+        container.classList.remove('pass-v7', 'pass-v8');
         if (num === 8) {
             container.classList.add('pass-v8');
             title.innerHTML = '🎃 AI PASS 8 🎃';
@@ -977,10 +1108,6 @@ window.addEventListener('load', () => {
             container.classList.add('pass-v7');
             title.innerHTML = '> AI PASS 7 _';
             if (tasksTitle) tasksTitle.innerHTML = '> ' + t('pass_tasks_title') + ' AI PASS 7 _';
-        } else if (num === 6) {
-            container.classList.add('pass-v6');
-            title.innerHTML = '🤖 AI PASS 6 🤖';
-            if (tasksTitle) tasksTitle.innerHTML = '🤖 ' + t('pass_tasks_title') + ' AI PASS 6 🤖';
         } else {
             title.innerHTML = t('pass_no_active');
             if (tasksTitle) tasksTitle.innerHTML = t('pass_no_active');
@@ -1000,10 +1127,6 @@ window.addEventListener('load', () => {
                 else if (i <= 20) { tc = i * 600; rp = i * 10000; rs = i * 100; }
                 else { tc = i * 800; rp = i * 15000; rs = i * 150; }
                 passTasks.push({ level: i, targetClicks: tc, rewardPoints: rp, rewardStars: rs, completed: false, claimed: false });
-            }
-        } else if (season === 6) {
-            for (let i = 1; i <= 20; i++) {
-                passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: i * 5000, rewardStars: i * 50, completed: false, claimed: false });
             }
         }
     }
@@ -1233,7 +1356,8 @@ window.addEventListener('load', () => {
     function updatePlaytime() {
         const el = document.getElementById('playtime');
         if (!el) return;
-        el.innerText = Math.floor((Date.now() - gameStartTime) / 1000 / 60);
+        const minutes = Math.floor((Date.now() - gameStartTime) / 1000 / 60);
+        el.innerText = minutes >= 0 ? minutes : 0;
     }
     function startSleepMsgTimer() {
         if (sleepMsgTimer) clearTimeout(sleepMsgTimer);
@@ -1263,6 +1387,8 @@ window.addEventListener('load', () => {
         upgrades.forEach(u => { if (u.purchased) base += u.power; });
         if (godMode) base *= 10;
         if (isBoostActive()) base *= BOOST_MULTIPLIER;
+        if (isBirthdayBoostActive()) base *= BIRTHDAY_BOOST_MULT;
+        if (isMarch8BoostActive()) base *= MARCH8_BOOST_MULT;
         base *= getPrestigeMultiplier();
         return Math.floor(base);
     }
@@ -1291,6 +1417,7 @@ window.addEventListener('load', () => {
         const save = {
             points, stars, totalClicks, purchasedCount,
             totalStarsEarned, godMode, comboCounter, prestigeLevel, riskChance,
+            birthdayBoostEndTime, march8BoostEndTime,
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
@@ -1322,6 +1449,8 @@ window.addEventListener('load', () => {
                 prestigeLevel = d.prestigeLevel || 0;
                 riskChance = d.riskChance !== undefined ? d.riskChance : 0.5;
                 boostEndTime = d.boostEndTime || 0;
+                birthdayBoostEndTime = d.birthdayBoostEndTime || 0;
+                march8BoostEndTime = d.march8BoostEndTime || 0;
                 if (d.lastSaveTime) lastSaveTime = d.lastSaveTime;
                 if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; });
                 if (String(d.passSeason) === String(activeSeason) && d.passTasks) {
@@ -1344,6 +1473,7 @@ window.addEventListener('load', () => {
         if (playtimeInterval) clearInterval(playtimeInterval);
         playtimeInterval = setInterval(() => updatePlaytime(), 60000);
         startSleepMsgTimer();
+        startMeteorTimer();
         applyBanState(); applyTheme(); applyPassStyle();
         const savedColor = localStorage.getItem('btnColor') || 'blue';
         applyButtonColor(savedColor);
@@ -1361,6 +1491,19 @@ window.addEventListener('load', () => {
             updateUI();
         }
         loadEditorLayout();
+        // Активация ивентовых бустов
+        if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) {
+            birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION;
+            localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true');
+            setTimeout(() => showToast(t('birthday_boost')), 3000);
+            saveGame();
+        }
+        if (isMarch8() && !isMarch8BoostActive() && !localStorage.getItem('march8BoostUsed_' + new Date().toDateString())) {
+            march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION;
+            localStorage.setItem('march8BoostUsed_' + new Date().toDateString(), 'true');
+            setTimeout(() => showToast(t('march8_boost')), 3000);
+            saveGame();
+        }
     }
     function showDiamondRemoval() {
         const overlay = document.getElementById('diamondRemovalOverlay');
@@ -1415,7 +1558,7 @@ window.addEventListener('load', () => {
 
     const bgThemes = { early_autumn: "bg-early-autumn", golden: "bg-golden", rainy: "bg-rainy", late: "bg-late", forest: "bg-forest", park: "bg-park", mountains: "bg-mountains", village: "bg-village" };
     function setBodyBg(theme) {
-        if (isHalloween() || isNewYear() || isHackerMode()) { applyTheme(); return; }
+        if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); return; }
         document.body.className = '';
         document.body.classList.add(bgThemes[theme] || 'bg-early-autumn');
         const savedColor = localStorage.getItem('btnColor') || 'blue';
@@ -1423,7 +1566,7 @@ window.addEventListener('load', () => {
         localStorage.setItem('selectedBg', theme);
     }
     const savedBg = localStorage.getItem('selectedBg');
-    if (savedBg && bgThemes[savedBg] && !isHalloween() && !isNewYear() && !isHackerMode()) setBodyBg(savedBg);
+    if (savedBg && bgThemes[savedBg] && !isHalloween() && !isNewYear() && !isHackerMode() && !isBirthday() && !isMarch8()) setBodyBg(savedBg);
     else applyTheme();
 
     function processSingleClick(gain, x, y) {
@@ -1653,7 +1796,6 @@ window.addEventListener('load', () => {
     promoCodes['evolution'] = { points: 2000, stars: 100 };
     promoCodes['prestige'] = { points: 10000, stars: 200 };
     promoCodes['legend'] = { points: 20000, stars: 500 };
-    promoCodes['pass6'] = { points: 6000, stars: 60 };
     promoCodes['pass7'] = { points: 7000, stars: 70 };
     promoCodes['pass8'] = { points: 8000, stars: 80 };
     promoCodes['halloween'] = { points: 6666, stars: 66 };
@@ -1661,6 +1803,8 @@ window.addEventListener('load', () => {
     promoCodes['robot'] = { points: 9999, stars: 99 };
     promoCodes['hacker'] = { points: 11111, stars: 111 };
     promoCodes['pumpkin'] = { points: 8888, stars: 88 };
+    promoCodes['birthday'] = { points: 17000, stars: 170 };
+    promoCodes['march8'] = { points: 8000, stars: 80 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
         if (isBanned) return;
@@ -1897,6 +2041,8 @@ window.addEventListener('load', () => {
                 <div class="admin-item"><span>Открыть все AI Pass</span><button id="admPass">Дать</button></div>
                 <div class="admin-item"><span>Режим Бога (x10)</span><button id="admGod">Вкл/Выкл</button></div>
                 <div class="admin-item"><span>+1 Престиж</span><button id="admPrestige">Дать</button></div>
+                <div class="admin-item"><span>🎂 Birthday boost</span><button id="admBirthday">Вкл</button></div>
+                <div class="admin-item"><span>🌷 March 8 boost</span><button id="admMarch8">Вкл</button></div>
                 <div class="admin-item"><span>🎨 Редактор игры</span><button id="admEditor">Открыть</button></div>
                 <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
             `;
@@ -1933,6 +2079,16 @@ window.addEventListener('load', () => {
                 prestigeLevel++;
                 updatePrestigeDisplay(); updateUI(); saveGame();
                 showToast(`🌟 Престиж: ${prestigeLevel}`);
+            };
+            document.getElementById('admBirthday').onclick = () => {
+                birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION;
+                updateBoostTimersPanel(); saveGame();
+                showToast('🎂 Birthday boost ON!');
+            };
+            document.getElementById('admMarch8').onclick = () => {
+                march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION;
+                updateBoostTimersPanel(); saveGame();
+                showToast('🌷 March 8 boost ON!');
             };
             document.getElementById('admEditor').onclick = () => {
                 document.getElementById('adminOverlay').classList.remove('show');
