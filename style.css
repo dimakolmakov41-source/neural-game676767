@@ -26,6 +26,78 @@ body.bg-park { background: linear-gradient(145deg, #b5a07a, #7a6545); }
 body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); }
 body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 
+/* 🎂 ДЕНЬ РОЖДЕНИЯ ИГРЫ */
+body.bg-birthday {
+    background: linear-gradient(145deg, #ff69b4, #ff1493) !important;
+    position: relative;
+}
+body.bg-birthday::before {
+    content: "🎉";
+    position: fixed; top: 10px; left: 10px;
+    font-size: 40px; opacity: 0.7;
+    animation: partyRotate 3s ease-in-out infinite;
+}
+body.bg-birthday::after {
+    content: "🎊";
+    position: fixed; bottom: 10px; right: 10px;
+    font-size: 40px; opacity: 0.7;
+    animation: partyRotate 3s ease-in-out infinite reverse;
+}
+@keyframes partyRotate {
+    0%, 100% { transform: rotate(-15deg) scale(1); }
+    50% { transform: rotate(15deg) scale(1.2); }
+}
+body.bg-birthday .game-container {
+    border-color: #ffd700;
+    box-shadow: 0 0 40px #ffd70088;
+}
+body.bg-birthday .game-title,
+body.bg-birthday #gameTitle {
+    color: #fff;
+    text-shadow: 0 0 20px #ffd700, 0 0 40px #ff69b4;
+    animation: birthdayTitleBounce 1.5s ease-in-out infinite;
+}
+@keyframes birthdayTitleBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.05); }
+}
+
+/* 🌷 8 МАРТА */
+body.bg-march8 {
+    background: linear-gradient(145deg, #ffb6d9, #ff69b4) !important;
+    position: relative;
+}
+body.bg-march8::before {
+    content: "🌷";
+    position: fixed; top: 10px; left: 10px;
+    font-size: 40px; opacity: 0.7;
+    animation: flowerFloat 3s ease-in-out infinite;
+}
+body.bg-march8::after {
+    content: "🌸";
+    position: fixed; bottom: 10px; right: 10px;
+    font-size: 40px; opacity: 0.7;
+    animation: flowerFloat 3s ease-in-out infinite reverse;
+}
+@keyframes flowerFloat {
+    0%, 100% { transform: translateY(0) rotate(-10deg); }
+    50% { transform: translateY(-10px) rotate(10deg); }
+}
+body.bg-march8 .game-container {
+    border-color: #ff69b4;
+    box-shadow: 0 0 40px #ff69b488;
+}
+body.bg-march8 .game-title,
+body.bg-march8 #gameTitle {
+    color: #fff;
+    text-shadow: 0 0 20px #ff1493, 0 0 40px #ff69b4;
+    animation: march8TitleBounce 2s ease-in-out infinite;
+}
+@keyframes march8TitleBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+
 body.bg-halloween {
     background: linear-gradient(145deg, #1a0a00, #4a1a00) !important;
     position: relative;
@@ -92,6 +164,83 @@ body.bg-newyear .game-container {
     position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
     font-size: 55px; z-index: 3; pointer-events: none;
     filter: drop-shadow(0 0 10px #ff0000);
+}
+
+/* 🎂 Мозг на день рождения */
+.brain.birthday-brain {
+    background: radial-gradient(circle at 30% 30%, #ffd966, #ff8800);
+    box-shadow: 0 15px 0 #cc4400, 0 0 40px #ffd700, 0 0 60px #ff69b4;
+    border-color: #fff;
+    animation: birthdayBrainPulse 1s ease-in-out infinite;
+}
+@keyframes birthdayBrainPulse {
+    0%, 100% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.05) translateY(-5px); }
+}
+.brain .party-hat {
+    position: absolute;
+    top: -50px;
+    right: -10px;
+    font-size: 60px;
+    z-index: 5;
+    display: none;
+    pointer-events: none;
+    filter: drop-shadow(0 0 10px #ffd700);
+    animation: hatWiggle 1.5s ease-in-out infinite;
+}
+@keyframes hatWiggle {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+}
+
+/* 🌷 Мозг на 8 марта */
+.brain.march8-brain {
+    background: radial-gradient(circle at 30% 30%, #ffb6d9, #ff69b4);
+    box-shadow: 0 15px 0 #cc1473, 0 0 40px #ffb6d9, 0 0 60px #ff69b4;
+    border-color: #fff;
+}
+.brain .flower-decor {
+    position: absolute;
+    bottom: -20px;
+    right: -30px;
+    font-size: 70px;
+    z-index: 5;
+    display: none;
+    pointer-events: none;
+    filter: drop-shadow(0 0 10px #ff69b4);
+    animation: flowerWiggle 2s ease-in-out infinite;
+}
+@keyframes flowerWiggle {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+.brain .brain-speech {
+    position: absolute;
+    top: -60px;
+    right: -120px;
+    background: #fff;
+    color: #ff1493;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+    display: none;
+    pointer-events: none;
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.7);
+    border: 2px solid #ff69b4;
+    text-shadow: none;
+}
+.brain .brain-speech::before {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 15px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #fff;
 }
 
 body.bg-hacker {
@@ -385,6 +534,63 @@ body.bg-hacker .shop-tab {
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; z-index: 100; font-size: 24px;
     border: 2px solid #ffd966;
+}
+
+/* ⏱️ ПАНЕЛЬ ТАЙМЕРОВ БУСТОВ (снизу слева) */
+.boost-timer-panel {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    pointer-events: none;
+}
+.boost-timer-item {
+    background: rgba(0, 0, 0, 0.75);
+    border: 2px solid #ffd966;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #ffd966;
+    text-shadow: 0 0 5px #ffaa00;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+    box-shadow: 0 0 15px rgba(255, 217, 102, 0.5);
+    animation: boostTimerPulse 1s ease-in-out infinite;
+}
+@keyframes boostTimerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+body.bg-hacker .boost-timer-item {
+    background: rgba(0, 20, 0, 0.9);
+    border-color: #00ff41;
+    color: #00ff41;
+    text-shadow: 0 0 8px #00ff41;
+    box-shadow: 0 0 15px rgba(0,255,65,0.6);
+}
+
+/* 📢 МЕТЕОРИТ */
+.meteor {
+    position: fixed;
+    font-size: 50px;
+    cursor: pointer;
+    z-index: 8000;
+    filter: drop-shadow(0 0 15px #ff8800) drop-shadow(0 0 30px #ff4400);
+    animation: meteorSpin 0.5s linear infinite;
+    pointer-events: auto;
+    user-select: none;
+}
+@keyframes meteorSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.meteor:hover {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 25px #ffaa00) drop-shadow(0 0 50px #ff4400);
 }
 
 .brain-container {
@@ -874,58 +1080,7 @@ body.btn-gold .boost-btn.active {
     animation: diamondToTrash 1.5s ease-in forwards;
 }
 
-.pass-container.pass-v6 {
-    background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 50%, #0a0a1e 100%);
-    border: 3px solid #4a6a8a; border-radius: 30px;
-    padding: 15px; margin: 10px 0;
-    position: relative; overflow: hidden;
-    box-shadow: 0 0 30px rgba(100, 180, 255, 0.3), inset 0 0 30px rgba(50, 100, 150, 0.2);
-}
-.pass-container.pass-v6::before {
-    content: "⚙️"; position: absolute; top: 8px; right: 12px;
-    font-size: 20px; opacity: 0.4; pointer-events: none;
-}
-.pass-container.pass-v6::after {
-    content: "⚙️"; position: absolute; bottom: 8px; left: 12px;
-    font-size: 20px; opacity: 0.4; pointer-events: none;
-}
-.pass-container.pass-v6 .pass-header {
-    color: #88ccff; text-shadow: 0 0 10px #4a9eff, 0 0 20px #4a9eff;
-    font-family: 'Courier New', monospace;
-}
-.pass-container.pass-v6 .pass-timer-header {
-    background: linear-gradient(145deg, #4a6a8a, #2a4a6a);
-    border-radius: 10px; color: #cceeff;
-    box-shadow: 0 0 15px rgba(100, 180, 255, 0.5);
-    border: 1px solid #6a9abb; font-family: 'Courier New', monospace;
-}
-.pass-container.pass-v6 .pass-progress-fill {
-    background: linear-gradient(90deg, #4a9eff, #88ccff, #4a9eff);
-    box-shadow: 0 0 15px #4a9eff;
-}
-.pass-container.pass-v6 .pass-badge {
-    background: linear-gradient(145deg, #2a3a4e, #1a2a3e);
-    border: 2px solid #4a6a8a; border-radius: 8px;
-    color: #88aacc; font-family: 'Courier New', monospace;
-}
-.pass-container.pass-v6 .pass-badge.completed {
-    background: linear-gradient(145deg, #1a5a3a, #0a3a2a);
-    border-color: #4caf50; color: #a0ffc0;
-}
-.pass-container.pass-v6 .pass-badge.available {
-    background: linear-gradient(145deg, #4a9eff, #2a6ecc);
-    border-color: #88ccff; color: white;
-    box-shadow: 0 0 15px #4a9eff, 0 0 25px #4a9eff;
-    animation: badgePulse 1.2s ease infinite;
-}
-.pass-container.pass-v6 .open-tasks-btn {
-    background: linear-gradient(145deg, #4a9eff, #2a6ecc);
-    border: 2px solid #88ccff;
-    box-shadow: 0 0 20px rgba(100, 180, 255, 0.5);
-    border-radius: 12px; font-family: 'Courier New', monospace;
-}
-.pass-container.pass-v6 .pass-end { color: #88ccff; font-family: 'Courier New', monospace; }
-
+/* AI PASS 7 (хакерский) */
 .pass-container.pass-v7 {
     background: linear-gradient(135deg, #000a00 0%, #001a00 50%, #000000 100%);
     border: 2px solid #00ff41;
@@ -1053,6 +1208,7 @@ body.btn-gold .boost-btn.active {
     letter-spacing: 1px;
 }
 
+/* AI PASS 8 (Хэллоуин) */
 .pass-container.pass-v8 {
     background: linear-gradient(135deg, #1a0a00 0%, #4a1a00 50%, #1a0a00 100%);
     border: 3px solid #ff6600;
@@ -1722,6 +1878,13 @@ body.bg-hacker .exchange-item.disabled {
         width: 55px;
         height: 55px;
         font-size: 28px;
+    }
+    .boost-timer-item {
+        font-size: 16px;
+        padding: 8px 18px;
+    }
+    .meteor {
+        font-size: 70px;
     }
 }
 
