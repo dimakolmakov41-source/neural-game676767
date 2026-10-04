@@ -10,8 +10,8 @@ const TRANSLATIONS = {
         halloween_title: "🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ",
         newyear_title: "🎄 КЛИКЕР: НОВОГОДНЯЯ ЭВОЛЮЦИЯ",
         hacker_title: "> КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ _",
-        birthday_title: "🎂 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ🎉",
-        march8_title: "🌷 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ🌸",
+        birthday_title: "🎂 КЛИКЕР: ДЕНЬ РОЖДЕНИЯ ИГРЫ 🎉",
+        march8_title: "🌷 КЛИКЕР: 8 МАРТА 🌸",
         play: "🎮 ИГРАТЬ",
         settings: "⚙️ НАСТРОЙКИ",
         news: "📢 НОВОСТИ",
@@ -123,12 +123,6 @@ const TRANSLATIONS = {
         offline_capped: "(максимум 8 часов)",
         admin_wrong_pass: "❌ Неверный пароль!",
         admin_enter_pass: "🔐 Введите пароль:",
-        editor_on: "🎨 Редактор включён! Кликай по элементам",
-        editor_off: "🎨 Редактор выключен",
-        editor_saved: "💾 Раскладка сохранена!",
-        editor_reset: "🔄 Раскладка сброшена!",
-        editor_added: "➕ Новая кнопка создана!",
-        editor_deleted: "🗑️ Элемент удалён!",
         meteor_win: "📢 МЕТЕОРИТ! +",
         birthday_boost: "🎂 БУСТ X10! (день рождения)",
         march8_boost: "🌷 БУСТ X15! (8 марта)",
@@ -224,12 +218,6 @@ const TRANSLATIONS = {
         offline_capped: "(max 8 hours)",
         admin_wrong_pass: "❌ Wrong password!",
         admin_enter_pass: "🔐 Enter password:",
-        editor_on: "🎨 Editor ON! Click on elements",
-        editor_off: "🎨 Editor OFF",
-        editor_saved: "💾 Layout saved!",
-        editor_reset: "🔄 Layout reset!",
-        editor_added: "➕ New button created!",
-        editor_deleted: "🗑️ Element deleted!",
         meteor_win: "📢 METEOR! +",
         birthday_boost: "🎂 BOOST X10! (birthday)",
         march8_boost: "🌷 BOOST X15! (March 8)",
@@ -436,7 +424,7 @@ function applyTheme() {
     if (isBirthday()) {
         body.classList.add('bg-birthday');
         if (brain) brain.classList.add('birthday-brain');
-        if (brainEmoji) brainEmoji.innerText = '🎂';
+        if (brainEmoji) brainEmoji.innerText = '🧠';
         if (partyHat) partyHat.style.display = 'block';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('birthday_sleep');
@@ -1490,8 +1478,6 @@ window.addEventListener('load', () => {
             saveGame();
             updateUI();
         }
-        loadEditorLayout();
-        // Активация ивентовых бустов
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) {
             birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION;
             localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true');
@@ -1867,163 +1853,6 @@ window.addEventListener('load', () => {
     }, 1000);
     setInterval(saveGame, 5000);
 
-    // ===== РЕДАКТОР ИГРЫ =====
-    let editorActive = false;
-    let editorSelected = null;
-
-    const EDITOR_ELEMENTS = [
-        '#playBtn', '#settingsBtn', '#newsBtn', '#shareBtn', '#prestigeBtn', '#testBtn',
-        '.telegram-btn', '#backToMenu', '#openShopBtn', '#buyAllBtn', '#closeShopBtn',
-        '#boostBtn', '#rouletteBtn', '#riskBtn', '#clickHint', '#gameTitle', '#menuVersion',
-        '#reloadTimer', '.stats-panel-extended', '.save-badge'
-    ];
-
-    function enterEditorMode() {
-        editorActive = true;
-        showToast(t('editor_on'));
-        document.getElementById('editorPanel').classList.add('show');
-        document.querySelectorAll(EDITOR_ELEMENTS.join(',')).forEach(el => {
-            if (!el) return;
-            el.classList.add('editor-element');
-            el.setAttribute('draggable', 'true');
-            el.addEventListener('dragstart', editorDragStart);
-            el.addEventListener('dragend', editorDragEnd);
-            el.addEventListener('click', editorElementClick, true);
-        });
-        document.addEventListener('dragover', editorDragOver);
-        document.addEventListener('drop', editorDrop);
-    }
-
-    function exitEditorMode() {
-        editorActive = false;
-        showToast(t('editor_off'));
-        document.getElementById('editorPanel').classList.remove('show');
-        document.querySelectorAll('.editor-element').forEach(el => {
-            el.classList.remove('editor-element');
-            el.removeAttribute('draggable');
-        });
-        document.removeEventListener('dragover', editorDragOver);
-        document.removeEventListener('drop', editorDrop);
-    }
-
-    function editorDragStart(e) {
-        if (!editorActive) return;
-        e.dataTransfer.setData('text/plain', '');
-        e.target.dataset.editorDrag = 'true';
-    }
-    function editorDragEnd(e) {
-        if (!editorActive) return;
-        e.target.style.position = 'fixed';
-        e.target.style.left = (e.clientX - 40) + 'px';
-        e.target.style.top = (e.clientY - 15) + 'px';
-        e.target.style.zIndex = '8000';
-        delete e.target.dataset.editorDrag;
-    }
-    function editorDragOver(e) {
-        if (!editorActive) return;
-        e.preventDefault();
-    }
-    function editorDrop(e) {
-        if (!editorActive) return;
-        e.preventDefault();
-    }
-    function editorElementClick(e) {
-        if (!editorActive) return;
-        e.preventDefault();
-        e.stopPropagation();
-        editorSelected = e.target;
-        const modal = document.getElementById('editorItemModal');
-        document.getElementById('editorText').value = e.target.innerText || '';
-        const fs = parseInt(getComputedStyle(e.target).fontSize) || 14;
-        document.getElementById('editorFontSize').value = fs;
-        document.getElementById('editorWidth').value = Math.round(e.target.offsetWidth);
-        document.getElementById('editorHeight').value = Math.round(e.target.offsetHeight);
-        modal.classList.add('show');
-    }
-
-    document.getElementById('editorApplyBtn')?.addEventListener('click', () => {
-        if (!editorSelected) return;
-        editorSelected.innerText = document.getElementById('editorText').value;
-        editorSelected.style.fontSize = document.getElementById('editorFontSize').value + 'px';
-        editorSelected.style.width = document.getElementById('editorWidth').value + 'px';
-        editorSelected.style.height = document.getElementById('editorHeight').value + 'px';
-        document.getElementById('editorItemModal').classList.remove('show');
-    });
-
-    document.getElementById('editorDeleteBtn')?.addEventListener('click', () => {
-        if (!editorSelected) return;
-        editorSelected.remove();
-        editorSelected = null;
-        document.getElementById('editorItemModal').classList.remove('show');
-        showToast(t('editor_deleted'));
-    });
-
-    document.getElementById('editorItemClose')?.addEventListener('click', () => {
-        document.getElementById('editorItemModal').classList.remove('show');
-    });
-
-    document.getElementById('editorSaveBtn')?.addEventListener('click', () => {
-        const layout = {};
-        EDITOR_ELEMENTS.forEach(sel => {
-            const el = document.querySelector(sel);
-            if (!el) return;
-            layout[sel] = {
-                left: el.style.left || '',
-                top: el.style.top || '',
-                width: el.style.width || '',
-                height: el.style.height || '',
-                fontSize: el.style.fontSize || '',
-                text: el.innerText || ''
-            };
-        });
-        localStorage.setItem('editorLayout', JSON.stringify(layout));
-        showToast(t('editor_saved'));
-    });
-
-    document.getElementById('editorResetBtn')?.addEventListener('click', () => {
-        if (!confirm('Сбросить раскладку?')) return;
-        localStorage.removeItem('editorLayout');
-        showToast(t('editor_reset'));
-        setTimeout(() => location.reload(), 800);
-    });
-
-    document.getElementById('editorAddBtn')?.addEventListener('click', () => {
-        const btn = document.createElement('div');
-        btn.className = 'menu-btn editor-element';
-        btn.innerText = '🆕 Кнопка';
-        btn.style.position = 'fixed';
-        btn.style.left = '50%';
-        btn.style.top = '50%';
-        btn.style.zIndex = '8000';
-        btn.setAttribute('draggable', 'true');
-        btn.addEventListener('dragstart', editorDragStart);
-        btn.addEventListener('dragend', editorDragEnd);
-        btn.addEventListener('click', editorElementClick, true);
-        document.body.appendChild(btn);
-        showToast(t('editor_added'));
-    });
-
-    document.getElementById('editorExitBtn')?.addEventListener('click', exitEditorMode);
-
-    function loadEditorLayout() {
-        const data = localStorage.getItem('editorLayout');
-        if (!data) return;
-        try {
-            const layout = JSON.parse(data);
-            Object.keys(layout).forEach(sel => {
-                const el = document.querySelector(sel);
-                if (!el) return;
-                const s = layout[sel];
-                if (s.left) el.style.left = s.left;
-                if (s.top) el.style.top = s.top;
-                if (s.width) el.style.width = s.width;
-                if (s.height) el.style.height = s.height;
-                if (s.fontSize) el.style.fontSize = s.fontSize;
-                if (s.text) el.innerText = s.text;
-            });
-        } catch(e) {}
-    }
-
     // ===== АДМИН ПАНЕЛЬ =====
     let adminCurrentTab = 'game';
     function renderAdminBody() {
@@ -2043,7 +1872,6 @@ window.addEventListener('load', () => {
                 <div class="admin-item"><span>+1 Престиж</span><button id="admPrestige">Дать</button></div>
                 <div class="admin-item"><span>🎂 Birthday boost</span><button id="admBirthday">Вкл</button></div>
                 <div class="admin-item"><span>🌷 March 8 boost</span><button id="admMarch8">Вкл</button></div>
-                <div class="admin-item"><span>🎨 Редактор игры</span><button id="admEditor">Открыть</button></div>
                 <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
             `;
             document.getElementById('admPoints').onclick = () => {
@@ -2089,10 +1917,6 @@ window.addEventListener('load', () => {
                 march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION;
                 updateBoostTimersPanel(); saveGame();
                 showToast('🌷 March 8 boost ON!');
-            };
-            document.getElementById('admEditor').onclick = () => {
-                document.getElementById('adminOverlay').classList.remove('show');
-                enterEditorMode();
             };
             document.getElementById('admReset').onclick = () => {
                 if (confirm("Сбросить прогресс? / Reset progress?")) { localStorage.clear(); location.reload(); }
