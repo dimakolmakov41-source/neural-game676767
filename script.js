@@ -7,11 +7,6 @@ const TRANSLATIONS = {
     ru: {
         loading: "ЗАГРУЗКА...",
         title: "🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ",
-        halloween_title: "🎃 КЛИКЕР: ХЭЛЛОУИН НЕЙРОСЕТЕЙ",
-        newyear_title: "🎄 КЛИКЕР: НОВОГОДНЯЯ ЭВОЛЮЦИЯ",
-        hacker_title: "> КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ _",
-        birthday_title: "🎂 КЛИКЕР: ДЕНЬ РОЖДЕНИЯ ИГРЫ 🎉",
-        march8_title: "🌷 КЛИКЕР: 8 МАРТА 🌸",
         play: "🎮 ИГРАТЬ",
         settings: "⚙️ НАСТРОЙКИ",
         news: "📢 НОВОСТИ",
@@ -21,16 +16,7 @@ const TRANSLATIONS = {
         stat_neurons: "Нейросетей",
         stat_session: "За сессию",
         reload: "🔄 ПЕРЕЗАГРУЗКА:",
-        halloween_reload: "⏳ ДО ХЭЛЛОУИНА:",
-        newyear_reload: "🎄 НОВЫЙ ГОД:",
-        hacker_reload: "> ПЕРЕЗАГРУЗКА:",
-        birthday_reload: "🎂 ДЕНЬ РОЖДЕНИЯ:",
-        march8_reload: "🌷 8 МАРТА:",
         sleep: "😴 Спишь?",
-        halloween_sleep: "🎃 Страшно?",
-        newyear_sleep: "❄️ С Новым Годом!",
-        birthday_sleep: "🎉 С днём рождения!",
-        march8_sleep: "🌸 С 8 марта!",
         combo: "🔥 x2 КОМБО!",
         boost: "⚡ БУСТ X5 — 20⭐",
         boost_active: "⚡ X5 АКТИВЕН —",
@@ -131,18 +117,11 @@ const TRANSLATIONS = {
     en: {
         loading: "LOADING...",
         title: "🧠 CLICKER: NEURAL EVOLUTION",
-        halloween_title: "🎃 CLICKER: HALLOWEEN NEURAL",
-        newyear_title: "🎄 CLICKER: NEW YEAR EVOLUTION",
-        hacker_title: "> CLICKER: NEURAL EVOLUTION _",
-        birthday_title: "🎂 CLICKER: GAME BIRTHDAY 🎉",
-        march8_title: "🌷 CLICKER: MARCH 8 🌸",
         play: "🎮 PLAY", settings: "⚙️ SETTINGS", news: "📢 NEWS", share: "📤 SHARE",
         min: "min",
         stat_total_clicks: "Total clicks", stat_neurons: "Neurons", stat_session: "Session",
-        reload: "🔄 RELOAD:", halloween_reload: "⏳ TO HALLOWEEN:", newyear_reload: "🎄 NEW YEAR:", hacker_reload: "> RELOAD:",
-        birthday_reload: "🎂 BIRTHDAY:", march8_reload: "🌷 MARCH 8:",
-        sleep: "😴 Sleeping?", halloween_sleep: "🎃 Scared?", newyear_sleep: "❄️ Happy New Year!",
-        birthday_sleep: "🎉 Happy birthday!", march8_sleep: "🌸 Happy March 8!",
+        reload: "🔄 RELOAD:",
+        sleep: "😴 Sleeping?",
         combo: "🔥 x2 COMBO!", boost: "⚡ BOOST X5 — 20⭐", boost_active: "⚡ X5 ACTIVE —",
         open_tasks: "📋 OPEN TASKS",
         shop_neurons: "🧠 NEURONS", shop_stars: "⭐ STARS",
@@ -387,8 +366,8 @@ function isNewYear() {
 }
 function isHackerMode() {
     const now = Date.now();
-    const start = Date.UTC(2026, 8, 28, 21, 0, 0);
-    const end = Date.UTC(2026, 9, 4, 21, 0, 0);
+    const start = new Date(2026, 8, 29, 0, 0, 0).getTime();
+    const end = new Date(2026, 9, 5, 0, 0, 0).getTime();
     return now >= start && now <= end;
 }
 function isBirthday() {
@@ -427,9 +406,9 @@ function applyTheme() {
         if (brainEmoji) brainEmoji.innerText = '🧠';
         if (partyHat) partyHat.style.display = 'block';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = t('birthday_sleep');
-        if (reloadTimer) reloadTimer.innerHTML = t('birthday_reload') + ' <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = t('birthday_title');
+        if (sleepMsg) sleepMsg.innerText = t('sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('title');
     } else if (isMarch8()) {
         body.classList.add('bg-march8');
         if (brain) brain.classList.add('march8-brain');
@@ -437,17 +416,17 @@ function applyTheme() {
         if (flowerDecor) flowerDecor.style.display = 'block';
         if (brainSpeech) brainSpeech.style.display = 'block';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = t('march8_sleep');
-        if (reloadTimer) reloadTimer.innerHTML = t('march8_reload') + ' <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = t('march8_title');
+        if (sleepMsg) sleepMsg.innerText = t('sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('title');
     } else if (isHalloween()) {
         body.classList.add('bg-halloween');
         if (brain) brain.classList.add('halloween-brain');
         if (brainEmoji) brainEmoji.innerText = '🎃';
         if (starLabel) starLabel.innerHTML = '🍬 <span id="stars">' + (window.__stars || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = t('halloween_sleep');
-        if (reloadTimer) reloadTimer.innerHTML = t('halloween_reload') + ' <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = t('halloween_title');
+        if (sleepMsg) sleepMsg.innerText = t('sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('title');
     } else if (isNewYear()) {
         body.classList.add('bg-newyear');
         if (brain) {
@@ -459,16 +438,16 @@ function applyTheme() {
         }
         if (brainEmoji) brainEmoji.innerText = '🧠';
         if (starLabel) starLabel.innerHTML = '❄️ <span id="stars">' + (window.__stars || 0) + '</span>';
-        if (sleepMsg) sleepMsg.innerText = t('newyear_sleep');
-        if (reloadTimer) reloadTimer.innerHTML = t('newyear_reload') + ' <span id="reloadCountdown">5:00</span>';
-        if (title) title.innerText = t('newyear_title');
+        if (sleepMsg) sleepMsg.innerText = t('sleep');
+        if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('title');
     } else if (isHackerMode()) {
         body.classList.add('bg-hacker');
         if (brainEmoji) brainEmoji.innerText = '🧠';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('sleep');
-        if (reloadTimer) reloadTimer.innerHTML = t('hacker_reload') + ' <span id="reloadCountdown">5:00</span> _';
-        if (title) title.innerText = t('hacker_title');
+        if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
+        if (title) title.innerText = t('title');
     } else {
         const savedBg = localStorage.getItem('selectedBg') || 'early_autumn';
         const bgThemes = {
@@ -1050,10 +1029,10 @@ window.addEventListener('load', () => {
 
     // ===== AI PASS =====
     let passTasks = [], passCurrentTask = 0;
-    const pass7StartDate = Date.UTC(2026, 8, 28, 21, 0, 0);
-    const pass7EndDate = Date.UTC(2026, 9, 4, 21, 0, 0);
-    const pass8StartDate = Date.UTC(2026, 9, 4, 21, 0, 0);
-    const pass8EndDate = Date.UTC(2026, 9, 31, 20, 59, 59);
+    const pass7StartDate = new Date(2026, 8, 29, 0, 0, 0).getTime();
+    const pass7EndDate = new Date(2026, 9, 5, 0, 0, 0).getTime();
+    const pass8StartDate = new Date(2026, 9, 5, 0, 0, 0).getTime();
+    const pass8EndDate = new Date(2026, 9, 31, 23, 59, 59).getTime();
     let passEndTimerInterval = null, passRewardSeconds = 600, passRewardInterval = null;
 
     function getActivePassNumber() {
