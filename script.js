@@ -1227,39 +1227,118 @@ window.addEventListener('load', () => {
     let audioCtx = null;
     let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
 
+    // ===== 🎃 ХЭЛЛОУИНСКАЯ МУЗЫКА (мрачный орган + ветер) =====
     const HALLOWEEN_MELODY = [
-        { note: 110.00, dur: 500 }, { note: 130.81, dur: 500 }, { note: 164.81, dur: 500 }, { note: 130.81, dur: 500 },
-        { note: 110.00, dur: 700 }, { note: 98.00,  dur: 700 }, { note: 110.00, dur: 500 }, { note: 164.81, dur: 1000 },
-        { note: 220.00, dur: 500 }, { note: 207.65, dur: 500 }, { note: 196.00, dur: 500 }, { note: 185.00, dur: 500 },
-        { note: 174.61, dur: 500 }, { note: 164.81, dur: 700 }, { note: 110.00, dur: 700 }, { note: 82.41,  dur: 1500 }
+        { note: 82.41,  dur: 900 },   // E2 — низкая
+        { note: 98.00,  dur: 900 },   // G2
+        { note: 110.00, dur: 1300 },  // A2
+        { note: 98.00,  dur: 900 },   // G2
+        { note: 82.41,  dur: 1300 },  // E2
+        { note: 73.42,  dur: 1300 },  // D2
+        { note: 82.41,  dur: 900 },   // E2
+        { note: 110.00, dur: 1800 },  // A2
+        { note: 130.81, dur: 900 },   // C3
+        { note: 123.47, dur: 900 },   // B2
+        { note: 110.00, dur: 1300 },  // A2
+        { note: 98.00,  dur: 900 },   // G2
+        { note: 82.41,  dur: 1300 },  // E2
+        { note: 73.42,  dur: 900 },   // D2
+        { note: 65.41,  dur: 1800 },  // C2
+        { note: 61.74,  dur: 2500 }   // B1 — финал
     ];
     let halloweenMusicTimer = null;
     let halloweenMusicStep = 0;
+    let halloweenWindNode = null;
+    let halloweenWindGain = null;
 
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
 
-    function playHalloweenNote(freq, duration) {
+    function playOrganNote(freq, duration) {
         if (!audioCtx) initMusic();
         if (!audioCtx) return;
         try {
+            const now = audioCtx.currentTime;
+            const dur = duration / 1000;
+
+            // Основной треугольник (мягче, чем square)
             const osc1 = audioCtx.createOscillator();
-            const osc2 = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc1.type = 'square';
-            osc2.type = 'sine';
+            osc1.type = 'triangle';
             osc1.frequency.value = freq;
+
+            // Второй — на октаву ниже (бас)
+            const osc2 = audioCtx.createOscillator();
+            osc2.type = 'sine';
             osc2.frequency.value = freq * 0.5;
-            gain.gain.value = 0;
-            gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+
+            // Третий — квинта сверху (органная труба)
+            const osc3 = audioCtx.createOscillator();
+            osc3.type = 'sine';
+            osc3.frequency.value = freq * 1.5;
+
+            // Вибрато (легкое дрожание — жутко)
+            const lfo = audioCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.value = 4.5;
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 2.5;
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc1.frequency);
+
+            // Громкость — плавное затухание как у органа
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.05, now + 0.15);
+            gain.gain.linearRampToValueAtTime(0.04, now + dur * 0.6);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
             osc1.connect(gain);
             osc2.connect(gain);
+            osc3.connect(gain);
             gain.connect(audioCtx.destination);
-            osc1.start();
-            osc2.start();
-            osc1.stop(audioCtx.currentTime + duration / 1000);
-            osc2.stop(audioCtx.currentTime + duration / 1000);
+
+            osc1.start(now); osc2.start(now); osc3.start(now); lfo.start(now);
+            osc1.stop(now + dur); osc2.stop(now + dur); osc3.stop(now + dur); lfo.stop(now + dur);
         } catch(e) {}
+    }
+
+    function startWindSound() {
+        if (!audioCtx) initMusic();
+        if (!audioCtx || halloweenWindNode) return;
+        try {
+            const now = audioCtx.currentTime;
+            const bufferSize = 2 * audioCtx.sampleRate;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+            const whiteNoise = audioCtx.createBufferSource();
+            whiteNoise.buffer = noiseBuffer;
+            whiteNoise.loop = true;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 400;
+            filter.Q.value = 1;
+
+            const windGain = audioCtx.createGain();
+            windGain.gain.value = 0.015;
+
+            whiteNoise.connect(filter);
+            filter.connect(windGain);
+            windGain.connect(audioCtx.destination);
+            whiteNoise.start(now);
+
+            halloweenWindNode = whiteNoise;
+            halloweenWindGain = windGain;
+        } catch(e) {}
+    }
+
+    function stopWindSound() {
+        if (halloweenWindNode) {
+            try { halloweenWindNode.stop(); } catch(e) {}
+            halloweenWindNode = null;
+            halloweenWindGain = null;
+        }
     }
 
     function startHalloweenMusic() {
@@ -1267,13 +1346,14 @@ window.addEventListener('load', () => {
         if (!isHalloween()) return;
         if (!musicEnabled) return;
         halloweenMusicStep = 0;
+        startWindSound();
         function loop() {
             if (!isHalloween() || !musicEnabled) {
                 stopHalloweenMusic();
                 return;
             }
             const step = HALLOWEEN_MELODY[halloweenMusicStep % HALLOWEEN_MELODY.length];
-            playHalloweenNote(step.note, step.dur);
+            playOrganNote(step.note, step.dur);
             halloweenMusicStep++;
             halloweenMusicTimer = setTimeout(loop, step.dur);
         }
@@ -1285,6 +1365,7 @@ window.addEventListener('load', () => {
             clearTimeout(halloweenMusicTimer);
             halloweenMusicTimer = null;
         }
+        stopWindSound();
     }
 
     const musicBtn = document.getElementById('musicToggle');
