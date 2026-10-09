@@ -166,7 +166,7 @@ body.bg-newyear .game-container {
     filter: drop-shadow(0 0 10px #ff0000);
 }
 
-/* 🎂 Мозг на день рождения (только цвет кружка, эмодзи 🧠) */
+/* 🎂 Мозг на день рождения */
 .brain.birthday-brain {
     background: radial-gradient(circle at 30% 30%, #ffd966, #ff8800);
     box-shadow: 0 15px 0 #cc4400, 0 0 40px #ffd700, 0 0 60px #ff69b4;
@@ -193,7 +193,7 @@ body.bg-newyear .game-container {
     50% { transform: rotate(10deg); }
 }
 
-/* 🌷 Мозг на 8 марта (только цвет кружка, эмодзи 🧠) */
+/* 🌷 Мозг на 8 марта */
 .brain.march8-brain {
     background: radial-gradient(circle at 30% 30%, #ffb6d9, #ff69b4);
     box-shadow: 0 15px 0 #cc1473, 0 0 40px #ffb6d9, 0 0 60px #ff69b4;
@@ -592,6 +592,116 @@ body.bg-hacker .boost-timer-item {
 .meteor:hover {
     transform: scale(1.2);
     filter: drop-shadow(0 0 25px #ffaa00) drop-shadow(0 0 50px #ff4400);
+}
+
+/* 👻 ПРИЗРАК */
+.ghost {
+    position: fixed;
+    font-size: 55px;
+    cursor: pointer;
+    z-index: 8000;
+    filter: drop-shadow(0 0 15px #ffffff) drop-shadow(0 0 30px #88ccff);
+    animation: ghostFloat 1.5s ease-in-out infinite;
+    pointer-events: auto;
+    user-select: none;
+    opacity: 0.85;
+}
+@keyframes ghostFloat {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.85; }
+    50% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+}
+.ghost:hover {
+    transform: scale(1.3);
+    filter: drop-shadow(0 0 25px #ffffff) drop-shadow(0 0 50px #88ccff);
+}
+
+/* 🕷️ ПАУК */
+.spider {
+    position: absolute;
+    top: -25px;
+    right: -25px;
+    font-size: 40px;
+    cursor: pointer;
+    z-index: 10;
+    filter: drop-shadow(0 0 10px #000000) drop-shadow(0 0 20px #ff0000);
+    animation: spiderWalk 2s ease-in-out infinite;
+    pointer-events: auto;
+    user-select: none;
+}
+@keyframes spiderWalk {
+    0%, 100% { transform: rotate(-5deg) translateY(0); }
+    25% { transform: rotate(5deg) translateY(-3px); }
+    50% { transform: rotate(-5deg) translateY(0); }
+    75% { transform: rotate(5deg) translateY(-3px); }
+}
+.spider:hover {
+    transform: scale(1.3);
+    filter: drop-shadow(0 0 15px #ff0000) drop-shadow(0 0 30px #ff0000);
+}
+
+/* 🧙 ВЕДЬМА */
+.witch {
+    position: fixed;
+    font-size: 60px;
+    cursor: pointer;
+    z-index: 8000;
+    filter: drop-shadow(0 0 15px #b464ff) drop-shadow(0 0 30px #8c3bd4);
+    animation: witchFly 1s ease-in-out infinite;
+    pointer-events: auto;
+    user-select: none;
+}
+@keyframes witchFly {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-8px) rotate(3deg); }
+}
+.witch:hover {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 25px #d4a0ff) drop-shadow(0 0 50px #8c3bd4);
+}
+
+/* 🕸️ ПАУТИНА */
+.web-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    animation: webFadeIn 0.5s ease;
+}
+@keyframes webFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+.web-content {
+    text-align: center;
+    color: white;
+    pointer-events: none;
+}
+.web-emoji {
+    font-size: 150px;
+    filter: drop-shadow(0 0 20px #ffffff) drop-shadow(0 0 40px #cccccc);
+    animation: webPulse 1s ease-in-out infinite;
+}
+@keyframes webPulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.05); opacity: 1; }
+}
+.web-text {
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 15px #ffffff, 0 0 30px #88ccff;
+    margin-top: 15px;
+    letter-spacing: 2px;
+}
+.web-hint {
+    font-size: 14px;
+    color: #cccccc;
+    margin-top: 10px;
+    text-shadow: 0 0 5px black;
 }
 
 .brain-container {
@@ -1814,6 +1924,15 @@ body.bg-hacker .exchange-item.disabled {
     }
     .meteor {
         font-size: 70px;
+    }
+    .ghost {
+        font-size: 75px;
+    }
+    .witch {
+        font-size: 80px;
+    }
+    .spider {
+        font-size: 55px;
     }
 }
 
