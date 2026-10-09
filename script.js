@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.5";
+const GAME_VERSION = "12.6";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ЯЗЫК =====
@@ -50,7 +50,7 @@ const TRANSLATIONS = {
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.5: Метеорит 📢, таймер бустов ⏱️, ивенты 8 марта 🌷 и День рождения 🎂.",
+        news_text: "v12.6: 👻 Призрак, 🕷️ Паук, 🧙 Ведьма, 🕸️ Паутина — новые Хэллоуин-события!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -112,7 +112,12 @@ const TRANSLATIONS = {
         meteor_win: "📢 МЕТЕОРИТ! +",
         birthday_boost: "🎂 БУСТ X10! (день рождения)",
         march8_boost: "🌷 БУСТ X15! (8 марта)",
-        event_boost_start: "🎉 Ивентовый буст активирован!"
+        event_boost_start: "🎉 Ивентовый буст активирован!",
+        ghost_win: "👻 ПРИЗРАК! +",
+        spider_win: "🕷️ ПАУК! +3⭐",
+        witch_win: "🧙 ВЕДЬМА! +",
+        web_destroyed: "🕸️ ПАУТИНА РАЗБИТА! +",
+        web_progress: "🕸️ Паутина:"
     },
     en: {
         loading: "LOADING...",
@@ -145,7 +150,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.5: Meteor 📢, boost timer ⏱️, March 8 🌷 and Birthday 🎂 events.",
+        news_text: "v12.6: 👻 Ghost, 🕷️ Spider, 🧙 Witch, 🕸️ Web — new Halloween events!",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -200,7 +205,12 @@ const TRANSLATIONS = {
         meteor_win: "📢 METEOR! +",
         birthday_boost: "🎂 BOOST X10! (birthday)",
         march8_boost: "🌷 BOOST X15! (March 8)",
-        event_boost_start: "🎉 Event boost activated!"
+        event_boost_start: "🎉 Event boost activated!",
+        ghost_win: "👻 GHOST! +",
+        spider_win: "🕷️ SPIDER! +3⭐",
+        witch_win: "🧙 WITCH! +",
+        web_destroyed: "🕸️ WEB DESTROYED! +",
+        web_progress: "🕸️ Web:"
     }
 };
 
@@ -975,6 +985,160 @@ window.addEventListener('load', () => {
         }, 30);
     }
 
+    // ===== 👻 ПРИЗРАК =====
+    let ghostTimer = null;
+    function startGhostTimer() {
+        if (ghostTimer) clearTimeout(ghostTimer);
+        const delay = 600000 + Math.random() * 300000;
+        ghostTimer = setTimeout(spawnGhost, delay);
+    }
+    function spawnGhost() {
+        if (isBanned) { startGhostTimer(); return; }
+        if (!isHalloween()) { startGhostTimer(); return; }
+        const ghost = document.createElement('div');
+        ghost.className = 'ghost';
+        ghost.innerText = '👻';
+        const startY = Math.random() * (window.innerHeight - 100);
+        ghost.style.top = startY + 'px';
+        ghost.style.left = '-100px';
+        document.body.appendChild(ghost);
+        ghost.addEventListener('click', () => {
+            const reward = 5000;
+            points += reward;
+            updateUI(); saveGame();
+            showToast(`${t('ghost_win')}${reward}🧠`);
+            playBuySound();
+            ghost.remove();
+            startGhostTimer();
+        });
+        let pos = -100;
+        const interval = setInterval(() => {
+            pos += 4;
+            ghost.style.left = pos + 'px';
+            if (pos > window.innerWidth + 50) {
+                clearInterval(interval);
+                ghost.remove();
+                startGhostTimer();
+            }
+        }, 40);
+    }
+
+    // ===== 🕷️ ПАУК =====
+    let spiderTimer = null;
+    let spiderOnBrain = false;
+    function startSpiderTimer() {
+        if (spiderTimer) clearTimeout(spiderTimer);
+        const delay = 300000 + Math.random() * 300000;
+        spiderTimer = setTimeout(spawnSpider, delay);
+    }
+    function spawnSpider() {
+        if (isBanned || !isHalloween() || spiderOnBrain) { startSpiderTimer(); return; }
+        const brain = document.getElementById('clickableObject');
+        if (!brain) { startSpiderTimer(); return; }
+        spiderOnBrain = true;
+        const spider = document.createElement('div');
+        spider.className = 'spider';
+        spider.innerText = '🕷️';
+        spider.addEventListener('click', (e) => {
+            e.stopPropagation();
+            stars += 3; totalStarsEarned += 3;
+            updateUI(); saveGame();
+            showToast(t('spider_win'));
+            playBuySound();
+            spider.remove();
+            spiderOnBrain = false;
+            startSpiderTimer();
+        });
+        brain.appendChild(spider);
+        setTimeout(() => {
+            if (spider.parentElement) {
+                spider.remove();
+                spiderOnBrain = false;
+                startSpiderTimer();
+            }
+        }, 30000);
+    }
+
+    // ===== 🧙 ВЕДЬМА =====
+    let witchTimer = null;
+    function startWitchTimer() {
+        if (witchTimer) clearTimeout(witchTimer);
+        const delay = 3600000;
+        witchTimer = setTimeout(spawnWitch, delay);
+    }
+    function spawnWitch() {
+        if (isBanned || !isHalloween()) { startWitchTimer(); return; }
+        const witch = document.createElement('div');
+        witch.className = 'witch';
+        witch.innerText = '🧙';
+        const startY = Math.random() * (window.innerHeight - 100);
+        witch.style.top = startY + 'px';
+        witch.style.left = '-100px';
+        document.body.appendChild(witch);
+        witch.addEventListener('click', () => {
+            const bonusPoints = 50000;
+            const bonusStars = 10;
+            points += bonusPoints; stars += bonusStars; totalStarsEarned += bonusStars;
+            updateUI(); saveGame();
+            showToast(`${t('witch_win')}+${bonusPoints.toLocaleString()}🧠 +${bonusStars}⭐`);
+            playBuySound();
+            witch.remove();
+            startWitchTimer();
+        });
+        let pos = -100;
+        const interval = setInterval(() => {
+            pos += 3;
+            witch.style.left = pos + 'px';
+            if (pos > window.innerWidth + 50) {
+                clearInterval(interval);
+                witch.remove();
+                startWitchTimer();
+            }
+        }, 50);
+    }
+
+    // ===== 🕸️ ПАУТИНА =====
+    let webTimer = null;
+    let webActive = false;
+    let webClicksLeft = 0;
+    function startWebTimer() {
+        if (webTimer) clearTimeout(webTimer);
+        const delay = 600000 + Math.random() * 600000;
+        webTimer = setTimeout(spawnWeb, delay);
+    }
+    function spawnWeb() {
+        if (isBanned || !isHalloween() || webActive) { startWebTimer(); return; }
+        webActive = true;
+        webClicksLeft = 20;
+        const overlay = document.createElement('div');
+        overlay.className = 'web-overlay';
+        overlay.id = 'webOverlay';
+        overlay.innerHTML = `
+            <div class="web-content">
+                <div class="web-emoji">🕸️</div>
+                <div class="web-text">${t('web_progress')} <span id="webCounter">20</span></div>
+                <div class="web-hint">Кликни 20 раз чтобы разбить</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', () => {
+            webClicksLeft--;
+            const counter = document.getElementById('webCounter');
+            if (counter) counter.innerText = webClicksLeft;
+            playClickSound();
+            if (webClicksLeft <= 0) {
+                overlay.remove();
+                webActive = false;
+                const reward = 5000;
+                points += reward;
+                updateUI(); saveGame();
+                showToast(`${t('web_destroyed')}${reward.toLocaleString()}🧠`);
+                playBuySound();
+                startWebTimer();
+            }
+        });
+    }
+
     function getPrestigeMultiplier() {
         return 1 + prestigeLevel * PRESTIGE_BONUS_PER_LEVEL;
     }
@@ -1229,22 +1393,22 @@ window.addEventListener('load', () => {
 
     // ===== 🎃 ХЭЛЛОУИНСКАЯ МУЗЫКА (мрачный орган + ветер) =====
     const HALLOWEEN_MELODY = [
-        { note: 82.41,  dur: 900 },   // E2 — низкая
-        { note: 98.00,  dur: 900 },   // G2
-        { note: 110.00, dur: 1300 },  // A2
-        { note: 98.00,  dur: 900 },   // G2
-        { note: 82.41,  dur: 1300 },  // E2
-        { note: 73.42,  dur: 1300 },  // D2
-        { note: 82.41,  dur: 900 },   // E2
-        { note: 110.00, dur: 1800 },  // A2
-        { note: 130.81, dur: 900 },   // C3
-        { note: 123.47, dur: 900 },   // B2
-        { note: 110.00, dur: 1300 },  // A2
-        { note: 98.00,  dur: 900 },   // G2
-        { note: 82.41,  dur: 1300 },  // E2
-        { note: 73.42,  dur: 900 },   // D2
-        { note: 65.41,  dur: 1800 },  // C2
-        { note: 61.74,  dur: 2500 }   // B1 — финал
+        { note: 82.41,  dur: 900 },
+        { note: 98.00,  dur: 900 },
+        { note: 110.00, dur: 1300 },
+        { note: 98.00,  dur: 900 },
+        { note: 82.41,  dur: 1300 },
+        { note: 73.42,  dur: 1300 },
+        { note: 82.41,  dur: 900 },
+        { note: 110.00, dur: 1800 },
+        { note: 130.81, dur: 900 },
+        { note: 123.47, dur: 900 },
+        { note: 110.00, dur: 1300 },
+        { note: 98.00,  dur: 900 },
+        { note: 82.41,  dur: 1300 },
+        { note: 73.42,  dur: 900 },
+        { note: 65.41,  dur: 1800 },
+        { note: 61.74,  dur: 2500 }
     ];
     let halloweenMusicTimer = null;
     let halloweenMusicStep = 0;
@@ -1260,22 +1424,18 @@ window.addEventListener('load', () => {
             const now = audioCtx.currentTime;
             const dur = duration / 1000;
 
-            // Основной треугольник (мягче, чем square)
             const osc1 = audioCtx.createOscillator();
             osc1.type = 'triangle';
             osc1.frequency.value = freq;
 
-            // Второй — на октаву ниже (бас)
             const osc2 = audioCtx.createOscillator();
             osc2.type = 'sine';
             osc2.frequency.value = freq * 0.5;
 
-            // Третий — квинта сверху (органная труба)
             const osc3 = audioCtx.createOscillator();
             osc3.type = 'sine';
             osc3.frequency.value = freq * 1.5;
 
-            // Вибрато (легкое дрожание — жутко)
             const lfo = audioCtx.createOscillator();
             lfo.type = 'sine';
             lfo.frequency.value = 4.5;
@@ -1284,7 +1444,6 @@ window.addEventListener('load', () => {
             lfo.connect(lfoGain);
             lfoGain.connect(osc1.frequency);
 
-            // Громкость — плавное затухание как у органа
             const gain = audioCtx.createGain();
             gain.gain.setValueAtTime(0, now);
             gain.gain.linearRampToValueAtTime(0.05, now + 0.15);
@@ -1522,6 +1681,10 @@ window.addEventListener('load', () => {
         playtimeInterval = setInterval(() => updatePlaytime(), 60000);
         startSleepMsgTimer();
         startMeteorTimer();
+        startGhostTimer();
+        startSpiderTimer();
+        startWitchTimer();
+        startWebTimer();
         applyBanState(); applyTheme(); applyPassStyle();
         const savedColor = localStorage.getItem('btnColor') || 'blue';
         applyButtonColor(savedColor);
@@ -1851,6 +2014,10 @@ window.addEventListener('load', () => {
     promoCodes['pumpkin'] = { points: 8888, stars: 88 };
     promoCodes['birthday'] = { points: 17000, stars: 170 };
     promoCodes['march8'] = { points: 8000, stars: 80 };
+    promoCodes['ghost'] = { points: 5000, stars: 50 };
+    promoCodes['spider'] = { points: 3000, stars: 30 };
+    promoCodes['witch'] = { points: 7777, stars: 77 };
+    promoCodes['web'] = { points: 4000, stars: 40 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
         if (isBanned) return;
@@ -1932,6 +2099,10 @@ window.addEventListener('load', () => {
                 <div class="admin-item"><span>+1 Престиж</span><button id="admPrestige">Дать</button></div>
                 <div class="admin-item"><span>🎂 Birthday boost</span><button id="admBirthday">Вкл</button></div>
                 <div class="admin-item"><span>🌷 March 8 boost</span><button id="admMarch8">Вкл</button></div>
+                <div class="admin-item"><span>👻 Призрак</span><button id="admGhost">Спавн</button></div>
+                <div class="admin-item"><span>🕷️ Паук</span><button id="admSpider">Спавн</button></div>
+                <div class="admin-item"><span>🧙 Ведьма</span><button id="admWitch">Спавн</button></div>
+                <div class="admin-item"><span>🕸️ Паутина</span><button id="admWeb">Спавн</button></div>
                 <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
             `;
             document.getElementById('admPoints').onclick = () => {
@@ -1977,6 +2148,22 @@ window.addEventListener('load', () => {
                 march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION;
                 updateBoostTimersPanel(); saveGame();
                 showToast('🌷 March 8 boost ON!');
+            };
+            document.getElementById('admGhost').onclick = () => {
+                spawnGhost();
+                showToast('👻 Спавн!');
+            };
+            document.getElementById('admSpider').onclick = () => {
+                spawnSpider();
+                showToast('🕷️ Спавн!');
+            };
+            document.getElementById('admWitch').onclick = () => {
+                spawnWitch();
+                showToast('🧙 Спавн!');
+            };
+            document.getElementById('admWeb').onclick = () => {
+                spawnWeb();
+                showToast('🕸️ Спавн!');
             };
             document.getElementById('admReset').onclick = () => {
                 if (confirm("Сбросить прогресс? / Reset progress?")) { localStorage.clear(); location.reload(); }
