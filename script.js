@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.6";
+const GAME_VERSION = "12.7";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ЯЗЫК =====
@@ -50,7 +50,7 @@ const TRANSLATIONS = {
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.6: 👻 Призрак, 🕷️ Паук, 🧙 Ведьма, 🕸️ Паутина — новые Хэллоуин-события!",
+        news_text: "v12.7: 🤖 Автокликер, 🎁 Ежедневный подарок, 🧠×10 буст на 5 часов, 2000 нейросетей!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -91,10 +91,6 @@ const TRANSLATIONS = {
         first_page: "⏮ НАЧАЛО", last_page: "КОНЕЦ ⏭",
         prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️",
         test_ok: "✅ ТЕСТ OK!",
-        risk: "🎲 РИСК — 50/50",
-        risk_win: "🎉 УДАЧА! x2!",
-        risk_lose: "💀 ПРОВАЛ! -50%",
-        risk_no_points: "❌ Нужно минимум 100🧠",
         prestige: "🌟 ПРЕСТИЖ",
         prestige_level: "Уровень:",
         prestige_bonus: "Бонус:",
@@ -117,7 +113,19 @@ const TRANSLATIONS = {
         spider_win: "🕷️ ПАУК! +3⭐",
         witch_win: "🧙 ВЕДЬМА! +",
         web_destroyed: "🕸️ ПАУТИНА РАЗБИТА! +",
-        web_progress: "🕸️ Паутина:"
+        web_progress: "🕸️ Паутина:",
+        web_hint: "Кликни 20 раз чтобы разбить",
+        autoclicker: "🤖 АВТОКЛИКЕР — 500⭐",
+        autoclicker_active: "🤖 АВТОКЛИКЕР АКТИВЕН",
+        autoclicker_bought: "✅ Автокликер куплен!",
+        autoclicker_no_stars: "❌ Нужно 500⭐",
+        autoclicker_help: "Кликает за тебя 10 раз/сек",
+        daily_gift: "🎁 ЕЖЕДНЕВНЫЙ ПОДАРОК",
+        daily_gift_got: "🎁 Подарок получен!",
+        daily_gift_already: "⏰ Уже получен сегодня",
+        pumpkin_click: "🎃 ТЫКВА! +5⭐",
+        x10_boost: "🧠 БУСТ X10! 5 часов!",
+        risk_removed: "Риск удалён"
     },
     en: {
         loading: "LOADING...",
@@ -150,7 +158,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.6: 👻 Ghost, 🕷️ Spider, 🧙 Witch, 🕸️ Web — new Halloween events!",
+        news_text: "v12.7: 🤖 Autoclicker, 🎁 Daily gift, 🧠×10 boost for 5 hours, 2000 neurons!",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -184,10 +192,6 @@ const TRANSLATIONS = {
         first_page: "⏮ FIRST", last_page: "LAST ⏭",
         prev_page: "⬅️ BACK", next_page: "NEXT ➡️",
         test_ok: "✅ TEST OK!",
-        risk: "🎲 RISK — 50/50",
-        risk_win: "🎉 LUCKY! x2!",
-        risk_lose: "💀 FAIL! -50%",
-        risk_no_points: "❌ Need at least 100🧠",
         prestige: "🌟 PRESTIGE",
         prestige_level: "Level:",
         prestige_bonus: "Bonus:",
@@ -210,7 +214,19 @@ const TRANSLATIONS = {
         spider_win: "🕷️ SPIDER! +3⭐",
         witch_win: "🧙 WITCH! +",
         web_destroyed: "🕸️ WEB DESTROYED! +",
-        web_progress: "🕸️ Web:"
+        web_progress: "🕸️ Web:",
+        web_hint: "Click 20 times to destroy",
+        autoclicker: "🤖 AUTOCLICKER — 500⭐",
+        autoclicker_active: "🤖 AUTOCLICKER ACTIVE",
+        autoclicker_bought: "✅ Autoclicker bought!",
+        autoclicker_no_stars: "❌ Need 500⭐",
+        autoclicker_help: "Clicks for you 10 times/sec",
+        daily_gift: "🎁 DAILY GIFT",
+        daily_gift_got: "🎁 Gift received!",
+        daily_gift_already: "⏰ Already got today",
+        pumpkin_click: "🎃 PUMPKIN! +5⭐",
+        x10_boost: "🧠 BOOST X10! 5 hours!",
+        risk_removed: "Risk removed"
     }
 };
 
@@ -234,6 +250,7 @@ function applyTranslations() {
     if (typeof applyPassStyle === 'function') applyPassStyle();
     if (typeof applyTheme === 'function') applyTheme();
     if (typeof updatePassEndTimer === 'function') updatePassEndTimer();
+    if (typeof updateAutoClickerUI === 'function') updateAutoClickerUI();
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === currentLang);
     });
@@ -537,7 +554,6 @@ window.addEventListener('load', () => {
     let gameStartTime = Date.now();
     let playtimeInterval = null, sleepMsgTimer = null, sleepMsgShowing = false;
     let prestigeLevel = 0, lastSaveTime = Date.now();
-    let riskChance = 0.5;
 
     const PRESTIGE_REQUIREMENT = 100000000;
     const PRESTIGE_BONUS_PER_LEVEL = 0.1;
@@ -554,6 +570,17 @@ window.addEventListener('load', () => {
     const MARCH8_BOOST_MULT = 15;
     const MARCH8_BOOST_DURATION = 70 * 3600 * 1000;
     let march8BoostEndTime = 0;
+
+    // 🧠 x10 БУСТ на 5 часов — всем автоматически
+    const X10_BOOST_MULT = 10;
+    const X10_BOOST_DURATION = 5 * 3600 * 1000;
+    let x10BoostEndTime = 0;
+
+    // 🤖 АВТОКЛИКЕР
+    const AUTOCLICKER_PRICE = 500;
+    const AUTOCLICKER_RATE = 10;
+    let autoclickerBought = false;
+    let autoclickerInterval = null;
 
     const ROULETTE_PRICE = 50;
     let rouletteSpinning = false;
@@ -643,11 +670,17 @@ window.addEventListener('load', () => {
         "Протон-Х","Электрон-Х","Нейтрон-Х","Фотон-Х","Кварк-Х","Бозон-Х","Глюон-Х","Нейтрино-Х","Мюон-Х","Тау-Х",
         "Квант-1","Квант-2","Квант-3","Квант-4","Квант-5","Квант-6","Квант-7","Квант-8","Квант-9","Квант-10",
         "Сингулярность-Х","Вечность-Х","Пустота-Х","Хаос-Х","Порядок-Х","Время-Х","Пространство-Х","Материя-Х","Энергия-Х","Информация-Х",
-        "Лямбда-Х","Сигма-Х","Омега-Х","Дзета-Х","Тета-Х","Гамма-Х","Дельта-Х","Альфа-Х","Бета-Х","Эпсилон-Х"
+        "Лямбда-Х","Сигма-Х","Омега-Х","Дзета-Х","Тета-Х","Гамма-Х","Дельта-Х","Альфа-Х","Бета-Х","Эпсилон-Х",
+        "Мегатрон-1","Мегатрон-2","Мегатрон-3","Мегатрон-4","Мегатрон-5","Мегатрон-6","Мегатрон-7","Мегатрон-8","Мегатрон-9","Мегатрон-10",
+        "Ультра-1","Ультра-2","Ультра-3","Ультра-4","Ультра-5","Ультра-6","Ультра-7","Ультра-8","Ультра-9","Ультра-10",
+        "Гипер-1","Гипер-2","Гипер-3","Гипер-4","Гипер-5","Гипер-6","Гипер-7","Гипер-8","Гипер-9","Гипер-10",
+        "Омега-1","Омега-2","Омега-3","Омега-4","Омега-5","Омега-6","Омега-7","Омега-8","Омега-9","Омега-10",
+        "Титан-Х","Атлас-Х","Прометей-Х","Гермес-Х","Аполлон-Х","Артемида-Х","Афина-Х","Арес-Х","Гера-Х","Зевс-Х",
+        "Тёмная материя","Тёмная энергия","Кварковая звезда","Нейтронная звезда","Белая дыра","Червоточина","Параллельная вселенная","Мультивселенная-Х","Мегавселенная","Божественная вселенная"
     ];
 
     let upgrades = [];
-    for (let i = 0; i < 1900; i++) {
+    for (let i = 0; i < 2000; i++) {
         const power = i === 0 ? 1 : 1 + Math.floor(i / 10);
         const price = i === 0 ? 20 : Math.floor(20 * Math.pow(1.17, i));
         const name = i < neuralNames.length ? neuralNames[i] : `Нейросеть #${i + 1}`;
@@ -878,6 +911,8 @@ window.addEventListener('load', () => {
     function getBirthdayBoostRemaining() { return Math.max(0, birthdayBoostEndTime - Date.now()); }
     function isMarch8BoostActive() { return Date.now() < march8BoostEndTime; }
     function getMarch8BoostRemaining() { return Math.max(0, march8BoostEndTime - Date.now()); }
+    function isX10BoostActive() { return Date.now() < x10BoostEndTime; }
+    function getX10BoostRemaining() { return Math.max(0, x10BoostEndTime - Date.now()); }
 
     function updateBoostUI() {
         const btn = document.getElementById('boostBtn');
@@ -920,6 +955,13 @@ window.addEventListener('load', () => {
             const s = Math.floor((ms % 60000) / 1000);
             html += `<div class="boost-timer-item">🌷×15: ${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}</div>`;
         }
+        if (isX10BoostActive()) {
+            const ms = getX10BoostRemaining();
+            const h = Math.floor(ms / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            html += `<div class="boost-timer-item">🧠×10: ${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}</div>`;
+        }
         panel.innerHTML = html;
     }
 
@@ -927,7 +969,7 @@ window.addEventListener('load', () => {
         if (boostInterval) clearInterval(boostInterval);
         updateBoostUI();
         boostInterval = setInterval(() => {
-            if (isBoostActive() || isBirthdayBoostActive() || isMarch8BoostActive()) updateBoostTimersPanel();
+            if (isBoostActive() || isBirthdayBoostActive() || isMarch8BoostActive() || isX10BoostActive()) updateBoostTimersPanel();
             if (isBoostActive()) updateBoostUI();
             else {
                 if (boostEndTime > 0) {
@@ -947,6 +989,79 @@ window.addEventListener('load', () => {
         updateUI(); updateBoostUI(); saveGame();
         showToast(t('boost_activated')); playBuySound();
     }
+
+    // ===== 🤖 АВТОКЛИКЕР =====
+    function updateAutoClickerUI() {
+        const btn = document.getElementById('autoclickerBtn');
+        if (!btn) return;
+        if (autoclickerBought) {
+            btn.innerText = t('autoclicker_active');
+            btn.classList.add('active');
+            btn.style.background = 'linear-gradient(145deg, #2e7d32, #1a5a20)';
+            btn.style.borderColor = '#66cc66';
+        } else {
+            btn.innerText = t('autoclicker');
+            btn.classList.remove('active');
+            btn.style.background = '';
+            btn.style.borderColor = '';
+        }
+    }
+    function buyAutoclicker() {
+        if (isBanned) return;
+        if (autoclickerBought) { showToast(t('autoclicker_bought')); return; }
+        if (stars < AUTOCLICKER_PRICE) { showToast(t('autoclicker_no_stars')); return; }
+        stars -= AUTOCLICKER_PRICE;
+        autoclickerBought = true;
+        startAutoclicker();
+        updateAutoClickerUI();
+        updateUI(); saveGame();
+        showToast(t('autoclicker_bought')); playBuySound();
+    }
+    function startAutoclicker() {
+        if (autoclickerInterval) clearInterval(autoclickerInterval);
+        if (!autoclickerBought) return;
+        autoclickerInterval = setInterval(() => {
+            if (isBanned) return;
+            const gain = getClickPower();
+            points += gain;
+            totalClicks++;
+            sessionClicks++;
+            updateUI();
+        }, 1000 / AUTOCLICKER_RATE);
+    }
+
+    // ===== 🎁 ЕЖЕДНЕВНЫЙ ПОДАРОК =====
+    function canGetDailyGift() {
+        const today = new Date().toISOString().slice(0, 10);
+        const last = localStorage.getItem('dailyGiftDate');
+        return last !== today;
+    }
+    function claimDailyGift() {
+        if (isBanned) return;
+        if (!canGetDailyGift()) { showToast(t('daily_gift_already')); return; }
+        const today = new Date().toISOString().slice(0, 10);
+        localStorage.setItem('dailyGiftDate', today);
+        const bonusPoints = 50000;
+        const bonusStars = 25;
+        points += bonusPoints; stars += bonusStars; totalStarsEarned += bonusStars;
+        updateUI(); saveGame();
+        showToast(`${t('daily_gift_got')} +${bonusPoints.toLocaleString()}🧠 +${bonusStars}⭐`);
+        playBuySound();
+    }
+    function updateDailyGiftUI() {
+        const btn = document.getElementById('dailyGiftBtn');
+        if (!btn) return;
+        if (canGetDailyGift()) {
+            btn.style.opacity = '1';
+            btn.style.animation = 'dailyGiftPulse 1.5s ease-in-out infinite';
+        } else {
+            btn.style.opacity = '0.5';
+            btn.style.animation = 'none';
+        }
+    }
+
+    // ===== 🎃 ТЫКВА-КЛИК (Хэллоуин) =====
+    let pumpkinClickCounter = 0;
 
     // ===== МЕТЕОРИТ =====
     let meteorTimer = null;
@@ -993,8 +1108,7 @@ window.addEventListener('load', () => {
         ghostTimer = setTimeout(spawnGhost, delay);
     }
     function spawnGhost() {
-        if (isBanned) { startGhostTimer(); return; }
-        if (!isHalloween()) { startGhostTimer(); return; }
+        if (isBanned || !isHalloween()) { startGhostTimer(); return; }
         const ghost = document.createElement('div');
         ghost.className = 'ghost';
         ghost.innerText = '👻';
@@ -1117,7 +1231,7 @@ window.addEventListener('load', () => {
             <div class="web-content">
                 <div class="web-emoji">🕸️</div>
                 <div class="web-text">${t('web_progress')} <span id="webCounter">20</span></div>
-                <div class="web-hint">Кликни 20 раз чтобы разбить</div>
+                <div class="web-hint">${t('web_hint')}</div>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -1191,10 +1305,8 @@ window.addEventListener('load', () => {
         if (overlay) overlay.classList.add('show');
     }
 
-    // ===== AI PASS =====
+    // ===== AI PASS (только 8) =====
     let passTasks = [], passCurrentTask = 0;
-    const pass7StartDate = new Date(2026, 8, 29, 0, 0, 0).getTime();
-    const pass7EndDate = new Date(2026, 9, 5, 0, 0, 0).getTime();
     const pass8StartDate = new Date(2026, 9, 5, 0, 0, 0).getTime();
     const pass8EndDate = new Date(2026, 9, 31, 23, 59, 59).getTime();
     let passEndTimerInterval = null, passRewardSeconds = 600, passRewardInterval = null;
@@ -1202,13 +1314,11 @@ window.addEventListener('load', () => {
     function getActivePassNumber() {
         const now = Date.now();
         if (now >= pass8StartDate && now <= pass8EndDate) return 8;
-        if (now >= pass7StartDate && now <= pass7EndDate) return 7;
         return 0;
     }
 
     function getPassEndTime(season) {
         if (season === 8) return pass8EndDate;
-        if (season === 7) return pass7EndDate;
         return 0;
     }
 
@@ -1220,7 +1330,6 @@ window.addEventListener('load', () => {
     function getPassRewardRewards() {
         const num = getActivePassNumber();
         if (num === 8) return { points: 20000, stars: 50 };
-        if (num === 7) return { points: 15000, stars: 150 };
         return { points: 5000, stars: 50 };
     }
 
@@ -1230,15 +1339,11 @@ window.addEventListener('load', () => {
         const tasksTitle = document.getElementById('passTasksTitle');
         if (!container || !title) return;
         const num = getActivePassNumber();
-        container.classList.remove('pass-v7', 'pass-v8');
+        container.classList.remove('pass-v8');
         if (num === 8) {
             container.classList.add('pass-v8');
             title.innerHTML = '🎃 AI PASS 8 🎃';
             if (tasksTitle) tasksTitle.innerHTML = '🎃 ' + t('pass_tasks_title') + ' AI PASS 8 🎃';
-        } else if (num === 7) {
-            container.classList.add('pass-v7');
-            title.innerHTML = '> AI PASS 7 _';
-            if (tasksTitle) tasksTitle.innerHTML = '> ' + t('pass_tasks_title') + ' AI PASS 7 _';
         } else {
             title.innerHTML = t('pass_no_active');
             if (tasksTitle) tasksTitle.innerHTML = t('pass_no_active');
@@ -1250,14 +1355,6 @@ window.addEventListener('load', () => {
         if (season === 8) {
             for (let i = 1; i <= 40; i++) {
                 passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: 20000, rewardStars: 50, completed: false, claimed: false });
-            }
-        } else if (season === 7) {
-            for (let i = 1; i <= 30; i++) {
-                let tc, rp, rs;
-                if (i <= 10) { tc = i * 500; rp = i * 7000; rs = i * 70; }
-                else if (i <= 20) { tc = i * 600; rp = i * 10000; rs = i * 100; }
-                else { tc = i * 800; rp = i * 15000; rs = i * 150; }
-                passTasks.push({ level: i, targetClicks: tc, rewardPoints: rp, rewardStars: rs, completed: false, claimed: false });
             }
         }
     }
@@ -1596,6 +1693,7 @@ window.addEventListener('load', () => {
         if (isBoostActive()) base *= BOOST_MULTIPLIER;
         if (isBirthdayBoostActive()) base *= BIRTHDAY_BOOST_MULT;
         if (isMarch8BoostActive()) base *= MARCH8_BOOST_MULT;
+        if (isX10BoostActive()) base *= X10_BOOST_MULT;
         base *= getPrestigeMultiplier();
         return Math.floor(base);
     }
@@ -1623,8 +1721,9 @@ window.addEventListener('load', () => {
         lastSaveTime = Date.now();
         const save = {
             points, stars, totalClicks, purchasedCount,
-            totalStarsEarned, godMode, comboCounter, prestigeLevel, riskChance,
-            birthdayBoostEndTime, march8BoostEndTime,
+            totalStarsEarned, godMode, comboCounter, prestigeLevel,
+            birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime,
+            autoclickerBought,
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
@@ -1654,10 +1753,11 @@ window.addEventListener('load', () => {
                 godMode = d.godMode || false;
                 comboCounter = d.comboCounter || 0;
                 prestigeLevel = d.prestigeLevel || 0;
-                riskChance = d.riskChance !== undefined ? d.riskChance : 0.5;
                 boostEndTime = d.boostEndTime || 0;
                 birthdayBoostEndTime = d.birthdayBoostEndTime || 0;
                 march8BoostEndTime = d.march8BoostEndTime || 0;
+                x10BoostEndTime = d.x10BoostEndTime || 0;
+                autoclickerBought = d.autoclickerBought || false;
                 if (d.lastSaveTime) lastSaveTime = d.lastSaveTime;
                 if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; });
                 if (String(d.passSeason) === String(activeSeason) && d.passTasks) {
@@ -1685,6 +1785,9 @@ window.addEventListener('load', () => {
         startSpiderTimer();
         startWitchTimer();
         startWebTimer();
+        if (autoclickerBought) startAutoclicker();
+        updateAutoClickerUI();
+        updateDailyGiftUI();
         applyBanState(); applyTheme(); applyPassStyle();
         const savedColor = localStorage.getItem('btnColor') || 'blue';
         applyButtonColor(savedColor);
@@ -1700,6 +1803,13 @@ window.addEventListener('load', () => {
             setTimeout(() => showOfflineReward(offlineIncome), 2600);
             saveGame();
             updateUI();
+        }
+        // 🧠 x10 буст на 5 часов — при первом входе
+        if (!localStorage.getItem('x10BoostUsed_v127')) {
+            x10BoostEndTime = Date.now() + X10_BOOST_DURATION;
+            localStorage.setItem('x10BoostUsed_v127', 'true');
+            setTimeout(() => showToast(t('x10_boost')), 3500);
+            saveGame();
         }
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) {
             birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION;
@@ -1808,6 +1918,13 @@ window.addEventListener('load', () => {
             playBuySound();
             spawnFloatText(x, y - 30, isHalloween() ? "🍬🍬🍬" : (isNewYear() ? "❄️❄️❄️" : "⭐⭐⭐"));
         }
+        // 🎃 Тыква-клик (Хэллоуин) — 2% шанс +5⭐
+        if (isHalloween() && Math.random() < 0.02) {
+            stars += 5; totalStarsEarned += 5;
+            showToast(t('pumpkin_click'));
+            spawnFloatText(x, y - 50, "🎃 +5⭐");
+            playBuySound();
+        }
     }
     function handleMultiTouch(e) {
         e.preventDefault();
@@ -1912,24 +2029,11 @@ window.addEventListener('load', () => {
     document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
     document.getElementById('boostBtn')?.addEventListener('click', buyBoost);
+    document.getElementById('autoclickerBtn')?.addEventListener('click', buyAutoclicker);
+    document.getElementById('dailyGiftBtn')?.addEventListener('click', claimDailyGift);
     document.getElementById('rouletteBtn')?.addEventListener('click', openRoulette);
     document.getElementById('rouletteSpinBtn')?.addEventListener('click', spinRoulette);
     document.getElementById('rouletteCloseBtn')?.addEventListener('click', () => document.getElementById('rouletteOverlay')?.classList.remove('show'));
-    document.getElementById('riskBtn')?.addEventListener('click', () => {
-        if (isBanned) return;
-        if (points < 100) { showToast(t('risk_no_points')); return; }
-        if (Math.random() < riskChance) {
-            const won = Math.floor(points);
-            points = points * 2;
-            showToast(`${t('risk_win')} +${won.toLocaleString()}🧠`);
-            playBuySound();
-        } else {
-            const lost = Math.floor(points * 0.5);
-            points = points - lost;
-            showToast(`${t('risk_lose')} -${lost.toLocaleString()}🧠`);
-        }
-        updateUI(); saveGame();
-    });
     document.getElementById('factCloseBtn')?.addEventListener('click', () => document.getElementById('factOverlay')?.classList.remove('show'));
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
@@ -2005,7 +2109,6 @@ window.addEventListener('load', () => {
     promoCodes['evolution'] = { points: 2000, stars: 100 };
     promoCodes['prestige'] = { points: 10000, stars: 200 };
     promoCodes['legend'] = { points: 20000, stars: 500 };
-    promoCodes['pass7'] = { points: 7000, stars: 70 };
     promoCodes['pass8'] = { points: 8000, stars: 80 };
     promoCodes['halloween'] = { points: 6666, stars: 66 };
     promoCodes['newyear'] = { points: 7777, stars: 77 };
@@ -2018,6 +2121,23 @@ window.addEventListener('load', () => {
     promoCodes['spider'] = { points: 3000, stars: 30 };
     promoCodes['witch'] = { points: 7777, stars: 77 };
     promoCodes['web'] = { points: 4000, stars: 40 };
+    promoCodes['autoclicker'] = { points: 10000, stars: 500 };
+    promoCodes['gift'] = { points: 3000, stars: 25 };
+    promoCodes['x10'] = { points: 10000, stars: 100 };
+    promoCodes['dima2026'] = { points: 26000, stars: 260 };
+    promoCodes['news'] = { points: 5000, stars: 50 };
+    promoCodes['update'] = { points: 12700, stars: 127 };
+    promoCodes['v12'] = { points: 12000, stars: 120 };
+    promoCodes['future'] = { points: 15000, stars: 150 };
+    promoCodes['best'] = { points: 8000, stars: 80 };
+    promoCodes['top'] = { points: 7000, stars: 70 };
+    promoCodes['super'] = { points: 11000, stars: 110 };
+    promoCodes['mega'] = { points: 20000, stars: 200 };
+    promoCodes['ultra'] = { points: 25000, stars: 250 };
+    promoCodes['king'] = { points: 30000, stars: 300 };
+    promoCodes['boss'] = { points: 18000, stars: 180 };
+    promoCodes['god'] = { points: 50000, stars: 500 };
+    promoCodes['diamond'] = { points: 22000, stars: 220 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
         if (isBanned) return;
@@ -2080,7 +2200,7 @@ window.addEventListener('load', () => {
     }, 1000);
     setInterval(saveGame, 5000);
 
-    // ===== АДМИН ПАНЕЛЬ =====
+    // ===== АДМИН ПАНЕЛЬ v4 =====
     let adminCurrentTab = 'game';
     function renderAdminBody() {
         const body = document.getElementById('adminBody');
@@ -2091,18 +2211,20 @@ window.addEventListener('load', () => {
                 <div class="admin-item"><span></span><button id="admPoints">Дать очки</button></div>
                 <div class="admin-item"><span>Дать звёзд:</span><input type="number" id="admStarsInput" class="admin-input" placeholder="100"></div>
                 <div class="admin-item"><span></span><button id="admStars">Дать звёзды</button></div>
-                <div class="admin-item"><span>Шанс риска (0-1):</span><input type="number" id="admRiskInput" class="admin-input" step="0.05" min="0" max="1" placeholder="0.5"></div>
-                <div class="admin-item"><span></span><button id="admRisk">Применить шанс</button></div>
                 <div class="admin-item"><span>Купить все нейросети</span><button id="admBuyAll">Купить</button></div>
                 <div class="admin-item"><span>Открыть все AI Pass</span><button id="admPass">Дать</button></div>
                 <div class="admin-item"><span>Режим Бога (x10)</span><button id="admGod">Вкл/Выкл</button></div>
                 <div class="admin-item"><span>+1 Престиж</span><button id="admPrestige">Дать</button></div>
                 <div class="admin-item"><span>🎂 Birthday boost</span><button id="admBirthday">Вкл</button></div>
                 <div class="admin-item"><span>🌷 March 8 boost</span><button id="admMarch8">Вкл</button></div>
+                <div class="admin-item"><span>🧠 X10 Boost (5ч)</span><button id="admX10">Вкл</button></div>
+                <div class="admin-item"><span>🤖 Автокликер</span><button id="admAuto">Дать</button></div>
+                <div class="admin-item"><span>🎁 Сброс подарка</span><button id="admResetGift">Сброс</button></div>
                 <div class="admin-item"><span>👻 Призрак</span><button id="admGhost">Спавн</button></div>
                 <div class="admin-item"><span>🕷️ Паук</span><button id="admSpider">Спавн</button></div>
                 <div class="admin-item"><span>🧙 Ведьма</span><button id="admWitch">Спавн</button></div>
                 <div class="admin-item"><span>🕸️ Паутина</span><button id="admWeb">Спавн</button></div>
+                <div class="admin-item"><span>📢 Метеорит</span><button id="admMeteor">Спавн</button></div>
                 <div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сбросить</button></div>
             `;
             document.getElementById('admPoints').onclick = () => {
@@ -2114,12 +2236,6 @@ window.addEventListener('load', () => {
                 const val = parseInt(document.getElementById('admStarsInput').value) || 100;
                 stars += val; totalStarsEarned += val; updateUI(); saveGame();
                 showToast(`+${val}⭐`);
-            };
-            document.getElementById('admRisk').onclick = () => {
-                const val = parseFloat(document.getElementById('admRiskInput').value);
-                if (isNaN(val) || val < 0 || val > 1) { showToast('❌ 0-1'); return; }
-                riskChance = val; saveGame();
-                showToast(`🎲 Шанс риска: ${Math.round(val * 100)}%`);
             };
             document.getElementById('admBuyAll').onclick = () => {
                 upgrades.forEach((u) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } });
@@ -2149,22 +2265,27 @@ window.addEventListener('load', () => {
                 updateBoostTimersPanel(); saveGame();
                 showToast('🌷 March 8 boost ON!');
             };
-            document.getElementById('admGhost').onclick = () => {
-                spawnGhost();
-                showToast('👻 Спавн!');
+            document.getElementById('admX10').onclick = () => {
+                x10BoostEndTime = Date.now() + X10_BOOST_DURATION;
+                updateBoostTimersPanel(); saveGame();
+                showToast('🧠 X10 Boost ON! (5ч)');
             };
-            document.getElementById('admSpider').onclick = () => {
-                spawnSpider();
-                showToast('🕷️ Спавн!');
+            document.getElementById('admAuto').onclick = () => {
+                autoclickerBought = true;
+                startAutoclicker();
+                updateAutoClickerUI(); saveGame();
+                showToast('🤖 Автокликер выдан!');
             };
-            document.getElementById('admWitch').onclick = () => {
-                spawnWitch();
-                showToast('🧙 Спавн!');
+            document.getElementById('admResetGift').onclick = () => {
+                localStorage.removeItem('dailyGiftDate');
+                updateDailyGiftUI();
+                showToast('🎁 Подарок сброшен!');
             };
-            document.getElementById('admWeb').onclick = () => {
-                spawnWeb();
-                showToast('🕸️ Спавн!');
-            };
+            document.getElementById('admGhost').onclick = () => { spawnGhost(); showToast('👻 Спавн!'); };
+            document.getElementById('admSpider').onclick = () => { spawnSpider(); showToast('🕷️ Спавн!'); };
+            document.getElementById('admWitch').onclick = () => { spawnWitch(); showToast('🧙 Спавн!'); };
+            document.getElementById('admWeb').onclick = () => { spawnWeb(); showToast('🕸️ Спавн!'); };
+            document.getElementById('admMeteor').onclick = () => { spawnMeteor(); showToast('📢 Спавн!'); };
             document.getElementById('admReset').onclick = () => {
                 if (confirm("Сбросить прогресс? / Reset progress?")) { localStorage.clear(); location.reload(); }
             };
@@ -2172,10 +2293,15 @@ window.addEventListener('load', () => {
         if (adminCurrentTab === 'settings') {
             body.innerHTML = `
                 <div class="admin-item"><span>Сбросить обучение</span><button id="admResetTutorial">Сбросить</button></div>
+                <div class="admin-item"><span>Сбросить X10 буст</span><button id="admResetX10">Сбросить</button></div>
             `;
             document.getElementById('admResetTutorial').onclick = () => {
                 localStorage.removeItem('tutorialDone');
                 showToast("✅ Tutorial reset!");
+            };
+            document.getElementById('admResetX10').onclick = () => {
+                localStorage.removeItem('x10BoostUsed_v127');
+                showToast("✅ X10 boost reset!");
             };
         }
     }
