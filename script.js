@@ -119,13 +119,11 @@ const TRANSLATIONS = {
         autoclicker_active: "🤖 АВТОКЛИКЕР АКТИВЕН",
         autoclicker_bought: "✅ Автокликер куплен!",
         autoclicker_no_stars: "❌ Нужно 500⭐",
-        autoclicker_help: "Кликает за тебя 10 раз/сек",
         daily_gift: "🎁 ЕЖЕДНЕВНЫЙ ПОДАРОК",
         daily_gift_got: "🎁 Подарок получен!",
         daily_gift_already: "⏰ Уже получен сегодня",
         pumpkin_click: "🎃 ТЫКВА! +5⭐",
-        x10_boost: "🧠 БУСТ X10! 5 часов!",
-        risk_removed: "Риск удалён"
+        x10_boost: "🧠 БУСТ X10! 5 часов!"
     },
     en: {
         loading: "LOADING...",
@@ -220,13 +218,11 @@ const TRANSLATIONS = {
         autoclicker_active: "🤖 AUTOCLICKER ACTIVE",
         autoclicker_bought: "✅ Autoclicker bought!",
         autoclicker_no_stars: "❌ Need 500⭐",
-        autoclicker_help: "Clicks for you 10 times/sec",
         daily_gift: "🎁 DAILY GIFT",
         daily_gift_got: "🎁 Gift received!",
         daily_gift_already: "⏰ Already got today",
         pumpkin_click: "🎃 PUMPKIN! +5⭐",
-        x10_boost: "🧠 BOOST X10! 5 hours!",
-        risk_removed: "Risk removed"
+        x10_boost: "🧠 BOOST X10! 5 hours!"
     }
 };
 
@@ -571,12 +567,10 @@ window.addEventListener('load', () => {
     const MARCH8_BOOST_DURATION = 70 * 3600 * 1000;
     let march8BoostEndTime = 0;
 
-    // 🧠 x10 БУСТ на 5 часов — всем автоматически
     const X10_BOOST_MULT = 10;
     const X10_BOOST_DURATION = 5 * 3600 * 1000;
     let x10BoostEndTime = 0;
 
-    // 🤖 АВТОКЛИКЕР
     const AUTOCLICKER_PRICE = 500;
     const AUTOCLICKER_RATE = 10;
     let autoclickerBought = false;
@@ -1060,9 +1054,6 @@ window.addEventListener('load', () => {
         }
     }
 
-    // ===== 🎃 ТЫКВА-КЛИК (Хэллоуин) =====
-    let pumpkinClickCounter = 0;
-
     // ===== МЕТЕОРИТ =====
     let meteorTimer = null;
     function startMeteorTimer() {
@@ -1488,7 +1479,6 @@ window.addEventListener('load', () => {
     let audioCtx = null;
     let musicEnabled = localStorage.getItem('musicEnabled') === 'true';
 
-    // ===== 🎃 ХЭЛЛОУИНСКАЯ МУЗЫКА (мрачный орган + ветер) =====
     const HALLOWEEN_MELODY = [
         { note: 82.41,  dur: 900 },
         { note: 98.00,  dur: 900 },
@@ -1804,7 +1794,6 @@ window.addEventListener('load', () => {
             saveGame();
             updateUI();
         }
-        // 🧠 x10 буст на 5 часов — при первом входе
         if (!localStorage.getItem('x10BoostUsed_v127')) {
             x10BoostEndTime = Date.now() + X10_BOOST_DURATION;
             localStorage.setItem('x10BoostUsed_v127', 'true');
@@ -1918,7 +1907,6 @@ window.addEventListener('load', () => {
             playBuySound();
             spawnFloatText(x, y - 30, isHalloween() ? "🍬🍬🍬" : (isNewYear() ? "❄️❄️❄️" : "⭐⭐⭐"));
         }
-        // 🎃 Тыква-клик (Хэллоуин) — 2% шанс +5⭐
         if (isHalloween() && Math.random() < 0.02) {
             stars += 5; totalStarsEarned += 5;
             showToast(t('pumpkin_click'));
@@ -2200,6 +2188,44 @@ window.addEventListener('load', () => {
     }, 1000);
     setInterval(saveGame, 5000);
 
+    // ===== КЛАВИАТУРА ПАРОЛЯ АДМИНКИ =====
+    let adminPasswordBuffer = '';
+    function openAdminPasswordPanel() {
+        adminPasswordBuffer = '';
+        const input = document.getElementById('adminPasswordInput');
+        if (input) input.value = '';
+        const overlay = document.getElementById('adminPasswordOverlay');
+        if (overlay) overlay.classList.add('show');
+    }
+    function closeAdminPasswordPanel() {
+        adminPasswordBuffer = '';
+        const input = document.getElementById('adminPasswordInput');
+        if (input) input.value = '';
+        const overlay = document.getElementById('adminPasswordOverlay');
+        if (overlay) overlay.classList.remove('show');
+    }
+    document.querySelectorAll('.admin-key').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const key = btn.dataset.key;
+            if (key === 'clear') {
+                adminPasswordBuffer = adminPasswordBuffer.slice(0, -1);
+            } else if (key === 'ok') {
+                if (adminPasswordBuffer === ADMIN_PASSWORD) {
+                    closeAdminPasswordPanel();
+                    setTimeout(() => openAdminPanel(), 200);
+                } else {
+                    showToast(t('admin_wrong_pass'));
+                    adminPasswordBuffer = '';
+                }
+            } else {
+                if (adminPasswordBuffer.length < 8) adminPasswordBuffer += key;
+            }
+            const input = document.getElementById('adminPasswordInput');
+            if (input) input.value = '•'.repeat(adminPasswordBuffer.length);
+        });
+    });
+    document.getElementById('adminPasswordCancel')?.addEventListener('click', closeAdminPasswordPanel);
+
     // ===== АДМИН ПАНЕЛЬ v4 =====
     let adminCurrentTab = 'game';
     function renderAdminBody() {
@@ -2308,18 +2334,13 @@ window.addEventListener('load', () => {
     function openAdminPanel() {
         const overlay = document.getElementById('adminOverlay');
         if (!overlay) return;
-        const pass = prompt(t('admin_enter_pass'));
-        if (pass !== ADMIN_PASSWORD) {
-            showToast(t('admin_wrong_pass'));
-            return;
-        }
         adminCurrentTab = 'game';
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'game'));
         renderAdminBody();
         overlay.classList.add('show');
     }
     const versionEl = document.getElementById('menuVersion');
-    if (versionEl) { versionEl.style.cursor = 'pointer'; versionEl.addEventListener('click', openAdminPanel); }
+    if (versionEl) { versionEl.style.cursor = 'pointer'; versionEl.addEventListener('click', openAdminPasswordPanel); }
     document.querySelectorAll('.admin-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
