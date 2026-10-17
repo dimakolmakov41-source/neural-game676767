@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.8";
+const GAME_VERSION = "12.9";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ЯЗЫК =====
@@ -23,6 +23,7 @@ const TRANSLATIONS = {
         open_tasks: "📋 ОТКРЫТЬ ЗАДАНИЯ",
         shop_neurons: "🧠 НЕЙРОСЕТИ",
         shop_stars: "⭐ ЗВЁЗДЫ",
+        shop_skins: "💎 СКИНЫ",
         buy_all: "💰 КУПИТЬ ВСЁ ДОСТУПНОЕ",
         close: "ЗАКРЫТЬ",
         back_menu: "◀ МЕНЮ",
@@ -50,7 +51,7 @@ const TRANSLATIONS = {
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.8: 🏆 Достижения, 🦇 Летучие мыши, 🔢 Формат чисел, 🎁 Подарок в меню!",
+        news_text: "v12.9: 💎 Скины (Обычный, Тыква, Аметист)!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -138,7 +139,7 @@ const TRANSLATIONS = {
         sleep: "😴 Sleeping?",
         combo: "🔥 x2 COMBO!", boost: "⚡ BOOST X5 — 20⭐", boost_active: "⚡ X5 ACTIVE —",
         open_tasks: "📋 OPEN TASKS",
-        shop_neurons: "🧠 NEURONS", shop_stars: "⭐ STARS",
+        shop_neurons: "🧠 NEURONS", shop_stars: "⭐ STARS", shop_skins: "💎 SKINS",
         buy_all: "💰 BUY ALL AVAILABLE", close: "CLOSE",
         back_menu: "◀ MENU", shop: "🛒 SHOP", autosave: "💾 autosave",
         yes: "Yes", no: "No", ok: "GOT IT",
@@ -159,7 +160,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.8: 🏆 Achievements, 🦇 Bats, 🔢 Number format, 🎁 Gift in menu!",
+        news_text: "v12.9: 💎 Skins (Normal, Pumpkin, Amethyst)!",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -444,7 +445,6 @@ function applyTheme() {
     if (isBirthday()) {
         body.classList.add('bg-birthday');
         if (brain) brain.classList.add('birthday-brain');
-        if (brainEmoji) brainEmoji.innerText = '🧠';
         if (partyHat) partyHat.style.display = 'block';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('sleep');
@@ -453,7 +453,6 @@ function applyTheme() {
     } else if (isMarch8()) {
         body.classList.add('bg-march8');
         if (brain) brain.classList.add('march8-brain');
-        if (brainEmoji) brainEmoji.innerText = '🧠';
         if (flowerDecor) flowerDecor.style.display = 'block';
         if (brainSpeech) brainSpeech.style.display = 'block';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
@@ -463,7 +462,6 @@ function applyTheme() {
     } else if (isHalloween()) {
         body.classList.add('bg-halloween');
         if (brain) brain.classList.add('halloween-brain');
-        if (brainEmoji) brainEmoji.innerText = '🎃';
         if (starLabel) starLabel.innerHTML = '🍬 <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('sleep');
         if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
@@ -477,14 +475,12 @@ function applyTheme() {
             hat.innerText = '🎅';
             brain.appendChild(hat);
         }
-        if (brainEmoji) brainEmoji.innerText = '🧠';
         if (starLabel) starLabel.innerHTML = '❄️ <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('sleep');
         if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
         if (title) title.innerText = t('title');
     } else if (isHackerMode()) {
         body.classList.add('bg-hacker');
-        if (brainEmoji) brainEmoji.innerText = '🧠';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('sleep');
         if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
@@ -497,12 +493,12 @@ function applyTheme() {
             mountains: "bg-mountains", village: "bg-village"
         };
         body.classList.add(bgThemes[savedBg] || 'bg-early-autumn');
-        if (brainEmoji) brainEmoji.innerText = '🧠';
         if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>';
         if (sleepMsg) sleepMsg.innerText = t('sleep');
         if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>';
         if (title) title.innerText = t('title');
     }
+    if (typeof applySkin === 'function') applySkin();
 }
 
 function applyButtonColor(color) {
@@ -596,6 +592,18 @@ window.addEventListener('load', () => {
 
     const ROULETTE_PRICE = 50;
     let rouletteSpinning = false;
+
+    // ===== СКИНЫ =====
+    const SKINS = [
+        { id: 'normal', name: 'Обычный', price: 0, mult: 1, emoji: '🧠' },
+        { id: 'halloween', name: 'Тыква', price: 20, mult: 5, emoji: '🎃' },
+        { id: 'amethyst', name: 'Аметист', price: 320, mult: 15, emoji: '💎' }
+    ];
+    let currentSkin = localStorage.getItem('currentSkin');
+    if (!currentSkin) {
+        currentSkin = isHalloween() ? 'halloween' : 'normal';
+    }
+    let purchasedSkins = JSON.parse(localStorage.getItem('purchasedSkins') || '["normal"]');
 
     let unlockedAchievements = JSON.parse(localStorage.getItem('neuralAch') || '[]');
 
@@ -760,6 +768,91 @@ window.addEventListener('load', () => {
         });
     }
 
+    function renderShopSkins() {
+        const container = document.getElementById('shopSkins');
+        if (!container) return;
+        let html = '';
+        SKINS.forEach(skin => {
+            const isUnlocked = purchasedSkins.includes(skin.id) || skin.id === 'normal' || (skin.id === 'halloween' && isHalloween());
+            const isEquipped = currentSkin === skin.id;
+            const priceText = (skin.id === 'halloween' && isHalloween()) ? 'Бесплатно (Ивент)' : (skin.price > 0 ? `💰 ${skin.price}⭐` : 'Бесплатно');
+            
+            let btnText = isEquipped ? '✅ Надет' : (isUnlocked ? 'Одеть' : `Купить за ${skin.price}⭐`);
+            let btnStyle = isEquipped ? 'background:#555; color:#aaa;' : (isUnlocked ? 'background:#4caf50;' : 'background:#ffaa00;');
+            
+            html += `
+                <div class="skin-item ${isEquipped ? 'active' : ''}" data-id="${skin.id}">
+                    <div class="skin-info">
+                        <div class="skin-name">${skin.name} ${skin.emoji}</div>
+                        <div class="skin-mult">Множитель: ×${skin.mult}</div>
+                        <div class="skin-price">${priceText}</div>
+                    </div>
+                    <button class="skin-btn" style="${btnStyle}" data-action="${isEquipped ? 'none' : (isUnlocked ? 'equip' : 'buy')}">${btnText}</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        
+        document.querySelectorAll('#shopSkins .skin-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = e.target.closest('.skin-item').dataset.id;
+                if (btn.dataset.action === 'equip') {
+                    currentSkin = id;
+                    localStorage.setItem('currentSkin', id);
+                    applySkin();
+                    saveGame();
+                    showToast('Скин надет!');
+                    renderShopSkins();
+                } else if (btn.dataset.action === 'buy') {
+                    buySkin(id);
+                }
+            });
+        });
+    }
+
+    function buySkin(id) {
+        const skin = SKINS.find(s => s.id === id);
+        if (!skin) return;
+        if (stars < skin.price) { showToast(`❌ Нужно ${skin.price}⭐`); return; }
+        stars -= skin.price;
+        purchasedSkins.push(id);
+        localStorage.setItem('purchasedSkins', JSON.stringify(purchasedSkins));
+        currentSkin = id;
+        localStorage.setItem('currentSkin', id);
+        updateUI();
+        applySkin();
+        saveGame();
+        renderShopSkins();
+        showToast(`✅ Скин ${skin.name} куплен и надет!`);
+        playBuySound();
+    }
+
+    function applySkin() {
+        const brain = document.getElementById('clickableObject');
+        if (!brain) return;
+        brain.classList.remove('skin-normal', 'skin-halloween', 'skin-amethyst');
+        brain.classList.add('skin-' + currentSkin);
+
+        const emoji = document.getElementById('brainEmoji');
+        if (emoji) {
+            if (currentSkin === 'normal') {
+                emoji.innerText = '🧠';
+                emoji.style.display = 'block';
+            } else if (currentSkin === 'halloween') {
+                emoji.innerText = '🎃';
+                emoji.style.display = 'block';
+            } else if (currentSkin === 'amethyst') {
+                emoji.style.display = 'none';
+            }
+        }
+    }
+
+    function getSkinMultiplier() {
+        const skin = SKINS.find(s => s.id === currentSkin);
+        return skin ? skin.mult : 1;
+    }
+
     function buyUpgrade(id) {
         const u = upgrades[id];
         if (!u.purchased && points >= u.price) {
@@ -835,20 +928,30 @@ window.addEventListener('load', () => {
     function switchShopTab(tab) {
         const tabNeurons = document.querySelector('.shop-tab[data-tab="neurons"]');
         const tabStars = document.querySelector('.shop-tab[data-tab="stars"]');
+        const tabSkins = document.querySelector('.shop-tab[data-tab="skins"]');
         const listNeurons = document.getElementById('shopNeurons');
         const listStars = document.getElementById('shopStars');
+        const listSkins = document.getElementById('shopSkins');
         const buyAllBtn = document.getElementById('buyAllBtn');
+        
+        if (tabNeurons) tabNeurons.classList.remove('active');
+        if (tabStars) tabStars.classList.remove('active');
+        if (tabSkins) tabSkins.classList.remove('active');
+        if (listNeurons) listNeurons.style.display = 'none';
+        if (listStars) listStars.style.display = 'none';
+        if (listSkins) listSkins.style.display = 'none';
+        if (buyAllBtn) buyAllBtn.style.display = 'none';
+
         if (tab === 'stars') {
-            if (tabNeurons) tabNeurons.classList.remove('active');
             if (tabStars) tabStars.classList.add('active');
-            if (listNeurons) listNeurons.style.display = 'none';
             if (listStars) listStars.style.display = 'block';
-            if (buyAllBtn) buyAllBtn.style.display = 'none';
             renderShopStars();
+        } else if (tab === 'skins') {
+            if (tabSkins) tabSkins.classList.add('active');
+            if (listSkins) listSkins.style.display = 'block';
+            renderShopSkins();
         } else {
-            if (tabStars) tabStars.classList.remove('active');
             if (tabNeurons) tabNeurons.classList.add('active');
-            if (listStars) listStars.style.display = 'none';
             if (listNeurons) listNeurons.style.display = 'block';
             if (buyAllBtn) buyAllBtn.style.display = '';
             renderShopNeurons();
@@ -1794,6 +1897,7 @@ window.addEventListener('load', () => {
         if (isMarch8BoostActive()) base *= MARCH8_BOOST_MULT;
         if (isX10BoostActive()) base *= X10_BOOST_MULT;
         base *= getPrestigeMultiplier();
+        base *= getSkinMultiplier();
         return Math.floor(base);
     }
     function updateUI() {
@@ -1824,6 +1928,7 @@ window.addEventListener('load', () => {
             totalStarsEarned, godMode, comboCounter, prestigeLevel,
             birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime,
             autoclickerBought, unlockedAchievements,
+            currentSkin, purchasedSkins,
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
@@ -1859,6 +1964,8 @@ window.addEventListener('load', () => {
                 x10BoostEndTime = d.x10BoostEndTime || 0;
                 autoclickerBought = d.autoclickerBought || false;
                 if (d.lastSaveTime) lastSaveTime = d.lastSaveTime;
+                if (d.currentSkin) currentSkin = d.currentSkin;
+                if (d.purchasedSkins) purchasedSkins = d.purchasedSkins;
                 if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; });
                 if (String(d.passSeason) === String(activeSeason) && d.passTasks) {
                     d.passTasks.forEach((data, i) => {
@@ -1889,7 +1996,7 @@ window.addEventListener('load', () => {
         if (autoclickerBought) startAutoclicker();
         updateAutoClickerUI();
         updateDailyGiftUI();
-        applyBanState(); applyTheme(); applyPassStyle();
+        applyBanState(); applyTheme(); applyPassStyle(); applySkin();
         const savedColor = localStorage.getItem('btnColor') || 'blue';
         applyButtonColor(savedColor);
         if (_showAnim && !localStorage.getItem('diamondConverted')) {
@@ -1983,6 +2090,7 @@ window.addEventListener('load', () => {
         const savedColor = localStorage.getItem('btnColor') || 'blue';
         applyButtonColor(savedColor);
         localStorage.setItem('selectedBg', theme);
+        if (typeof applySkin === 'function') applySkin();
     }
     const savedBg = localStorage.getItem('selectedBg');
     if (savedBg && bgThemes[savedBg] && !isHalloween() && !isNewYear() && !isHackerMode() && !isBirthday() && !isMarch8()) setBodyBg(savedBg);
