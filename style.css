@@ -1742,4 +1742,342 @@ body.bg-hacker .exchange-item.disabled {
 }
 .admin-overlay.show { opacity: 1; visibility: visible; }
 .admin-panel {
-    background: #ff0000; border: 6px
+    background: #ff0000; border: 6px solid #000;
+    border-radius: 10px; width: 100%; max-width: 400px;
+    max-height: 85vh; display: flex; flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+}
+.admin-header {
+    background: #ff0000; color: white;
+    font-size: 22px; font-weight: 900;
+    text-align: center; padding: 14px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    border-bottom: 4px solid #000;
+}
+.admin-tabs { display: flex; background: #000; gap: 4px; padding: 6px; }
+.admin-tab {
+    flex: 1; background: #fff; color: #000;
+    text-align: center; padding: 10px 4px;
+    font-weight: 800; font-size: 13px;
+    cursor: pointer; border: 2px solid #fff; user-select: none;
+}
+.admin-tab.active { background: #ffcc00; border-color: #000; color: #000; }
+.admin-body {
+    background: #ff0000; color: white;
+    padding: 16px; overflow-y: auto; flex: 1;
+    min-height: 200px; font-size: 14px;
+}
+.admin-item {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,0.25); padding: 10px 12px;
+    margin-bottom: 8px; border-radius: 8px;
+    border: 2px solid #000; gap: 8px; flex-wrap: wrap;
+}
+.admin-item span { font-weight: 700; color: white; }
+.admin-item button {
+    background: #000; color: #fff; border: none;
+    padding: 8px 14px; border-radius: 6px;
+    font-weight: 700; cursor: pointer; font-size: 12px;
+}
+.admin-item button:active { transform: scale(0.95); background: #333; }
+.admin-input {
+    background: #fff; color: #000; border: 2px solid #000;
+    padding: 6px 10px; border-radius: 6px; font-size: 13px;
+    width: 90px; text-align: center; font-weight: 700;
+}
+.admin-close {
+    background: #000; color: #fff; border: none;
+    padding: 12px; font-size: 16px; font-weight: 900;
+    cursor: pointer; border-top: 4px solid #fff;
+    letter-spacing: 1px;
+}
+.admin-close:active { background: #333; }
+
+/* 🔐 КЛАВИАТУРА ПАРОЛЯ АДМИНКИ */
+.admin-password-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3500;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.25s;
+    padding: 20px;
+}
+.admin-password-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+.admin-password-box {
+    background: #ff0000;
+    border: 8px solid #000;
+    border-radius: 6px;
+    padding: 20px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.admin-password-header {
+    background: #000;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    text-align: center;
+    padding: 12px 8px;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.admin-password-input {
+    background: #fff;
+    color: #000;
+    border: 4px solid #000;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 24px;
+    font-weight: 900;
+    text-align: center;
+    letter-spacing: 8px;
+    width: 100%;
+    outline: none;
+    font-family: 'Courier New', monospace;
+    caret-color: transparent;
+}
+.admin-password-input::placeholder {
+    color: #aaa;
+    letter-spacing: 2px;
+    font-size: 16px;
+}
+.admin-password-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.admin-key {
+    background: #fff;
+    color: #000;
+    border: 4px solid #000;
+    border-radius: 6px;
+    padding: 14px 0;
+    font-size: 26px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.1s;
+    font-family: 'Courier New', monospace;
+    user-select: none;
+    text-shadow: none;
+}
+.admin-key:active {
+    transform: scale(0.93);
+    background: #ccc;
+}
+.admin-key-clear {
+    background: #ffaa00;
+    font-size: 22px;
+}
+.admin-key-ok {
+    background: #00cc44;
+    color: #fff;
+    font-size: 20px;
+}
+.admin-password-cancel {
+    background: #000;
+    color: #fff;
+    border: 4px solid #fff;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: 0.1s;
+    font-family: 'Courier New', monospace;
+}
+.admin-password-cancel:active {
+    background: #333;
+    transform: scale(0.97);
+}
+
+.tutorial-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5000; padding: 20px;
+    opacity: 0; visibility: hidden; transition: 0.3s;
+}
+.tutorial-overlay.show { opacity: 1; visibility: visible; }
+.tutorial-box {
+    background: #0a0a0a; border: 4px solid #000;
+    border-radius: 12px; padding: 20px;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.9);
+    color: white; text-align: center;
+}
+.tutorial-step { display: block; }
+.tutorial-step.hidden { display: none; }
+.tutorial-robot {
+    display: flex; align-items: flex-start;
+    gap: 10px; margin-bottom: 18px; text-align: left;
+}
+.robot-emoji { font-size: 40px; line-height: 1; flex-shrink: 0; }
+.robot-text {
+    font-size: 16px; font-weight: 700;
+    line-height: 1.4; color: white;
+    text-shadow: 0 0 5px black;
+}
+.tutorial-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 10px; }
+.tutorial-btn-yes, .tutorial-btn-no {
+    flex: 1; padding: 14px;
+    border: 3px solid #000; font-size: 22px;
+    font-weight: 900; cursor: pointer;
+    border-radius: 4px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+}
+.tutorial-btn-yes { background: #00dd00; color: #003300; }
+.tutorial-btn-yes:active { transform: scale(0.95); background: #00aa00; }
+.tutorial-btn-no { background: #dd0000; color: #330000; }
+.tutorial-btn-no:active { transform: scale(0.95); background: #aa0000; }
+.tutorial-text {
+    font-size: 16px; font-weight: 700;
+    line-height: 1.5; color: white;
+    margin: 16px 0; text-shadow: 0 0 5px black;
+}
+.tutorial-hand {
+    font-size: 50px; margin: 10px 0;
+    animation: handBounce 1s ease-in-out infinite;
+}
+@keyframes handBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.tutorial-btn-ok {
+    width: 100%; padding: 14px;
+    background: #00aa00; color: white;
+    border: 3px solid #000; border-radius: 4px;
+    font-size: 18px; font-weight: 900;
+    cursor: pointer; margin-top: 10px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+}
+.tutorial-btn-ok:active { transform: scale(0.97); background: #008800; }
+
+@keyframes borderGlow {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+#bgSettingItem { display: none !important; }
+
+.lang-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+.lang-btn {
+    flex: 1;
+    background: linear-gradient(145deg, #2a4b6e, #1a3150);
+    border: 2px solid #7aa5d9;
+    color: white;
+    padding: 10px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    transition: 0.15s;
+}
+.lang-btn:active { transform: scale(0.96); }
+.lang-btn:hover {
+    background: linear-gradient(145deg, #3a6b8e, #2a4160);
+    box-shadow: 0 0 10px #7aa5d9;
+}
+.lang-btn.active {
+    background: linear-gradient(145deg, #2e7d32, #1a5a20);
+    border-color: #66cc66;
+    box-shadow: 0 0 15px rgba(76,175,80,0.6);
+}
+#setLangRu.active, #setLangEn.active {
+    background: linear-gradient(145deg, #2e7d32, #1a5a20);
+    border-color: #66cc66;
+    box-shadow: 0 0 15px rgba(76,175,80,0.6);
+}
+
+/* ===== АДАПТАЦИЯ ДЛЯ ПК ===== */
+@media (min-width: 900px) {
+    body { padding: 20px; }
+    .game-container { max-width: 700px; padding: 30px 24px; border-radius: 60px; }
+    .game-title { font-size: 38px; }
+    .menu-btn, .action-btn { font-size: 18px; padding: 16px; min-width: 160px; border-radius: 70px; }
+    .brain { width: 240px; height: 240px; }
+    .brain .skin-emoji { font-size: 100px; }
+    .amethyst-diamond { font-size: 100px; }
+    .eye { width: 30px; height: 30px; }
+    .pupil { width: 14px; height: 14px; }
+    .brain .eyes { padding: 0 42px; }
+    .top-bar, .diamond-bar { font-size: 22px; padding: 14px 20px; }
+    .stat-card-value { font-size: 24px; }
+    .stat-card-label { font-size: 12px; }
+    .stats-panel-extended { padding: 15px; gap: 12px; }
+    .timers { font-size: 16px; padding: 12px; }
+    .boost-btn, .roulette-btn, .autoclicker-btn, .achievements-btn { font-size: 20px; padding: 16px; border-radius: 50px; }
+    .click-hint { font-size: 40px; }
+    .shop-item { font-size: 16px; padding: 12px 18px; }
+    .page-btn { font-size: 14px; padding: 8px 16px; }
+    .shop-tab { font-size: 16px; padding: 12px; }
+    .pass-header { font-size: 20px; }
+    .pass-timer-header { font-size: 16px; padding: 6px 16px; }
+    .open-tasks-btn { font-size: 18px; padding: 16px; }
+    .pass-badge { font-size: 13px; padding: 10px 4px; }
+    .pass-end { font-size: 14px; }
+    .modal-content { max-width: 500px; padding: 30px; }
+    .modal-title { font-size: 26px; }
+    .modal-btn { font-size: 16px; padding: 12px 20px; }
+    .setting-item { font-size: 18px; padding: 14px; }
+    .admin-panel { max-width: 600px; }
+    .admin-item { font-size: 16px; padding: 14px 18px; }
+    .admin-item button { font-size: 14px; padding: 10px 20px; }
+    .save-badge { font-size: 13px; }
+    .game-version { font-size: 16px; }
+    .loading-text { font-size: 32px; }
+    .music-toggle { width: 55px; height: 55px; font-size: 28px; }
+    .boost-timer-item { font-size: 16px; padding: 8px 18px; }
+    .meteor { font-size: 70px; }
+    .ghost { font-size: 75px; }
+    .bat { font-size: 60px; }
+    .witch { font-size: 80px; }
+    .spider { font-size: 55px; }
+    .admin-password-box { max-width: 460px; padding: 30px; gap: 20px; }
+    .admin-password-header { font-size: 24px; padding: 16px 12px; }
+    .admin-password-input { font-size: 32px; padding: 16px 20px; letter-spacing: 12px; }
+    .admin-key { font-size: 32px; padding: 20px 0; }
+    .admin-key-clear { font-size: 28px; }
+    .admin-key-ok { font-size: 24px; }
+    .admin-password-cancel { font-size: 20px; padding: 16px; }
+    .achievements-content { max-width: 500px; padding: 30px; }
+    .ach-title { font-size: 30px; }
+    .ach-name { font-size: 18px; }
+    .ach-desc { font-size: 14px; }
+    .ach-reward { font-size: 14px; }
+}
+
+/* ===== АДАПТАЦИЯ ДЛЯ ОЧЕНЬ БОЛЬШИХ ЭКРАНОВ ===== */
+@media (min-width: 1400px) {
+    .game-container { max-width: 800px; }
+    .brain { width: 280px; height: 280px; }
+    .brain .skin-emoji { font-size: 120px; }
+    .amethyst-diamond { font-size: 120px; }
+    .game-title { font-size: 44px; }
+}
