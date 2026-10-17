@@ -488,12 +488,18 @@ body.bg-hacker .autoclicker-btn.active {
     background: linear-gradient(145deg, #00aa22, #006600);
     color: #000000;
 }
-body.bg-hacker .dailygift-btn {
+body.bg-hacker .achievements-btn {
     background: linear-gradient(145deg, #003300, #001a00);
     border: 2px solid #00ff41;
     color: #00ff41;
     box-shadow: 0 0 15px rgba(0,255,65,0.6);
     font-family: 'Courier New', monospace;
+}
+body.bg-hacker #dailyGiftBtn {
+    background: linear-gradient(145deg, #003300, #001a00) !important;
+    border-color: #00ff41 !important;
+    color: #00ff41 !important;
+    box-shadow: 0 0 10px rgba(0,255,65,0.6) !important;
 }
 
 .game-container {
@@ -552,6 +558,16 @@ body.bg-hacker .dailygift-btn {
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; z-index: 100; font-size: 24px;
     border: 2px solid #ffd966;
+}
+
+#dailyGiftBtn {
+    background: linear-gradient(145deg, #d4a0ff, #8c5cd4) !important;
+    border-color: #e0b0ff !important;
+    box-shadow: 0 0 10px rgba(200, 160, 255, 0.6) !important;
+}
+#dailyGiftBtn:hover {
+    background: linear-gradient(145deg, #e0b0ff, #a07ce0) !important;
+    box-shadow: 0 0 20px rgba(224, 176, 255, 0.9) !important;
 }
 
 /* ⏱️ ПАНЕЛЬ ТАЙМЕРОВ БУСТОВ */
@@ -631,6 +647,26 @@ body.bg-hacker .boost-timer-item {
 .ghost:hover {
     transform: scale(1.3);
     filter: drop-shadow(0 0 25px #ffffff) drop-shadow(0 0 50px #88ccff);
+}
+
+/* 🦇 ЛЕТУЧАЯ МЫШЬ */
+.bat {
+    position: fixed;
+    font-size: 45px;
+    cursor: pointer;
+    z-index: 8000;
+    filter: drop-shadow(0 0 10px #b464ff) drop-shadow(0 0 20px #8c3bd4);
+    animation: batFly 0.4s ease-in-out infinite;
+    pointer-events: auto;
+    user-select: none;
+}
+@keyframes batFly {
+    0%, 100% { transform: translateY(0) rotate(-10deg); }
+    50% { transform: translateY(-15px) rotate(10deg); }
+}
+.bat:hover {
+    transform: scale(1.3);
+    filter: drop-shadow(0 0 20px #d4a0ff) drop-shadow(0 0 40px #8c3bd4);
 }
 
 /* 🕷️ ПАУК */
@@ -811,27 +847,105 @@ body.bg-hacker .boost-timer-item {
     50% { box-shadow: 0 0 25px rgba(46, 125, 50, 0.9); }
 }
 
-/* 🎁 ЕЖЕДНЕВНЫЙ ПОДАРОК */
-.dailygift-btn {
-    background: linear-gradient(145deg, #d4a0ff, #8c5cd4);
-    border: 2px solid #e0b0ff;
-    border-radius: 40px;
-    color: white;
-    font-size: 15px;
-    font-weight: 900;
-    text-align: center;
-    padding: 12px;
-    margin: 10px 0;
-    cursor: pointer;
-    text-shadow: 0 0 5px black;
-    box-shadow: 0 0 15px rgba(200, 160, 255, 0.5);
+/* 🏆 ДОСТИЖЕНИЯ */
+.achievements-btn {
+    background: linear-gradient(145deg, #e6a800, #b37b00);
+    border: 2px solid #ffd700;
+    border-radius: 40px; color: white;
+    font-size: 15px; font-weight: 900;
+    text-align: center; padding: 12px; margin: 10px 0;
+    cursor: pointer; text-shadow: 0 0 5px black;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
     transition: 0.15s;
 }
-.dailygift-btn:active { transform: scale(0.97); }
-.dailygift-btn:hover { box-shadow: 0 0 25px rgba(224, 176, 255, 0.9); }
-@keyframes dailyGiftPulse {
-    0%, 100% { box-shadow: 0 0 15px rgba(200, 160, 255, 0.5); transform: scale(1); }
-    50% { box-shadow: 0 0 30px rgba(224, 176, 255, 1); transform: scale(1.03); }
+.achievements-btn:active { transform: scale(0.97); }
+.achievements-btn:hover { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+
+.achievements-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 4200; padding: 20px;
+    opacity: 0; visibility: hidden; transition: 0.3s;
+}
+.achievements-overlay.show { opacity: 1; visibility: visible; }
+.achievements-content {
+    background: linear-gradient(145deg, #2a1b4e, #1a0a3e);
+    border: 3px solid #ffd700;
+    border-radius: 30px;
+    padding: 25px 20px;
+    width: 100%; max-width: 400px;
+    max-height: 80vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+    color: white;
+}
+.ach-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: 900;
+    color: #ff3333;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    transition: 0.15s;
+    background: transparent;
+    border: none;
+    outline: none;
+}
+.ach-close:active { transform: scale(0.9); color: #cc0000; }
+.ach-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 0 15px #ffaa00;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+}
+.ach-list {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 5px;
+}
+.ach-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: 0.2s;
+}
+.ach-item.unlocked {
+    background: rgba(76, 175, 80, 0.15);
+    border-color: #66cc66;
+}
+.ach-item.locked {
+    background: rgba(0,0,0,0.3);
+    opacity: 0.7;
+}
+.ach-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.ach-name { font-weight: 900; font-size: 14px; }
+.ach-desc { font-size: 12px; color: #ccc; }
+.ach-reward {
+    font-weight: 900;
+    font-size: 12px;
+    color: #ffd966;
+    white-space: nowrap;
+    background: rgba(0,0,0,0.4);
+    padding: 4px 8px;
+    border-radius: 10px;
 }
 
 .roulette-btn {
@@ -1830,7 +1944,7 @@ body.bg-hacker .exchange-item.disabled {
     .stat-card-label { font-size: 12px; }
     .stats-panel-extended { padding: 15px; gap: 12px; }
     .timers { font-size: 16px; padding: 12px; }
-    .boost-btn, .roulette-btn, .autoclicker-btn, .dailygift-btn { font-size: 20px; padding: 16px; border-radius: 50px; }
+    .boost-btn, .roulette-btn, .autoclicker-btn, .achievements-btn { font-size: 20px; padding: 16px; border-radius: 50px; }
     .click-hint { font-size: 40px; }
     .shop-item { font-size: 16px; padding: 12px 18px; }
     .page-btn { font-size: 14px; padding: 8px 16px; }
@@ -1854,6 +1968,7 @@ body.bg-hacker .exchange-item.disabled {
     .boost-timer-item { font-size: 16px; padding: 8px 18px; }
     .meteor { font-size: 70px; }
     .ghost { font-size: 75px; }
+    .bat { font-size: 60px; }
     .witch { font-size: 80px; }
     .spider { font-size: 55px; }
     .admin-password-box { max-width: 460px; padding: 30px; gap: 20px; }
@@ -1863,6 +1978,11 @@ body.bg-hacker .exchange-item.disabled {
     .admin-key-clear { font-size: 28px; }
     .admin-key-ok { font-size: 24px; }
     .admin-password-cancel { font-size: 20px; padding: 16px; }
+    .achievements-content { max-width: 500px; padding: 30px; }
+    .ach-title { font-size: 30px; }
+    .ach-name { font-size: 18px; }
+    .ach-desc { font-size: 14px; }
+    .ach-reward { font-size: 14px; }
 }
 
 /* ===== АДАПТАЦИЯ ДЛЯ ОЧЕНЬ БОЛЬШИХ ЭКРАНОВ ===== */
