@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=12.8">
+    <link rel="stylesheet" href="style.css?v=12.9">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v12.8</div>
+        <div class="loading-sub">v12.9</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -20,7 +20,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v12.8</div>
+            <div class="game-version" id="menuVersion">v12.9</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn" data-i18n="play">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn" data-i18n="settings">⚙️ НАСТРОЙКИ</div>
@@ -54,6 +54,9 @@
             <div class="brain-container">
                 <div id="clickableObject" class="brain">
                     <span class="skin-emoji" id="brainEmoji">🧠</span>
+                    <div class="amethyst-diamond" id="amethystDiamond">💎</div>
+                    <div class="amethyst-laser laser-top"></div>
+                    <div class="amethyst-laser laser-bottom"></div>
                     <div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>
                     <div class="sleep-msg" id="sleepMsg" data-i18n="sleep">😴 Спишь?</div>
                     <div class="combo-text" id="comboText" data-i18n="combo">🔥 x2 КОМБО!</div>
@@ -90,9 +93,11 @@
                 <div class="shop-tabs-row">
                     <div class="shop-tab active" data-tab="neurons" data-i18n="shop_neurons">🧠 НЕЙРОСЕТИ</div>
                     <div class="shop-tab" data-tab="stars" data-i18n="shop_stars">⭐ ЗВЁЗДЫ</div>
+                    <div class="shop-tab" data-tab="skins" data-i18n="shop_skins">💎 СКИНЫ</div>
                 </div>
                 <div id="shopNeurons" class="shop-list"></div>
                 <div id="shopStars" class="shop-list" style="display:none;"></div>
+                <div id="shopSkins" class="shop-list" style="display:none;"></div>
                 <div class="action-btn" id="buyAllBtn" style="background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; margin-bottom: 6px;" data-i18n="buy_all">💰 КУПИТЬ ВСЁ ДОСТУПНОЕ</div>
                 <div class="action-btn" id="closeShopBtn" data-i18n="close">ЗАКРЫТЬ</div>
             </div>
@@ -316,8 +321,8 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="promo_title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn" data-i18n="activate">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="news_title">📢 НОВОСТИ</div><div class="modal-text" data-i18n="news_text">v12.8: 🏆 Достижения, 🦇 Летучие мыши, 🔢 Формат чисел, 🎁 Подарок в меню!</div><button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="news_title">📢 НОВОСТИ</div><div class="modal-text" data-i18n="news_text">v12.9: 💎 Скины (Обычный, Тыква, Аметист)!</div><button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
 
-    <script src="script.js?v=12.8"></script>
+    <script src="script.js?v=12.9"></script>
 </body>
 </html>
