@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.7";
+const GAME_VERSION = "12.8";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ЯЗЫК =====
@@ -50,7 +50,7 @@ const TRANSLATIONS = {
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.7: 🤖 Автокликер, 🎁 Ежедневный подарок, 🧠×10 буст на 5 часов, 2000 нейросетей!",
+        news_text: "v12.8: 🏆 Достижения, 🦇 Летучие мыши, 🔢 Формат чисел, 🎁 Подарок в меню!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -119,11 +119,14 @@ const TRANSLATIONS = {
         autoclicker_active: "🤖 АВТОКЛИКЕР АКТИВЕН",
         autoclicker_bought: "✅ Автокликер куплен!",
         autoclicker_no_stars: "❌ Нужно 500⭐",
-        daily_gift: "🎁 ЕЖЕДНЕВНЫЙ ПОДАРОК",
+        daily_gift: "🎁 ПОДАРОК",
         daily_gift_got: "🎁 Подарок получен!",
         daily_gift_already: "⏰ Уже получен сегодня",
         pumpkin_click: "🎃 ТЫКВА! +5⭐",
-        x10_boost: "🧠 БУСТ X10! 5 часов!"
+        x10_boost: "🧠 БУСТ X10! 5 часов!",
+        achievements: "🏆 ДОСТИЖЕНИЯ",
+        ach_unlocked: "🏆 Достижение:",
+        bat_win: "🦇 ЛЕТУЧАЯ МЫШЬ! +500🧠"
     },
     en: {
         loading: "LOADING...",
@@ -156,7 +159,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.7: 🤖 Autoclicker, 🎁 Daily gift, 🧠×10 boost for 5 hours, 2000 neurons!",
+        news_text: "v12.8: 🏆 Achievements, 🦇 Bats, 🔢 Number format, 🎁 Gift in menu!",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -218,17 +221,32 @@ const TRANSLATIONS = {
         autoclicker_active: "🤖 AUTOCLICKER ACTIVE",
         autoclicker_bought: "✅ Autoclicker bought!",
         autoclicker_no_stars: "❌ Need 500⭐",
-        daily_gift: "🎁 DAILY GIFT",
+        daily_gift: "🎁 GIFT",
         daily_gift_got: "🎁 Gift received!",
         daily_gift_already: "⏰ Already got today",
         pumpkin_click: "🎃 PUMPKIN! +5⭐",
-        x10_boost: "🧠 BOOST X10! 5 hours!"
+        x10_boost: "🧠 BOOST X10! 5 hours!",
+        achievements: "🏆 ACHIEVEMENTS",
+        ach_unlocked: "🏆 Achievement:",
+        bat_win: "🦇 BAT! +500🧠"
     }
 };
 
 let currentLang = localStorage.getItem('gameLang') || 'ru';
 function t(key) {
     return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.ru[key] || key;
+}
+
+// ===== ФОРМАТ ЧИСЕЛ =====
+function formatNumber(num) {
+    if (num >= 1e21) return (num / 1e21).toFixed(2) + 'Sx';
+    if (num >= 1e18) return (num / 1e18).toFixed(2) + 'Qi';
+    if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa';
+    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+    if (num >= 1e9)  return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6)  return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3)  return (num / 1e3).toFixed(2) + 'K';
+    return Math.floor(num).toString();
 }
 
 function applyTranslations() {
@@ -579,7 +597,21 @@ window.addEventListener('load', () => {
     const ROULETTE_PRICE = 50;
     let rouletteSpinning = false;
 
+    let unlockedAchievements = JSON.parse(localStorage.getItem('neuralAch') || '[]');
+
     Object.defineProperty(window, '__stars', { get: () => stars });
+
+    const ACHIEVEMENTS = [
+        { id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },
+        { id: 'click1000', name: 'Кликер-маньяк', desc: 'Сделай 1000 кликов', condition: () => totalClicks >= 1000, points: 5000, stars: 10 },
+        { id: 'neuron10', name: 'Новичок', desc: 'Купи 10 сетей', condition: () => purchasedCount >= 10, points: 1000, stars: 5 },
+        { id: 'neuron100', name: 'Коллекционер', desc: 'Купи 100 сетей', condition: () => purchasedCount >= 100, points: 50000, stars: 50 },
+        { id: 'neuron500', name: 'Сетевой магнат', desc: 'Купи 500 сетей', condition: () => purchasedCount >= 500, points: 500000, stars: 200 },
+        { id: 'prestige1', name: 'Перерождение', desc: 'Сделай первый престиж', condition: () => prestigeLevel >= 1, points: 100000, stars: 100 },
+        { id: 'star100', name: 'Звездочёт', desc: 'Накопи 100 звёзд', condition: () => stars >= 100, points: 10000, stars: 0 },
+        { id: 'star1000', name: 'Галактика', desc: 'Накопи 1000 звёзд', condition: () => stars >= 1000, points: 100000, stars: 0 },
+        { id: 'boss', name: 'Босс', desc: 'Купи ВСЕ 2000 сетей', condition: () => purchasedCount >= 2000, points: 10000000, stars: 5000 }
+    ];
 
     const neuralNames = [
         "Перцептрон","Нейро-искра","Сверточная","Рекуррентная","Трансформер","Квантовая","GPT-клик","Автокодировщик","DALL-E","Глубокий мозг","Gemini","Нейро-интерфейс","Claude 3","Мультивселенная","Midjourney","Легендарная","Сингулярность","Божественный ИИ","Нейро-Земля","ИИ-Солнце","Галактическая","Космическая","Сверхразум","ДНК-бота","Бесконечность",
@@ -697,7 +729,7 @@ window.addEventListener('load', () => {
         }
         for (let i = start; i < end; i++) {
             const u = upgrades[i];
-            html += `<div class="shop-item" data-id="${u.id}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅' : `💰 ${u.price}`}</span></div>`;
+            html += `<div class="shop-item" data-id="${u.id}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅' : `💰 ${formatNumber(u.price)}`}</span></div>`;
         }
         if (totalPages > 1) {
             html += `<div class="pagination">`;
@@ -753,10 +785,10 @@ window.addEventListener('load', () => {
 
     const EXCHANGES = [
         { id: 'exNew', type: 'pointsToStars', cost: 10, reward: 1, label: '10🧠 = 1⭐' },
-        { id: 'ex1', type: 'starsToPoints', cost: 100, reward: 10000000, label: '100⭐ = 10000000🧠' },
-        { id: 'ex2', type: 'starsToPoints', cost: 90, reward: 1000000, label: '90⭐ = 1000000🧠' },
-        { id: 'ex3', type: 'starsToPoints', cost: 50, reward: 100000, label: '50⭐ = 100000🧠' },
-        { id: 'ex4', type: 'pointsToStars', cost: 1000000, reward: 100, label: '1000000🧠 = 100⭐' },
+        { id: 'ex1', type: 'starsToPoints', cost: 100, reward: 10000000, label: '100⭐ = 10M🧠' },
+        { id: 'ex2', type: 'starsToPoints', cost: 90, reward: 1000000, label: '90⭐ = 1M🧠' },
+        { id: 'ex3', type: 'starsToPoints', cost: 50, reward: 100000, label: '50⭐ = 100K🧠' },
+        { id: 'ex4', type: 'pointsToStars', cost: 1000000, reward: 100, label: '1M🧠 = 100⭐' },
         { id: 'soon', type: 'soon', label: 'soon', disabled: true }
     ];
 
@@ -787,15 +819,15 @@ window.addEventListener('load', () => {
             stars -= ex.cost;
             points += ex.reward;
             updateUI(); saveGame();
-            showToast(`✅ -${ex.cost}⭐ → +${ex.reward}🧠`);
+            showToast(`✅ -${ex.cost}⭐ → +${formatNumber(ex.reward)}🧠`);
             playBuySound();
         } else if (ex.type === 'pointsToStars') {
-            if (points < ex.cost) { showToast(`❌ ${t('need_points')} ${ex.cost}🧠`); return; }
+            if (points < ex.cost) { showToast(`❌ ${t('need_points')} ${formatNumber(ex.cost)}🧠`); return; }
             points -= ex.cost;
             stars += ex.reward;
             totalStarsEarned += ex.reward;
             updateUI(); saveGame();
-            showToast(`✅ -${ex.cost}🧠 → +${ex.reward}⭐`);
+            showToast(`✅ -${formatNumber(ex.cost)}🧠 → +${ex.reward}⭐`);
             playBuySound();
         }
     }
@@ -882,12 +914,12 @@ window.addEventListener('load', () => {
         if (prize.type === 'points') {
             const amount = Math.floor(prize.min + Math.random() * (prize.max - prize.min));
             points += amount;
-            msg = `+${amount.toLocaleString()}🧠`;
+            msg = `+${formatNumber(amount)}🧠`;
         } else if (prize.type === 'stars') {
             const amount = Math.floor(prize.min + Math.random() * (prize.max - prize.min));
             stars += amount;
             totalStarsEarned += amount;
-            msg = `+${amount}⭐`;
+            msg = `+${formatNumber(amount)}⭐`;
         } else if (prize.type === 'boost') {
             boostEndTime = Date.now() + prize.duration;
             updateBoostUI();
@@ -1039,8 +1071,9 @@ window.addEventListener('load', () => {
         const bonusStars = 25;
         points += bonusPoints; stars += bonusStars; totalStarsEarned += bonusStars;
         updateUI(); saveGame();
-        showToast(`${t('daily_gift_got')} +${bonusPoints.toLocaleString()}🧠 +${bonusStars}⭐`);
+        showToast(`${t('daily_gift_got')} +${formatNumber(bonusPoints)}🧠 +${bonusStars}⭐`);
         playBuySound();
+        updateDailyGiftUI();
     }
     function updateDailyGiftUI() {
         const btn = document.getElementById('dailyGiftBtn');
@@ -1052,6 +1085,45 @@ window.addEventListener('load', () => {
             btn.style.opacity = '0.5';
             btn.style.animation = 'none';
         }
+    }
+
+    // ===== 🏆 ДОСТИЖЕНИЯ =====
+    function checkAchievements() {
+        let newUnlocked = false;
+        ACHIEVEMENTS.forEach(ach => {
+            if (!unlockedAchievements.includes(ach.id) && ach.condition()) {
+                unlockedAchievements.push(ach.id);
+                points += ach.points;
+                stars += ach.stars;
+                totalStarsEarned += ach.stars;
+                newUnlocked = true;
+                showToast(`${t('ach_unlocked')} ${ach.name}`);
+                playBuySound();
+            }
+        });
+        if (newUnlocked) {
+            localStorage.setItem('neuralAch', JSON.stringify(unlockedAchievements));
+            renderAchievements();
+        }
+    }
+    function renderAchievements() {
+        const list = document.getElementById('achList');
+        if (!list) return;
+        let html = '';
+        ACHIEVEMENTS.forEach(ach => {
+            const isUnlocked = unlockedAchievements.includes(ach.id);
+            const cls = isUnlocked ? 'ach-item unlocked' : 'ach-item locked';
+            html += `
+                <div class="${cls}">
+                    <div class="ach-info">
+                        <div class="ach-name">${isUnlocked ? '🏆' : '🔒'} ${ach.name}</div>
+                        <div class="ach-desc">${ach.desc}</div>
+                    </div>
+                    <div class="ach-reward">+${formatNumber(ach.points)}🧠 +${ach.stars}⭐</div>
+                </div>
+            `;
+        });
+        list.innerHTML = html;
     }
 
     // ===== МЕТЕОРИТ =====
@@ -1074,7 +1146,7 @@ window.addEventListener('load', () => {
             const reward = Math.floor(500 + Math.random() * 9500);
             points += reward;
             updateUI(); saveGame();
-            showToast(`${t('meteor_win')}${reward}🧠`);
+            showToast(`${t('meteor_win')}${formatNumber(reward)}🧠`);
             playBuySound();
             meteor.remove();
             startMeteorTimer();
@@ -1111,7 +1183,7 @@ window.addEventListener('load', () => {
             const reward = 5000;
             points += reward;
             updateUI(); saveGame();
-            showToast(`${t('ghost_win')}${reward}🧠`);
+            showToast(`${t('ghost_win')}${formatNumber(reward)}🧠`);
             playBuySound();
             ghost.remove();
             startGhostTimer();
@@ -1126,6 +1198,43 @@ window.addEventListener('load', () => {
                 startGhostTimer();
             }
         }, 40);
+    }
+
+    // ===== 🦇 ЛЕТУЧИЕ МЫШИ =====
+    let batTimer = null;
+    function startBatTimer() {
+        if (batTimer) clearTimeout(batTimer);
+        const delay = 120000 + Math.random() * 180000;
+        batTimer = setTimeout(spawnBat, delay);
+    }
+    function spawnBat() {
+        if (isBanned || !isHalloween()) { startBatTimer(); return; }
+        const bat = document.createElement('div');
+        bat.className = 'bat';
+        bat.innerText = '🦇';
+        const startY = Math.random() * (window.innerHeight - 100);
+        bat.style.top = startY + 'px';
+        bat.style.left = '-100px';
+        document.body.appendChild(bat);
+        bat.addEventListener('click', () => {
+            const reward = 500;
+            points += reward;
+            updateUI(); saveGame();
+            showToast(`${t('bat_win')}`);
+            playBuySound();
+            bat.remove();
+            startBatTimer();
+        });
+        let pos = -100;
+        const interval = setInterval(() => {
+            pos += 5;
+            bat.style.left = pos + 'px';
+            if (pos > window.innerWidth + 50) {
+                clearInterval(interval);
+                bat.remove();
+                startBatTimer();
+            }
+        }, 30);
     }
 
     // ===== 🕷️ ПАУК =====
@@ -1185,7 +1294,7 @@ window.addEventListener('load', () => {
             const bonusStars = 10;
             points += bonusPoints; stars += bonusStars; totalStarsEarned += bonusStars;
             updateUI(); saveGame();
-            showToast(`${t('witch_win')}+${bonusPoints.toLocaleString()}🧠 +${bonusStars}⭐`);
+            showToast(`${t('witch_win')}+${formatNumber(bonusPoints)}🧠 +${bonusStars}⭐`);
             playBuySound();
             witch.remove();
             startWitchTimer();
@@ -1237,7 +1346,7 @@ window.addEventListener('load', () => {
                 const reward = 5000;
                 points += reward;
                 updateUI(); saveGame();
-                showToast(`${t('web_destroyed')}${reward.toLocaleString()}🧠`);
+                showToast(`${t('web_destroyed')}${formatNumber(reward)}🧠`);
                 playBuySound();
                 startWebTimer();
             }
@@ -1254,7 +1363,7 @@ window.addEventListener('load', () => {
         const need = document.getElementById('prestigeNeedDisplay');
         if (lvl) lvl.innerText = prestigeLevel;
         if (bns) bns.innerText = '+' + Math.round(prestigeLevel * PRESTIGE_BONUS_PER_LEVEL * 100) + '%';
-        if (need) need.innerText = PRESTIGE_REQUIREMENT.toLocaleString() + ' 🧠';
+        if (need) need.innerText = formatNumber(PRESTIGE_REQUIREMENT) + ' 🧠';
     }
 
     function doPrestige() {
@@ -1291,7 +1400,7 @@ window.addEventListener('load', () => {
 
     function showOfflineReward(amount) {
         const reward = document.getElementById('offlineReward');
-        if (reward) reward.innerText = '+' + amount.toLocaleString() + ' 🧠';
+        if (reward) reward.innerText = '+' + formatNumber(amount) + ' 🧠';
         const overlay = document.getElementById('offlineOverlay');
         if (overlay) overlay.classList.add('show');
     }
@@ -1400,7 +1509,7 @@ window.addEventListener('load', () => {
                     const r = getPassRewardRewards();
                     points += r.points; stars += r.stars; totalStarsEarned += r.stars;
                     updateUI(); saveGame();
-                    showToast(`🎁 ${t('pass_reward')} ${num}! +${r.points}🧠 +${r.stars}⭐`);
+                    showToast(`🎁 ${t('pass_reward')} ${num}! +${formatNumber(r.points)}🧠 +${r.stars}⭐`);
                     playBuySound();
                 }
                 passRewardSeconds = getPassRewardSeconds();
@@ -1422,11 +1531,11 @@ window.addEventListener('load', () => {
                 const percent = Math.min(100, (progress / task.targetClicks) * 100);
                 statusText = `${progress} / ${task.targetClicks} ${t('clicks_done')}`;
                 if (totalClicks >= task.targetClicks) claimBtn = `<button class="task-claim-btn" data-idx="${idx}">${t('claim')}</button>`;
-                html += `<div class="${cls}"><div class="task-header"><span class="task-level">🎯 ${t('level')} ${task.level}</span><span class="task-reward">+${task.rewardPoints}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">${task.targetClicks} ${t('clicks_done')}</div><div class="task-progress-bar"><div class="task-progress-fill" style="width:${percent}%"></div></div><div class="task-progress-text">${statusText}</div>${claimBtn}</div>`;
+                html += `<div class="${cls}"><div class="task-header"><span class="task-level">🎯 ${t('level')} ${task.level}</span><span class="task-reward">+${formatNumber(task.rewardPoints)}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">${task.targetClicks} ${t('clicks_done')}</div><div class="task-progress-bar"><div class="task-progress-fill" style="width:${percent}%"></div></div><div class="task-progress-text">${statusText}</div>${claimBtn}</div>`;
                 return;
             } else if (idx < passCurrentTask) { cls += ' completed'; statusText = t('done'); }
             else statusText = `${t('lock_first')} ${idx}`;
-            html += `<div class="${cls}"><div class="task-header"><span class="task-level">${idx === passCurrentTask ? '🎯' : '🔒'} ${t('level')} ${task.level}</span><span class="task-reward">+${task.rewardPoints}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">${task.targetClicks} ${t('clicks_done')}</div><div class="task-progress-text">${statusText}</div></div>`;
+            html += `<div class="${cls}"><div class="task-header"><span class="task-level">${idx === passCurrentTask ? '🎯' : '🔒'} ${t('level')} ${task.level}</span><span class="task-reward">+${formatNumber(task.rewardPoints)}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">${task.targetClicks} ${t('clicks_done')}</div><div class="task-progress-text">${statusText}</div></div>`;
         });
         container.innerHTML = html;
         document.querySelectorAll('.task-claim-btn').forEach(btn => {
@@ -1643,9 +1752,9 @@ window.addEventListener('load', () => {
         const a = document.getElementById('statTotalClicks');
         const b = document.getElementById('statNeuronsBought');
         const c = document.getElementById('statSessionClicks');
-        if (a) a.innerText = totalClicks;
+        if (a) a.innerText = formatNumber(totalClicks);
         if (b) b.innerText = purchasedCount;
-        if (c) c.innerText = sessionClicks;
+        if (c) c.innerText = formatNumber(sessionClicks);
     }
     function updatePlaytime() {
         const el = document.getElementById('playtime');
@@ -1672,7 +1781,7 @@ window.addEventListener('load', () => {
     }
     function shareProgress() {
         const num = getActivePassNumber();
-        const text = `🧠 ${t('title')}:\n🧠 ${Math.floor(points)}\n⭐ ${stars}\n🖱️ ${totalClicks}\n🧬 ${purchasedCount}/${upgrades.length}\n🌟 Престиж: ${prestigeLevel}\n🤖 AI Pass ${num}: ${passTasks.filter(t=>t.claimed).length}/${passTasks.length}\n📅 ${GAME_VERSION}`;
+        const text = `🧠 ${t('title')}:\n🧠 ${formatNumber(points)}\n⭐ ${formatNumber(stars)}\n🖱️ ${formatNumber(totalClicks)}\n🧬 ${purchasedCount}/${upgrades.length}\n🌟 Престиж: ${prestigeLevel}\n🤖 AI Pass ${num}: ${passTasks.filter(t=>t.claimed).length}/${passTasks.length}\n📅 ${GAME_VERSION}`;
         navigator.clipboard.writeText(text);
         showToast(t('copied'));
     }
@@ -1693,13 +1802,14 @@ window.addEventListener('load', () => {
         const pw = document.getElementById('power');
         const ch = document.getElementById('clickHint');
         const st = document.getElementById('stars');
-        if (p) p.innerText = Math.floor(points);
+        if (p) p.innerText = formatNumber(points);
         if (pw) pw.innerText = getClickPower();
-        if (ch) ch.innerHTML = godMode ? `+${getClickPower()} (БОГ)` : `+${getClickPower()}`;
-        if (st) st.innerText = stars;
+        if (ch) ch.innerHTML = godMode ? `+${formatNumber(getClickPower())} (БОГ)` : `+${formatNumber(getClickPower())}`;
+        if (st) st.innerText = formatNumber(stars);
         updateStatsUI(); updatePlaytime();
         document.getElementById('comboText')?.classList.remove('show');
         checkPassProgress();
+        checkAchievements();
     }
     function showToast(msg) {
         const t2 = document.createElement('div');
@@ -1713,7 +1823,7 @@ window.addEventListener('load', () => {
             points, stars, totalClicks, purchasedCount,
             totalStarsEarned, godMode, comboCounter, prestigeLevel,
             birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime,
-            autoclickerBought,
+            autoclickerBought, unlockedAchievements,
             upgrades: upgrades.map(u => ({ purchased: u.purchased })),
             passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })),
             passCurrentTask, passRewardSeconds,
@@ -1765,13 +1875,14 @@ window.addEventListener('load', () => {
             stars = Math.floor(_pendingDiamondConversion / 10);
             _showAnim = true; _oldDiamondsForAnim = _pendingDiamondConversion;
         }
-        updateUI(); renderShopNeurons(); renderPassBadges(); renderTasksList(); updateStatsUI();
+        updateUI(); renderShopNeurons(); renderPassBadges(); renderTasksList(); updateStatsUI(); renderAchievements();
         startPassEndTimer(); startPassRewardTimer(); startBoostTimer();
         if (playtimeInterval) clearInterval(playtimeInterval);
         playtimeInterval = setInterval(() => updatePlaytime(), 60000);
         startSleepMsgTimer();
         startMeteorTimer();
         startGhostTimer();
+        startBatTimer();
         startSpiderTimer();
         startWitchTimer();
         startWebTimer();
@@ -2022,6 +2133,16 @@ window.addEventListener('load', () => {
     document.getElementById('rouletteBtn')?.addEventListener('click', openRoulette);
     document.getElementById('rouletteSpinBtn')?.addEventListener('click', spinRoulette);
     document.getElementById('rouletteCloseBtn')?.addEventListener('click', () => document.getElementById('rouletteOverlay')?.classList.remove('show'));
+    
+    // Достижения
+    document.getElementById('achBtn')?.addEventListener('click', () => {
+        renderAchievements();
+        document.getElementById('achOverlay')?.classList.add('show');
+    });
+    document.getElementById('achCloseBtn')?.addEventListener('click', () => {
+        document.getElementById('achOverlay')?.classList.remove('show');
+    });
+
     document.getElementById('factCloseBtn')?.addEventListener('click', () => document.getElementById('factOverlay')?.classList.remove('show'));
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
@@ -2114,7 +2235,7 @@ window.addEventListener('load', () => {
     promoCodes['x10'] = { points: 10000, stars: 100 };
     promoCodes['dima2026'] = { points: 26000, stars: 260 };
     promoCodes['news'] = { points: 5000, stars: 50 };
-    promoCodes['update'] = { points: 12700, stars: 127 };
+    promoCodes['update'] = { points: 12800, stars: 128 };
     promoCodes['v12'] = { points: 12000, stars: 120 };
     promoCodes['future'] = { points: 15000, stars: 150 };
     promoCodes['best'] = { points: 8000, stars: 80 };
@@ -2126,6 +2247,7 @@ window.addEventListener('load', () => {
     promoCodes['boss'] = { points: 18000, stars: 180 };
     promoCodes['god'] = { points: 50000, stars: 500 };
     promoCodes['diamond'] = { points: 22000, stars: 220 };
+    promoCodes['achievement'] = { points: 12800, stars: 128 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => {
         if (isBanned) return;
@@ -2246,7 +2368,9 @@ window.addEventListener('load', () => {
                 <div class="admin-item"><span>🧠 X10 Boost (5ч)</span><button id="admX10">Вкл</button></div>
                 <div class="admin-item"><span>🤖 Автокликер</span><button id="admAuto">Дать</button></div>
                 <div class="admin-item"><span>🎁 Сброс подарка</span><button id="admResetGift">Сброс</button></div>
+                <div class="admin-item"><span>🏆 Открыть все ачивки</span><button id="admAch">Открыть</button></div>
                 <div class="admin-item"><span>👻 Призрак</span><button id="admGhost">Спавн</button></div>
+                <div class="admin-item"><span>🦇 Мышь</span><button id="admBat">Спавн</button></div>
                 <div class="admin-item"><span>🕷️ Паук</span><button id="admSpider">Спавн</button></div>
                 <div class="admin-item"><span>🧙 Ведьма</span><button id="admWitch">Спавн</button></div>
                 <div class="admin-item"><span>🕸️ Паутина</span><button id="admWeb">Спавн</button></div>
@@ -2256,12 +2380,12 @@ window.addEventListener('load', () => {
             document.getElementById('admPoints').onclick = () => {
                 const val = parseInt(document.getElementById('admPointsInput').value) || 1000;
                 points += val; updateUI(); saveGame();
-                showToast(`+${val}🧠`);
+                showToast(`+${formatNumber(val)}🧠`);
             };
             document.getElementById('admStars').onclick = () => {
                 const val = parseInt(document.getElementById('admStarsInput').value) || 100;
                 stars += val; totalStarsEarned += val; updateUI(); saveGame();
-                showToast(`+${val}⭐`);
+                showToast(`+${formatNumber(val)}⭐`);
             };
             document.getElementById('admBuyAll').onclick = () => {
                 upgrades.forEach((u) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } });
@@ -2307,7 +2431,14 @@ window.addEventListener('load', () => {
                 updateDailyGiftUI();
                 showToast('🎁 Подарок сброшен!');
             };
+            document.getElementById('admAch').onclick = () => {
+                unlockedAchievements = ACHIEVEMENTS.map(a => a.id);
+                localStorage.setItem('neuralAch', JSON.stringify(unlockedAchievements));
+                renderAchievements(); updateUI(); saveGame();
+                showToast('🏆 Все ачивки открыты!');
+            };
             document.getElementById('admGhost').onclick = () => { spawnGhost(); showToast('👻 Спавн!'); };
+            document.getElementById('admBat').onclick = () => { spawnBat(); showToast('🦇 Спавн!'); };
             document.getElementById('admSpider').onclick = () => { spawnSpider(); showToast('🕷️ Спавн!'); };
             document.getElementById('admWitch').onclick = () => { spawnWitch(); showToast('🧙 Спавн!'); };
             document.getElementById('admWeb').onclick = () => { spawnWeb(); showToast('🕸️ Спавн!'); };
@@ -2320,6 +2451,7 @@ window.addEventListener('load', () => {
             body.innerHTML = `
                 <div class="admin-item"><span>Сбросить обучение</span><button id="admResetTutorial">Сбросить</button></div>
                 <div class="admin-item"><span>Сбросить X10 буст</span><button id="admResetX10">Сбросить</button></div>
+                <div class="admin-item"><span>Сбросить ачивки</span><button id="admResetAch">Сбросить</button></div>
             `;
             document.getElementById('admResetTutorial').onclick = () => {
                 localStorage.removeItem('tutorialDone');
@@ -2328,6 +2460,12 @@ window.addEventListener('load', () => {
             document.getElementById('admResetX10').onclick = () => {
                 localStorage.removeItem('x10BoostUsed_v127');
                 showToast("✅ X10 boost reset!");
+            };
+            document.getElementById('admResetAch').onclick = () => {
+                unlockedAchievements = [];
+                localStorage.removeItem('neuralAch');
+                renderAchievements();
+                showToast("✅ Achievements reset!");
             };
         }
     }
