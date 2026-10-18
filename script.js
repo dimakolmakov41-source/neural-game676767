@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "13.3";
+const GAME_VERSION = "13.4";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
 
@@ -29,7 +29,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Полный экран", on: "Включить", off: "Выключить",
         language: "🌐 Язык / Language", reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
-        news_title: "📢 НОВОСТИ", news_text: "v13.3: Умная проверка обновлений APK!",
+        news_title: "📢 НОВОСТИ", news_text: "v13.4: Новая рулетка (Джекпот и Пустышка)!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨", pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов", done: "✅ ВЫПОЛНЕНО", claim: "ЗАБРАТЬ",
         lock_first: "🔒 Сначала пройди уровень", until_end: "До конца AI Pass",
@@ -50,6 +50,8 @@ const TRANSLATIONS = {
         task_claimed: "Уровень", task_received: "получен!", pass_reward: "Награда AI Pass",
         fact_title: "ФАКТ ДНЯ", roulette_no_stars: "❌ Нужно 50⭐",
         roulette_win: "🎉 ВЫИГРЫШ", roulette_spinning: "🎲 КРУТИТСЯ...", roulette_spin: "🎲 КРУТИТЬ",
+        roulette_nothing: "🕳️ ПУСТО! В следующий раз повезет.",
+        roulette_jackpot: "🎉🎉🎉 ДЖЕКПОТ!!! 🎉🎉🎉",
         first_page: "⏮ НАЧАЛО", last_page: "КОНЕЦ ⏭", prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️",
         prestige: "🌟 ПРЕСТИЖ", prestige_level: "Уровень:", prestige_bonus: "Бонус:", prestige_need: "Нужно:",
         prestige_warning: "⚠️ Прогресс сбросится: очки и сети. Звёзды останутся.",
@@ -105,7 +107,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Fullscreen", on: "Enable", off: "Disable",
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
-        news_title: "📢 NEWS", news_text: "v13.3: Smart APK update check!",
+        news_title: "📢 NEWS", news_text: "v13.4: New Roulette (Jackpot & Empty)!",
         pass_no_active: "✨ NO ACTIVE PASS ✨", pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks", done: "✅ DONE", claim: "CLAIM",
         lock_first: "🔒 Complete level first", until_end: "Until AI Pass",
@@ -125,6 +127,8 @@ const TRANSLATIONS = {
         task_claimed: "Level", task_received: "received!", pass_reward: "AI Pass reward",
         fact_title: "FACT OF THE DAY", roulette_no_stars: "❌ Need 50⭐",
         roulette_win: "🎉 YOU WON", roulette_spinning: "🎲 SPINNING...", roulette_spin: "🎲 SPIN",
+        roulette_nothing: "🕳️ NOTHING! Better luck next time.",
+        roulette_jackpot: "🎉🎉🎉 JACKPOT!!! 🎉🎉🎉",
         first_page: "⏮ FIRST", last_page: "LAST ⏭", prev_page: "⬅️ BACK", next_page: "NEXT ➡️",
         prestige: "🌟 PRESTIGE", prestige_level: "Level:", prestige_bonus: "Bonus:", prestige_need: "Need:",
         prestige_warning: "⚠️ Progress will reset: points and neurons. Stars stay.",
@@ -307,18 +311,15 @@ function applyButtonColor(color) {
 
 // ===== ПРОВЕРКА ОБНОВЛЕНИЙ APK (УМНАЯ) =====
 function isNewerVersion(current, latest) {
-    // Разбиваем версии на числа: "13.2" -> [13, 2]
     const c = current.split('.').map(Number);
     const l = latest.split('.').map(Number);
-    
-    // Сравниваем по порядку
     for (let i = 0; i < Math.max(c.length, l.length); i++) {
         const cNum = c[i] || 0;
         const lNum = l[i] || 0;
-        if (lNum > cNum) return true; // Новая версия больше
-        if (lNum < cNum) return false; // Текущая версия больше (такого быть не должно)
+        if (lNum > cNum) return true; 
+        if (lNum < cNum) return false; 
     }
-    return false; // Версии равны
+    return false; 
 }
 
 function checkForUpdates() {
@@ -331,7 +332,6 @@ function checkForUpdates() {
         })
         .then(data => {
             if (data && data.latest_version) {
-                // Если версия на сервере больше, чем у игрока — блокируем
                 if (isNewerVersion(GAME_VERSION, data.latest_version)) {
                     console.log("Update required! Current:", GAME_VERSION, "Latest:", data.latest_version);
                     const overlay = document.getElementById('updateOverlay');
@@ -349,7 +349,7 @@ function checkForUpdates() {
 }
 
 window.addEventListener('load', () => {
-    // Проверяем обновления с задержкой 2 сек, чтобы не мешать загрузке
+    // Проверяем обновления с задержкой 2 сек
     setTimeout(checkForUpdates, 2000);
 
     if (typeof YaGames !== 'undefined') {
@@ -542,7 +542,18 @@ window.addEventListener('load', () => {
         else { tn?.classList.add('active'); if (ln) ln.style.display = 'block'; if (bb) bb.style.display = ''; renderShopNeurons(); }
     }
 
-    const ROULETTE_PRIZES = [{ emoji: '💰', type: 'points', min: 500000, max: 5000000 },{ emoji: '⭐', type: 'stars', min: 100, max: 500 },{ emoji: '🧠', type: 'points', min: 1000000, max: 10000000 },{ emoji: '🌟', type: 'stars', min: 50, max: 200 },{ emoji: '⚡', type: 'boost', duration: 30 * 60 * 1000 },{ emoji: '🎁', type: 'points', min: 100000, max: 1000000 },{ emoji: '💥', type: 'points', min: 5000000, max: 20000000 },{ emoji: '👑', type: 'stars', min: 500, max: 2000 }];
+    // ===== УЛУЧШЕННАЯ РУЛЕТКА =====
+    const ROULETTE_PRIZES = [
+        { emoji: '💰', type: 'points', min: 100000, max: 1000000 },     // Мелкие очки
+        { emoji: '⭐', type: 'stars', min: 50, max: 200 },             // Мелкие звезды
+        { emoji: '🧠', type: 'points', min: 5000000, max: 25000000 },  // Крупные очки
+        { emoji: '🌟', type: 'stars', min: 10, max: 50 },              // Утешительные звезды
+        { emoji: '⚡', type: 'boost', duration: 15 * 60 * 1000 },       // Буст 15 минут
+        { emoji: '🎁', type: 'nothing' },                              // ПУСТЫШКА
+        { emoji: '💥', type: 'points', min: 100000000, max: 500000000 },// ДЖЕКПОТ (Очки)
+        { emoji: '👑', type: 'stars', min: 2000, max: 5000 }           // ДЖЕКПОТ (Звезды)
+    ];
+
     function openRoulette() { document.getElementById('rouletteOverlay')?.classList.add('show'); }
 
     function spinRoulette() {
@@ -550,24 +561,62 @@ window.addEventListener('load', () => {
         stars -= ROULETTE_PRICE; updateUI(); saveGame(); rouletteSpinning = true;
         const btn = document.getElementById('rouletteSpinBtn'); if (btn) { btn.disabled = true; btn.innerText = t('roulette_spinning'); }
         const slots = document.querySelectorAll('#rouletteWheel .roulette-slot'); slots.forEach(s => s.classList.remove('win'));
-        let c = 0; const total = 20; const finalIdx = Math.floor(Math.random() * slots.length);
+        let c = 0; const total = 30; const finalIdx = Math.floor(Math.random() * slots.length); // Крутим дольше (30 шагов)
         const int = setInterval(() => {
             slots.forEach(s => s.classList.remove('win')); slots[c % slots.length].classList.add('win'); c++; playClickSound();
             if (c >= total + finalIdx) {
                 clearInterval(int); slots.forEach(s => s.classList.remove('win')); slots[finalIdx].classList.add('win');
                 giveRoulettePrize(finalIdx); rouletteSpinning = false; if (btn) { btn.disabled = false; btn.innerText = t('roulette_spin'); }
             }
-        }, 80);
+        }, 70); // Чуть быстрее анимация
     }
 
     function giveRoulettePrize(idx) {
         const emoji = document.querySelectorAll('#rouletteWheel .roulette-slot')[idx]?.innerText || '🎁';
         let p = ROULETTE_PRIZES.find(x => x.emoji === emoji) || ROULETTE_PRIZES[0]; let msg = '';
-        if (p.type === 'points') { const a = Math.floor(p.min + Math.random() * (p.max - p.min)); points += a; msg = `+${formatNumber(a)}🧠`; }
-        else if (p.type === 'stars') { const a = Math.floor(p.min + Math.random() * (p.max - p.min)); stars += a; totalStarsEarned += a; msg = `+${formatNumber(a)}⭐`; }
-        else { boostEndTime = Date.now() + p.duration; updateBoostUI(); msg = `⚡ Буст X5 (30 мин)!`; }
-        updateUI(); saveGame(); showToast(`${t('roulette_win')}: ${emoji} ${msg}`); playBuySound();
+        
+        if (p.type === 'points') { 
+            const a = Math.floor(p.min + Math.random() * (p.max - p.min)); 
+            points += a; 
+            msg = `+${formatNumber(a)}🧠`; 
+            if (emoji === '💥') showJackpot();
+        }
+        else if (p.type === 'stars') { 
+            const a = Math.floor(p.min + Math.random() * (p.max - p.min)); 
+            stars += a; 
+            totalStarsEarned += a; 
+            msg = `+${formatNumber(a)}⭐`; 
+            if (emoji === '👑') showJackpot();
+        }
+        else if (p.type === 'nothing') { 
+            msg = t('roulette_nothing'); 
+        }
+        else if (p.type === 'boost') { 
+            boostEndTime = Date.now() + p.duration; 
+            updateBoostUI(); 
+            msg = `⚡ Буст X5 (15 мин)!`; 
+        }
+        
+        updateUI(); saveGame(); 
+        
+        if (p.type !== 'nothing') {
+            showToast(`${t('roulette_win')}: ${emoji} ${msg}`);
+        } else {
+            showToast(msg);
+        }
+        playBuySound();
     }
+
+    function showJackpot() {
+        showToast(t('roulette_jackpot'));
+        // Вспышка экрана
+        document.body.style.filter = 'brightness(1.5) contrast(1.2)';
+        setTimeout(() => document.body.style.filter = '', 400);
+        playBuySound();
+        setTimeout(playBuySound, 150);
+        setTimeout(playBuySound, 300);
+    }
+    // =========================
 
     function isBoostActive() { return Date.now() < boostEndTime; }
     function getBoostRemaining() { return Math.max(0, boostEndTime - Date.now()); }
@@ -941,7 +990,6 @@ window.addEventListener('load', () => {
         }
         if (Math.random() < 0.02) { finalGain *= 3; spawnFloatText(x, y - 40, "⚡ x3!"); showToast(t('triple_click')); playBuySound(); }
         
-        // КРИТИЧЕСКИЙ КЛИК (5% шанс на x10)
         if (Math.random() < 0.05) {
             finalGain *= 10;
             spawnFloatText(x, y - 60, t('crit_click'));
