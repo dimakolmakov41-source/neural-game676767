@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
     <script src="https://yandex.ru/games/sdk/v2"></script>
-    <link rel="stylesheet" href="style.css?v=13.6">
+    <link rel="stylesheet" href="style.css?v=13.7">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v13.6</div>
+        <div class="loading-sub">v13.7</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -20,7 +20,13 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v13.6</div>
+            <div class="game-version" id="menuVersion">v13.7</div>
+            
+            <!-- Баннер глобального ивента -->
+            <div id="globalEventBanner" class="global-event-banner hidden">
+                <span id="globalEventText">🔥 Глобальный ивент!</span>
+            </div>
+
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn" data-i18n="play">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn" data-i18n="settings">⚙️ НАСТРОЙКИ</div>
@@ -303,9 +309,17 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="promo_title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn" data-i18n="activate">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="news_title">📢 НОВОСТИ</div><div class="modal-text" data-i18n="news_text">v13.6: Добавлена система экстренного закрытия игры.</div><button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
+    
+    <!-- Модалка новостей (теперь текст будет меняться через JSON) -->
+    <div id="newsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
+            <div class="modal-text" id="newsText" data-i18n="news_text">v13.7: Динамические новости и глобальные ивенты!</div>
+            <button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button>
+        </div>
+    </div>
 
-    <!-- ОВЕРЛЕЙ ОБНОВЛЕНИЯ APK (БЕЗ КНОПКИ) -->
+    <!-- ОВЕРЛЕЙ ОБНОВЛЕНИЯ APK -->
     <div id="updateOverlay" class="modal-overlay" style="z-index: 99999;">
         <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
             <div class="modal-title" data-i18n="update_title" style="color: #ff4444; font-size: 24px;">🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨</div>
@@ -313,7 +327,7 @@
         </div>
     </div>
 
-    <!-- НОВЫЙ ОВЕРЛЕЙ: ИГРА ЗАКРЫТА -->
+    <!-- ОВЕРЛЕЙ ЗАКРЫТИЯ ИГРЫ -->
     <div id="closedOverlay" class="modal-overlay" style="z-index: 100000;">
         <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
             <div class="modal-title" data-i18n="closed_title" style="color: #ff4444; font-size: 24px;">🚫 ИГРА ЗАКРЫТА 🚫</div>
@@ -321,6 +335,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=13.6"></script>
+    <script src="script.js?v=13.7"></script>
 </body>
 </html>
