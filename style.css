@@ -17,6 +17,9 @@ body {
     text-shadow: 0 0 5px black, 0 0 10px black;
 }
 
+/* Утилита для скрытия */
+.hidden { display: none !important; }
+
 body.bg-early-autumn { background: linear-gradient(145deg, #f5e6b0, #d4a373); }
 body.bg-golden { background: linear-gradient(145deg, #f6c56e, #d98c2e); }
 body.bg-rainy { background: linear-gradient(145deg, #6b7b8d, #3a4a5a); }
@@ -521,6 +524,26 @@ body.bg-hacker #dailyGiftBtn {
 
 .main-menu { text-align: center; }
 .main-menu.hidden, .game-interface.hidden { display: none; }
+
+/* БАННЕР ГЛОБАЛЬНОГО ИВЕНТА */
+.global-event-banner {
+    background: linear-gradient(145deg, #ff00ff, #8a2be2);
+    border: 2px solid #ff88ff;
+    border-radius: 20px;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-weight: 900;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+    animation: eventPulse 1.5s infinite;
+    color: white;
+    text-shadow: 0 0 5px black;
+    font-size: 14px;
+}
+@keyframes eventPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255,0,255,0.5); }
+    50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(255,0,255,0.9); }
+}
 
 .menu-btn, .action-btn {
     background: linear-gradient(145deg, #2a4b6e, #1a3150);
@@ -2092,6 +2115,7 @@ body.bg-hacker .exchange-item.disabled {
     .ach-name { font-size: 18px; }
     .ach-desc { font-size: 14px; }
     .ach-reward { font-size: 14px; }
+    .global-event-banner { font-size: 20px; padding: 15px; }
 }
 
 /* ===== АДАПТАЦИЯ ДЛЯ ОЧЕНЬ БОЛЬШИХ ЭКРАНОВ ===== */
@@ -2121,19 +2145,18 @@ body.bg-hacker .exchange-item.disabled {
     0%, 100% { transform: scale(1); text-shadow: 0 0 10px #ff4444; }
     50% { transform: scale(1.05); text-shadow: 0 0 20px #ff4444, 0 0 30px #ff0000; }
 }
-#updateOverlay #updateLink {
-    display: block;
-    width: 100%;
-    margin-top: 15px;
-    background: linear-gradient(145deg, #ff4444, #aa0000) !important;
-    color: white !important;
-    text-decoration: none;
-    padding: 15px;
-    border-radius: 40px;
-    font-weight: 900;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-    transition: 0.15s;
+
+/* ===== ОКНО ЗАКРЫТИЯ ИГРЫ ===== */
+#closedOverlay {
+    z-index: 100000 !important;
+    background: rgba(0, 0, 0, 0.95) !important;
 }
-#updateOverlay #updateLink:active {
-    transform: scale(0.97);
+#closedOverlay .modal-content {
+    background: linear-gradient(145deg, #2a0a0a, #1a0000) !important;
+    border: 3px solid #ff4444 !important;
+    box-shadow: 0 0 40px rgba(255, 68, 68, 0.6) !important;
+}
+#closedOverlay .modal-title {
+    color: #ff4444 !important;
+    animation: updatePulse 1.5s ease-in-out infinite;
 }
