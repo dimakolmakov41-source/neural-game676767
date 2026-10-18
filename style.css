@@ -2102,3 +2102,38 @@ body.bg-hacker .exchange-item.disabled {
     .amethyst-diamond { font-size: 120px; }
     .game-title { font-size: 44px; }
 }
+
+/* ===== ОКНО ОБНОВЛЕНИЯ APK ===== */
+#updateOverlay {
+    z-index: 99999 !important;
+    background: rgba(0, 0, 0, 0.95) !important;
+}
+#updateOverlay .modal-content {
+    background: linear-gradient(145deg, #2a0a0a, #1a0000) !important;
+    border: 3px solid #ff4444 !important;
+    box-shadow: 0 0 40px rgba(255, 68, 68, 0.6) !important;
+}
+#updateOverlay .modal-title {
+    color: #ff4444 !important;
+    animation: updatePulse 1.5s ease-in-out infinite;
+}
+@keyframes updatePulse {
+    0%, 100% { transform: scale(1); text-shadow: 0 0 10px #ff4444; }
+    50% { transform: scale(1.05); text-shadow: 0 0 20px #ff4444, 0 0 30px #ff0000; }
+}
+#updateOverlay #updateLink {
+    display: block;
+    width: 100%;
+    margin-top: 15px;
+    background: linear-gradient(145deg, #ff4444, #aa0000) !important;
+    color: white !important;
+    text-decoration: none;
+    padding: 15px;
+    border-radius: 40px;
+    font-weight: 900;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    transition: 0.15s;
+}
+#updateOverlay #updateLink:active {
+    transform: scale(0.97);
+}
