@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "13.8";
+const GAME_VERSION = "13.9";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
 
@@ -15,6 +15,7 @@ const THEME_URL = "https://dimakolmakov41-source.github.io/neural-game676767/the
 const WEATHER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/weather.json";
 const PHRASES_URL = "https://dimakolmakov41-source.github.io/neural-game676767/phrases.json";
 const TICKER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/ticker.json";
+const STARS_CHANCE_URL = "https://dimakolmakov41-source.github.io/neural-game676767/stars_chance.json";
 
 // Глобальные переменные для JSON
 let globalEventMultiplier = 1;
@@ -25,6 +26,7 @@ let customTheme = "normal";
 let weatherData = { active: false, type: "none" };
 let phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" };
 let tickerData = { active: false, text: "" };
+let starsData = { chance: 0.001, amount: 3 };
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -85,7 +87,6 @@ const TRANSLATIONS = {
         leaderboard_title: "🏅 ТОП ИГРОКОВ", leaderboard_error: "❌ Ошибка лидерборда", leaderboard_no_sdk: "⏳ Только в Яндекс Играх", leaderboard_wait: "⏳ Подожди 5 сек", leaderboard_login_required: "🔑 Войдите в аккаунт!", leaderboard_login_error: "❌ Ошибка входа",
         update_title: "🚨 ОБНОВЛЕНИЕ 🚨", update_text: "Эта версия устарела. Скачайте новую.", closed_title: "🚫 ИГРА ЗАКРЫТА 🚫", closed_text: "Зайдите позже.",
         event_active: "🔥 ГЛОБАЛЬНЫЙ ИВЕНТ!",
-        ac_ban_toast: "🚨 Анти-чит: Слишком быстро! Бан 30 сек.", ac_unban_toast: "✅ Бан снят. Не читери.",
         helpers_buy: "Купить", helpers_upgrade: "Прокачать", helpers_level: "Ур.",
         boss_title: "🐛 СЕКРЕТНЫЙ БОСС: БАГ 🐛", boss_hint: "Кликай по багу, чтобы убить его!", boss_killed: "🐛 БАГ УБИТ! Награда:",
         ticker_title: "📢 Объявление"
@@ -146,7 +147,6 @@ const TRANSLATIONS = {
         leaderboard_title: "🏅 TOP PLAYERS", leaderboard_error: "❌ Error", leaderboard_no_sdk: "⏳ Only in Yandex Games", leaderboard_wait: "⏳ Wait 5 sec", leaderboard_login_required: "🔑 Log in!", leaderboard_login_error: "❌ Login error",
         update_title: "🚨 UPDATE 🚨", update_text: "Outdated. Download new version.", closed_title: "🚫 GAME CLOSED 🚫", closed_text: "Check back later.",
         event_active: "🔥 GLOBAL EVENT!",
-        ac_ban_toast: "🚨 Anti-cheat: Too fast! 30 sec ban.", ac_unban_toast: "✅ Ban lifted. No cheating.",
         helpers_buy: "Buy", helpers_upgrade: "Upgrade", helpers_level: "Lvl.",
         boss_title: "🐛 SECRET BOSS: BUG 🐛", boss_hint: "Click the bug to kill it!", boss_killed: "🐛 BUG KILLED! Reward:",
         ticker_title: "📢 Announcement"
@@ -353,6 +353,10 @@ function fetchAllJSON() {
             if(tc && tt) { tt.innerText = d.text; tc.classList.remove('hidden'); }
         }
     }).catch(e => {});
+    fetch(STARS_CHANCE_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
+        if(d.chance !== undefined) starsData.chance = d.chance;
+        if(d.amount !== undefined) starsData.amount = d.amount;
+    }).catch(e => {});
 }
 
 function startWeather(type) {
@@ -370,36 +374,6 @@ function startWeather(type) {
         layer.appendChild(p);
     }
     document.body.appendChild(layer);
-}
-
-// ===== АНТИ-ЧИТ =====
-let clickTimestamps = [];
-let isManualBanned = false;
-
-function checkAntiCheat() {
-    if (isManualBanned) return true;
-    const now = Date.now();
-    clickTimestamps.push(now);
-    clickTimestamps = clickTimestamps.filter(t => now - t <= 5000);
-
-    const lastSecond = clickTimestamps.filter(t => now - t <= 1000);
-    if (lastSecond.length > 20 || clickTimestamps.length > 100) {
-        triggerAntiCheat(); return true;
-    }
-    return false;
-}
-
-function triggerAntiCheat() {
-    isManualBanned = true;
-    showToast(t('ac_ban_toast'));
-    const brain = document.getElementById('clickableObject');
-    if(brain) brain.style.filter = "grayscale(1) opacity(0.5)";
-    setTimeout(() => {
-        isManualBanned = false;
-        clickTimestamps = [];
-        showToast(t('ac_unban_toast'));
-        if(brain) brain.style.filter = "";
-    }, 30000);
 }
 
 // ===== ОСНОВНАЯ ЛОГИКА =====
@@ -1055,7 +1029,6 @@ window.addEventListener('load', () => {
     }
 
     function processSingleClick(gain, x, y) {
-        if (checkAntiCheat()) return; // Античит проверка
         hideSleepMsg(); comboCounter++;
         let finalGain = gain;
         if (comboCounter % 5 === 0) {
@@ -1074,21 +1047,36 @@ window.addEventListener('load', () => {
         }
 
         points += finalGain; totalClicks++; sessionClicks++; playClickSound();
-        if (Math.random() < 0.001) { stars += 3; totalStarsEarned += 3; showToast(t('star_got')); playBuySound(); spawnFloatText(x, y - 30, "⭐⭐⭐"); }
+        
+        if (Math.random() < starsData.chance) { 
+            stars += starsData.amount; 
+            totalStarsEarned += starsData.amount; 
+            showToast(t('star_got')); 
+            playBuySound(); 
+            spawnFloatText(x, y - 30, "⭐⭐⭐"); 
+        }
+        
         if (isHalloween() && Math.random() < 0.02) { stars += 5; totalStarsEarned += 5; showToast(t('pumpkin_click')); spawnFloatText(x, y - 50, "🎃 +5⭐"); playBuySound(); }
     }
-    function handleMultiTouch(e) {
-        e.preventDefault(); 
-        const gain = getClickPower(); for (let i = 0; i < e.touches.length; i++) processSingleClick(gain, e.touches[i].clientX, e.touches[i].clientY);
-        const brain = document.getElementById('clickableObject'); brain.style.transform = 'scale(0.92)'; setTimeout(() => brain.style.transform = '', 120); updateUI(); saveGame();
-    }
-    function handleMouseClick(e) {
-        e.preventDefault(); 
-        const gain = getClickPower(); processSingleClick(gain, e.clientX, e.clientY);
-        const brain = document.getElementById('clickableObject'); brain.style.transform = 'scale(0.92)'; setTimeout(() => brain.style.transform = '', 120); updateUI(); saveGame();
+
+    // Исправленный обработчик кликов (Pointer Events решает проблему APK)
+    function handlePointerDown(e) {
+        e.preventDefault();
+        if (e.pointerType === 'mouse' && e.button !== 0) return; // Только ЛКМ
+        const gain = getClickPower();
+        processSingleClick(gain, e.clientX, e.clientY);
+        const brain = document.getElementById('clickableObject');
+        if(brain) {
+            brain.style.transform = 'scale(0.92)';
+            setTimeout(() => brain.style.transform = '', 120);
+        }
+        updateUI(); saveGame();
     }
     const clickable = document.getElementById('clickableObject');
-    if (clickable) { clickable.addEventListener('touchstart', handleMultiTouch, { passive: false }); clickable.addEventListener('mousedown', handleMouseClick); }
+    if (clickable) { 
+        // Используем pointerdown для мультитача и обычных кликов
+        clickable.addEventListener('pointerdown', handlePointerDown); 
+    }
 
     // ===== ЛИДЕРБОРД =====
     let lastLeaderboardRequest = 0;
@@ -1293,4 +1281,4 @@ window.addEventListener('load', () => {
     applyTranslations();
     loadGame();
     checkDailyFact();
-}); 
+});
