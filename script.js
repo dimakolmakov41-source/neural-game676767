@@ -1,7 +1,10 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "13.1";
+const GAME_VERSION = "13.2";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
+
+// Ссылка на файл проверки обновлений (замени на свой репозиторий, если нужно)
+const UPDATE_CHECK_URL = "https://raw.githubusercontent.com/dimakolmakov41-source/neural-game676767/main/update.json";
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -26,7 +29,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Полный экран", on: "Включить", off: "Выключить",
         language: "🌐 Язык / Language", reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
-        news_title: "📢 НОВОСТИ", news_text: "v13.1: Критические клики, Лидерборд, переводы скинов!",
+        news_title: "📢 НОВОСТИ", news_text: "v13.2: Проверка обновлений APK!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨", pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов", done: "✅ ВЫПОЛНЕНО", claim: "ЗАБРАТЬ",
         lock_first: "🔒 Сначала пройди уровень", until_end: "До конца AI Pass",
@@ -76,7 +79,12 @@ const TRANSLATIONS = {
         leaderboard_no_sdk: "⏳ Лидерборд доступен только в Яндекс Играх",
         leaderboard_wait: "⏳ Подожди 5 секунд перед следующим запросом",
         leaderboard_login_required: "🔑 Войдите в аккаунт Яндекса, чтобы открыть рейтинг!",
-        leaderboard_login_error: "❌ Не удалось войти в аккаунт"
+        leaderboard_login_error: "❌ Не удалось войти в аккаунт",
+
+        // --- ОБНОВЛЕНИЕ APK ---
+        update_title: "🚨 ТРЕБУЕТСЯ ОБНОВЛЕНИЕ 🚨",
+        update_text: "Вышла новая версия игры. Пожалуйста, скачайте обновление, чтобы продолжить играть.",
+        update_btn: "Скачать обновление"
     },
     en: {
         loading: "LOADING...", title: "🧠 CLICKER: NEURAL EVOLUTION",
@@ -97,7 +105,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Fullscreen", on: "Enable", off: "Disable",
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
-        news_title: "📢 NEWS", news_text: "v13.1: Critical clicks, Leaderboard, skin translations!",
+        news_title: "📢 NEWS", news_text: "v13.2: APK update check!",
         pass_no_active: "✨ NO ACTIVE PASS ✨", pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks", done: "✅ DONE", claim: "CLAIM",
         lock_first: "🔒 Complete level first", until_end: "Until AI Pass",
@@ -146,7 +154,12 @@ const TRANSLATIONS = {
         leaderboard_no_sdk: "⏳ Leaderboard available only in Yandex Games",
         leaderboard_wait: "⏳ Wait 5 seconds before next request",
         leaderboard_login_required: "🔑 Log in to Yandex to view the leaderboard!",
-        leaderboard_login_error: "❌ Failed to log in"
+        leaderboard_login_error: "❌ Failed to log in",
+
+        // --- APK UPDATE ---
+        update_title: "🚨 UPDATE REQUIRED 🚨",
+        update_text: "A new version of the game is available. Please download the update to continue playing.",
+        update_btn: "Download update"
     }
 };
 
@@ -292,7 +305,37 @@ function applyButtonColor(color) {
     document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue')));
 }
 
+// ===== ПРОВЕРКА ОБНОВЛЕНИЙ APK =====
+function checkForUpdates() {
+    // Проверяем только если это APK (не в браузере на ПК) и есть интернет
+    if (!navigator.onLine) return; 
+
+    fetch(UPDATE_CHECK_URL + "?t=" + Date.now()) // Добавляем время, чтобы браузер не кэшировал файл
+        .then(res => {
+            if (!res.ok) throw new Error("Network response was not ok");
+            return res.json();
+        })
+        .then(data => {
+            if (data && data.status === "update") {
+                console.log("Update required!");
+                const overlay = document.getElementById('updateOverlay');
+                if (overlay) {
+                    overlay.classList.add('show');
+                    // Блокируем клики по игре
+                    document.body.style.pointerEvents = "none";
+                    overlay.style.pointerEvents = "auto";
+                }
+            }
+        })
+        .catch(err => {
+            console.log("Ошибка проверки обновлений (играем дальше):", err);
+        });
+}
+
 window.addEventListener('load', () => {
+    // Проверяем обновления с задержкой 2 сек, чтобы не мешать загрузке
+    setTimeout(checkForUpdates, 2000);
+
     if (typeof YaGames !== 'undefined') {
         YaGames.init().then(_ysdk => {
             ysdk = _ysdk;
