@@ -1,11 +1,16 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "13.6";
+const GAME_VERSION = "13.7";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
 
 // Ссылки на файлы проверок (на GitHub Pages)
 const UPDATE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/update.json";
 const CLOSE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/close.json";
+const NEWS_URL = "https://dimakolmakov41-source.github.io/neural-game676767/news.json";
+const EVENT_URL = "https://dimakolmakov41-source.github.io/neural-game676767/event.json";
+
+// Глобальные переменные для ивента
+let globalEventMultiplier = 1;
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -30,7 +35,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Полный экран", on: "Включить", off: "Выключить",
         language: "🌐 Язык / Language", reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
-        news_title: "📢 НОВОСТИ", news_text: "v13.6: Добавлена система экстренного закрытия игры.",
+        news_title: "📢 НОВОСТИ", news_text: "Загрузка новостей...",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨", pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов", done: "✅ ВЫПОЛНЕНО", claim: "ЗАБРАТЬ",
         lock_first: "🔒 Сначала пройди уровень", until_end: "До конца AI Pass",
@@ -69,6 +74,7 @@ const TRANSLATIONS = {
         pumpkin_click: "🎃 ТЫКВА! +5⭐", x10_boost: "🧠 БУСТ X10! 5 часов!",
         achievements: "🏆 ДОСТИЖЕНИЯ", ach_unlocked: "🏆 Достижение:", bat_win: "🦇 ЛЕТУЧАЯ МЫШЬ! +500🧠",
         admin_wrong_pass: "❌ Неверный пароль!",
+        event_active: "🔥 ГЛОБАЛЬНЫЙ ИВЕНТ!",
         
         // --- СКИНЫ ---
         skin_normal: "Обычный", skin_halloween: "Тыква", skin_amethyst: "Аметист",
@@ -111,7 +117,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Fullscreen", on: "Enable", off: "Disable",
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
-        news_title: "📢 NEWS", news_text: "v13.6: Added emergency game closure system.",
+        news_title: "📢 NEWS", news_text: "Loading news...",
         pass_no_active: "✨ NO ACTIVE PASS ✨", pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks", done: "✅ DONE", claim: "CLAIM",
         lock_first: "🔒 Complete level first", until_end: "Until AI Pass",
@@ -149,6 +155,7 @@ const TRANSLATIONS = {
         pumpkin_click: "🎃 PUMPKIN! +5⭐", x10_boost: "🧠 BOOST X10! 5 hours!",
         achievements: "🏆 ACHIEVEMENTS", ach_unlocked: "🏆 Achievement:", bat_win: "🦇 BAT! +500🧠",
         admin_wrong_pass: "❌ Wrong password!",
+        event_active: "🔥 GLOBAL EVENT!",
 
         // --- SKINS ---
         skin_normal: "Normal", skin_halloween: "Pumpkin", skin_amethyst: "Amethyst",
@@ -380,10 +387,47 @@ function checkIfClosed() {
         });
 }
 
+// ===== ЗАГРУЗКА НОВОСТЕЙ =====
+function fetchNews() {
+    if (!navigator.onLine) return;
+    fetch(NEWS_URL + "?t=" + Date.now())
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.title && data.text) {
+                const newsTitle = document.getElementById('newsTitle');
+                const newsText = document.getElementById('newsText');
+                if (newsTitle) newsTitle.innerText = data.title;
+                if (newsText) newsText.innerText = data.text;
+            }
+        })
+        .catch(e => console.log("Ошибка загрузки новостей:", e));
+}
+
+// ===== ЗАГРУЗКА ГЛОБАЛЬНОГО ИВЕНТА =====
+function fetchEvent() {
+    if (!navigator.onLine) return;
+    fetch(EVENT_URL + "?t=" + Date.now())
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.active) {
+                globalEventMultiplier = data.multiplier || 1;
+                const banner = document.getElementById('globalEventBanner');
+                const bannerText = document.getElementById('globalEventText');
+                if (banner && bannerText) {
+                    bannerText.innerText = data.message || t('event_active');
+                    banner.classList.remove('hidden');
+                }
+                updateUI(); // Обновить силу клика
+            }
+        })
+        .catch(e => console.log("Ошибка загрузки ивента:", e));
+}
+
 window.addEventListener('load', () => {
-    // Проверяем обновления и статус с задержкой 2 сек
     setTimeout(checkForUpdates, 2000);
     setTimeout(checkIfClosed, 2000);
+    setTimeout(fetchNews, 1500);
+    setTimeout(fetchEvent, 1500);
 
     if (typeof YaGames !== 'undefined') {
         YaGames.init().then(_ysdk => {
@@ -575,7 +619,6 @@ window.addEventListener('load', () => {
         else { tn?.classList.add('active'); if (ln) ln.style.display = 'block'; if (bb) bb.style.display = ''; renderShopNeurons(); }
     }
 
-    // ===== УЛУЧШЕННАЯ РУЛЕТКА =====
     const ROULETTE_PRIZES = [
         { emoji: '💰', type: 'points', min: 100000, max: 1000000 },
         { emoji: '⭐', type: 'stars', min: 50, max: 200 },
@@ -648,7 +691,6 @@ window.addEventListener('load', () => {
         setTimeout(playBuySound, 150);
         setTimeout(playBuySound, 300);
     }
-    // =========================
 
     function isBoostActive() { return Date.now() < boostEndTime; }
     function getBoostRemaining() { return Math.max(0, boostEndTime - Date.now()); }
@@ -911,6 +953,10 @@ window.addEventListener('load', () => {
         if (isBirthdayBoostActive()) base *= BIRTHDAY_BOOST_MULT;
         if (isMarch8BoostActive()) base *= MARCH8_BOOST_MULT;
         if (isX10BoostActive()) base *= X10_BOOST_MULT;
+        
+        // Применяем глобальный ивент
+        if (globalEventMultiplier > 1) base *= globalEventMultiplier;
+        
         base *= getPrestigeMultiplier(); base *= getSkinMultiplier(); return Math.floor(base);
     }
 
