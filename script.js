@@ -1,10 +1,10 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "13.2";
+const GAME_VERSION = "13.3";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
 
-// Ссылка на файл проверки обновлений (замени на свой репозиторий, если нужно)
-const UPDATE_CHECK_URL = "https://raw.githubusercontent.com/dimakolmakov41-source/neural-game676767/main/update.json";
+// Ссылка на файл проверки обновлений (на GitHub Pages)
+const UPDATE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/update.json";
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -29,7 +29,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Полный экран", on: "Включить", off: "Выключить",
         language: "🌐 Язык / Language", reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
-        news_title: "📢 НОВОСТИ", news_text: "v13.2: Проверка обновлений APK!",
+        news_title: "📢 НОВОСТИ", news_text: "v13.3: Умная проверка обновлений APK!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨", pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов", done: "✅ ВЫПОЛНЕНО", claim: "ЗАБРАТЬ",
         lock_first: "🔒 Сначала пройди уровень", until_end: "До конца AI Pass",
@@ -105,7 +105,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Fullscreen", on: "Enable", off: "Disable",
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
-        news_title: "📢 NEWS", news_text: "v13.2: APK update check!",
+        news_title: "📢 NEWS", news_text: "v13.3: Smart APK update check!",
         pass_no_active: "✨ NO ACTIVE PASS ✨", pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks", done: "✅ DONE", claim: "CLAIM",
         lock_first: "🔒 Complete level first", until_end: "Until AI Pass",
@@ -305,25 +305,41 @@ function applyButtonColor(color) {
     document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue')));
 }
 
-// ===== ПРОВЕРКА ОБНОВЛЕНИЙ APK =====
+// ===== ПРОВЕРКА ОБНОВЛЕНИЙ APK (УМНАЯ) =====
+function isNewerVersion(current, latest) {
+    // Разбиваем версии на числа: "13.2" -> [13, 2]
+    const c = current.split('.').map(Number);
+    const l = latest.split('.').map(Number);
+    
+    // Сравниваем по порядку
+    for (let i = 0; i < Math.max(c.length, l.length); i++) {
+        const cNum = c[i] || 0;
+        const lNum = l[i] || 0;
+        if (lNum > cNum) return true; // Новая версия больше
+        if (lNum < cNum) return false; // Текущая версия больше (такого быть не должно)
+    }
+    return false; // Версии равны
+}
+
 function checkForUpdates() {
-    // Проверяем только если это APK (не в браузере на ПК) и есть интернет
     if (!navigator.onLine) return; 
 
-    fetch(UPDATE_CHECK_URL + "?t=" + Date.now()) // Добавляем время, чтобы браузер не кэшировал файл
+    fetch(UPDATE_CHECK_URL + "?t=" + Date.now())
         .then(res => {
             if (!res.ok) throw new Error("Network response was not ok");
             return res.json();
         })
         .then(data => {
-            if (data && data.status === "update") {
-                console.log("Update required!");
-                const overlay = document.getElementById('updateOverlay');
-                if (overlay) {
-                    overlay.classList.add('show');
-                    // Блокируем клики по игре
-                    document.body.style.pointerEvents = "none";
-                    overlay.style.pointerEvents = "auto";
+            if (data && data.latest_version) {
+                // Если версия на сервере больше, чем у игрока — блокируем
+                if (isNewerVersion(GAME_VERSION, data.latest_version)) {
+                    console.log("Update required! Current:", GAME_VERSION, "Latest:", data.latest_version);
+                    const overlay = document.getElementById('updateOverlay');
+                    if (overlay) {
+                        overlay.classList.add('show');
+                        document.body.style.pointerEvents = "none";
+                        overlay.style.pointerEvents = "auto";
+                    }
                 }
             }
         })
@@ -951,14 +967,13 @@ window.addEventListener('load', () => {
     const clickable = document.getElementById('clickableObject');
     if (clickable) { clickable.addEventListener('touchstart', handleMultiTouch, { passive: false }); clickable.addEventListener('mousedown', handleMouseClick); }
 
-    // ===== ЛИДЕРБОРД (С ПРОВЕРКОЙ АВТОРИЗАЦИИ) =====
+    // ===== ЛИДЕРБОРД =====
     let lastLeaderboardRequest = 0;
     let leaderboardCache = null;
 
     function showLeaderboard() {
         if (!ysdk) { showToast(t('leaderboard_no_sdk')); return; }
 
-        // 1. Проверяем, авторизован ли игрок
         ysdk.getPlayer().then(player => {
             if (player.getMode() === 'lite') {
                 showToast(t('leaderboard_login_required'));
