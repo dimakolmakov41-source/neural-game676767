@@ -73,7 +73,8 @@ const TRANSLATIONS = {
         // --- ЛИДЕРБОРД ---
         leaderboard_title: "🏅 ТОП ИГРОКОВ",
         leaderboard_error: "❌ Ошибка загрузки лидерборда",
-        leaderboard_no_sdk: "⏳ Лидерборд доступен только в Яндекс Играх"
+        leaderboard_no_sdk: "⏳ Лидерборд доступен только в Яндекс Играх",
+        leaderboard_wait: "⏳ Подожди 5 секунд перед следующим запросом"
     },
     en: {
         loading: "LOADING...", title: "🧠 CLICKER: NEURAL EVOLUTION",
@@ -140,7 +141,8 @@ const TRANSLATIONS = {
         // --- LEADERBOARD ---
         leaderboard_title: "🏅 TOP PLAYERS",
         leaderboard_error: "❌ Leaderboard load error",
-        leaderboard_no_sdk: "⏳ Leaderboard available only in Yandex Games"
+        leaderboard_no_sdk: "⏳ Leaderboard available only in Yandex Games",
+        leaderboard_wait: "⏳ Wait 5 seconds before next request"
     }
 };
 
@@ -904,41 +906,65 @@ window.addEventListener('load', () => {
     const clickable = document.getElementById('clickableObject');
     if (clickable) { clickable.addEventListener('touchstart', handleMultiTouch, { passive: false }); clickable.addEventListener('mousedown', handleMouseClick); }
 
-    // ===== ЛИДЕРБОРД =====
+    // ===== ЛИДЕРБОРД (С ЗАЩИТОЙ ОТ СПАМА) =====
+    let lastLeaderboardRequest = 0;
+    let leaderboardCache = null;
+
     function showLeaderboard() {
         if (!ysdk) { showToast(t('leaderboard_no_sdk')); return; }
         
+        const now = Date.now();
+        // Если с последнего запроса прошло меньше 5 секунд — показываем кэш
+        if (now - lastLeaderboardRequest < 5000) {
+            if (leaderboardCache) {
+                displayLeaderboard(leaderboardCache);
+                return;
+            } else {
+                showToast(t('leaderboard_wait'));
+                return;
+            }
+        }
+        
+        lastLeaderboardRequest = now;
+
         ysdk.getLeaderboards().then(lb => {
-            // Отправляем текущий счёт
-            lb.setLeaderboardScore('points', Math.floor(points)).then(() => {
-                // Получаем топ-10 и окружение
+            return lb.setLeaderboardScore('points', Math.floor(points)).then(() => {
                 return lb.getLeaderboardEntries('points', { quantityTop: 10, includeUser: true, quantityAround: 3 });
-            }).then(res => {
-                let modal = document.getElementById('lbModal');
-                if (!modal) {
-                    modal = document.createElement('div');
-                    modal.id = 'lbModal';
-                    modal.className = 'modal-overlay';
-                    modal.innerHTML = `<div class="modal-content" style="text-align:left;"><div class="modal-title" style="text-align:center;">${t('leaderboard_title')}</div><div id="lbList" style="margin-bottom:15px; max-height: 50vh; overflow-y:auto;"></div><button class="modal-btn" onclick="document.getElementById('lbModal').classList.remove('show')" style="width:100%;">${t('close')}</button></div>`;
-                    document.body.appendChild(modal);
-                }
-                const list = modal.querySelector('#lbList');
-                let html = '';
-                res.entries.forEach((e, i) => {
-                    const name = e.player.publicName || 'Аноним';
-                    const score = formatNumber(e.score);
-                    html += `<div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px;">${i+1}. ${name} — <b style="color:#ffd966;">${score} 🧠</b></div>`;
-                });
-                list.innerHTML = html;
-                modal.classList.add('show');
             });
+        }).then(res => {
+            leaderboardCache = res; // Сохраняем в кэш
+            displayLeaderboard(res);
         }).catch(e => {
             console.error("Leaderboard error:", e);
             showToast(t('leaderboard_error'));
         });
     }
 
-    // ===== СТАРЫЕ ОБРАБОТЧИКИ (БЕЗ TELEGRAM И TEST) =====
+    function displayLeaderboard(res) {
+        let modal = document.getElementById('lbModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'lbModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `<div class="modal-content" style="text-align:left;"><div class="modal-title" style="text-align:center;">${t('leaderboard_title')}</div><div id="lbList" style="margin-bottom:15px; max-height: 50vh; overflow-y:auto;"></div><button class="modal-btn" onclick="document.getElementById('lbModal').classList.remove('show')" style="width:100%;">${t('close')}</button></div>`;
+            document.body.appendChild(modal);
+        }
+        const list = modal.querySelector('#lbList');
+        let html = '';
+        if (res && res.entries) {
+            res.entries.forEach((e, i) => {
+                const name = e.player.publicName || 'Аноним';
+                const score = formatNumber(e.score);
+                html += `<div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px;">${i+1}. ${name} — <b style="color:#ffd966;">${score} 🧠</b></div>`;
+            });
+        } else {
+            html = '<div style="text-align:center; padding:10px;">Нет данных</div>';
+        }
+        list.innerHTML = html;
+        modal.classList.add('show');
+    }
+
+    // ===== СТАРЫЕ ОБРАБОТЧИКИ =====
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
     function showTutorial() { tutorialStep1?.classList.remove('hidden'); tutorialStep2?.classList.add('hidden'); tutorialOverlay?.classList.add('show'); }
     function goToGame() { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('gameInterface').classList.remove('hidden'); }
@@ -1040,7 +1066,7 @@ window.addEventListener('load', () => {
     }, 1000);
     setInterval(saveGame, 5000);
 
-    // Админ панель (без изменений)
+    // ===== АДМИН ПАНЕЛЬ =====
     let adminPasswordBuffer = '';
     function openAdminPasswordPanel() { adminPasswordBuffer = ''; document.getElementById('adminPasswordInput').value = ''; document.getElementById('adminPasswordOverlay')?.classList.add('show'); }
     function closeAdminPasswordPanel() { adminPasswordBuffer = ''; document.getElementById('adminPasswordInput').value = ''; document.getElementById('adminPasswordOverlay')?.classList.remove('show'); }
