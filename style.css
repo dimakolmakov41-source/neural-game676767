@@ -495,6 +495,13 @@ body.bg-hacker .achievements-btn {
     box-shadow: 0 0 15px rgba(0,255,65,0.6);
     font-family: 'Courier New', monospace;
 }
+body.bg-hacker .leaderboard-btn {
+    background: linear-gradient(145deg, #003300, #001a00);
+    border: 2px solid #00ff41;
+    color: #00ff41;
+    box-shadow: 0 0 15px rgba(0,255,65,0.6);
+    font-family: 'Courier New', monospace;
+}
 body.bg-hacker #dailyGiftBtn {
     background: linear-gradient(145deg, #003300, #001a00) !important;
     border-color: #00ff41 !important;
@@ -814,7 +821,6 @@ body.bg-hacker .boost-timer-item {
     display: none;
     font-size: 75px;
     z-index: 2;
-    /* ИСПРАВЛЕННЫЙ ЦВЕТ: теперь он фиолетовый, а не зелёный */
     filter: hue-rotate(60deg) brightness(1.2) drop-shadow(0 0 15px #a020f0) drop-shadow(0 0 35px #ff00ff);
 }
 .brain.skin-amethyst .amethyst-diamond { display: block; }
@@ -948,6 +954,20 @@ body.bg-hacker .boost-timer-item {
 }
 .achievements-btn:active { transform: scale(0.97); }
 .achievements-btn:hover { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+
+/* 🏅 ЛИДЕРБОРД */
+.leaderboard-btn {
+    background: linear-gradient(145deg, #d4af37, #aa8c2c);
+    border: 2px solid #ffec8b;
+    border-radius: 40px; color: #1a1a2e;
+    font-size: 15px; font-weight: 900;
+    text-align: center; padding: 12px; margin: 10px 0;
+    cursor: pointer; text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+    transition: 0.15s;
+}
+.leaderboard-btn:active { transform: scale(0.97); }
+.leaderboard-btn:hover { box-shadow: 0 0 25px rgba(255, 236, 139, 0.8); }
 
 .achievements-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -2033,7 +2053,7 @@ body.bg-hacker .exchange-item.disabled {
     .stat-card-label { font-size: 12px; }
     .stats-panel-extended { padding: 15px; gap: 12px; }
     .timers { font-size: 16px; padding: 12px; }
-    .boost-btn, .roulette-btn, .autoclicker-btn, .achievements-btn { font-size: 20px; padding: 16px; border-radius: 50px; }
+    .boost-btn, .roulette-btn, .autoclicker-btn, .achievements-btn, .leaderboard-btn { font-size: 20px; padding: 16px; border-radius: 50px; }
     .click-hint { font-size: 40px; }
     .shop-item { font-size: 16px; padding: 12px 18px; }
     .page-btn { font-size: 14px; padding: 8px 16px; }
