@@ -29,7 +29,7 @@ body.bg-park { background: linear-gradient(145deg, #b5a07a, #7a6545); }
 body.bg-mountains { background: linear-gradient(145deg, #b8a58a, #5a4a3a); }
 body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 
-/* ===== НОВОЕ: БЕГУЩАЯ СТРОКА ===== */
+/* ===== БЕГУЩАЯ СТРОКА ===== */
 .ticker-container {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -54,7 +54,7 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
     100% { transform: translateX(-100%); }
 }
 
-/* ===== НОВОЕ: ПОГОДА (Снег, Дождь, Звезды) ===== */
+/* ===== ПОГОДА (Снег, Дождь, Звезды) ===== */
 .weather-layer {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -74,7 +74,7 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
     100% { transform: translateY(110vh) rotate(360deg); }
 }
 
-/* ===== НОВОЕ: ЛЕТАЮЩИЙ ПИТОМЕЦ ===== */
+/* ===== ЛЕТАЮЩИЙ ПИТОМЕЦ ===== */
 .pet {
     position: fixed;
     font-size: 30px;
@@ -89,7 +89,7 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
     50% { transform: translateY(-10px) scale(1.1); }
 }
 
-/* ===== НОВОЕ: СЕКРЕТНЫЙ БОСС ===== */
+/* ===== СЕКРЕТНЫЙ БОСС ===== */
 .boss-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.85);
@@ -114,7 +114,7 @@ body.bg-village { background: linear-gradient(145deg, #c9b78a, #8b7355); }
 @keyframes bossWiggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
 .boss-hint { font-size: 14px; color: #ffaa88; font-weight: bold; }
 
-/* ===== ОСТАЛЬНЫЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ) ===== */
+/* ===== ОСТАЛЬНЫЕ СТИЛИ ===== */
 body.bg-birthday { background: linear-gradient(145deg, #ff69b4, #ff1493) !important; position: relative; }
 body.bg-birthday::before { content: "🎉"; position: fixed; top: 10px; left: 10px; font-size: 40px; opacity: 0.7; animation: partyRotate 3s ease-in-out infinite; }
 body.bg-birthday::after { content: "🎊"; position: fixed; bottom: 10px; right: 10px; font-size: 40px; opacity: 0.7; animation: partyRotate 3s ease-in-out infinite reverse; }
@@ -613,6 +613,7 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
 .lang-btn.active { background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; box-shadow: 0 0 15px rgba(76,175,80,0.6); }
 #setLangRu.active, #setLangEn.active { background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; box-shadow: 0 0 15px rgba(76,175,80,0.6); }
 
+/* ===== АДАПТАЦИЯ ДЛЯ ПК ===== */
 @media (min-width: 900px) {
     body { padding: 20px; }
     .game-container { max-width: 700px; padding: 30px 24px; border-radius: 60px; }
@@ -676,6 +677,7 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
     .boss-hint { font-size: 18px; }
 }
 
+/* ===== АДАПТАЦИЯ ДЛЯ ОЧЕНЬ БОЛЬШИХ ЭКРАНОВ ===== */
 @media (min-width: 1400px) {
     .game-container { max-width: 800px; }
     .brain { width: 280px; height: 280px; }
@@ -684,11 +686,13 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
     .game-title { font-size: 44px; }
 }
 
+/* ===== ОКНО ОБНОВЛЕНИЯ APK ===== */
 #updateOverlay { z-index: 99999 !important; background: rgba(0, 0, 0, 0.95) !important; }
 #updateOverlay .modal-content { background: linear-gradient(145deg, #2a0a0a, #1a0000) !important; border: 3px solid #ff4444 !important; box-shadow: 0 0 40px rgba(255, 68, 68, 0.6) !important; }
 #updateOverlay .modal-title { color: #ff4444 !important; animation: updatePulse 1.5s ease-in-out infinite; }
 @keyframes updatePulse { 0%, 100% { transform: scale(1); text-shadow: 0 0 10px #ff4444; } 50% { transform: scale(1.05); text-shadow: 0 0 20px #ff4444, 0 0 30px #ff0000; } }
 
+/* ===== ОКНО ЗАКРЫТИЯ ИГРЫ ===== */
 #closedOverlay { z-index: 100000 !important; background: rgba(0, 0, 0, 0.95) !important; }
 #closedOverlay .modal-content { background: linear-gradient(145deg, #2a0a0a, #1a0000) !important; border: 3px solid #ff4444 !important; box-shadow: 0 0 40px rgba(255, 68, 68, 0.6) !important; }
 #closedOverlay .modal-title { color: #ff4444 !important; animation: updatePulse 1.5s ease-in-out infinite; }
