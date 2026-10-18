@@ -74,7 +74,9 @@ const TRANSLATIONS = {
         leaderboard_title: "🏅 ТОП ИГРОКОВ",
         leaderboard_error: "❌ Ошибка загрузки лидерборда",
         leaderboard_no_sdk: "⏳ Лидерборд доступен только в Яндекс Играх",
-        leaderboard_wait: "⏳ Подожди 5 секунд перед следующим запросом"
+        leaderboard_wait: "⏳ Подожди 5 секунд перед следующим запросом",
+        leaderboard_login_required: "🔑 Войдите в аккаунт Яндекса, чтобы открыть рейтинг!",
+        leaderboard_login_error: "❌ Не удалось войти в аккаунт"
     },
     en: {
         loading: "LOADING...", title: "🧠 CLICKER: NEURAL EVOLUTION",
@@ -142,7 +144,9 @@ const TRANSLATIONS = {
         leaderboard_title: "🏅 TOP PLAYERS",
         leaderboard_error: "❌ Leaderboard load error",
         leaderboard_no_sdk: "⏳ Leaderboard available only in Yandex Games",
-        leaderboard_wait: "⏳ Wait 5 seconds before next request"
+        leaderboard_wait: "⏳ Wait 5 seconds before next request",
+        leaderboard_login_required: "🔑 Log in to Yandex to view the leaderboard!",
+        leaderboard_login_error: "❌ Failed to log in"
     }
 };
 
@@ -289,7 +293,6 @@ function applyButtonColor(color) {
 }
 
 window.addEventListener('load', () => {
-    // ===== ИНИЦИАЛИЗАЦИЯ YANDEX SDK =====
     if (typeof YaGames !== 'undefined') {
         YaGames.init().then(_ysdk => {
             ysdk = _ysdk;
@@ -387,7 +390,6 @@ window.addEventListener('load', () => {
             const isEquipped = currentSkin === skin.id;
             const priceText = (skin.id === 'halloween' && isHalloween()) ? t('skin_event_free') : (skin.price > 0 ? `💰 ${skin.price}⭐` : t('skin_free'));
             
-            // Переводы для скинов
             const nameText = t('skin_' + skin.id);
             const emoji = skin.id === 'halloween' ? '🎃' : (skin.id === 'amethyst' ? '💎' : '🧠');
             let btnText = isEquipped ? t('skin_equipped') : (isUnlocked ? t('skin_equip') : `${t('skin_buy')}${skin.price}⭐`);
@@ -906,15 +908,33 @@ window.addEventListener('load', () => {
     const clickable = document.getElementById('clickableObject');
     if (clickable) { clickable.addEventListener('touchstart', handleMultiTouch, { passive: false }); clickable.addEventListener('mousedown', handleMouseClick); }
 
-    // ===== ЛИДЕРБОРД (С ЗАЩИТОЙ ОТ СПАМА) =====
+    // ===== ЛИДЕРБОРД (С ПРОВЕРКОЙ АВТОРИЗАЦИИ) =====
     let lastLeaderboardRequest = 0;
     let leaderboardCache = null;
 
     function showLeaderboard() {
         if (!ysdk) { showToast(t('leaderboard_no_sdk')); return; }
-        
+
+        // 1. Проверяем, авторизован ли игрок
+        ysdk.getPlayer().then(player => {
+            if (player.getMode() === 'lite') {
+                showToast(t('leaderboard_login_required'));
+                ysdk.auth.openAuthDialog().then(() => {
+                    loadLeaderboardData();
+                }).catch(() => {
+                    showToast(t('leaderboard_login_error'));
+                });
+            } else {
+                loadLeaderboardData();
+            }
+        }).catch(e => {
+            console.error("Auth check error:", e);
+            showToast(t('leaderboard_error'));
+        });
+    }
+
+    function loadLeaderboardData() {
         const now = Date.now();
-        // Если с последнего запроса прошло меньше 5 секунд — показываем кэш
         if (now - lastLeaderboardRequest < 5000) {
             if (leaderboardCache) {
                 displayLeaderboard(leaderboardCache);
@@ -924,7 +944,6 @@ window.addEventListener('load', () => {
                 return;
             }
         }
-        
         lastLeaderboardRequest = now;
 
         ysdk.getLeaderboards().then(lb => {
@@ -932,7 +951,7 @@ window.addEventListener('load', () => {
                 return lb.getLeaderboardEntries('points', { quantityTop: 10, includeUser: true, quantityAround: 3 });
             });
         }).then(res => {
-            leaderboardCache = res; // Сохраняем в кэш
+            leaderboardCache = res;
             displayLeaderboard(res);
         }).catch(e => {
             console.error("Leaderboard error:", e);
@@ -985,7 +1004,7 @@ window.addEventListener('load', () => {
     document.getElementById('rouletteBtn')?.addEventListener('click', openRoulette);
     document.getElementById('rouletteSpinBtn')?.addEventListener('click', spinRoulette);
     document.getElementById('rouletteCloseBtn')?.addEventListener('click', () => document.getElementById('rouletteOverlay')?.classList.remove('show'));
-    document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard); // <-- Лидерборд
+    document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     
     document.getElementById('achBtn')?.addEventListener('click', () => { renderAchievements(); document.getElementById('achOverlay')?.classList.add('show'); });
     document.getElementById('achCloseBtn')?.addEventListener('click', () => document.getElementById('achOverlay')?.classList.remove('show'));
