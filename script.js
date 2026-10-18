@@ -1,6 +1,7 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "12.9";
+const GAME_VERSION = "13.0";
 const ADMIN_PASSWORD = "6769";
+let ysdk = null; // Переменная для Yandex SDK
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -51,7 +52,7 @@ const TRANSLATIONS = {
         reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
         news_title: "📢 НОВОСТИ",
-        news_text: "v12.9: 💎 Скины (Обычный, Тыква, Аметист)!",
+        news_text: "v13.0: 💎 Скины, поддержка Yandex Games!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨",
         pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов",
@@ -160,7 +161,7 @@ const TRANSLATIONS = {
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
         news_title: "📢 NEWS",
-        news_text: "v12.9: 💎 Skins (Normal, Pumpkin, Amethyst)!",
+        news_text: "v13.0: 💎 Skins, Yandex Games support!",
         pass_no_active: "✨ NO ACTIVE PASS ✨",
         pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks",
@@ -511,6 +512,31 @@ function applyButtonColor(color) {
 }
 
 window.addEventListener('load', () => {
+    // ===== ИНИЦИАЛИЗАЦИЯ YANDEX SDK =====
+    if (typeof YaGames !== 'undefined') {
+        YaGames.init().then(_ysdk => {
+            ysdk = _ysdk;
+            console.log("Yandex SDK initialized");
+
+            // Автоматическое определение языка из Яндекса
+            const sdkLang = ysdk.environment.i18n.lang;
+            if (sdkLang === 'ru' || sdkLang === 'en') {
+                currentLang = sdkLang;
+                localStorage.setItem('gameLang', currentLang);
+                applyTranslations();
+            }
+
+            // Сигнал Яндексу, что игра готова
+            if (ysdk.features && ysdk.features.LoadingAPI) {
+                ysdk.features.LoadingAPI.ready();
+            }
+        }).catch(e => {
+            console.error("Yandex SDK init error:", e);
+        });
+    } else {
+        console.log("Yandex SDK not found, running standalone");
+    }
+
     setTimeout(() => {
         const ls = document.getElementById('loadingScreen');
         if (ls) ls.classList.add('hidden');
