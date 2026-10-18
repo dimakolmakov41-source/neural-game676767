@@ -1,5 +1,5 @@
 {
-  "active": false,
-  "multiplier": 1,
+  "active": true,
+  "multiplier": 100,
   "message": "🔥 Глобальный ивент!"
 }
