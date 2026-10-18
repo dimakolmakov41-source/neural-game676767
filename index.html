@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
     <script src="https://yandex.ru/games/sdk/v2"></script>
-    <link rel="stylesheet" href="style.css?v=13.2">
+    <link rel="stylesheet" href="style.css?v=13.5">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v13.2</div>
+        <div class="loading-sub">v13.5</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -20,7 +20,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v13.2</div>
+            <div class="game-version" id="menuVersion">v13.5</div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn" data-i18n="play">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn" data-i18n="settings">⚙️ НАСТРОЙКИ</div>
@@ -303,17 +303,16 @@
     </div>
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="promo_title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn" data-i18n="activate">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
-    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="news_title">📢 НОВОСТИ</div><div class="modal-text" data-i18n="news_text">v13.2: Проверка обновлений APK!</div><button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
+    <div id="newsModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="news_title">📢 НОВОСТИ</div><div class="modal-text" data-i18n="news_text">v13.5: Блокировка старых версий!</div><button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
 
-    <!-- ОВЕРЛЕЙ ОБНОВЛЕНИЯ APK -->
+    <!-- ОВЕРЛЕЙ ОБНОВЛЕНИЯ APK (БЕЗ КНОПКИ) -->
     <div id="updateOverlay" class="modal-overlay" style="z-index: 99999;">
         <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
-            <div class="modal-title" data-i18n="update_title" style="color: #ff4444; font-size: 24px;">🚨 ТРЕБУЕТСЯ ОБНОВЛЕНИЕ 🚨</div>
-            <div class="modal-text" data-i18n="update_text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Вышла новая версия игры. Пожалуйста, скачайте обновление, чтобы продолжить играть.</div>
-            <a href="https://dimakolmakov41-source.github.io/neural-game676767/" id="updateLink" class="modal-btn" style="background: #ff4444; display: block; text-decoration: none; padding: 15px; border-radius: 30px; font-size: 18px; font-weight: bold; color: white;" data-i18n="update_btn">Скачать обновление</a>
+            <div class="modal-title" data-i18n="update_title" style="color: #ff4444; font-size: 24px;">🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨</div>
+            <div class="modal-text" data-i18n="update_text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта.</div>
         </div>
     </div>
 
-    <script src="script.js?v=13.2"></script>
+    <script src="script.js?v=13.5"></script>
 </body>
 </html>
