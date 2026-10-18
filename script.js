@@ -1,10 +1,11 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "13.5";
+const GAME_VERSION = "13.6";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
 
-// Ссылка на файл проверки обновлений (на GitHub Pages)
+// Ссылки на файлы проверок (на GitHub Pages)
 const UPDATE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/update.json";
+const CLOSE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/close.json";
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -29,7 +30,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Полный экран", on: "Включить", off: "Выключить",
         language: "🌐 Язык / Language", reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
-        news_title: "📢 НОВОСТИ", news_text: "v13.5: Блокировка старых версий!",
+        news_title: "📢 НОВОСТИ", news_text: "v13.6: Добавлена система экстренного закрытия игры.",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨", pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов", done: "✅ ВЫПОЛНЕНО", claim: "ЗАБРАТЬ",
         lock_first: "🔒 Сначала пройди уровень", until_end: "До конца AI Pass",
@@ -85,7 +86,11 @@ const TRANSLATIONS = {
 
         // --- ОБНОВЛЕНИЕ APK ---
         update_title: "🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨",
-        update_text: "Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта."
+        update_text: "Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта.",
+        
+        // --- ИГРА ЗАКРЫТА ---
+        closed_title: "🚫 ИГРА ЗАКРЫТА 🚫",
+        closed_text: "Игра закрыта или недоступна на данный момент. Пожалуйста, зайдите позже."
     },
     en: {
         loading: "LOADING...", title: "🧠 CLICKER: NEURAL EVOLUTION",
@@ -106,7 +111,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Fullscreen", on: "Enable", off: "Disable",
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
-        news_title: "📢 NEWS", news_text: "v13.5: Old versions blocked!",
+        news_title: "📢 NEWS", news_text: "v13.6: Added emergency game closure system.",
         pass_no_active: "✨ NO ACTIVE PASS ✨", pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks", done: "✅ DONE", claim: "CLAIM",
         lock_first: "🔒 Complete level first", until_end: "Until AI Pass",
@@ -161,7 +166,11 @@ const TRANSLATIONS = {
 
         // --- APK UPDATE ---
         update_title: "🚨 ACCESS BLOCKED 🚨",
-        update_text: "This version of the game is outdated. Please delete it and install the new version from the official website."
+        update_text: "This version of the game is outdated. Please delete it and install the new version from the official website.",
+        
+        // --- GAME CLOSED ---
+        closed_title: "🚫 GAME CLOSED 🚫",
+        closed_text: "The game is closed or unavailable at the moment. Please check back later."
     }
 };
 
@@ -307,7 +316,7 @@ function applyButtonColor(color) {
     document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue')));
 }
 
-// ===== ПРОВЕРКА ОБНОВЛЕНИЙ APK (БЕЗ КНОПКИ) =====
+// ===== ПРОВЕРКА ОБНОВЛЕНИЙ APK =====
 function isNewerVersion(current, latest) {
     const c = current.split('.').map(Number);
     const l = latest.split('.').map(Number);
@@ -346,8 +355,35 @@ function checkForUpdates() {
         });
 }
 
+// ===== ПРОВЕРКА СТАТУСА ИГРЫ (KILL SWITCH) =====
+function checkIfClosed() {
+    if (!navigator.onLine) return;
+
+    fetch(CLOSE_CHECK_URL + "?t=" + Date.now())
+        .then(res => {
+            if (!res.ok) throw new Error("Network response was not ok");
+            return res.json();
+        })
+        .then(data => {
+            if (data && data.status === "closed") {
+                console.log("Game is closed!");
+                const overlay = document.getElementById('closedOverlay');
+                if (overlay) {
+                    overlay.classList.add('show');
+                    document.body.style.pointerEvents = "none";
+                    overlay.style.pointerEvents = "auto";
+                }
+            }
+        })
+        .catch(err => {
+            console.log("Ошибка проверки статуса игры (играем дальше):", err);
+        });
+}
+
 window.addEventListener('load', () => {
+    // Проверяем обновления и статус с задержкой 2 сек
     setTimeout(checkForUpdates, 2000);
+    setTimeout(checkIfClosed, 2000);
 
     if (typeof YaGames !== 'undefined') {
         YaGames.init().then(_ysdk => {
@@ -541,14 +577,14 @@ window.addEventListener('load', () => {
 
     // ===== УЛУЧШЕННАЯ РУЛЕТКА =====
     const ROULETTE_PRIZES = [
-        { emoji: '💰', type: 'points', min: 100000, max: 1000000 },     // Мелкие очки
-        { emoji: '⭐', type: 'stars', min: 50, max: 200 },             // Мелкие звезды
-        { emoji: '🧠', type: 'points', min: 5000000, max: 25000000 },  // Крупные очки
-        { emoji: '🌟', type: 'stars', min: 10, max: 50 },              // Утешительные звезды
-        { emoji: '⚡', type: 'boost', duration: 15 * 60 * 1000 },       // Буст 15 минут
-        { emoji: '🎁', type: 'nothing' },                              // ПУСТЫШКА
-        { emoji: '💥', type: 'points', min: 100000000, max: 500000000 },// ДЖЕКПОТ (Очки)
-        { emoji: '👑', type: 'stars', min: 2000, max: 5000 }           // ДЖЕКПОТ (Звезды)
+        { emoji: '💰', type: 'points', min: 100000, max: 1000000 },
+        { emoji: '⭐', type: 'stars', min: 50, max: 200 },
+        { emoji: '🧠', type: 'points', min: 5000000, max: 25000000 },
+        { emoji: '🌟', type: 'stars', min: 10, max: 50 },
+        { emoji: '⚡', type: 'boost', duration: 15 * 60 * 1000 },
+        { emoji: '🎁', type: 'nothing' },
+        { emoji: '💥', type: 'points', min: 100000000, max: 500000000 },
+        { emoji: '👑', type: 'stars', min: 2000, max: 5000 }
     ];
 
     function openRoulette() { document.getElementById('rouletteOverlay')?.classList.add('show'); }
