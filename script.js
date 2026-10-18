@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "13.4";
+const GAME_VERSION = "13.5";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
 
@@ -29,7 +29,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Полный экран", on: "Включить", off: "Выключить",
         language: "🌐 Язык / Language", reset_all: "⚠️ СБРОСИТЬ ВСЁ",
         promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ",
-        news_title: "📢 НОВОСТИ", news_text: "v13.4: Новая рулетка (Джекпот и Пустышка)!",
+        news_title: "📢 НОВОСТИ", news_text: "v13.5: Блокировка старых версий!",
         pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨", pass_tasks_title: "ЗАДАНИЯ",
         level: "Уровень", clicks_done: "кликов", done: "✅ ВЫПОЛНЕНО", claim: "ЗАБРАТЬ",
         lock_first: "🔒 Сначала пройди уровень", until_end: "До конца AI Pass",
@@ -84,9 +84,8 @@ const TRANSLATIONS = {
         leaderboard_login_error: "❌ Не удалось войти в аккаунт",
 
         // --- ОБНОВЛЕНИЕ APK ---
-        update_title: "🚨 ТРЕБУЕТСЯ ОБНОВЛЕНИЕ 🚨",
-        update_text: "Вышла новая версия игры. Пожалуйста, скачайте обновление, чтобы продолжить играть.",
-        update_btn: "Скачать обновление"
+        update_title: "🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨",
+        update_text: "Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта."
     },
     en: {
         loading: "LOADING...", title: "🧠 CLICKER: NEURAL EVOLUTION",
@@ -107,7 +106,7 @@ const TRANSLATIONS = {
         fullscreen: "⛶ Fullscreen", on: "Enable", off: "Disable",
         language: "🌐 Language / Язык", reset_all: "⚠️ RESET ALL",
         promo_title: "🎫 PROMO CODE", activate: "ACTIVATE",
-        news_title: "📢 NEWS", news_text: "v13.4: New Roulette (Jackpot & Empty)!",
+        news_title: "📢 NEWS", news_text: "v13.5: Old versions blocked!",
         pass_no_active: "✨ NO ACTIVE PASS ✨", pass_tasks_title: "TASKS",
         level: "Level", clicks_done: "clicks", done: "✅ DONE", claim: "CLAIM",
         lock_first: "🔒 Complete level first", until_end: "Until AI Pass",
@@ -161,9 +160,8 @@ const TRANSLATIONS = {
         leaderboard_login_error: "❌ Failed to log in",
 
         // --- APK UPDATE ---
-        update_title: "🚨 UPDATE REQUIRED 🚨",
-        update_text: "A new version of the game is available. Please download the update to continue playing.",
-        update_btn: "Download update"
+        update_title: "🚨 ACCESS BLOCKED 🚨",
+        update_text: "This version of the game is outdated. Please delete it and install the new version from the official website."
     }
 };
 
@@ -309,7 +307,7 @@ function applyButtonColor(color) {
     document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue')));
 }
 
-// ===== ПРОВЕРКА ОБНОВЛЕНИЙ APK (УМНАЯ) =====
+// ===== ПРОВЕРКА ОБНОВЛЕНИЙ APK (БЕЗ КНОПКИ) =====
 function isNewerVersion(current, latest) {
     const c = current.split('.').map(Number);
     const l = latest.split('.').map(Number);
@@ -349,7 +347,6 @@ function checkForUpdates() {
 }
 
 window.addEventListener('load', () => {
-    // Проверяем обновления с задержкой 2 сек
     setTimeout(checkForUpdates, 2000);
 
     if (typeof YaGames !== 'undefined') {
@@ -561,14 +558,14 @@ window.addEventListener('load', () => {
         stars -= ROULETTE_PRICE; updateUI(); saveGame(); rouletteSpinning = true;
         const btn = document.getElementById('rouletteSpinBtn'); if (btn) { btn.disabled = true; btn.innerText = t('roulette_spinning'); }
         const slots = document.querySelectorAll('#rouletteWheel .roulette-slot'); slots.forEach(s => s.classList.remove('win'));
-        let c = 0; const total = 30; const finalIdx = Math.floor(Math.random() * slots.length); // Крутим дольше (30 шагов)
+        let c = 0; const total = 30; const finalIdx = Math.floor(Math.random() * slots.length);
         const int = setInterval(() => {
             slots.forEach(s => s.classList.remove('win')); slots[c % slots.length].classList.add('win'); c++; playClickSound();
             if (c >= total + finalIdx) {
                 clearInterval(int); slots.forEach(s => s.classList.remove('win')); slots[finalIdx].classList.add('win');
                 giveRoulettePrize(finalIdx); rouletteSpinning = false; if (btn) { btn.disabled = false; btn.innerText = t('roulette_spin'); }
             }
-        }, 70); // Чуть быстрее анимация
+        }, 70);
     }
 
     function giveRoulettePrize(idx) {
@@ -609,7 +606,6 @@ window.addEventListener('load', () => {
 
     function showJackpot() {
         showToast(t('roulette_jackpot'));
-        // Вспышка экрана
         document.body.style.filter = 'brightness(1.5) contrast(1.2)';
         setTimeout(() => document.body.style.filter = '', 400);
         playBuySound();
