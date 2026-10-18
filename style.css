@@ -814,7 +814,8 @@ body.bg-hacker .boost-timer-item {
     display: none;
     font-size: 75px;
     z-index: 2;
-    filter: hue-rotate(240deg) drop-shadow(0 0 15px #a020f0) drop-shadow(0 0 35px #ff00ff);
+    /* ИСПРАВЛЕННЫЙ ЦВЕТ: теперь он фиолетовый, а не зелёный */
+    filter: hue-rotate(60deg) brightness(1.2) drop-shadow(0 0 15px #a020f0) drop-shadow(0 0 35px #ff00ff);
 }
 .brain.skin-amethyst .amethyst-diamond { display: block; }
 .brain.skin-amethyst .skin-emoji { display: none !important; }
