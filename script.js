@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "13.9";
+const GAME_VERSION = "14.0";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
 
@@ -16,6 +16,7 @@ const WEATHER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/w
 const PHRASES_URL = "https://dimakolmakov41-source.github.io/neural-game676767/phrases.json";
 const TICKER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/ticker.json";
 const STARS_CHANCE_URL = "https://dimakolmakov41-source.github.io/neural-game676767/stars_chance.json";
+const RELOAD_TIMER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/reload_timer.json";
 
 // Глобальные переменные для JSON
 let globalEventMultiplier = 1;
@@ -27,6 +28,7 @@ let weatherData = { active: false, type: "none" };
 let phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" };
 let tickerData = { active: false, text: "" };
 let starsData = { chance: 0.001, amount: 3 };
+let reloadTimeMinutes = 5;
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -356,6 +358,17 @@ function fetchAllJSON() {
     fetch(STARS_CHANCE_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
         if(d.chance !== undefined) starsData.chance = d.chance;
         if(d.amount !== undefined) starsData.amount = d.amount;
+    }).catch(e => {});
+    fetch(RELOAD_TIMER_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
+        if(d.minutes !== undefined) {
+            reloadTimeMinutes = d.minutes;
+            reloadSeconds = reloadTimeMinutes * 60;
+            const el = document.getElementById('reloadCountdown');
+            if (el) {
+                const m = Math.floor(reloadSeconds / 60), s = reloadSeconds % 60;
+                el.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+            }
+        }
     }).catch(e => {});
 }
 
@@ -1059,10 +1072,9 @@ window.addEventListener('load', () => {
         if (isHalloween() && Math.random() < 0.02) { stars += 5; totalStarsEarned += 5; showToast(t('pumpkin_click')); spawnFloatText(x, y - 50, "🎃 +5⭐"); playBuySound(); }
     }
 
-    // Исправленный обработчик кликов (Pointer Events решает проблему APK)
     function handlePointerDown(e) {
         e.preventDefault();
-        if (e.pointerType === 'mouse' && e.button !== 0) return; // Только ЛКМ
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
         const gain = getClickPower();
         processSingleClick(gain, e.clientX, e.clientY);
         const brain = document.getElementById('clickableObject');
@@ -1073,10 +1085,7 @@ window.addEventListener('load', () => {
         updateUI(); saveGame();
     }
     const clickable = document.getElementById('clickableObject');
-    if (clickable) { 
-        // Используем pointerdown для мультитача и обычных кликов
-        clickable.addEventListener('pointerdown', handlePointerDown); 
-    }
+    if (clickable) { clickable.addEventListener('pointerdown', handlePointerDown); }
 
     // ===== ЛИДЕРБОРД =====
     let lastLeaderboardRequest = 0;
@@ -1218,7 +1227,7 @@ window.addEventListener('load', () => {
     }
     document.addEventListener('mousemove', moveEyes); document.addEventListener('touchmove', moveEyes);
 
-    let reloadSeconds = 300;
+    let reloadSeconds = reloadTimeMinutes * 60;
     setInterval(() => {
         if (reloadSeconds > 0) {
             reloadSeconds--; const el = document.getElementById('reloadCountdown');
