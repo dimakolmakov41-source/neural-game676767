@@ -469,6 +469,147 @@ body.btn-gold .boost-btn.active { background: linear-gradient(145deg, #ffee66, #
 .pass-container.pass-v8 .open-tasks-btn:active { transform: scale(0.97); }
 .pass-container.pass-v8 .pass-end { color: #ffaa66; text-shadow: 0 0 5px #ff4400; letter-spacing: 1px; }
 
+/* ===== AI PASS 9 — НЕЙРОСЕТЕВОЙ ===== */
+.pass-container.pass-v9 {
+    background: linear-gradient(135deg, #0a001e 0%, #1a003e 25%, #2a0a5e 50%, #1a003e 75%, #0a001e 100%);
+    border: 3px solid #a020f0;
+    border-radius: 20px;
+    padding: 15px;
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(160, 32, 240, 0.6), inset 0 0 40px rgba(100, 0, 200, 0.2);
+    animation: neuralPassPulse 3s ease-in-out infinite;
+}
+@keyframes neuralPassPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(160,32,240,0.6), inset 0 0 40px rgba(100,0,200,0.2); }
+    50% { box-shadow: 0 0 50px rgba(200,64,255,0.9), inset 0 0 50px rgba(150,0,255,0.35); }
+}
+.pass-container.pass-v9::before {
+    content: "🧠";
+    position: absolute;
+    top: 6px; right: 10px;
+    font-size: 22px;
+    opacity: 0.7;
+    pointer-events: none;
+    animation: neuralBrainFloat 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px #a020f0);
+}
+@keyframes neuralBrainFloat {
+    0%, 100% { transform: translateY(0) rotate(-5deg); opacity: 0.7; }
+    50% { transform: translateY(-8px) rotate(5deg); opacity: 1; }
+}
+.pass-container.pass-v9::after {
+    content: "⚡";
+    position: absolute;
+    bottom: 6px; left: 10px;
+    font-size: 22px;
+    opacity: 0.6;
+    pointer-events: none;
+    animation: neuralBoltPulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px #00ffff);
+}
+@keyframes neuralBoltPulse {
+    0%, 100% { transform: scale(1) rotate(-15deg); opacity: 0.6; }
+    50% { transform: scale(1.2) rotate(15deg); opacity: 1; }
+}
+.pass-container.pass-v9 .pass-header {
+    color: #c060ff;
+    text-shadow: 0 0 10px #a020f0, 0 0 20px #8000ff, 0 0 30px #6000d0;
+    letter-spacing: 3px;
+    font-weight: 900;
+    animation: neuralHeaderGlow 2.5s ease-in-out infinite;
+    font-family: 'Orbitron', 'Courier New', monospace;
+}
+@keyframes neuralHeaderGlow {
+    0%, 100% { text-shadow: 0 0 10px #a020f0, 0 0 20px #8000ff, 0 0 30px #6000d0; }
+    50% { text-shadow: 0 0 15px #c060ff, 0 0 30px #a020f0, 0 0 50px #8000ff, 0 0 70px #6000d0; }
+}
+.pass-container.pass-v9 .pass-timer-header {
+    background: linear-gradient(145deg, #a020f0, #6000d0);
+    border: 1px solid #c060ff;
+    border-radius: 20px;
+    color: #ffffff;
+    box-shadow: 0 0 18px rgba(160, 32, 240, 0.9), inset 0 0 8px rgba(255,255,255,0.2);
+    text-shadow: 0 0 6px #000000;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+    animation: neuralTimerPulse 1.5s ease-in-out infinite;
+}
+@keyframes neuralTimerPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(160,32,240,0.7); }
+    50% { box-shadow: 0 0 25px rgba(200,64,255,1); }
+}
+.pass-container.pass-v9 .pass-progress-bar {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #a020f0;
+    box-shadow: inset 0 0 12px rgba(160, 32, 240, 0.5), 0 0 8px rgba(160,32,240,0.3);
+}
+.pass-container.pass-v9 .pass-progress-fill {
+    background: linear-gradient(90deg, #00ffff, #a020f0, #ff00ff, #a020f0, #00ffff);
+    background-size: 300% 100%;
+    box-shadow: 0 0 20px #a020f0, 0 0 35px #6000d0;
+    animation: neuralProgressShine 3s linear infinite;
+}
+@keyframes neuralProgressShine {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+.pass-container.pass-v9 .pass-badge {
+    background: linear-gradient(145deg, #1a003e, #0a001e);
+    border: 2px solid #a020f0;
+    border-radius: 10px;
+    color: #c060ff;
+    text-shadow: 0 0 6px #a020f0;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+}
+.pass-container.pass-v9 .pass-badge.completed {
+    background: linear-gradient(145deg, #2a005e, #1a003e);
+    border-color: #00ffff;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00aaff;
+}
+.pass-container.pass-v9 .pass-badge.available {
+    background: linear-gradient(145deg, #a020f0, #6000d0);
+    border-color: #ff00ff;
+    color: #ffffff;
+    box-shadow: 0 0 20px #a020f0, 0 0 40px #6000d0;
+    animation: neuralBadgePulse 1s ease infinite;
+}
+@keyframes neuralBadgePulse {
+    0%, 100% { box-shadow: 0 0 20px #a020f0, 0 0 40px #6000d0; transform: scale(1); }
+    50% { transform: scale(1.08); box-shadow: 0 0 30px #ff00ff, 0 0 60px #a020f0; }
+}
+.pass-container.pass-v9 .open-tasks-btn {
+    background: linear-gradient(145deg, #a020f0, #6000d0);
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 25px rgba(160, 32, 240, 0.8), inset 0 0 15px rgba(0, 255, 255, 0.3);
+    border-radius: 40px;
+    color: #ffffff;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-shadow: 0 0 6px #000000, 0 0 12px #a020f0;
+    font-family: 'Courier New', monospace;
+    animation: neuralBtnGlow 2s ease-in-out infinite;
+}
+@keyframes neuralBtnGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(160,32,240,0.7), inset 0 0 12px rgba(0,255,255,0.2); }
+    50% { box-shadow: 0 0 35px rgba(0,255,255,0.9), inset 0 0 20px rgba(0,255,255,0.4); }
+}
+.pass-container.pass-v9 .open-tasks-btn::before {
+    content: "⚡ ";
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+}
+.pass-container.pass-v9 .open-tasks-btn:active { transform: scale(0.97); }
+.pass-container.pass-v9 .pass-end {
+    color: #c060ff;
+    text-shadow: 0 0 8px #a020f0, 0 0 15px #6000d0;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+}
+
 .pass-container { padding: 15px; margin: 10px 0; position: relative; overflow: hidden; border-radius: 30px; }
 .pass-header { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 14px; margin-bottom: 12px; letter-spacing: 1px; }
 .pass-timer-header { padding: 4px 12px; font-size: 12px; font-weight: 800; color: white; text-shadow: 0 0 5px black; }
