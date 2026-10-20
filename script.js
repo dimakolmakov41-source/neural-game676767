@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "14.1";
+const GAME_VERSION = "14.2";
 const ADMIN_PASSWORD = "6769";
 let ysdk = null;
 
@@ -824,25 +824,83 @@ window.addEventListener('load', () => {
     }
     function showOfflineReward(amount) { document.getElementById('offlineReward').innerText = '+' + formatNumber(amount) + ' 🧠'; document.getElementById('offlineOverlay')?.classList.add('show'); }
 
+    // ===== AI PASS =====
     let passTasks = [], passCurrentTask = 0;
-    const pass8StartDate = new Date(2026, 9, 5).getTime(), pass8EndDate = new Date(2026, 9, 31, 23, 59, 59).getTime();
+    const pass8StartDate = new Date(2026, 9, 5).getTime();
+    const pass8EndDate = new Date(2026, 9, 25, 23, 59, 59).getTime();
+    const pass9StartDate = new Date(2026, 9, 26, 0, 0, 0).getTime();
+    const pass9EndDate = new Date(2026, 10, 4, 23, 59, 59).getTime();
     let passEndTimerInterval = null, passRewardSeconds = 600, passRewardInterval = null;
 
-    function getActivePassNumber() { const n = Date.now(); return (n >= pass8StartDate && n <= pass8EndDate) ? 8 : 0; }
-    function getPassEndTime(s) { return s === 8 ? pass8EndDate : 0; }
-    function getPassRewardSeconds() { return getActivePassNumber() === 8 ? 1500 : 600; }
-    function getPassRewardRewards() { return getActivePassNumber() === 8 ? { points: 20000, stars: 50 } : { points: 5000, stars: 50 }; }
-
-    function applyPassStyle() {
-        const c = document.getElementById('passContainer'), title = document.getElementById('passTitle'); if (!c || !title) return;
-        c.classList.remove('pass-v8'); if (getActivePassNumber() === 8) { c.classList.add('pass-v8'); title.innerHTML = '🎃 AI PASS 8 🎃'; } else title.innerHTML = t('pass_no_active');
+    function getActivePassNumber() {
+        const n = Date.now();
+        if (n >= pass8StartDate && n <= pass8EndDate) return 8;
+        if (n >= pass9StartDate && n <= pass9EndDate) return 9;
+        return 0;
+    }
+    function getPassEndTime(s) {
+        if (s === 8) return pass8EndDate;
+        if (s === 9) return pass9EndDate;
+        return 0;
+    }
+    function getPassRewardSeconds() {
+        const num = getActivePassNumber();
+        if (num === 8) return 1500; // 25 мин
+        if (num === 9) return 1800; // 30 мин
+        return 600;
+    }
+    function getPassRewardRewards() {
+        const num = getActivePassNumber();
+        if (num === 8) return { points: 20000, stars: 50 };
+        if (num === 9) return { points: 30000, stars: 75 };
+        return { points: 5000, stars: 50 };
+    }
+    function getPassTitleText() {
+        const num = getActivePassNumber();
+        if (num === 8) return '🎃 AI PASS 8 🎃';
+        if (num === 9) return '🧠 AI PASS 9 🧠';
+        return t('pass_no_active');
+    }
+    function getPassTasksTitleText() {
+        const num = getActivePassNumber();
+        if (num === 8) return '🎃 ЗАДАНИЯ AI PASS 8 🎃';
+        if (num === 9) return '🧠 ЗАДАНИЯ AI PASS 9 🧠';
+        return t('pass_tasks_title');
     }
 
-    function fillPassTasks(s) { passTasks = []; if (s === 8) for (let i = 1; i <= 40; i++) passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: 20000, rewardStars: 50, completed: false, claimed: false }); }
+    function applyPassStyle() {
+        const c = document.getElementById('passContainer'), title = document.getElementById('passTitle');
+        const tasksTitle = document.getElementById('passTasksTitle');
+        if (!c || !title) return;
+        c.classList.remove('pass-v8', 'pass-v9');
+        const num = getActivePassNumber();
+        if (num === 8) c.classList.add('pass-v8');
+        else if (num === 9) c.classList.add('pass-v9');
+        title.innerHTML = getPassTitleText();
+        if (tasksTitle) tasksTitle.innerHTML = getPassTasksTitleText();
+    }
+
+    function fillPassTasks(s) {
+        passTasks = [];
+        if (s === 8) {
+            for (let i = 1; i <= 40; i++) {
+                passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: 20000, rewardStars: 50, completed: false, claimed: false });
+            }
+        } else if (s === 9) {
+            for (let i = 1; i <= 50; i++) {
+                passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: 30000, rewardStars: 75, completed: false, claimed: false });
+            }
+        }
+    }
     function initPassSeason(skipSave) {
         const active = getActivePassNumber(), saved = parseInt(localStorage.getItem('aiPassSeason')) || 0;
         fillPassTasks(active);
-        if (saved !== active) { passCurrentTask = 0; passRewardSeconds = getPassRewardSeconds(); localStorage.setItem('aiPassSeason', String(active)); if (!skipSave) saveGame(); }
+        if (saved !== active) {
+            passCurrentTask = 0;
+            passRewardSeconds = getPassRewardSeconds();
+            localStorage.setItem('aiPassSeason', String(active));
+            if (!skipSave) saveGame();
+        }
     }
 
     function renderPassBadges() {
@@ -1177,7 +1235,7 @@ window.addEventListener('load', () => {
     document.querySelectorAll('.color-btn').forEach(btn => btn.addEventListener('click', () => { applyButtonColor(btn.dataset.color); showToast(`🎨 ${btn.dataset.color}`); }));
     document.querySelectorAll('.shop-tab').forEach(tab => tab.addEventListener('click', () => switchShopTab(tab.dataset.tab)));
 
-    document.getElementById('openTasksBtn')?.addEventListener('click', () => { renderTasksList(); document.getElementById('passTasksModal').classList.add('show'); });
+    document.getElementById('openTasksBtn')?.addEventListener('click', () => { renderTasksList(); applyPassStyle(); document.getElementById('passTasksModal').classList.add('show'); });
     document.getElementById('closeTasksBtn')?.addEventListener('click', () => document.getElementById('passTasksModal').classList.remove('show'));
 
     document.getElementById('exportSaveBtn')?.addEventListener('click', exportProgress);
@@ -1216,7 +1274,7 @@ window.addEventListener('load', () => {
     const promoCodes = {}; for (let i = 1; i <= 100; i++) promoCodes[`code${i}`] = { points: 100 + i * 5, stars: 1 + Math.floor(i / 10) };
     promoCodes['dima'] = { points: 500, stars: 10 }; promoCodes['dima god'] = { points: 5000, stars: 100 }; promoCodes['start'] = { points: 100, stars: 5 };
     promoCodes['neural'] = { points: 1000, stars: 50 }; promoCodes['evolution'] = { points: 2000, stars: 100 }; promoCodes['prestige'] = { points: 10000, stars: 200 };
-    promoCodes['legend'] = { points: 20000, stars: 500 }; promoCodes['pass8'] = { points: 8000, stars: 80 }; promoCodes['halloween'] = { points: 6666, stars: 66 };
+    promoCodes['legend'] = { points: 20000, stars: 500 }; promoCodes['pass8'] = { points: 8000, stars: 80 }; promoCodes['pass9'] = { points: 10000, stars: 100 }; promoCodes['halloween'] = { points: 6666, stars: 66 };
     promoCodes['newyear'] = { points: 7777, stars: 77 }; promoCodes['robot'] = { points: 9999, stars: 99 }; promoCodes['hacker'] = { points: 11111, stars: 111 };
     promoCodes['pumpkin'] = { points: 8888, stars: 88 }; promoCodes['birthday'] = { points: 17000, stars: 170 }; promoCodes['march8'] = { points: 8000, stars: 80 };
 
