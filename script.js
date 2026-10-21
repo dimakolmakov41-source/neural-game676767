@@ -1198,7 +1198,7 @@ window.addEventListener('load', async () => {
             const result = await sz.submitScore({
                 boardId: SCOREZILLA_BOARD_ID,
                 playerId: playerId,
-                playerName: playerName,
+                name: playerName, // ИСПРАВЛЕНО ТУТ
                 score: Math.floor(score)
             });
             console.log("✅ Ответ сервера:", result);
@@ -1245,7 +1245,7 @@ window.addEventListener('load', async () => {
             } else {
                 list.innerHTML = lb.entries.map(e => `
                     <div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px;">
-                        ${e.rank}. ${e.playerName || 'Аноним'} — <b style="color:#ffd966;">${formatNumber(e.score)}</b>
+                        ${e.rank}. ${e.name || e.player_name || e.playerName || 'Аноним'} — <b style="color:#ffd966;">${formatNumber(e.score)}</b>
                     </div>
                 `).join('');
             }
