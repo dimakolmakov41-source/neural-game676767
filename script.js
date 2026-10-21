@@ -1188,25 +1188,30 @@ window.addEventListener('load', async () => {
 
     // ===== ЛИДЕРБОРД (SCOREZILLA) =====
     async function submitScoreToLeaderboard(score) {
-        if (!sz) return;
+        if (!sz) {
+            showToast('❌ Ошибка: Scorezilla не загрузилась');
+            return;
+        }
         const playerName = localStorage.getItem('gamePlayerName') || 'Аноним';
         try {
+            console.log("📤 Отправляем рекорд:", { playerName, score });
             const result = await sz.submitScore({
                 boardId: SCOREZILLA_BOARD_ID,
                 playerId: playerId,
                 playerName: playerName,
                 score: Math.floor(score)
             });
+            console.log("✅ Ответ сервера:", result);
             if (result.isPersonalBest) {
                 showToast(`🏆 Новый рекорд! Место: #${result.rank}`);
             }
         } catch (error) {
-            console.error('Ошибка отправки рекорда:', error);
+            console.error('❌ ОШИБКА ОТПРАВКИ:', error);
+            showToast(`❌ Ошибка сервера: ${error.message || 'Проверь консоль F12'}`);
         }
     }
 
     async function showLeaderboard() {
-        // Сначала проверяем ник!
         const playerName = localStorage.getItem('gamePlayerName');
         if (!playerName) {
             document.getElementById('nicknameInputModal').value = '';
