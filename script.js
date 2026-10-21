@@ -18,7 +18,7 @@ const STARS_CHANCE_URL = "https://dimakolmakov41-source.github.io/neural-game676
 const RELOAD_TIMER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/reload_timer.json";
 
 // ===== НАСТРОЙКИ SCOREZILLA =====
-const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_B5Js1fTZ4aNfo1TjKnt67d';
+const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_CLfVnkIF1goJtqPeH26uPu';
 const SCOREZILLA_BOARD_ID = '341898c0-b275-4f17-9b59-908b15881946';
 let sz = null;
 
