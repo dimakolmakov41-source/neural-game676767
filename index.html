@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🧠 Кликер: ЭволюцияНейросетей</title>
+    <title>🧠 Кликер: Эволюция Нейросетей</title>
     <link rel="stylesheet" href="style.css?v=14.3">
 </head>
 <body class="bg-early-autumn">
@@ -283,6 +283,16 @@
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title" data-i18n="settings_title">⚙️ НАСТРОЙКИ</div>
+            
+            <!-- НОВОЕ ПОЛЕ ДЛЯ НИКНЕЙМА -->
+            <div class="setting-item">
+                <span data-i18n="nickname">👤 Никнейм</span>
+                <div style="display:flex; gap:5px; align-items:center;">
+                    <input type="text" id="nicknameInput" class="modal-input" style="width:100px; margin:0; padding:5px; font-size:12px;" placeholder="Аноним">
+                    <button class="modal-btn" id="saveNicknameBtn" style="padding:5px 10px; margin:0; font-size:12px;">ОК</button>
+                </div>
+            </div>
+
             <div class="setting-item">
                 <span data-i18n="btn_color">🎨 Цвет кнопок</span>
                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
