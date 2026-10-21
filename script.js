@@ -394,6 +394,9 @@ window.addEventListener('load', () => {
     setTimeout(checkForUpdates, 2000);
     setTimeout(checkIfClosed, 2000);
     setTimeout(fetchAllJSON, 1500);
+    
+    // Автообновление JSON каждые 15 секунд (без перезагрузки)
+    setInterval(fetchAllJSON, 15000);
 
     if (typeof YaGames !== 'undefined') {
         YaGames.init().then(_ysdk => {
