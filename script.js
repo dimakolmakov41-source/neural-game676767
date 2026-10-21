@@ -395,13 +395,13 @@ function startWeather(type) {
 
 // ===== ОСНОВНАЯ ЛОГИКА =====
 window.addEventListener('load', async () => {
-    // ДИНАМИЧЕСКАЯ ЗАГРУЗКА SCOREZILLA (чтобы не ломать игру, если упадёт)
+    // ДИНАМИЧЕСКАЯ ЗАГРУЗКА SCOREZILLA
     try {
         const module = await import('https://cdn.jsdelivr.net/npm/scorezilla@0.5.2/+esm');
         sz = new module.Scorezilla({ publicKey: SCOREZILLA_PUBLIC_KEY });
-        console.log('Scorezilla загружена');
+        console.log('Scorezilla загружена успешно');
     } catch (e) {
-        console.warn('Scorezilla не загрузилась:', e);
+        console.error('ОШИБКА ЗАГРУЗКИ SCOREZILLA:', e);
     }
 
     setTimeout(checkForUpdates, 2000);
@@ -442,29 +442,42 @@ window.addEventListener('load', async () => {
     let unlockedAchievements = JSON.parse(localStorage.getItem('neuralAch') || '[]');
     Object.defineProperty(window, '__stars', { get: () => stars });
 
-    // Идентификатор и Никнейм для лидерборда
+    // Идентификатор для лидерборда
     let playerId = localStorage.getItem('gamePlayerId');
     if (!playerId) {
         playerId = 'player-' + Math.floor(Math.random() * 1000000000);
         localStorage.setItem('gamePlayerId', playerId);
     }
     
-    // Заполняем поле ника в настройках
+    // Заполняем поля ввода ника при загрузке
     const nicknameInput = document.getElementById('nicknameInput');
-    if (nicknameInput) {
-        nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
-    }
+    if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
 
+    // Сохранение ника из настроек
     document.getElementById('saveNicknameBtn')?.addEventListener('click', () => {
         const newName = nicknameInput.value.trim();
         if (newName) {
             localStorage.setItem('gamePlayerName', newName);
-            showToast(`✅ Ник: ${newName}`);
+            showToast(`✅ Ник сохранен: ${newName}`);
         } else {
             localStorage.removeItem('gamePlayerName');
-            showToast(`✅ Ник сброшен (Аноним)`);
+            showToast(`✅ Ник сброшен`);
         }
     });
+
+    // Сохранение ника из модалки лидерборда
+    document.getElementById('saveNicknameModalBtn')?.addEventListener('click', () => {
+        const val = document.getElementById('nicknameInputModal').value.trim();
+        if (val.length > 0) {
+            localStorage.setItem('gamePlayerName', val);
+            document.getElementById('nicknameModal').classList.remove('show');
+            showToast(`✅ Ник сохранен: ${val}`);
+            showLeaderboard(); // Перезапускаем показ лидерборда
+        } else {
+            showToast('❌ Ник не может быть пустым!');
+        }
+    });
+    document.getElementById('closeNicknameModalBtn')?.addEventListener('click', () => document.getElementById('nicknameModal').classList.remove('show'));
 
     const ACHIEVEMENTS = [
         { id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },
@@ -839,7 +852,6 @@ window.addEventListener('load', async () => {
         if (points < PRESTIGE_REQUIREMENT) { showToast(t('prestige_not_enough')); return; }
         if (!confirm(t('prestige_confirm'))) return;
         
-        // Отправляем рекорд перед сбросом
         submitScoreToLeaderboard(points);
 
         prestigeLevel++; points = 10; purchasedCount = 1; upgrades.forEach((u, i) => { u.purchased = (i === 0); });
@@ -1182,7 +1194,7 @@ window.addEventListener('load', async () => {
             const result = await sz.submitScore({
                 boardId: SCOREZILLA_BOARD_ID,
                 playerId: playerId,
-                playerName: playerName, // ИСПРАВЛЕНО ТУТ!
+                playerName: playerName,
                 score: Math.floor(score)
             });
             if (result.isPersonalBest) {
@@ -1194,15 +1206,15 @@ window.addEventListener('load', async () => {
     }
 
     async function showLeaderboard() {
-        if (!sz) { showToast('❌ Сервер лидерборда недоступен'); return; }
-        
-        // Если нет ника - просим ввести
+        // Сначала проверяем ник!
         const playerName = localStorage.getItem('gamePlayerName');
         if (!playerName) {
-            document.getElementById('settingsModal').classList.add('show');
-            showToast('👤 Сначала введи ник в настройках!');
+            document.getElementById('nicknameInputModal').value = '';
+            document.getElementById('nicknameModal').classList.add('show');
             return;
         }
+
+        if (!sz) { showToast('❌ Сервер лидерборда недоступен. Проверь интернет.'); return; }
 
         showToast(t('leaderboard_loading'));
         try {
