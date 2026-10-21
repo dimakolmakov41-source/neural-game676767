@@ -1,9 +1,11 @@
-// ===== ВЕРСИЯ =====
-const GAME_VERSION = "14.2";
-const ADMIN_PASSWORD = "6769";
-let ysdk = null;
+// ===== ИМПОРТ SCOREZILLA =====
+import { Scorezilla } from 'https://cdn.jsdelivr.net/npm/scorezilla@0.5.2/+esm';
 
-// Ссылки на файлы
+// ===== ВЕРСИЯ =====
+const GAME_VERSION = "14.3";
+const ADMIN_PASSWORD = "6769";
+
+// ===== ССЫЛКИ НА JSON =====
 const UPDATE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/update.json";
 const CLOSE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/close.json";
 const NEWS_URL = "https://dimakolmakov41-source.github.io/neural-game676767/news.json";
@@ -17,6 +19,11 @@ const PHRASES_URL = "https://dimakolmakov41-source.github.io/neural-game676767/p
 const TICKER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/ticker.json";
 const STARS_CHANCE_URL = "https://dimakolmakov41-source.github.io/neural-game676767/stars_chance.json";
 const RELOAD_TIMER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/reload_timer.json";
+
+// ===== НАСТРОЙКИ SCOREZILLA =====
+const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_B5Js1fTZ4aNfo1TjKnt67d';
+const SCOREZILLA_BOARD_ID = '341898c0-b275-4f17-9b59-908b15881946';
+const sz = new Scorezilla({ publicKey: SCOREZILLA_PUBLIC_KEY });
 
 // Глобальные переменные для JSON
 let globalEventMultiplier = 1;
@@ -86,7 +93,7 @@ const TRANSLATIONS = {
         admin_wrong_pass: "❌ Неверный пароль!",
         skin_normal: "Обычный", skin_halloween: "Тыква", skin_amethyst: "Аметист",
         skin_mult: "Множитель: ×", skin_free: "Бесплатно", skin_event_free: "Бесплатно (Ивент)", skin_equipped: "✅ Надет", skin_equip: "Одеть", skin_buy: "Купить за ", skin_equipped_toast: "Скин надет!", skin_bought: "куплен!",
-        leaderboard_title: "🏅 ТОП ИГРОКОВ", leaderboard_error: "❌ Ошибка лидерборда", leaderboard_no_sdk: "⏳ Только в Яндекс Играх", leaderboard_wait: "⏳ Подожди 5 сек", leaderboard_login_required: "🔑 Войдите в аккаунт!", leaderboard_login_error: "❌ Ошибка входа",
+        leaderboard_title: "🏅 ТОП ИГРОКОВ", leaderboard_error: "❌ Ошибка лидерборда", leaderboard_loading: "⏳ Загрузка лидерборда...",
         update_title: "🚨 ОБНОВЛЕНИЕ 🚨", update_text: "Эта версия устарела. Скачайте новую.", closed_title: "🚫 ИГРА ЗАКРЫТА 🚫", closed_text: "Зайдите позже.",
         event_active: "🔥 ГЛОБАЛЬНЫЙ ИВЕНТ!",
         helpers_buy: "Купить", helpers_upgrade: "Прокачать", helpers_level: "Ур.",
@@ -146,7 +153,7 @@ const TRANSLATIONS = {
         admin_wrong_pass: "❌ Wrong password!",
         skin_normal: "Normal", skin_halloween: "Pumpkin", skin_amethyst: "Amethyst",
         skin_mult: "Multiplier: ×", skin_free: "Free", skin_event_free: "Free (Event)", skin_equipped: "✅ Equipped", skin_equip: "Equip", skin_buy: "Buy for ", skin_equipped_toast: "Skin equipped!", skin_bought: "bought!",
-        leaderboard_title: "🏅 TOP PLAYERS", leaderboard_error: "❌ Error", leaderboard_no_sdk: "⏳ Only in Yandex Games", leaderboard_wait: "⏳ Wait 5 sec", leaderboard_login_required: "🔑 Log in!", leaderboard_login_error: "❌ Login error",
+        leaderboard_title: "🏅 TOP PLAYERS", leaderboard_error: "❌ Leaderboard error", leaderboard_loading: "⏳ Loading leaderboard...",
         update_title: "🚨 UPDATE 🚨", update_text: "Outdated. Download new version.", closed_title: "🚫 GAME CLOSED 🚫", closed_text: "Check back later.",
         event_active: "🔥 GLOBAL EVENT!",
         helpers_buy: "Buy", helpers_upgrade: "Upgrade", helpers_level: "Lvl.",
@@ -394,18 +401,6 @@ window.addEventListener('load', () => {
     setTimeout(checkForUpdates, 2000);
     setTimeout(checkIfClosed, 2000);
     setTimeout(fetchAllJSON, 1500);
-    
-    // Автообновление JSON каждые 15 секунд (без перезагрузки)
-    setInterval(fetchAllJSON, 15000);
-
-    if (typeof YaGames !== 'undefined') {
-        YaGames.init().then(_ysdk => {
-            ysdk = _ysdk;
-            const sdkLang = ysdk.environment.i18n.lang;
-            if (sdkLang === 'ru' || sdkLang === 'en') { currentLang = sdkLang; localStorage.setItem('gameLang', currentLang); applyTranslations(); }
-            if (ysdk.features && ysdk.features.LoadingAPI) ysdk.features.LoadingAPI.ready();
-        }).catch(e => console.error(e));
-    }
 
     setTimeout(() => document.getElementById('loadingScreen')?.classList.add('hidden'), 1500);
     document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
@@ -428,7 +423,6 @@ window.addEventListener('load', () => {
     const AUTOCLICKER_PRICE = 500;
     let autoclickerLevel = 1, autoclickerBought = false, autoclickerInterval = null;
     
-    // Помощники
     let helpers = [
         { id: 0, name: "Нейро-помощник", power: 1, basePrice: 100, level: 1, bought: false, emoji: "🤖" },
         { id: 1, name: "Кибер-помощник", power: 5, basePrice: 2000, level: 1, bought: false, emoji: "👾" },
@@ -441,6 +435,14 @@ window.addEventListener('load', () => {
     let purchasedSkins = JSON.parse(localStorage.getItem('purchasedSkins') || '["normal"]');
     let unlockedAchievements = JSON.parse(localStorage.getItem('neuralAch') || '[]');
     Object.defineProperty(window, '__stars', { get: () => stars });
+
+    // Идентификатор для лидерборда
+    let playerId = localStorage.getItem('gamePlayerId');
+    if (!playerId) {
+        playerId = 'player-' + Math.floor(Math.random() * 1000000000);
+        localStorage.setItem('gamePlayerId', playerId);
+    }
+    let playerName = localStorage.getItem('gamePlayerName') || 'Аноним';
 
     const ACHIEVEMENTS = [
         { id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },
@@ -766,7 +768,6 @@ window.addEventListener('load', () => {
         let pos = -100; const int = setInterval(() => { pos += 6; el.style.left = pos + 'px'; if (pos > window.innerWidth + 50) { clearInterval(int); el.remove(); } }, 30);
     }
 
-    // Питомец
     function spawnPet() {
         const pet = document.getElementById('pet'); if (!pet || !pet.classList.contains('hidden')) return;
         pet.classList.remove('hidden');
@@ -782,9 +783,8 @@ window.addEventListener('load', () => {
             stars += 50; totalStarsEarned += 50; updateUI(); saveGame(); showToast('✨ Питомец дал +50⭐!'); playBuySound();
         };
     }
-    setInterval(spawnPet, 90000); // Каждые 1.5 минуты
+    setInterval(spawnPet, 90000);
 
-    // Секретный босс
     let bossHp = 0, bossMaxHp = 0, bossActive = false;
     function spawnBoss() {
         if(bossActive) return;
@@ -804,7 +804,7 @@ window.addEventListener('load', () => {
                 updateUI(); saveGame(); showToast(`${t('boss_killed')} +${formatNumber(reward)}🧠 +100⭐`); playBuySound();
             }
         };
-        setTimeout(() => { if(bossActive){ bossActive = false; overlay.classList.remove('show'); } }, 15000); // 15 сек на убийство
+        setTimeout(() => { if(bossActive){ bossActive = false; overlay.classList.remove('show'); } }, 15000);
     }
 
     function getPrestigeMultiplier() { return 1 + prestigeLevel * PRESTIGE_BONUS_PER_LEVEL; }
@@ -816,6 +816,10 @@ window.addEventListener('load', () => {
     function doPrestige() {
         if (points < PRESTIGE_REQUIREMENT) { showToast(t('prestige_not_enough')); return; }
         if (!confirm(t('prestige_confirm'))) return;
+        
+        // Отправляем рекорд перед сбросом
+        submitScoreToLeaderboard(points);
+
         prestigeLevel++; points = 10; purchasedCount = 1; upgrades.forEach((u, i) => { u.purchased = (i === 0); });
         updateUI(); renderShopNeurons(); updatePrestigeDisplay(); saveGame(); showToast(`🌟 ${t('prestige_done')} ${prestigeLevel}!`); playBuySound();
         document.getElementById('prestigeModal')?.classList.remove('show');
@@ -848,8 +852,8 @@ window.addEventListener('load', () => {
     }
     function getPassRewardSeconds() {
         const num = getActivePassNumber();
-        if (num === 8) return 1500; // 25 мин
-        if (num === 9) return 1800; // 30 мин
+        if (num === 8) return 1500;
+        if (num === 9) return 1800;
         return 600;
     }
     function getPassRewardRewards() {
@@ -1148,55 +1152,62 @@ window.addEventListener('load', () => {
     const clickable = document.getElementById('clickableObject');
     if (clickable) { clickable.addEventListener('pointerdown', handlePointerDown); }
 
-    // ===== ЛИДЕРБОРД =====
-    let lastLeaderboardRequest = 0;
-    let leaderboardCache = null;
-
-    function showLeaderboard() {
-        if (!ysdk) { showToast(t('leaderboard_no_sdk')); return; }
-        ysdk.getPlayer().then(player => {
-            if (player.getMode() === 'lite') {
-                showToast(t('leaderboard_login_required'));
-                ysdk.auth.openAuthDialog().then(() => { loadLeaderboardData(); }).catch(() => { showToast(t('leaderboard_login_error')); });
-            } else { loadLeaderboardData(); }
-        }).catch(e => { showToast(t('leaderboard_error')); });
-    }
-
-    function loadLeaderboardData() {
-        const now = Date.now();
-        if (now - lastLeaderboardRequest < 5000) {
-            if (leaderboardCache) { displayLeaderboard(leaderboardCache); return; } 
-            else { showToast(t('leaderboard_wait')); return; }
-        }
-        lastLeaderboardRequest = now;
-
-        ysdk.getLeaderboards().then(lb => {
-            return lb.setLeaderboardScore('points', Math.floor(points)).then(() => {
-                return lb.getLeaderboardEntries('points', { quantityTop: 10, includeUser: true, quantityAround: 3 });
+    // ===== ЛИДЕРБОРД (SCOREZILLA) =====
+    async function submitScoreToLeaderboard(score) {
+        try {
+            const result = await sz.submitScore({
+                boardId: SCOREZILLA_BOARD_ID,
+                playerId: playerId,
+                name: playerName,
+                score: Math.floor(score)
             });
-        }).then(res => {
-            leaderboardCache = res; displayLeaderboard(res);
-        }).catch(e => { console.error(e); showToast(t('leaderboard_error')); });
+            if (result.isPersonalBest) {
+                showToast(`🏆 Новый рекорд! Место: #${result.rank}`);
+            }
+        } catch (error) {
+            console.error('Ошибка отправки рекорда:', error);
+        }
     }
 
-    function displayLeaderboard(res) {
-        let modal = document.getElementById('lbModal');
-        if (!modal) {
-            modal = document.createElement('div'); modal.id = 'lbModal'; modal.className = 'modal-overlay';
-            modal.innerHTML = `<div class="modal-content" style="text-align:left;"><div class="modal-title" style="text-align:center;">${t('leaderboard_title')}</div><div id="lbList" style="margin-bottom:15px; max-height: 50vh; overflow-y:auto;"></div><button class="modal-btn" onclick="document.getElementById('lbModal').classList.remove('show')" style="width:100%;">${t('close')}</button></div>`;
-            document.body.appendChild(modal);
+    async function showLeaderboard() {
+        showToast(t('leaderboard_loading'));
+        try {
+            // Сначала отправляем текущий результат, чтобы он был в таблице
+            await submitScoreToLeaderboard(points);
+
+            const lb = await sz.getLeaderboard({ boardId: SCOREZILLA_BOARD_ID, top: 10 });
+            
+            let modal = document.getElementById('lbModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'lbModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-content" style="text-align:left;">
+                        <div class="modal-title" style="text-align:center;">${t('leaderboard_title')}</div>
+                        <div id="lbList" style="margin-bottom:15px; max-height: 50vh; overflow-y:auto;"></div>
+                        <button class="modal-btn" onclick="document.getElementById('lbModal').classList.remove('show')" style="width:100%;">${t('close')}</button>
+                    </div>`;
+                document.body.appendChild(modal);
+            }
+            const list = modal.querySelector('#lbList');
+            if (!lb.entries || lb.entries.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:10px;">Пока нет рекордов</div>';
+            } else {
+                list.innerHTML = lb.entries.map(e => `
+                    <div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px;">
+                        ${e.rank}. ${e.name || 'Аноним'} — <b style="color:#ffd966;">${formatNumber(e.score)}</b>
+                    </div>
+                `).join('');
+            }
+            modal.classList.add('show');
+        } catch (error) {
+            console.error('Ошибка загрузки лидерборда:', error);
+            showToast(t('leaderboard_error'));
         }
-        const list = modal.querySelector('#lbList');
-        let html = '';
-        if (res && res.entries) {
-            res.entries.forEach((e, i) => {
-                const name = e.player.publicName || 'Аноним';
-                const score = formatNumber(e.score);
-                html += `<div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px;">${i+1}. ${name} — <b style="color:#ffd966;">${score} 🧠</b></div>`;
-            });
-        } else { html = '<div style="text-align:center; padding:10px;">Нет данных</div>'; }
-        list.innerHTML = html; modal.classList.add('show');
     }
+
+    document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
 
     // ===== ОБРАБОТЧИКИ UI =====
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
@@ -1219,7 +1230,6 @@ window.addEventListener('load', () => {
     document.getElementById('rouletteBtn')?.addEventListener('click', openRoulette);
     document.getElementById('rouletteSpinBtn')?.addEventListener('click', spinRoulette);
     document.getElementById('rouletteCloseBtn')?.addEventListener('click', () => document.getElementById('rouletteOverlay')?.classList.remove('show'));
-    document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     
     document.getElementById('achBtn')?.addEventListener('click', () => { renderAchievements(); document.getElementById('achOverlay')?.classList.add('show'); });
     document.getElementById('achCloseBtn')?.addEventListener('click', () => document.getElementById('achOverlay')?.classList.remove('show'));
