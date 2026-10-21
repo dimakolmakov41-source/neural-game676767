@@ -1,6 +1,3 @@
-// ===== ИМПОРТ SCOREZILLA =====
-import { Scorezilla } from 'https://cdn.jsdelivr.net/npm/scorezilla@0.5.2/+esm';
-
 // ===== ВЕРСИЯ =====
 const GAME_VERSION = "14.3";
 const ADMIN_PASSWORD = "6769";
@@ -23,7 +20,7 @@ const RELOAD_TIMER_URL = "https://dimakolmakov41-source.github.io/neural-game676
 // ===== НАСТРОЙКИ SCOREZILLA =====
 const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_B5Js1fTZ4aNfo1TjKnt67d';
 const SCOREZILLA_BOARD_ID = '341898c0-b275-4f17-9b59-908b15881946';
-const sz = new Scorezilla({ publicKey: SCOREZILLA_PUBLIC_KEY });
+let sz = null;
 
 // Глобальные переменные для JSON
 let globalEventMultiplier = 1;
@@ -51,7 +48,7 @@ const TRANSLATIONS = {
         robot1: ": Привет я робот !<br>Я вижу ты тут впервые ?", robot2: ": Нажми на мозг !",
         tutorial_text: "Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)",
         conv1: "Ваши алмазы конвертированы в звёзды", conv2: "Алмазы полностью удалены",
-        settings_title: "⚙️ НАСТРОЙКИ", btn_color: "🎨 Цвет кнопок",
+        settings_title: "⚙️ НАСТРОЙКИ", btn_color: "🎨 Цвет кнопок", nickname: "👤 Никнейм",
         save_progress: "💾 Сохранить прогресс", download_json: "Скачать JSON",
         load_progress: "📂 Загрузить прогресс", choose_file: "Выбрать файл",
         promo: "🎫 Промокоды", open: "Открыть", sound: "🔊 Звук клика", sound_toggle: "Сменить",
@@ -112,7 +109,7 @@ const TRANSLATIONS = {
         robot1: ": Hi I'm a robot !<br>I see you're new here?", robot2: ": Tap the brain!",
         tutorial_text: "Then scroll down and tap<br>shop, then buy any<br>neuron (tap it)",
         conv1: "Diamonds converted to stars", conv2: "Diamonds removed",
-        settings_title: "⚙️ SETTINGS", btn_color: "🎨 Button color",
+        settings_title: "⚙️ SETTINGS", btn_color: "🎨 Button color", nickname: "👤 Nickname",
         save_progress: "💾 Save progress", download_json: "Download JSON",
         load_progress: "📂 Load progress", choose_file: "Choose file",
         promo: "🎫 Promo codes", open: "Open", sound: "🔊 Sound", sound_toggle: "Change",
@@ -397,7 +394,16 @@ function startWeather(type) {
 }
 
 // ===== ОСНОВНАЯ ЛОГИКА =====
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
+    // ДИНАМИЧЕСКАЯ ЗАГРУЗКА SCOREZILLA (чтобы не ломать игру, если упадёт)
+    try {
+        const module = await import('https://cdn.jsdelivr.net/npm/scorezilla@0.5.2/+esm');
+        sz = new module.Scorezilla({ publicKey: SCOREZILLA_PUBLIC_KEY });
+        console.log('Scorezilla загружена');
+    } catch (e) {
+        console.warn('Scorezilla не загрузилась:', e);
+    }
+
     setTimeout(checkForUpdates, 2000);
     setTimeout(checkIfClosed, 2000);
     setTimeout(fetchAllJSON, 1500);
@@ -436,13 +442,29 @@ window.addEventListener('load', () => {
     let unlockedAchievements = JSON.parse(localStorage.getItem('neuralAch') || '[]');
     Object.defineProperty(window, '__stars', { get: () => stars });
 
-    // Идентификатор для лидерборда
+    // Идентификатор и Никнейм для лидерборда
     let playerId = localStorage.getItem('gamePlayerId');
     if (!playerId) {
         playerId = 'player-' + Math.floor(Math.random() * 1000000000);
         localStorage.setItem('gamePlayerId', playerId);
     }
-    let playerName = localStorage.getItem('gamePlayerName') || 'Аноним';
+    
+    // Заполняем поле ника в настройках
+    const nicknameInput = document.getElementById('nicknameInput');
+    if (nicknameInput) {
+        nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
+    }
+
+    document.getElementById('saveNicknameBtn')?.addEventListener('click', () => {
+        const newName = nicknameInput.value.trim();
+        if (newName) {
+            localStorage.setItem('gamePlayerName', newName);
+            showToast(`✅ Ник: ${newName}`);
+        } else {
+            localStorage.removeItem('gamePlayerName');
+            showToast(`✅ Ник сброшен (Аноним)`);
+        }
+    });
 
     const ACHIEVEMENTS = [
         { id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },
@@ -1154,11 +1176,13 @@ window.addEventListener('load', () => {
 
     // ===== ЛИДЕРБОРД (SCOREZILLA) =====
     async function submitScoreToLeaderboard(score) {
+        if (!sz) return;
+        const playerName = localStorage.getItem('gamePlayerName') || 'Аноним';
         try {
             const result = await sz.submitScore({
                 boardId: SCOREZILLA_BOARD_ID,
                 playerId: playerId,
-                name: playerName,
+                playerName: playerName, // ИСПРАВЛЕНО ТУТ!
                 score: Math.floor(score)
             });
             if (result.isPersonalBest) {
@@ -1170,11 +1194,19 @@ window.addEventListener('load', () => {
     }
 
     async function showLeaderboard() {
+        if (!sz) { showToast('❌ Сервер лидерборда недоступен'); return; }
+        
+        // Если нет ника - просим ввести
+        const playerName = localStorage.getItem('gamePlayerName');
+        if (!playerName) {
+            document.getElementById('settingsModal').classList.add('show');
+            showToast('👤 Сначала введи ник в настройках!');
+            return;
+        }
+
         showToast(t('leaderboard_loading'));
         try {
-            // Сначала отправляем текущий результат, чтобы он был в таблице
             await submitScoreToLeaderboard(points);
-
             const lb = await sz.getLeaderboard({ boardId: SCOREZILLA_BOARD_ID, top: 10 });
             
             let modal = document.getElementById('lbModal');
@@ -1196,7 +1228,7 @@ window.addEventListener('load', () => {
             } else {
                 list.innerHTML = lb.entries.map(e => `
                     <div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px;">
-                        ${e.rank}. ${e.name || 'Аноним'} — <b style="color:#ffd966;">${formatNumber(e.score)}</b>
+                        ${e.rank}. ${e.playerName || 'Аноним'} — <b style="color:#ffd966;">${formatNumber(e.score)}</b>
                     </div>
                 `).join('');
             }
