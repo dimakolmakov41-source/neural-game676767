@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "14.4";
+const GAME_VERSION = "14.5";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ССЫЛКИ НА JSON =====
@@ -1585,6 +1585,99 @@ window.addEventListener('load', async () => {
                 }
             })
             .subscribe();
+    }
+
+    // ===== ЧАТ (SUPABASE) =====
+    function escapeHtml(text) {
+        return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function appendChatMessage(msg) {
+        const container = document.getElementById('chatMessages');
+        if (!container) return;
+        const isMe = msg.sender_id === playerId;
+        const div = document.createElement('div');
+        div.style.padding = '5px 10px';
+        div.style.borderRadius = '10px';
+        div.style.background = isMe ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+        div.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
+        div.style.maxWidth = '85%';
+        div.innerHTML = `<b style="color:${isMe ? '#00ff41' : '#ffd966'}; font-size:12px;">${escapeHtml(msg.sender_name)}</b><br><span style="font-size:14px;">${escapeHtml(msg.message)}</span>`;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    async function loadChatMessages() {
+        if (!supabase) return;
+        const container = document.getElementById('chatMessages');
+        container.innerHTML = '<div style="text-align:center; color:#aaa;">Загрузка...</div>';
+        
+        try {
+            const { data, error } = await supabase.from('chat_messages').select('*').order('created_at', { ascending: false }).limit(50);
+            if (error) throw error;
+            container.innerHTML = '';
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#aaa; margin-top:20px;">Пока нет сообщений. Будь первым!</div>';
+            } else {
+                // data приходит в обратном порядке (новые сверху), разворачиваем
+                data.reverse().forEach(msg => appendChatMessage(msg));
+            }
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<div style="text-align:center; color:#ff4444;">Ошибка загрузки чата</div>';
+        }
+    }
+
+    async function sendChatMessage() {
+        if (!supabase) return;
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text) return;
+        
+        const name = localStorage.getItem('gamePlayerName');
+        if (!name) {
+            showToast('❌ Сначала введи ник в настройках!');
+            return;
+        }
+
+        input.value = ''; // очищаем сразу, чтобы не ждать
+        
+        try {
+            await supabase.from('chat_messages').insert([{
+                sender_id: playerId,
+                sender_name: name,
+                message: text
+            }]);
+        } catch (e) {
+            console.error(e);
+            showToast('❌ Ошибка отправки сообщения');
+        }
+    }
+
+    // Обработчики кнопок чата
+    document.getElementById('chatBtn')?.addEventListener('click', () => {
+        document.getElementById('chatModal').classList.add('show');
+        loadChatMessages();
+    });
+
+    document.getElementById('sendChatBtn')?.addEventListener('click', sendChatMessage);
+    
+    document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendChatMessage();
+    });
+
+    // Подписка на новые сообщения в чате
+    if (supabase) {
+        supabase.channel('chat_room')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
+                // Если модалка чата открыта, добавляем сообщение
+                if (document.getElementById('chatModal').classList.contains('show')) {
+                    const container = document.getElementById('chatMessages');
+                    // Если там была заглушка "нет сообщений", убираем её
+                    if (container.innerHTML.includes('Пока нет сообщений')) container.innerHTML = '';
+                    appendChatMessage(payload.new);
+                }
+            }).subscribe();
     }
 
     // ===== ОБРАБОТЧИКИ UI =====
