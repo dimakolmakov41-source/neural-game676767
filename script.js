@@ -22,7 +22,7 @@ const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_CLfVnkIF1goJtqPeH26uPu';
 const SCOREZILLA_BOARD_ID = '341898c0-b275-4f17-9b59-908b15881946';
 let sz = null;
 
-// ===== НАСТРОЙКИ SUPABASE (ТУРНИР) =====
+// ===== НАСТРОЙКИ SUPABASE =====
 const SUPABASE_URL = 'https://cjzmrnguzvqbipxfhwsh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_PsZC-BXk3XtzLdfKYhdAqA_sBpx1AC7';
 let supabase = null;
@@ -1260,13 +1260,10 @@ window.addEventListener('load', async () => {
         if (!supabase) return;
         const playerName = localStorage.getItem('gamePlayerName') || 'Аноним';
         try {
-            // Проверяем, есть ли игрок в базе
             const { data, error } = await supabase.from('clicks').select('id').eq('player_id', playerId).single();
             if (data) {
-                // Обновляем клики
                 await supabase.from('clicks').update({ clicks: totalClicks, player_name: playerName }).eq('id', data.id);
             } else {
-                // Создаем новую запись
                 await supabase.from('clicks').insert([{ player_id: playerId, player_name: playerName, clicks: totalClicks }]);
             }
         } catch (e) { console.error('Ошибка синхронизации Supabase:', e); }
@@ -1278,7 +1275,6 @@ window.addEventListener('load', async () => {
     async function showTournament() {
         if (!supabase) { showToast('❌ База данных недоступна. Проверь интернет.'); return; }
         
-        // Сначала синхронизируем свои клики, чтобы сразу увидеть себя в таблице
         await syncClicksToSupabase();
 
         let modal = document.getElementById('tournamentModal');
@@ -1289,6 +1285,7 @@ window.addEventListener('load', async () => {
             modal.innerHTML = `
                 <div class="modal-content" style="text-align:left;">
                     <div class="modal-title" style="text-align:center;">🏆 ТУРНИР ПО КЛИКАМ 🏆</div>
+                    <div style="text-align:center; font-size:12px; color:#aaa; margin-bottom:10px;">Нажми на игрока, чтобы вызвать его на дуэль!</div>
                     <div id="tournamentList" style="margin-bottom:15px; max-height: 50vh; overflow-y:auto; color: white;"></div>
                     <button class="modal-btn" onclick="document.getElementById('tournamentModal').classList.remove('show')" style="width:100%;">ЗАКРЫТЬ</button>
                 </div>`;
@@ -1300,17 +1297,23 @@ window.addEventListener('load', async () => {
         modal.classList.add('show');
 
         try {
-            const { data, error } = await supabase.from('clicks').select('player_name, clicks').order('clicks', { ascending: false }).limit(10);
+            const { data, error } = await supabase.from('clicks').select('player_id, player_name, clicks').order('clicks', { ascending: false }).limit(20);
             if (error) throw error;
             
             if (!data || data.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding:10px;">Пока нет участников</div>';
             } else {
-                list.innerHTML = data.map((e, i) => `
-                    <div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px;">
-                        ${i+1}. ${e.player_name} — <b style="color:#ffd966;">${formatNumber(e.clicks)}</b> кликов
-                    </div>
-                `).join('');
+                list.innerHTML = data.map((e, i) => {
+                    const isMe = e.player_id === playerId;
+                    return `
+                    <div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px; display:flex; justify-content:space-between; align-items:center; ${isMe ? 'background: rgba(255,215,0,0.1); border-radius: 10px; padding: 8px;' : ''}">
+                        <span>${i+1}. ${e.player_name} ${isMe ? '(Ты)' : ''}</span>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <b style="color:#ffd966;">${formatNumber(e.clicks)}</b>
+                            ${!isMe ? `<button class="modal-btn" style="padding:4px 8px; font-size:11px; margin:0; background:#e74c3c;" onclick="challengePlayer('${e.player_id}', '${e.player_name}')">Вызвать</button>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
             }
         } catch (err) {
             console.error(err);
@@ -1319,6 +1322,270 @@ window.addEventListener('load', async () => {
     }
     
     document.getElementById('tournamentBtn')?.addEventListener('click', showTournament);
+
+    // ===== ДУЭЛИ (SUPABASE REALTIME) =====
+    let activeDuelId = null;
+    let myDuelClicks = 0;
+    let duelTimerInterval = null;
+
+    window.challengePlayer = async function(opponentId, opponentName) {
+        if (!supabase) return;
+        if (opponentId === playerId) return showToast('Нельзя вызвать себя!');
+        
+        const myName = localStorage.getItem('gamePlayerName') || 'Аноним';
+        if (!localStorage.getItem('gamePlayerName')) return showToast('Введи ник в настройках!');
+
+        document.getElementById('tournamentModal')?.classList.remove('show');
+        
+        try {
+            const { data, error } = await supabase.from('duels').insert([{
+                challenger_id: playerId,
+                challenger_name: myName,
+                opponent_id: opponentId,
+                status: 'pending'
+            }]).select().single();
+            
+            if (error) throw error;
+            
+            activeDuelId = data.id;
+            showDuelWaitModal(opponentName);
+            
+            // Подписываемся на обновление этого вызова
+            supabase.channel('duel_' + activeDuelId)
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'duels', filter: `id=eq.${activeDuelId}` }, payload => {
+                    const d = payload.new;
+                    if (d.status === 'rejected') {
+                        hideDuelWaitModal();
+                        showToast('❌ Вызов отклонен');
+                    } else if (d.status === 'accepted') {
+                        hideDuelWaitModal();
+                        startDuelArena();
+                    } else if (d.status === 'finished') {
+                        showDuelResult(d);
+                    }
+                }).subscribe();
+                
+        } catch (e) {
+            console.error(e);
+            showToast('❌ Ошибка вызова');
+        }
+    };
+
+    // Ожидание ответа (для того, кто вызвал)
+    function showDuelWaitModal(name) {
+        let m = document.getElementById('duelWaitModal');
+        if (!m) {
+            m = document.createElement('div');
+            m.id = 'duelWaitModal';
+            m.className = 'modal-overlay';
+            m.innerHTML = `
+                <div class="modal-content" style="text-align:center;">
+                    <div class="modal-title">⏳ ОЖИДАНИЕ</div>
+                    <div style="margin: 20px 0; font-size: 16px;">Ждём ответа от игрока <b>${name}</b>...</div>
+                    <div class="loader" style="margin:0 auto 20px; border-top-color: #ffd966;"></div>
+                    <button class="modal-btn" onclick="cancelDuel()" style="width:100%; background:#aa2222;">ОТМЕНИТЬ</button>
+                </div>`;
+            document.body.appendChild(m);
+        }
+        m.classList.add('show');
+    }
+    function hideDuelWaitModal() { document.getElementById('duelWaitModal')?.classList.remove('show'); }
+
+    window.cancelDuel = async function() {
+        hideDuelWaitModal();
+        if (activeDuelId && supabase) {
+            await supabase.from('duels').update({ status: 'rejected' }).eq('id', activeDuelId);
+            activeDuelId = null;
+        }
+    };
+
+    // Прием вызова (для того, кого вызвали)
+    function showChallengeReceivedModal(duel) {
+        let m = document.getElementById('duelReceiveModal');
+        if (!m) {
+            m = document.createElement('div');
+            m.id = 'duelReceiveModal';
+            m.className = 'modal-overlay';
+            document.body.appendChild(m);
+        }
+        m.innerHTML = `
+            <div class="modal-content" style="text-align:center; border: 3px solid #ffaa00;">
+                <div class="modal-title">🥊 ВЫЗОВ НА ДУЭЛЬ!</div>
+                <div style="margin: 20px 0; font-size: 18px; line-height: 1.5;">Игрок <b>${duel.challenger_name}</b> вызывает вас на дуэль!</div>
+                <div style="font-size:14px; color:#aaa; margin-bottom:20px;">У вас будет 30 секунд, чтобы накликать больше.</div>
+                <div style="display:flex; gap:10px;">
+                    <button class="modal-btn" id="acceptDuelBtn" style="flex:1; background:#2e7d32;">ДА</button>
+                    <button class="modal-btn" id="rejectDuelBtn" style="flex:1; background:#aa2222;">НЕТ</button>
+                </div>
+            </div>`;
+        m.classList.add('show');
+
+        document.getElementById('acceptDuelBtn').onclick = async () => {
+            m.classList.remove('show');
+            activeDuelId = duel.id;
+            await supabase.from('duels').update({ status: 'accepted' }).eq('id', activeDuelId);
+            startDuelArena();
+        };
+        document.getElementById('rejectDuelBtn').onclick = async () => {
+            m.classList.remove('show');
+            await supabase.from('duels').update({ status: 'rejected' }).eq('id', duel.id);
+        };
+    }
+
+    // Сама арена дуэли
+    function startDuelArena() {
+        if (duelTimerInterval) clearInterval(duelTimerInterval);
+        myDuelClicks = 0;
+        
+        let m = document.getElementById('duelArenaModal');
+        if (!m) {
+            m = document.createElement('div');
+            m.id = 'duelArenaModal';
+            m.className = 'modal-overlay';
+            m.style.background = 'rgba(0,0,0,0.95)';
+            document.body.appendChild(m);
+        }
+        
+        m.innerHTML = `
+            <div class="modal-content" style="text-align:center; max-width: 400px;">
+                <div class="modal-title" style="color:#ff4444; font-size: 24px;">🥊 ДУЭЛЬ!</div>
+                <div id="duelTimerDisplay" style="font-size: 40px; font-weight: 900; color: #ffd966; margin: 10px 0;">30.0</div>
+                <div style="font-size: 18px; margin-bottom: 20px;">Твои клики: <b id="duelMyClicks" style="color:#00ff41; font-size:24px;">0</b></div>
+                <div id="duelClickZone" style="width: 150px; height: 150px; background: radial-gradient(circle, #ffaa00, #ff5500); border-radius: 50%; margin: 0 auto 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 60px; user-select: none; box-shadow: 0 10px 0 #aa4400;">🧠</div>
+                <div style="font-size:12px; color:#aaa;">Кликай как можно быстрее!</div>
+            </div>`;
+        m.classList.add('show');
+
+        const zone = document.getElementById('duelClickZone');
+        const display = document.getElementById('duelMyClicks');
+        
+        zone.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            myDuelClicks++;
+            display.innerText = myDuelClicks;
+            zone.style.transform = 'scale(0.9)';
+            setTimeout(() => zone.style.transform = '', 50);
+        });
+
+        let timeLeft = 30.0;
+        const timerEl = document.getElementById('duelTimerDisplay');
+        
+        duelTimerInterval = setInterval(() => {
+            timeLeft -= 0.1;
+            timerEl.innerText = timeLeft.toFixed(1);
+            if (timeLeft <= 0) {
+                clearInterval(duelTimerInterval);
+                finishDuel();
+            }
+        }, 100);
+    }
+
+    async function finishDuel() {
+        const zone = document.getElementById('duelClickZone');
+        if (zone) zone.style.pointerEvents = 'none';
+        const timerEl = document.getElementById('duelTimerDisplay');
+        if (timerEl) timerEl.innerText = 'ВРЕМЯ ВЫШЛО!';
+        
+        if (!activeDuelId) return;
+
+        try {
+            // Получаем текущее состояние дуэли
+            const { data, error } = await supabase.from('duels').select('*').eq('id', activeDuelId).single();
+            if (error) throw error;
+
+            const isChallenger = (data.challenger_id === playerId);
+            
+            // Обновляем свои очки
+            let updateData = {};
+            if (isChallenger) {
+                updateData.challenger_score = myDuelClicks;
+            } else {
+                updateData.opponent_score = myDuelClicks;
+            }
+
+            // Проверяем, отправил ли второй игрок свои очки
+            // Если оба отправили или статус уже finished, просто обновляем
+            // Для простоты обновляем всегда, кто последний обновит - тот и определит победителя
+            await supabase.from('duels').update(updateData).eq('id', activeDuelId);
+            
+            // Ждем 2 секунды, чтобы второй игрок тоже успел обновить (чтобы избежать гонки данных)
+            setTimeout(async () => {
+                const { data: finalData, error: finalErr } = await supabase.from('duels').select('*').eq('id', activeDuelId).single();
+                if (finalErr) return;
+                
+                // Считаем победителя
+                const cScore = finalData.challenger_score || 0;
+                const oScore = finalData.opponent_score || 0;
+                let winner = null;
+                
+                if (cScore > oScore) winner = finalData.challenger_id;
+                else if (oScore > cScore) winner = finalData.opponent_id;
+                else winner = 'draw';
+
+                if (finalData.status !== 'finished') {
+                    await supabase.from('duels').update({ status: 'finished', winner_id: winner }).eq('id', activeDuelId);
+                }
+                
+                // Определяем локальный результат
+                let myScore, oppScore, oppName;
+                if (isChallenger) { myScore = cScore; oppScore = oScore; oppName = 'Соперник'; }
+                else { myScore = oScore; oppScore = cScore; oppName = finalData.challenger_name; }
+                
+                showDuelResultUI(myScore, oppScore, oppName, winner === playerId);
+                
+            }, 2000);
+            
+        } catch (e) {
+            console.error(e);
+            showToast('Ошибка завершения дуэли');
+        }
+    }
+
+    // Показ финального окна (для того, кто нажал "Да" и для того, кто вызывал)
+    function showDuelResultUI(myScore, oppScore, oppName, isWin) {
+        document.getElementById('duelArenaModal')?.classList.remove('show');
+        
+        let m = document.getElementById('duelResultModal');
+        if (!m) {
+            m = document.createElement('div');
+            m.id = 'duelResultModal';
+            m.className = 'modal-overlay';
+            document.body.appendChild(m);
+        }
+        
+        const resultText = isWin ? '🎉 ПОБЕДА! +10⭐' : '😢 ПРОИГРЫШ';
+        const color = isWin ? '#00ff41' : '#ff4444';
+        
+        m.innerHTML = `
+            <div class="modal-content" style="text-align:center; border: 3px solid ${color};">
+                <div class="modal-title" style="color:${color}; font-size: 26px;">${resultText}</div>
+                <div style="margin: 20px 0; font-size: 18px;">
+                    <div>Ты накликал: <b style="color:#ffd966;">${myScore}</b></div>
+                    <div>${oppName} накликал: <b style="color:#ffd966;">${oppScore}</b></div>
+                </div>
+                <button class="modal-btn" onclick="document.getElementById('duelResultModal').classList.remove('show')" style="width:100%;">ЗАКРЫТЬ</button>
+            </div>`;
+        m.classList.add('show');
+
+        if (isWin) {
+            stars += 10;
+            totalStarsEarned += 10;
+            updateUI(); saveGame();
+            showToast('⭐ +10 звезд за победу!');
+            playBuySound();
+        }
+    }
+
+    // Подписка на ВСЕ вызовы (ожидание входящих)
+    if (supabase) {
+        supabase.channel('global_duels')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'duels', filter: `opponent_id=eq.${playerId}` }, payload => {
+                if (payload.new.status === 'pending') {
+                    showChallengeReceivedModal(payload.new);
+                }
+            })
+            .subscribe();
+    }
 
     // ===== ОБРАБОТЧИКИ UI =====
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
