@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Кликер: Эволюция нейросетей 🧠</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            margin: 0;
+            touch-action: manipulation;
+            transition: background 1s ease;
+        }
+        
+        body.theme-morning {
+            background: linear-gradient(145deg, #87CEEB, #E0F6FF);
+        }
+        body.theme-day {
+            background: linear-gradient(145deg, #4A90E2, #A8D8FF);
+        }
+        body.theme-evening {
+            background: linear-gradient(145deg, #FF7F50, #FFB6C1);
+        }
+        body.theme-night {
+            background: linear-gradient(145deg, #0B0F2A, #1B1F4A);
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(18, 28, 40, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 48px;
+            border: 1px solid rgba(100, 180, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 0 30px rgba(0, 160, 255, 0.2);
+            padding: 20px 16px 25px;
+            transition: background 0.5s ease, border-color 0.5s ease;
+        }
+        
+        body.theme-night .game-container {
+            background: rgba(8, 12, 25, 0.9);
+            border-color: #4A3B8C;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 30px #5f4d8a;
+        }
+        
+        body.theme-night .stats-panel {
+            background: rgba(15, 10, 30, 0.8);
+            border-color: #6A4E9C;
+        }
+        
+        body.theme-night .upgrade-card {
+            background: linear-gradient(145deg, #1E1A3A, #12102A);
+            border-color: #7A5EB0;
+        }
+        
+        body.theme-night .promo-btn {
+            border-color: #B49AFF;
+            box-shadow: 0 5px 0 #2A1F4A, 0 0 15px #AA88FF;
+        }
+        
+        .time-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 14px;
+            color: #AAD0FF;
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px;
+            border-radius: 30px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        body.theme-night .time-indicator {
+            color: #D9B0FF;
+            background: rgba(40, 20, 60, 0.5);
+        }
+        
+        .time-emoji {
+            font-size: 18px;
+        }
+        
+        .stats-panel {
+            background: rgba(0, 10, 20, 0.7);
+            border-radius: 60px;
+            padding: 18px 16px;
+            border: 1px solid #2f5575;
+            box-shadow: inset 0 2px 5px #00000055, 0 8px 12px #00000033;
+            margin-bottom: 18px;
+            transition: all 0.3s ease;
+        }
+        .neuron-points {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .points-icon {
+            background: #00c3ff;
+            width: 48px;
+            height: 48px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 0 15px #3ecfff;
+        }
+        .points-value {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #e0f0ff, #a0d0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+        .generation-info {
+            display: flex;
+            justify-content: space-between;
+            color: #aac8f0;
+            font-weight: 500;
+            background: #0a1b2e;
+            padding: 12px 16px;
+            border-radius: 40px;
+            font-size: 16px;
+            border: 1px solid #20588c;
+        }
+        .save-badge {
+            background: #1d4e3b;
+            color: #a0ffc0;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 30px;
+            text-align: center;
+            margin-top: 10px;
+            border: 1px solid #2ecc71;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .brain-clicker {
+            margin: 15px 0 25px;
+            display: flex;
+            justify-content: center;
+        }
+        .click-button {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 30% 30%, #5aa9ff, #0f4c81);
+            border-radius: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 0 #06314e, 0 20px 30px #00000099, inset 0 -5px 15px #b0e0ff, inset 0 5px 20px white;
+            transition: all 0.06s ease;
+            border: 2px solid #7fc9ff;
+            cursor: pointer;
+            touch-action: manipulation;
+            font-weight: bold;
+        }
+        .click-button:active {
+            transform: translateY(12px);
+            box-shadow: 0 5px 0 #06314e, 0 20px 30px #00000099, inset 0 -3px 8px #b0e0ff;
+        }
+        .brain-emoji {
+            font-size: 70px;
+            filter: drop-shadow(0 8px 5px #00000066);
+            margin-bottom: 5px;
+        }
+        .click-hint {
+            background: #00000060;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            backdrop-filter: blur(2px);
+        }
+
+        .upgrades-title {
+            color: white;
+            font-size: 18px;
+            margin: 20px 0 12px 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+            text-shadow: 0 2px 5px black;
+        }
+        
+        /* ========== НОВЫЙ КОНТЕЙНЕР С КНОПКАМИ ========== */
+        .upgrades-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .upgrades-grid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow: hidden;
+            padding-right: 5px;
+        }
+        
+        .scroll-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 50px;
+        }
+        
+        .scroll-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            background: linear-gradient(145deg, #2d4f7c, #1a3150);
+            border: 2px solid #4a8ac9;
+            color: white;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 0 #0f2640, 0 8px 15px black;
+            transition: 0.07s;
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+        
+        .scroll-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #0f2640, 0 8px 15px black;
+        }
+        
+        .scroll-btn.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            border-color: #5f6f82;
+        }
+        
+        body.theme-night .scroll-btn {
+            background: linear-gradient(145deg, #392e5c, #221a42);
+            border-color: #8a6de0;
+        }
+        /* ============================================== */
+        
+        .upgrade-card {
+            background: linear-gradient(145deg, #1a3149, #0f1f30);
+            border-radius: 60px;
+            padding: 12px 20px 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #3182bd;
+            box-shadow: 0 6px 0 #082032, 0 8px 15px black;
+            transition: 0.07s;
+            touch-action: manipulation;
+        }
+        .upgrade-card:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #082032, 0 8px 15px black;
+        }
+        .upgrade-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .upgrade-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #c1e4ff;
+        }
+        .upgrade-desc {
+            font-size: 12px;
+            color: #7b9fc7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .upgrade-price {
+            background: #2b425b;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #ffd966;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 15px;
+            border: 1px solid #f0b400;
+        }
+        .disabled-card {
+            opacity: 0.45;
+            filter: grayscale(0.6);
+            pointer-events: none;
+            border-color: #4f5f6e;
+        }
+        
+        .promo-button-container {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0 5px;
+        }
+        .promo-btn {
+            background: #2d4f6e;
+            border: 2px solid #b380ff;
+            color: #e4ccff;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 0 #1a2f40, 0 0 15px #aa88ff;
+            transition: 0.07s;
+            width: fit-content;
+            touch-action: manipulation;
+        }
+        .promo-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #1a2f40, 0 0 15px #aa88ff;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.2s;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: linear-gradient(145deg, #1d3147, #112233);
+            border-radius: 40px;
+            padding: 25px 20px;
+            width: 90%;
+            max-width: 350px;
+            border: 2px solid #b380ff;
+            box-shadow: 0 20px 40px black, 0 0 30px #9f7eff;
+            text-align: center;
+        }
+        .modal-title {
+            color: #d9b0ff;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #b05eff;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 18px 20px;
+            background: #0b1727;
+            border: 2px solid #5f4d8a;
+            border-radius: 60px;
+            font-size: 18px;
+            color: white;
+            text-align: center;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        .modal-input:focus {
+            border-color: #c78aff;
+            box-shadow: 0 0 20px #ac77ff;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .modal-btn {
+            padding: 14px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 18px;
+            border: none;
+            touch-action: manipulation;
+        }
+        .modal-btn.activate {
+            background: #8c5cd4;
+            color: white;
+            box-shadow: 0 5px 0 #4f2e8a;
+        }
+        .modal-btn.close {
+            background: #384f67;
+            color: #c7dfff;
+            box-shadow: 0 5px 0 #1e2e3f;
+        }
+        .modal-btn:active {
+            transform: translateY(5px);
+            box-shadow: none;
+        }
+        .promo-message {
+            margin-top: 15px;
+            font-size: 16px;
+            min-height: 24px;
+            color: #b0ffb0;
+            font-weight: 500;
+        }
+
+        .reset-area {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .reset-btn {
+            background: #2a3f54;
+            border: 1px solid #a1c6ff;
+            color: #d4e6ff;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 5px 0 #0f1f2f;
+            transition: 0.07s;
+            width: fit-content;
+            touch-action: manipulation;
+        }
+        .reset-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #0f1f2f;
+        }
+        
+        .creator-section {
+            text-align: center;
+            margin: 20px 0 5px;
+            padding: 12px;
+            border-top: 1px dashed #4f7a9e;
+            border-bottom: 1px dashed #4f7a9e;
+        }
+        
+        .creator-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFD700;
+            text-shadow: 0 0 10px #FFA500, 0 0 20px #FF4500;
+            letter-spacing: 2px;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFA500; }
+            50% { text-shadow: 0 0 20px #FFA500, 0 0 40px #FF4500, 0 0 60px #FF0000; }
+        }
+        
+        .creator-label {
+            font-size: 14px;
+            color: #aac8f0;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        body.theme-night .creator-text {
+            color: #FFA500;
+            text-shadow: 0 0 10px #FF4500, 0 0 20px #FF1493, 0 0 30px #8A2BE2;
+        }
+        
+        body.theme-night .creator-label {
+            color: #b39ddb;
+        }
+        
+        footer {
+            text-align: center;
+            color: #30658a;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="stats-panel">
+            <div class="neuron-points">
+                <span class="points-icon">🧠</span>
+                <span class="points-value" id="pointsDisplay">0</span>
+            </div>
+            <div class="generation-info">
+                <span>🧬 Поколение</span>
+                <span id="genDisplay">1</span>
+            </div>
+            <div class="save-badge" id="saveBadge">💾 автосохранение включено</div>
+            
+            <div class="time-indicator" id="timeIndicator">
+                <span class="time-emoji" id="timeEmoji">☀️</span>
+                <span id="timeText">День</span>
+            </div>
+        </div>
+
+        <div class="brain-clicker">
+            <div class="click-button" id="clickButton">
+                <span class="brain-emoji" id="brainEmoji">🧠</span>
+                <span class="click-hint" id="clickPowerHint">+1</span>
+            </div>
+        </div>
+
+        <div class="upgrades-title">
+            <span>⚡ ЭВОЛЮЦИЯ СЕТЕЙ (18 шт)</span>
+        </div>
+        
+        <!-- ========== НОВЫЙ БЛОК С КНОПКАМИ ========== -->
+        <div class="upgrades-wrapper">
+            <div class="upgrades-grid" id="upgradesContainer"></div>
+            <div class="scroll-buttons">
+                <div class="scroll-btn" id="scrollUp">⬆️</div>
+                <div class="scroll-btn" id="scrollDown">⬇️</div>
+            </div>
+        </div>
+        <!-- ========================================= -->
+
+        <div class="promo-button-container">
+            <div class="promo-btn" id="promoButton">
+                <span>🎫</span> СЕКРЕТНЫЙ ПРОМОКОД <span>🎫</span>
+            </div>
+        </div>
+
+        <div class="creator-section">
+            <div class="creator-label">👑 СОЗДАТЕЛЬ 👑</div>
+            <div class="creator-text">⚡ Д И М А ⚡</div>
+            <div style="font-size: 12px; color: #7b9fc7; margin-top: 5px;">основатель нейросетей</div>
+        </div>
+
+        <div class="reset-area">
+            <div class="reset-btn" id="resetBtn">⟲ Новая эволюция</div>
+        </div>
+        <footer>👇 жми на мозг — прокачай архитектуру</footer>
+    </div>
+
+    <div class="modal-overlay" id="promoModal">
+        <div class="modal-content">
+            <div class="modal-title">🎫 ВВЕДИ ПРОМОКОД</div>
+            <input type="text" class="modal-input" id="promoInput" placeholder="*****" maxlength="20" autocomplete="off">
+            <div class="modal-buttons">
+                <button class="modal-btn activate" id="activatePromo">Активировать</button>
+                <button class="modal-btn close" id="closeModal">Закрыть</button>
+            </div>
+            <div class="promo-message" id="promoMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            const SAVE_KEY = 'neural_clicker_save';
+
+            let points = 0;
+            let clickPower = 1;
+            let generation = 1;
+
+            // 18 нейросетей по порядку
+            const upgrades = [
+                { id: 'up1', name: '🤖 Перцептрон', desc: 'сила клика +1', price: 20, effect: () => { clickPower += 1; }, icon: '⚡', isPurchased: false },
+                { id: 'up10', name: '⚡ Нейро-искра', desc: 'сила клика +2', price: 40, effect: () => { clickPower += 2; }, icon: '💫', isPurchased: false },
+                { id: 'up2', name: '🧬 Сверточная', desc: 'сила клика +3', price: 80, effect: () => { clickPower += 3; }, icon: '🌀', isPurchased: false },
+                { id: 'up11', name: '🔮 Рекуррентная', desc: 'сила клика +5', price: 150, effect: () => { clickPower += 5; }, icon: '🔄', isPurchased: false },
+                { id: 'up3', name: '⚙️ Трансформер', desc: 'сила клика +8', price: 250, effect: () => { clickPower += 8; }, icon: '🔥', isPurchased: false },
+                { id: 'up12', name: '🎯 Квантовая', desc: 'сила клика +12', price: 400, effect: () => { clickPower += 12; }, icon: '⚛️', isPurchased: false },
+                { id: 'up4', name: '🧪 GPT-клик', desc: 'сила клика +20', price: 700, effect: () => { clickPower += 20; }, icon: '✨', isPurchased: false },
+                { id: 'up13', name: '🧿 Автокодировщик', desc: 'сила клика +25', price: 1000, effect: () => { clickPower += 25; }, icon: '🎭', isPurchased: false },
+                { id: 'up5', name: '🚀 DALL-E клик', desc: 'сила клика +40', price: 2000, effect: () => { clickPower += 40; }, icon: '🎨', isPurchased: false },
+                { id: 'up14', name: '🤖 Глубокий мозг', desc: 'сила клика +50', price: 3500, effect: () => { clickPower += 50; }, icon: '🧠', isPurchased: false },
+                { id: 'up6', name: '🧠 Gemini Ultra', desc: 'сила клика +75', price: 5000, effect: () => { clickPower += 75; }, icon: '♊', isPurchased: false },
+                { id: 'up15', name: '👾 Нейро-интерфейс', desc: 'сила клика +90', price: 8000, effect: () => { clickPower += 90; }, icon: '🖥️', isPurchased: false },
+                { id: 'up7', name: '🤯 Claude 3', desc: 'сила клика +120', price: 12000, effect: () => { clickPower += 120; }, icon: '🌿', isPurchased: false },
+                { id: 'up16', name: '🌌 Мультивселенная', desc: 'сила клика +150', price: 18000, effect: () => { clickPower += 150; }, icon: '🌠', isPurchased: false },
+                { id: 'up8', name: '👁️ Midjourney', desc: 'сила клика +200', price: 25000, effect: () => { clickPower += 200; }, icon: '🌈', isPurchased: false },
+                { id: 'up17', name: '💎 Легендарная', desc: 'сила клика +300', price: 50000, effect: () => { clickPower += 300; }, icon: '👑', isPurchased: false },
+                { id: 'up9', name: '🌀 Сингулярность', desc: 'сила клика +500', price: 100000, effect: () => { clickPower += 500; }, icon: '♾️', isPurchased: false },
+                { id: 'up18', name: '🌀 Божественный ИИ', desc: 'сила клика +1000', price: 500000, effect: () => { clickPower += 1000; }, icon: '🔱', isPurchased: false }
+            ];
+
+            function saveGame() {
+                const saveData = {
+                    points: points,
+                    clickPower: clickPower,
+                    generation: generation,
+                    upgrades: upgrades.map(up => ({ id: up.id, isPurchased: up.isPurchased }))
+                };
+                localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+                
+                const saveBadge = document.getElementById('saveBadge');
+                saveBadge.style.background = '#1d6b4c';
+                saveBadge.innerText = '💾 сохранено!';
+                setTimeout(() => {
+                    saveBadge.style.background = '#1d4e3b';
+                    saveBadge.innerText = '💾 автосохранение включено';
+                }, 1000);
+            }
+
+            function loadGame() {
+                const saved = localStorage.getItem(SAVE_KEY);
+                if (!saved) return false;
+                
+                try {
+                    const saveData = JSON.parse(saved);
+                    points = saveData.points || 0;
+                    clickPower = saveData.clickPower || 1;
+                    generation = saveData.generation || 1;
+                    
+                    if (saveData.upgrades) {
+                        saveData.upgrades.forEach(savedUp => {
+                            const upgrade = upgrades.find(u => u.id === savedUp.id);
+                            if (upgrade && savedUp.isPurchased) {
+                                upgrade.isPurchased = true;
+                            }
+                        });
+                    }
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function updateThemeByTime() {
+                const now = new Date();
+                const hours = now.getHours();
+                const body = document.body;
+                const timeEmoji = document.getElementById('timeEmoji');
+                const timeText = document.getElementById('timeText');
+                
+                body.classList.remove('theme-morning', 'theme-day', 'theme-evening', 'theme-night');
+                
+                if (hours >= 6 && hours < 12) {
+                    body.classList.add('theme-morning');
+                    timeEmoji.innerText = '🌅';
+                    timeText.innerText = 'Утро';
+                } else if (hours >= 12 && hours < 18) {
+                    body.classList.add('theme-day');
+                    timeEmoji.innerText = '☀️';
+                    timeText.innerText = 'День';
+                } else if (hours >= 18 && hours < 21) {
+                    body.classList.add('theme-evening');
+                    timeEmoji.innerText = '🌆';
+                    timeText.innerText = 'Вечер';
+                } else {
+                    body.classList.add('theme-night');
+                    timeEmoji.innerText = '🌙';
+                    timeText.innerText = 'Ночь';
+                }
+            }
+
+            const pointsDisplay = document.getElementById('pointsDisplay');
+            const genDisplay = document.getElementById('genDisplay');
+            const clickButton = document.getElementById('clickButton');
+            const brainEmoji = document.getElementById('brainEmoji');
+            const clickPowerHint = document.getElementById('clickPowerHint');
+            const upgradesContainer = document.getElementById('upgradesContainer');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            const promoButton = document.getElementById('promoButton');
+            const promoModal = document.getElementById('promoModal');
+            const promoInput = document.getElementById('promoInput');
+            const activatePromo = document.getElementById('activatePromo');
+            const closeModal = document.getElementById('closeModal');
+            const promoMessage = document.getElementById('promoMessage');
+            
+            // ========== НОВЫЕ КНОПКИ ==========
+            const scrollUp = document.getElementById('scrollUp');
+            const scrollDown = document.getElementById('scrollDown');
+            let scrollPosition = 0;
+            const itemHeight = 80; // примерная высота одной карточки
+
+            function updateScrollButtons() {
+                const container = upgradesContainer;
+                if (!container) return;
+                
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                
+                if (scrollPosition <= 0) {
+                    scrollUp.classList.add('disabled');
+                } else {
+                    scrollUp.classList.remove('disabled');
+                }
+                
+                if (scrollPosition >= maxScroll - 5) {
+                    scrollDown.classList.add('disabled');
+                } else {
+                    scrollDown.classList.remove('disabled');
+                }
+            }
+
+            function scrollUpHandler() {
+                const container = upgradesContainer;
+                if (!container) return;
+                
+                scrollPosition = Math.max(0, scrollPosition - itemHeight * 3);
+                container.scrollTo({
+                    top: scrollPosition,
+                    behavior: 'smooth'
+                });
+                
+                setTimeout(updateScrollButtons, 300);
+            }
+
+            function scrollDownHandler() {
+                const container = upgradesContainer;
+                if (!container) return;
+                
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                scrollPosition = Math.min(maxScroll, scrollPosition + itemHeight * 3);
+                container.scrollTo({
+                    top: scrollPosition,
+                    behavior: 'smooth'
+                });
+                
+                setTimeout(updateScrollButtons, 300);
+            }
+            // =================================
+
+            function refreshUI() {
+                pointsDisplay.innerText = points;
+                genDisplay.innerText = generation;
+                clickPowerHint.innerText = `+${clickPower}`;
+
+                if (clickPower >= 2000) brainEmoji.innerText = '🔱';
+                else if (clickPower >= 1000) brainEmoji.innerText = '👑';
+                else if (clickPower >= 500) brainEmoji.innerText = '🌀';
+                else if (clickPower >= 200) brainEmoji.innerText = '👁️';
+                else if (clickPower >= 100) brainEmoji.innerText = '🤯';
+                else if (clickPower >= 50) brainEmoji.innerText = '🚀';
+                else if (clickPower >= 20) brainEmoji.innerText = '🧠⚡';
+                else if (clickPower >= 5) brainEmoji.innerText = '🧠';
+                else brainEmoji.innerText = '🧫';
+            }
+
+            function renderUpgrades() {
+                let htmlStr = '';
+                upgrades.forEach(up => {
+                    const canAfford = points >= up.price;
+                    const disabledClass = (!canAfford || up.isPurchased) ? 'disabled-card' : '';
+                    const priceDisplay = up.isPurchased ? '✅ куплено' : `💰 ${up.price}`;
+                    htmlStr += `
+                        <div class="upgrade-card ${disabledClass}" data-id="${up.id}">
+                            <div class="upgrade-info">
+                                <span class="upgrade-name">${up.icon} ${up.name}</span>
+                                <span class="upgrade-desc">${up.desc}</span>
+                            </div>
+                            <div class="upgrade-price">${priceDisplay}</div>
+                        </div>
+                    `;
+                });
+                upgradesContainer.innerHTML = htmlStr;
+                
+                // Сброс позиции скролла
+                scrollPosition = 0;
+                setTimeout(updateScrollButtons, 100);
+            }
+
+            function purchaseUpgrade(upgradeId) {
+                const upgrade = upgrades.find(u => u.id === upgradeId);
+                if (!upgrade || upgrade.isPurchased || points < upgrade.price) return false;
+
+                points -= upgrade.price;
+                upgrade.effect();
+                upgrade.isPurchased = true;
+                generation += 1;
+
+                refreshUI();
+                renderUpgrades();
+                saveGame();
+                return true;
+            }
+
+            function handleBrainClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                points += clickPower;
+                
+                clickButton.style.transform = 'translateY(12px)';
+                clickButton.style.boxShadow = '0 5px 0 #06314e, 0 20px 30px #00000099, inset 0 -3px 8px #b0e0ff';
+                setTimeout(() => {
+                    clickButton.style.transform = '';
+                    clickButton.style.boxShadow = '';
+                }, 90);
+
+                refreshUI();
+                renderUpgrades();
+                saveGame();
+            }
+
+            function handleUpgradeCardClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const card = e.target.closest('.upgrade-card');
+                if (!card || card.classList.contains('disabled-card')) return;
+                
+                const upgradeId = card.dataset.id;
+                if (upgradeId) purchaseUpgrade(upgradeId);
+            }
+
+            function resetGame() {
+                if (confirm('Точно начать всё заново?')) {
+                    points = 0;
+                    clickPower = 1;
+                    generation = 1;
+                    
+                    upgrades.forEach(up => {
+                        up.isPurchased = false;
+                    });
+
+                    refreshUI();
+                    renderUpgrades();
+                    saveGame();
+                }
+            }
+
+            const validPromos = ['dima', 'i always come back'];
+
+            function showModal() {
+                promoModal.classList.add('show');
+                promoInput.value = '';
+                promoMessage.innerText = '';
+                promoInput.focus();
+            }
+
+            function hideModal() {
+                promoModal.classList.remove('show');
+            }
+
+            function activatePromoCode() {
+                const code = promoInput.value.trim().toLowerCase();
+                
+                if (validPromos.includes(code)) {
+                    points += 500;
+                    clickPower += 10;
+                    generation += 2;
+                    
+                    promoMessage.style.color = '#b0ffb0';
+                    promoMessage.innerText = '✅ ПРОМОКОД АКТИВИРОВАН! +500 очков, +10 силы';
+                    
+                    refreshUI();
+                    renderUpgrades();
+                    saveGame();
+                    
+                    promoInput.value = '';
+                    
+                    setTimeout(() => {
+                        promoMessage.innerText = '';
+                    }, 3000);
+                } else {
+                    promoMessage.style.color = '#ffa0a0';
+                    promoMessage.innerText = '❌ Неверный промокод!';
+                }
+            }
+
+            function initGame() {
+                loadGame();
+                updateThemeByTime();
+                setInterval(updateThemeByTime, 60000);
+                
+                refreshUI();
+                renderUpgrades();
+
+                clickButton.addEventListener('mousedown', handleBrainClick);
+                clickButton.addEventListener('touchstart', handleBrainClick, { passive: false });
+
+                upgradesContainer.addEventListener('mousedown', handleUpgradeCardClick);
+                upgradesContainer.addEventListener('touchstart', handleUpgradeCardClick, { passive: false });
+
+                resetBtn.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    resetGame();
+                });
+                resetBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    resetGame();
+                }, { passive: false });
+
+                promoButton.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    showModal();
+                });
+                promoButton.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    showModal();
+                }, { passive: false });
+
+                activatePromo.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    activatePromoCode();
+                });
+                
+                closeModal.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    hideModal();
+                });
+
+                promoModal.addEventListener('mousedown', (e) => {
+                    if (e.target === promoModal) hideModal();
+                });
+                
+                promoInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        activatePromoCode();
+                    }
+                });
+
+                window.addEventListener('beforeunload', saveGame);
+                
+                // ========== НОВЫЕ ОБРАБОТЧИКИ ==========
+                scrollUp.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    scrollUpHandler();
+                });
+                scrollUp.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    scrollUpHandler();
+                }, { passive: false });
+                
+                scrollDown.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    scrollDownHandler();
+                });
+                scrollDown.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    scrollDownHandler();
+                }, { passive: false });
+                
+                upgradesContainer.addEventListener('scroll', () => {
+                    scrollPosition = upgradesContainer.scrollTop;
+                    updateScrollButtons();
+                });
+                // ======================================
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initGame);
+            } else {
+                initGame();
+            }
+        })();
+    </script>
+</body>
+</html>
