@@ -3,373 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=15.0">
+    <title>Игра закрыта</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b1729, #1a1a2e);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background: rgba(18, 28, 40, 0.85);
+            border: 2px solid #ff4444;
+            border-radius: 30px;
+            padding: 30px 20px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(255, 68, 68, 0.4);
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #ff4444;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+        .text {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+        .tg-btn {
+            display: inline-block;
+            background: linear-gradient(145deg, #229ED9, #196e9e);
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid #5ec1ea;
+            box-shadow: 0 0 15px rgba(34, 158, 217, 0.6);
+            transition: 0.2s;
+            width: 100%;
+        }
+        .tg-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 5px rgba(34, 158, 217, 0.6);
+        }
+    </style>
 </head>
-<body class="bg-early-autumn">
-    <div id="tickerContainer" class="ticker-container hidden">
-        <div id="tickerText" class="ticker-text">Добро пожаловать в Эволюцию Нейросетей!</div>
-    </div>
-
-    <div id="loadingScreen">
-        <div class="loader"></div>
-        <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v15.0</div>
-    </div>
-
-    <div class="music-toggle" id="musicToggle">🔇</div>
-    <div class="boost-timer-panel" id="boostTimerPanel"></div>
-    <div id="pet" class="pet hidden">✨</div>
-
-    <div class="game-container">
-        <div id="mainMenu" class="main-menu">
-            <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v15.0</div>
-
-            <div id="globalEventBanner" class="global-event-banner hidden">
-                <span id="globalEventText">🔥 Глобальный ивент!</span>
-            </div>
-
-            <div class="menu-buttons-row">
-                <div class="menu-btn" id="playBtn" data-i18n="play">🎮 ИГРАТЬ</div>
-                <div class="menu-btn" id="settingsBtn" data-i18n="settings">⚙️ НАСТРОЙКИ</div>
-            </div>
-            <div class="menu-buttons-row">
-                <div class="menu-btn" id="newsBtn" data-i18n="news">📢 НОВОСТИ</div>
-                <div class="menu-btn" id="shareBtn" data-i18n="share">📤 ПОДЕЛИТЬСЯ</div>
-            </div>
-            <div class="menu-buttons-row">
-                <div class="menu-btn" id="dailyGiftBtn" data-i18n="daily_gift">🎁 ПОДАРОК</div>
-                <div class="menu-btn" id="prestigeBtn" data-i18n="prestige">🌟 ПРЕСТИЖ</div>
-            </div>
-            <div class="menu-buttons-row">
-                <div class="menu-btn" id="testBtn">🧪 ТЕСТ</div>
-            </div>
+<body>
+    <div class="container">
+        <div class="title">🚫 ИГРА ЗАКРЫТА</div>
+        <div class="text">
+            Json файлы в игре сломаны и никак не чинятся в коде. Часто проверяйте игру ведь скоро выйдет новый Кликер либо новая игра. Если вы хотите играть без багов скачайте последнюю версию из телеграмм и играйте.
         </div>
-
-        <div id="gameInterface" class="game-interface hidden">
-            <div class="top-bar"><div>🧠 <span id="points">10</span></div><div>⚡ <span id="power">1</span></div></div>
-            <div class="diamond-bar"><div id="starLabel">⭐ <span id="stars">0</span></div><div>⏱️ <span id="playtime">0</span> <span data-i18n="min">мин</span></div></div>
-
-            <div class="stats-panel-extended">
-                <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label" data-i18n="stat_total_clicks">Всего кликов</div></div>
-                <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label" data-i18n="stat_neurons">Нейросетей</div></div>
-                <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label" data-i18n="stat_session">За сессию</div></div>
-            </div>
-
-            <div class="timers" id="reloadTimer"><span data-i18n="reload">🔄 ПЕРЕЗАГРУЗКА:</span> <span id="reloadCountdown">5:00</span></div>
-
-            <div class="brain-container">
-                <div id="clickableObject" class="brain">
-                    <span class="skin-emoji" id="brainEmoji">🧠</span>
-                    <div class="amethyst-diamond" id="amethystDiamond">💎</div>
-                    <div class="amethyst-laser laser-top"></div>
-                    <div class="amethyst-laser laser-bottom"></div>
-                    <div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div>
-                    <div class="sleep-msg" id="sleepMsg" data-i18n="sleep">😴 Спишь?</div>
-                    <div class="combo-text" id="comboText" data-i18n="combo">🔥 x2 КОМБО!</div>
-                    <div class="party-hat" id="partyHat">🎉</div>
-                    <div class="flower-decor" id="flowerDecor">🌷</div>
-                    <div class="brain-speech" id="brainSpeech">С 8 марта девушки</div>
-                </div>
-            </div>
-
-            <div class="click-hint" id="clickHint">+1</div>
-
-            <div class="boost-btn" id="boostBtn">⚡ БУСТ X5 — 20⭐</div>
-            <div class="autoclicker-btn" id="autoclickerBtn">🤖 АВТОКЛИКЕР — 500⭐</div>
-            <div class="roulette-btn" id="rouletteBtn">🎰 РУЛЕТКА — 50⭐</div>
-            
-            <div class="achievements-btn" id="achBtn" data-i18n="achievements">🏆 ДОСТИЖЕНИЯ</div>
-            <div class="leaderboard-btn" id="leaderboardBtn">🏅 ЛИДЕРБОРД</div>
-
-            <div class="pass-container" id="passContainer">
-                <div class="pass-header">
-                    <span id="passTitle">🎃 AI PASS 8 🎃</span>
-                    <span class="pass-timer-header" id="passTimer">⏱️ 25:00</span>
-                </div>
-                <div class="pass-progress-bar">
-                    <div class="pass-progress-fill" id="passProgressFill"></div>
-                </div>
-                <div class="pass-levels" id="passLevels"></div>
-                <button class="open-tasks-btn" id="openTasksBtn" data-i18n="open_tasks">📋 ОТКРЫТЬ ЗАДАНИЯ</button>
-                <div class="pass-end" id="passEndTimer">⏳ -- дн. -- ч. -- мин.</div>
-            </div>
-
-            <div class="shop-panel" id="shopPanel">
-                <div class="shop-tabs-row">
-                    <div class="shop-tab active" data-tab="neurons" data-i18n="shop_neurons">🧠 НЕЙРОСЕТИ</div>
-                    <div class="shop-tab" data-tab="helpers" data-i18n="shop_helpers">👷 ПОМОЩНИКИ</div>
-                    <div class="shop-tab" data-tab="stars" data-i18n="shop_stars">⭐ ЗВЁЗДЫ</div>
-                    <div class="shop-tab" data-tab="skins" data-i18n="shop_skins">💎 СКИНЫ</div>
-                </div>
-                <div id="shopNeurons" class="shop-list"></div>
-                <div id="shopHelpers" class="shop-list" style="display:none;"></div>
-                <div id="shopStars" class="shop-list" style="display:none;"></div>
-                <div id="shopSkins" class="shop-list" style="display:none;"></div>
-                <div class="action-btn" id="buyAllBtn" style="background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; margin-bottom: 6px;" data-i18n="buy_all">💰 КУПИТЬ ВСЁ ДОСТУПНОЕ</div>
-                <div class="action-btn" id="closeShopBtn" data-i18n="close">ЗАКРЫТЬ</div>
-            </div>
-
-            <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn" data-i18n="shop">🛒 МАГАЗИН</div></div>
-            <div class="save-badge" data-i18n="autosave">💾 автосохранение</div>
-        </div>
+        <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" class="tg-btn">💬 Перейти в Telegram</a>
     </div>
-
-    <div id="bossOverlay" class="boss-overlay">
-        <div class="boss-content">
-            <div class="boss-title">🐛 СЕКРЕТНЫЙ БОСС: БАГ 🐛</div>
-            <div class="boss-hp-bar"><div class="boss-hp-fill" id="bossHpFill"></div></div>
-            <div class="boss-emoji" id="bossEmoji">🐛</div>
-            <div class="boss-hint">Кликай по багу, чтобы убить его!</div>
-        </div>
-    </div>
-
-    <div class="tutorial-overlay" id="tutorialOverlay">
-        <div class="tutorial-box">
-            <div class="tutorial-step" id="tutorialStep1">
-                <div class="tutorial-robot">
-                    <span class="robot-emoji">🤖</span>
-                    <span class="robot-text" id="robotText1">: Привет я робот !<br>Я вижу ты тут впервые ?</span>
-                </div>
-                <div class="tutorial-buttons">
-                    <button class="tutorial-btn-yes" id="tutorialYes" data-i18n="yes">Да</button>
-                    <button class="tutorial-btn-no" id="tutorialNo" data-i18n="no">Нет</button>
-                </div>
-                <div class="lang-buttons">
-                    <button class="lang-btn" id="langRu">🇷🇺 Русский</button>
-                    <button class="lang-btn" id="langEn">🇬🇧 English</button>
-                </div>
-            </div>
-            <div class="tutorial-step hidden" id="tutorialStep2">
-                <div class="tutorial-robot">
-                    <span class="robot-emoji">🤖</span>
-                    <span class="robot-text" id="robotText2">: Нажми на мозг !</span>
-                </div>
-                <div class="tutorial-text" id="tutorialText">
-                    Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)
-                </div>
-                <div class="tutorial-hand">👇</div>
-                <button class="tutorial-btn-ok" id="tutorialOk" data-i18n="ok">ПОНЯЛ</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="diamond-removal-overlay" id="diamondRemovalOverlay">
-        <div class="diamond-removal-box">
-            <div class="diamond-removal-step" id="diamondStep1">
-                <div class="diamond-removal-row">
-                    <span class="dr-emoji">🗑️</span>
-                    <span class="dr-dash">- - - - - -</span>
-                    <span class="dr-emoji dr-diamond" id="drDiamond">💎</span>
-                </div>
-            </div>
-            <div class="diamond-removal-step hidden" id="diamondStep2">
-                <div class="diamond-removal-text" data-i18n="conv1">Ваши алмазы конвертированы в звёзды</div>
-                <div class="diamond-removal-text" data-i18n="conv2">Алмазы полностью удалены</div>
-                <div class="diamond-removal-row">
-                    <span class="dr-emoji">💎</span>
-                    <span class="dr-dash">- - - - -&gt;</span>
-                    <span class="dr-emoji">⭐</span>
-                </div>
-                <button class="diamond-removal-btn" id="diamondRemovalOk" data-i18n="ok">ПОНЯЛ</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="roulette-overlay" id="rouletteOverlay">
-        <div class="roulette-content">
-            <div class="roulette-title">🎰 РУЛЕТКА 🎰</div>
-            <div class="roulette-wheel" id="rouletteWheel">
-                <div class="roulette-pointer">▼</div>
-                <div class="roulette-slot">💰</div>
-                <div class="roulette-slot">⭐</div>
-                <div class="roulette-slot">🧠</div>
-                <div class="roulette-slot">🌟</div>
-                <div class="roulette-slot">⚡</div>
-                <div class="roulette-slot">🎁</div>
-                <div class="roulette-slot">💥</div>
-                <div class="roulette-slot">👑</div>
-            </div>
-            <div class="roulette-cost" id="rouletteCostText">50⭐ за вращение</div>
-            <button class="roulette-spin-btn" id="rouletteSpinBtn">🎲 КРУТИТЬ</button>
-            <button class="roulette-close-btn" id="rouletteCloseBtn" data-i18n="close">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div class="achievements-overlay" id="achOverlay">
-        <div class="achievements-content">
-            <span class="ach-close" id="achCloseBtn">✖</span>
-            <div class="ach-title" data-i18n="achievements">🏆 ДОСТИЖЕНИЯ</div>
-            <div class="ach-list" id="achList"></div>
-        </div>
-    </div>
-
-    <div class="fact-overlay" id="factOverlay">
-        <div class="fact-content">
-            <div class="fact-emoji">🧠</div>
-            <div class="fact-title" data-i18n="fact_title">ФАКТ ДНЯ</div>
-            <div class="fact-text" id="factText">...</div>
-            <button class="fact-btn" id="factCloseBtn" data-i18n="ok">ПОНЯЛ</button>
-        </div>
-    </div>
-
-    <div class="offline-overlay" id="offlineOverlay">
-        <div class="offline-content">
-            <div class="offline-emoji">📴</div>
-            <div class="offline-title" data-i18n="offline_title">С ВОЗВРАЩЕНИЕМ!</div>
-            <div class="offline-text" data-i18n="offline_text">Пока тебя не было, накапало:</div>
-            <div class="offline-reward" id="offlineReward">+0🧠</div>
-            <button class="offline-btn" id="offlineOkBtn" data-i18n="ok">ПОНЯЛ</button>
-        </div>
-    </div>
-
-    <div id="prestigeModal" class="modal-overlay">
-        <div class="modal-content prestige-modal-content">
-            <div class="modal-title">🌟 ПРЕСТИЖ</div>
-            <div class="prestige-info">
-                <div class="prestige-row"><span data-i18n="prestige_level">Уровень:</span> <b id="prestigeLevelDisplay">0</b></div>
-                <div class="prestige-row"><span data-i18n="prestige_bonus">Бонус:</span> <b id="prestigeBonusDisplay">+0%</b></div>
-                <div class="prestige-row"><span data-i18n="prestige_need">Нужно:</span> <b id="prestigeNeedDisplay">100 000 000 🧠</b></div>
-            </div>
-            <div class="prestige-warning" data-i18n="prestige_warning">⚠️ Прогресс сбросится: очки и сети. Звёзды останутся.</div>
-            <button class="modal-btn prestige-confirm-btn" id="doPrestigeBtn" data-i18n="prestige_yes">ДА, ПРЕСТИЖ!</button>
-            <button class="modal-btn" id="closePrestigeBtn" data-i18n="close">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div class="admin-overlay" id="adminOverlay">
-        <div class="admin-panel">
-            <div class="admin-header">АДМИН ПАНЕЛЬ v4</div>
-            <div class="admin-tabs">
-                <div class="admin-tab active" data-tab="game">Игра</div>
-                <div class="admin-tab" data-tab="settings">Настройки</div>
-            </div>
-            <div class="admin-body" id="adminBody"></div>
-            <button class="admin-close" id="adminCloseBtn">✖ ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div class="admin-password-overlay" id="adminPasswordOverlay">
-        <div class="admin-password-box">
-            <div class="admin-password-header">Введите пароль от панели</div>
-            <input type="password" id="adminPasswordInput" class="admin-password-input" readonly>
-            <div class="admin-password-keypad">
-                <button class="admin-key" data-key="1">1</button>
-                <button class="admin-key" data-key="2">2</button>
-                <button class="admin-key" data-key="3">3</button>
-                <button class="admin-key" data-key="4">4</button>
-                <button class="admin-key" data-key="5">5</button>
-                <button class="admin-key" data-key="6">6</button>
-                <button class="admin-key" data-key="7">7</button>
-                <button class="admin-key" data-key="8">8</button>
-                <button class="admin-key" data-key="9">9</button>
-                <button class="admin-key admin-key-clear" data-key="clear">⌫</button>
-                <button class="admin-key" data-key="0">0</button>
-                <button class="admin-key admin-key-ok" data-key="ok">OK</button>
-            </div>
-            <button class="admin-password-cancel" id="adminPasswordCancel">Отмена</button>
-        </div>
-    </div>
-
-    <div class="pass-tasks-modal" id="passTasksModal">
-        <div class="pass-tasks-content">
-            <div class="pass-tasks-title" id="passTasksTitle">🎃 ЗАДАНИЯ AI PASS 8 🎃</div>
-            <div id="tasksList"></div>
-            <button class="close-tasks-btn" id="closeTasksBtn" data-i18n="close">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div id="settingsModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title" data-i18n="settings_title">⚙️ НАСТРОЙКИ</div>
-            
-            <div class="setting-item">
-                <span data-i18n="nickname">👤 Никнейм</span>
-                <div style="display:flex; gap:5px; align-items:center;">
-                    <input type="text" id="nicknameInput" class="modal-input" style="width:100px; margin:0; padding:5px; font-size:12px;" placeholder="Аноним">
-                    <button class="modal-btn" id="saveNicknameBtn" style="padding:5px 10px; margin:0; font-size:12px;">ОК</button>
-                </div>
-            </div>
-
-            <div class="setting-item">
-                <span data-i18n="btn_color">🎨 Цвет кнопок</span>
-                <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                    <button class="color-btn color-blue" data-color="blue">🔵</button>
-                    <button class="color-btn color-green" data-color="green">🟢</button>
-                    <button class="color-btn color-red" data-color="red">🔴</button>
-                    <button class="color-btn color-purple" data-color="purple">🟣</button>
-                    <button class="color-btn color-gold" data-color="gold">🟡</button>
-                </div>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="save_progress">💾 Сохранить прогресс</span>
-                <button class="modal-btn" id="exportSaveBtn" data-i18n="download_json">Скачать JSON</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="load_progress">📂 Загрузить прогресс</span>
-                <button class="modal-btn" id="importSaveBtn" data-i18n="choose_file">Выбрать файл</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="promo">🎫 Промокоды</span>
-                <button class="modal-btn" id="promoBtn" data-i18n="open">Открыть</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="sound">🔊 Звук клика</span>
-                <button class="modal-btn" id="soundToggleBtn">Сменить (Обычный)</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="fullscreen">⛶ Полный экран</span>
-                <button class="modal-btn" id="fullscreenBtn" data-i18n="on">Включить</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="language">🌐 Язык / Language</span>
-                <div style="display:flex; gap:5px;">
-                    <button class="modal-btn" id="setLangRu">🇷🇺 Рус</button>
-                    <button class="modal-btn" id="setLangEn">🇬🇧 Eng</button>
-                </div>
-            </div>
-            <button class="modal-btn" id="closeSettings" data-i18n="close">ЗАКРЫТЬ</button>
-            <div class="reset-btn" id="resetGameBtn" data-i18n="reset_all">⚠️ СБРОСИТЬ ВСЁ</div>
-        </div>
-    </div>
-
-    <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="promo_title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn" data-i18n="activate">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
-    
-    <div id="nicknameModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title">👤 ВВЕДИ НИКНЕЙМ</div>
-            <div class="modal-text" style="font-size:14px; margin-bottom:10px; color:#ccc;">Твой ник будет виден в таблице рекордов</div>
-            <input type="text" id="nicknameInputModal" class="modal-input" placeholder="Твой ник" maxlength="15">
-            <button class="modal-btn" id="saveNicknameModalBtn" style="background:#2e7d32; border:2px solid #66cc66;">СОХРАНИТЬ</button>
-            <button class="modal-btn" id="closeNicknameModalBtn">ОТМЕНА</button>
-        </div>
-    </div>
-
-    <div id="newsModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
-            <div class="modal-text" id="newsText" data-i18n="news_text">Загрузка новостей...</div>
-            <button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div id="updateOverlay" class="modal-overlay" style="z-index: 99999;">
-        <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
-            <div class="modal-title" data-i18n="update_title" style="color: #ff4444; font-size: 24px;">🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨</div>
-            <div class="modal-text" data-i18n="update_text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта.</div>
-            <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" style="display: inline-block; padding: 10px 20px; background: #229ED9; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(34,158,217,0.6); margin-top: 10px;">💬 Наш Telegram</a>
-        </div>
-    </div>
-
-    <div id="closedOverlay" class="modal-overlay" style="z-index: 100000;">
-        <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
-            <div class="modal-title" data-i18n="closed_title" style="color: #ff4444; font-size: 24px;">🚫 ИГРА ЗАКРЫТА 🚫</div>
-            <div class="modal-text" data-i18n="closed_text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Игра закрыта или недоступна на данный момент. Пожалуйста, зайдите позже.</div>
-            <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" style="display: inline-block; padding: 10px 20px; background: #229ED9; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(34,158,217,0.6); margin-top: 10px;">💬 Наш Telegram</a>
-        </div>
-    </div>
-
-    <script type="module" src="script.js?v=15.0"></script>
 </body>
 </html>
