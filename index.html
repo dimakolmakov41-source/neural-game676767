@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=14.6">
+    <link rel="stylesheet" href="style.css?v=14.7">
 </head>
 <body class="bg-early-autumn">
     <div id="tickerContainer" class="ticker-container hidden">
@@ -14,7 +14,7 @@
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v14.6</div>
+        <div class="loading-sub">v14.7</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -24,7 +24,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v14.6</div>
+            <div class="game-version" id="menuVersion">v14.7</div>
             
             <!-- СЧЕТЧИК ОНЛАЙНА -->
             <div style="margin-bottom: 15px;">
@@ -50,6 +50,9 @@
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="testBtn">🧪 ТЕСТ</div>
                 <div class="menu-btn" id="chatBtn" style="background: linear-gradient(145deg, #8c5cd4, #5a3b8e); border-color: #c8a0ff;">💬 ЧАТ</div>
+            </div>
+            <div class="menu-buttons-row">
+                <div class="menu-btn" id="voteBtn" style="background: linear-gradient(145deg, #e74c3c, #c0392b); border-color: #ff8888; width: 100%;">🗳️ ГОЛОСОВАНИЕ</div>
             </div>
         </div>
 
@@ -368,6 +371,18 @@
         </div>
     </div>
 
+    <!-- МОДАЛКА ГОЛОСОВАНИЯ -->
+    <div id="voteModal" class="modal-overlay">
+        <div class="modal-content" style="text-align:left;">
+            <div class="modal-title" style="text-align:center;">🗳️ ГОЛОСОВАНИЕ ЗА ИВЕНТ</div>
+            <div style="text-align:center; font-size:13px; color:#ccc; margin-bottom:15px;">Какой бонус включить на следующей неделе?</div>
+            <div id="voteOptionsContainer" style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                <!-- Сюда будут рендериться кнопки или результаты -->
+            </div>
+            <button class="modal-btn" onclick="document.getElementById('voteModal').classList.remove('show')" style="width:100%;">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
     <div id="newsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
@@ -379,7 +394,7 @@
     <div id="updateOverlay" class="modal-overlay" style="z-index: 99999;">
         <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
             <div class="modal-title" data-i18n="update_title" style="color: #ff4444; font-size: 24px;">🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨</div>
-            <div class="modal-text" data-i18n="update_text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта. Игрок с github просто жди</div>
+            <div class="modal-text" data-i18n="update_text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта.</div>
             <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" style="display: inline-block; padding: 10px 20px; background: #229ED9; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(34,158,217,0.6); margin-top: 10px;">💬 Наш Telegram</a>
         </div>
     </div>
@@ -392,6 +407,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=14.6"></script>
+    <script type="module" src="script.js?v=14.7"></script>
 </body>
-        </html>
+</html>
