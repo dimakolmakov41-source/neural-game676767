@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "14.5";
+const GAME_VERSION = "14.6";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ССЫЛКИ НА JSON =====
@@ -456,6 +456,25 @@ window.addEventListener('load', async () => {
         playerId = 'player-' + Math.floor(Math.random() * 1000000000);
         localStorage.setItem('gamePlayerId', playerId);
     }
+
+    // === СЧЕТЧИК ОНЛАЙНА (SUPABASE PRESENCE) ===
+    if (supabase) {
+        const onlineRoom = supabase.channel('online_room', {
+            config: { presence: { key: playerId } }
+        });
+
+        onlineRoom.on('presence', { event: 'sync' }, () => {
+            const state = onlineRoom.presenceState();
+            const count = Object.keys(state).length;
+            const counterEl = document.getElementById('onlineCount');
+            if (counterEl) counterEl.innerText = count;
+        }).subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                await onlineRoom.track({ online_at: new Date().toISOString() });
+            }
+        });
+    }
+    // === КОНЕЦ СЧЕТЧИКА ОНЛАЙНА ===
     
     const nicknameInput = document.getElementById('nicknameInput');
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
@@ -1619,7 +1638,6 @@ window.addEventListener('load', async () => {
             if (!data || data.length === 0) {
                 container.innerHTML = '<div style="text-align:center; color:#aaa; margin-top:20px;">Пока нет сообщений. Будь первым!</div>';
             } else {
-                // data приходит в обратном порядке (новые сверху), разворачиваем
                 data.reverse().forEach(msg => appendChatMessage(msg));
             }
         } catch (e) {
@@ -1640,7 +1658,7 @@ window.addEventListener('load', async () => {
             return;
         }
 
-        input.value = ''; // очищаем сразу, чтобы не ждать
+        input.value = ''; 
         
         try {
             await supabase.from('chat_messages').insert([{
@@ -1670,10 +1688,8 @@ window.addEventListener('load', async () => {
     if (supabase) {
         supabase.channel('chat_room')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
-                // Если модалка чата открыта, добавляем сообщение
                 if (document.getElementById('chatModal').classList.contains('show')) {
                     const container = document.getElementById('chatMessages');
-                    // Если там была заглушка "нет сообщений", убираем её
                     if (container.innerHTML.includes('Пока нет сообщений')) container.innerHTML = '';
                     appendChatMessage(payload.new);
                 }
