@@ -660,8 +660,9 @@ body.btn-gold .boost-btn.active { background: linear-gradient(145deg, #ffee66, #
 .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
 .page-btn:active { transform: scale(0.95); }
 
-.shop-tabs-row { display: flex; gap: 10px; margin-bottom: 10px; }
-.shop-tabs-row .shop-tab { flex: 1; font-size: 13px; font-weight: 900; padding: 10px 8px; letter-spacing: 1px; }
+/* ИСПРАВЛЕННЫЙ БЛОК ДЛЯ ВКЛАДОК */
+.shop-tabs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.shop-tabs-row .shop-tab { font-size: 13px; font-weight: 900; padding: 10px 8px; letter-spacing: 1px; }
 
 .exchange-item { background: linear-gradient(145deg, #1a3150, #0a1b2e); border-radius: 40px; padding: 18px 20px; margin: 8px 0; display: flex; justify-content: center; align-items: center; color: white; font-size: 20px; font-weight: 900; cursor: pointer; text-shadow: 0 0 6px black; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: 0.15s; text-align: center; }
 .exchange-item:active { transform: scale(0.97); }
@@ -820,6 +821,7 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
     .boss-title { font-size: 26px; }
     .boss-emoji { font-size: 140px; }
     .boss-hint { font-size: 18px; }
+    .shop-tabs-row { grid-template-columns: repeat(4, 1fr); }
 }
 
 /* ===== АДАПТАЦИЯ ДЛЯ ОЧЕНЬ БОЛЬШИХ ЭКРАНОВ ===== */
