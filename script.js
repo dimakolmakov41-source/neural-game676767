@@ -24,9 +24,8 @@ const SCOREZILLA_BOARD_ID = '341898c0-b275-4f17-9b59-908b15881946';
 let sz = null;
 
 // ===== НАСТРОЙКИ SUPABASE =====
-const SUPABASE_URL = 'https://cjzmrnguzvqbipxfhwsh.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_PsZC-BXk3XtzLdfKYhdAqA_sBpx1AC7';
-let supabase = null;
+const SUPABASE_URL = 'https://nsqijhbrpjevbvfhtcej.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_XE52riEW3YkjTyAFL7xI_g_p7IxwsHY';
 
 // Глобальные переменные для JSON
 let globalEventMultiplier = 1;
