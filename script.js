@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "14.6";
+const GAME_VERSION = "14.8";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ССЫЛКИ НА JSON =====
@@ -16,6 +16,7 @@ const PHRASES_URL = "https://dimakolmakov41-source.github.io/neural-game676767/p
 const TICKER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/ticker.json";
 const STARS_CHANCE_URL = "https://dimakolmakov41-source.github.io/neural-game676767/stars_chance.json";
 const RELOAD_TIMER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/reload_timer.json";
+const VOTE_CONFIG_URL = "https://dimakolmakov41-source.github.io/neural-game676767/vote_config.json";
 
 // ===== НАСТРОЙКИ SCOREZILLA =====
 const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_CLfVnkIF1goJtqPeH26uPu';
@@ -38,6 +39,7 @@ let phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", cri
 let tickerData = { active: false, text: "" };
 let starsData = { chance: 0.001, amount: 3 };
 let reloadTimeMinutes = 5;
+let voteConfig = { active: false, question: "", options: [] };
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -377,6 +379,14 @@ function fetchAllJSON() {
                 const m = Math.floor(reloadSeconds / 60), s = reloadSeconds % 60;
                 el.innerText = `${m}:${s.toString().padStart(2, '0')}`;
             }
+        }
+    }).catch(e => {});
+    fetch(VOTE_CONFIG_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
+        voteConfig = d;
+        const voteBtn = document.getElementById('voteBtn');
+        if (voteBtn) {
+            if (voteConfig.active) voteBtn.style.display = 'flex';
+            else voteBtn.style.display = 'none';
         }
     }).catch(e => {});
 }
@@ -1692,6 +1702,102 @@ window.addEventListener('load', async () => {
                     const container = document.getElementById('chatMessages');
                     if (container.innerHTML.includes('Пока нет сообщений')) container.innerHTML = '';
                     appendChatMessage(payload.new);
+                }
+            }).subscribe();
+    }
+
+    // ===== ГОЛОСОВАНИЕ (SUPABASE) =====
+    async function openVoteModal() {
+        if (!voteConfig.active) return showToast('Голосование сейчас закрыто!');
+        document.getElementById('voteModal').classList.add('show');
+        await loadVotes();
+    }
+
+    async function loadVotes() {
+        if (!supabase) return;
+        const container = document.getElementById('voteOptionsContainer');
+        const qEl = document.getElementById('voteQuestionText');
+        
+        if (qEl) qEl.innerText = voteConfig.question || "Что включить на следующей неделе?";
+        
+        if (!voteConfig.options || voteConfig.options.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#aaa;">Варианты не настроены</div>';
+            return;
+        }
+
+        container.innerHTML = '<div style="text-align:center; color:#aaa;">Загрузка...</div>';
+
+        try {
+            const { data, error } = await supabase.from('event_votes').select('*');
+            if (error) throw error;
+
+            const myVote = data.find(v => v.player_id === playerId);
+            const hasVoted = !!myVote;
+
+            const votes = {};
+            voteConfig.options.forEach(opt => votes[opt.text] = 0);
+            data.forEach(v => {
+                if (votes[v.vote_for] !== undefined) votes[v.vote_for]++;
+            });
+            const totalVotes = data.length || 1;
+
+            if (!hasVoted) {
+                container.innerHTML = voteConfig.options.map(opt => `
+                    <button class="modal-btn" onclick="castVote('${opt.text}')" style="width:100%; background: ${opt.color || '#3498db'}; padding: 15px; font-size:16px; margin:0;">
+                        ${opt.text}
+                    </button>
+                `).join('');
+            } else {
+                container.innerHTML = `
+                    <div style="text-align:center; color:#00ff41; margin-bottom:10px;">✅ Ты уже проголосовал за: <b>${myVote.vote_for}</b></div>
+                    ${voteConfig.options.map(opt => {
+                        const count = votes[opt.text] || 0;
+                        const percent = data.length ? Math.round((count / data.length) * 100) : 0;
+                        return `
+                        <div style="margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px; color:white;">
+                                <span>${opt.text}</span>
+                                <span>${count} голосов (${percent}%)</span>
+                            </div>
+                            <div style="height:12px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden;">
+                                <div style="height:100%; width:${percent}%; background:${opt.color || '#3498db'}; border-radius:10px; transition: width 0.5s;"></div>
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
+                    <div style="text-align:center; font-size:11px; color:#aaa; margin-top:10px;">Всего голосов: ${data.length}</div>
+                `;
+            }
+
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<div style="text-align:center; color:#ff4444;">Ошибка загрузки голосования</div>';
+        }
+    }
+
+    window.castVote = async function(choiceText) {
+        if (!supabase) return;
+        try {
+            await supabase.from('event_votes').insert([{
+                player_id: playerId,
+                vote_for: choiceText
+            }]);
+            await loadVotes();
+            showToast('✅ Твой голос учтен!');
+        } catch (e) {
+            console.error(e);
+            showToast('❌ Ошибка голосования');
+        }
+    };
+
+    document.getElementById('voteBtn')?.addEventListener('click', openVoteModal);
+
+    // Подписка на новые голоса (Реальное время)
+    if (supabase) {
+        supabase.channel('votes_room')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'event_votes' }, payload => {
+                if (document.getElementById('voteModal').classList.contains('show')) {
+                    loadVotes();
                 }
             }).subscribe();
     }
