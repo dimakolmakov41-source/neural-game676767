@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=14.8">
+    <link rel="stylesheet" href="style.css?v=15.0">
 </head>
 <body class="bg-early-autumn">
     <div id="tickerContainer" class="ticker-container hidden">
@@ -14,7 +14,7 @@
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v14.8</div>
+        <div class="loading-sub">v15.0</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -24,12 +24,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v14.8</div>
-            
-            <!-- СЧЕТЧИК ОНЛАЙНА -->
-            <div style="margin-bottom: 15px;">
-                <div id="onlineCounter" style="background: rgba(0,0,0,0.5); border: 1px solid #4caf50; border-radius: 20px; padding: 5px 15px; display: inline-block; font-size: 14px; font-weight: bold; color: #aaffaa; text-shadow: 0 0 5px black;">🟢 <span id="onlineCount">0</span> игроков онлайн</div>
-            </div>
+            <div class="game-version" id="menuVersion">v15.0</div>
 
             <div id="globalEventBanner" class="global-event-banner hidden">
                 <span id="globalEventText">🔥 Глобальный ивент!</span>
@@ -49,10 +44,6 @@
             </div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="testBtn">🧪 ТЕСТ</div>
-                <div class="menu-btn" id="chatBtn" style="background: linear-gradient(145deg, #8c5cd4, #5a3b8e); border-color: #c8a0ff;">💬 ЧАТ</div>
-            </div>
-            <div class="menu-buttons-row">
-                <div class="menu-btn" id="voteBtn" style="background: linear-gradient(145deg, #e74c3c, #c0392b); border-color: #ff8888; width: 100%; display: none;">🗳️ ГОЛОСОВАНИЕ</div>
             </div>
         </div>
 
@@ -91,7 +82,6 @@
             
             <div class="achievements-btn" id="achBtn" data-i18n="achievements">🏆 ДОСТИЖЕНИЯ</div>
             <div class="leaderboard-btn" id="leaderboardBtn">🏅 ЛИДЕРБОРД</div>
-            <div class="leaderboard-btn" id="tournamentBtn" style="background: linear-gradient(145deg, #4a90e2, #2c5aa0); border-color: #7ab8ff;">🏆 ТУРНИР</div>
 
             <div class="pass-container" id="passContainer">
                 <div class="pass-header">
@@ -356,33 +346,6 @@
         </div>
     </div>
 
-    <!-- МОДАЛКА ЧАТА -->
-    <div id="chatModal" class="modal-overlay">
-        <div class="modal-content" style="display:flex; flex-direction:column; height:70vh; max-height:600px; padding:15px;">
-            <div class="modal-title" style="margin-bottom:10px;">💬 ГЛОБАЛЬНЫЙ ЧАТ</div>
-            <div id="chatMessages" style="flex:1; overflow-y:auto; background:rgba(0,0,0,0.4); border-radius:15px; padding:10px; margin-bottom:10px; display:flex; flex-direction:column; gap:8px;">
-                <!-- Сообщения будут добавляться сюда -->
-            </div>
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
-                <input type="text" id="chatInput" class="modal-input" style="flex:1; margin:0;" placeholder="Написать сообщение..." maxlength="100">
-                <button class="modal-btn" id="sendChatBtn" style="margin:0; background:#4a90e2;">▶</button>
-            </div>
-            <button class="modal-btn" onclick="document.getElementById('chatModal').classList.remove('show')" style="width:100%; margin:0;">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <!-- МОДАЛКА ГОЛОСОВАНИЯ -->
-    <div id="voteModal" class="modal-overlay">
-        <div class="modal-content" style="text-align:left;">
-            <div class="modal-title" style="text-align:center;">🗳️ ГОЛОСОВАНИЕ</div>
-            <div id="voteQuestionText" style="text-align:center; font-size:13px; color:#ccc; margin-bottom:15px;">Какой бонус включить на следующей неделе?</div>
-            <div id="voteOptionsContainer" style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
-                <!-- Сюда будут рендериться кнопки или результаты -->
-            </div>
-            <button class="modal-btn" onclick="document.getElementById('voteModal').classList.remove('show')" style="width:100%;">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
     <div id="newsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
@@ -407,6 +370,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=14.8"></script>
+    <script type="module" src="script.js?v=15.0"></script>
 </body>
 </html>
