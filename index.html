@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=14.5">
+    <link rel="stylesheet" href="style.css?v=14.6">
 </head>
 <body class="bg-early-autumn">
     <div id="tickerContainer" class="ticker-container hidden">
@@ -14,7 +14,7 @@
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v14.5</div>
+        <div class="loading-sub">v14.6</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -24,8 +24,13 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v14.5</div>
+            <div class="game-version" id="menuVersion">v14.6</div>
             
+            <!-- СЧЕТЧИК ОНЛАЙНА -->
+            <div style="margin-bottom: 15px;">
+                <div id="onlineCounter" style="background: rgba(0,0,0,0.5); border: 1px solid #4caf50; border-radius: 20px; padding: 5px 15px; display: inline-block; font-size: 14px; font-weight: bold; color: #aaffaa; text-shadow: 0 0 5px black;">🟢 <span id="onlineCount">0</span> игроков онлайн</div>
+            </div>
+
             <div id="globalEventBanner" class="global-event-banner hidden">
                 <span id="globalEventText">🔥 Глобальный ивент!</span>
             </div>
@@ -374,7 +379,7 @@
     <div id="updateOverlay" class="modal-overlay" style="z-index: 99999;">
         <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
             <div class="modal-title" data-i18n="update_title" style="color: #ff4444; font-size: 24px;">🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨</div>
-            <div class="modal-text" data-i18n="update_text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта.</div>
+            <div class="modal-text" data-i18n="update_text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта. Игрок с github просто жди</div>
             <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" style="display: inline-block; padding: 10px 20px; background: #229ED9; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(34,158,217,0.6); margin-top: 10px;">💬 Наш Telegram</a>
         </div>
     </div>
@@ -387,6 +392,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=14.5"></script>
+    <script type="module" src="script.js?v=14.6"></script>
 </body>
-</html>
+        </html>
