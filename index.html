@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=14.7">
+    <link rel="stylesheet" href="style.css?v=14.8">
 </head>
 <body class="bg-early-autumn">
     <div id="tickerContainer" class="ticker-container hidden">
@@ -14,7 +14,7 @@
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v14.7</div>
+        <div class="loading-sub">v14.8</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -24,7 +24,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v14.7</div>
+            <div class="game-version" id="menuVersion">v14.8</div>
             
             <!-- СЧЕТЧИК ОНЛАЙНА -->
             <div style="margin-bottom: 15px;">
@@ -52,7 +52,7 @@
                 <div class="menu-btn" id="chatBtn" style="background: linear-gradient(145deg, #8c5cd4, #5a3b8e); border-color: #c8a0ff;">💬 ЧАТ</div>
             </div>
             <div class="menu-buttons-row">
-                <div class="menu-btn" id="voteBtn" style="background: linear-gradient(145deg, #e74c3c, #c0392b); border-color: #ff8888; width: 100%;">🗳️ ГОЛОСОВАНИЕ</div>
+                <div class="menu-btn" id="voteBtn" style="background: linear-gradient(145deg, #e74c3c, #c0392b); border-color: #ff8888; width: 100%; display: none;">🗳️ ГОЛОСОВАНИЕ</div>
             </div>
         </div>
 
@@ -374,8 +374,8 @@
     <!-- МОДАЛКА ГОЛОСОВАНИЯ -->
     <div id="voteModal" class="modal-overlay">
         <div class="modal-content" style="text-align:left;">
-            <div class="modal-title" style="text-align:center;">🗳️ ГОЛОСОВАНИЕ ЗА ИВЕНТ</div>
-            <div style="text-align:center; font-size:13px; color:#ccc; margin-bottom:15px;">Какой бонус включить на следующей неделе?</div>
+            <div class="modal-title" style="text-align:center;">🗳️ ГОЛОСОВАНИЕ</div>
+            <div id="voteQuestionText" style="text-align:center; font-size:13px; color:#ccc; margin-bottom:15px;">Какой бонус включить на следующей неделе?</div>
             <div id="voteOptionsContainer" style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
                 <!-- Сюда будут рендериться кнопки или результаты -->
             </div>
@@ -407,6 +407,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=14.7"></script>
+    <script type="module" src="script.js?v=14.8"></script>
 </body>
 </html>
