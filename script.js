@@ -23,9 +23,10 @@ const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_CLfVnkIF1goJtqPeH26uPu';
 const SCOREZILLA_BOARD_ID = '341898c0-b275-4f17-9b59-908b15881946';
 let sz = null;
 
-// ===== НАСТРОЙКИ SUPABASE =====
+// ===== НАСТРОЙКИ SUPABASE (НОВЫЕ) =====
 const SUPABASE_URL = 'https://nsqijhbrpjevbvfhtcej.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_XE52riEW3YkjTyAFL7xI_g_p7IxwsHY';
+let supabase = null;
 
 // Глобальные переменные для JSON
 let globalEventMultiplier = 1;
