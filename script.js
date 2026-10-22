@@ -1367,7 +1367,7 @@ window.addEventListener('load', async () => {
                 
         } catch (e) {
             console.error(e);
-            showToast('❌ Ошибка вызова');
+            showToast('❌ Ошибка: ' + (e.message || e.error_description || JSON.stringify(e)));
         }
     };
 
@@ -1537,7 +1537,7 @@ window.addEventListener('load', async () => {
             
         } catch (e) {
             console.error(e);
-            showToast('Ошибка завершения дуэли');
+            showToast('Ошибка завершения дуэли: ' + (e.message || JSON.stringify(e)));
         }
     }
 
