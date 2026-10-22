@@ -1,9 +1,0 @@
-{
-  "active": true,
-  "question": "Что включить прямо сейчас?",
-  "options": [
-    { "text": "🧠 x5 Очки", "color": "#e74c3c" },
-    { "text": "⭐  x2 Звезды", "color": "#f1c40f" },
-    { "text": "Ничего", "color": "#3498db" }
-  ]
-}
