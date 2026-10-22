@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "14.8";
+const GAME_VERSION = "15.0";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ССЫЛКИ НА JSON =====
@@ -16,17 +16,11 @@ const PHRASES_URL = "https://dimakolmakov41-source.github.io/neural-game676767/p
 const TICKER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/ticker.json";
 const STARS_CHANCE_URL = "https://dimakolmakov41-source.github.io/neural-game676767/stars_chance.json";
 const RELOAD_TIMER_URL = "https://dimakolmakov41-source.github.io/neural-game676767/reload_timer.json";
-const VOTE_CONFIG_URL = "https://dimakolmakov41-source.github.io/neural-game676767/vote_config.json";
 
-// ===== НАСТРОЙКИ SCOREZILLA =====
+// ===== НАСТРОЙКИ SCOREZILLA (ЛИДЕРБОРД) =====
 const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_CLfVnkIF1goJtqPeH26uPu';
 const SCOREZILLA_BOARD_ID = '341898c0-b275-4f17-9b59-908b15881946';
 let sz = null;
-
-// ===== НАСТРОЙКИ SUPABASE (НОВЫЕ) =====
-const SUPABASE_URL = 'https://nsqijhbrpjevbvfhtcej.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_XE52riEW3YkjTyAFL7xI_g_p7IxwsHY';
-let supabase = null;
 
 // Глобальные переменные для JSON
 let globalEventMultiplier = 1;
@@ -39,7 +33,6 @@ let phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", cri
 let tickerData = { active: false, text: "" };
 let starsData = { chance: 0.001, amount: 3 };
 let reloadTimeMinutes = 5;
-let voteConfig = { active: false, question: "", options: [] };
 
 // ===== ЯЗЫК =====
 const TRANSLATIONS = {
@@ -340,7 +333,7 @@ function fetchAllJSON() {
     
     fetch(NEWS_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
         if (d.title && d.text) { document.getElementById('newsTitle').innerText = d.title; document.getElementById('newsText').innerText = d.text; }
-    }).catch(e => {});
+    }).catch(e => console.error('News error:', e));
 
     fetch(EVENT_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
         if (d && d.active) {
@@ -349,27 +342,27 @@ function fetchAllJSON() {
             if (b && bt) { bt.innerText = d.message || t('event_active'); b.classList.remove('hidden'); }
             updateUI();
         }
-    }).catch(e => {});
+    }).catch(e => console.error('Event error:', e));
 
-    fetch(SALE_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { saleData = d; renderShopNeurons(); }).catch(e => {});
-    fetch(ROULETTE_COST_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { if(d.cost !== undefined) { rouletteCost = d.cost; document.getElementById('rouletteCostText').innerText = rouletteCost + "⭐ за вращение"; } }).catch(e => {});
-    fetch(AUTOCLICKER_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { if(d.clicks_per_second) autoclickerRateBonus = d.clicks_per_second; }).catch(e => {});
-    fetch(THEME_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { if(d.active && d.theme) { customTheme = d.theme; applyTheme(); } }).catch(e => {});
+    fetch(SALE_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { saleData = d; renderShopNeurons(); }).catch(e => console.error('Sale error:', e));
+    fetch(ROULETTE_COST_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { if(d.cost !== undefined) { rouletteCost = d.cost; document.getElementById('rouletteCostText').innerText = rouletteCost + "⭐ за вращение"; } }).catch(e => console.error('Roulette cost error:', e));
+    fetch(AUTOCLICKER_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { if(d.clicks_per_second) autoclickerRateBonus = d.clicks_per_second; }).catch(e => console.error('Autoclicker error:', e));
+    fetch(THEME_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { if(d.active && d.theme) { customTheme = d.theme; applyTheme(); } }).catch(e => console.error('Theme error:', e));
     fetch(WEATHER_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { 
         if(d.active && d.type) { weatherData = d; startWeather(d.type); } 
-    }).catch(e => {});
-    fetch(PHRASES_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { phrasesData = d; applyTheme(); }).catch(e => {});
+    }).catch(e => console.error('Weather error:', e));
+    fetch(PHRASES_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { phrasesData = d; applyTheme(); }).catch(e => console.error('Phrases error:', e));
     fetch(TICKER_URL + "?t=" + Date.now()).then(r => r.json()).then(d => { 
         if(d.active && d.text) {
             tickerData = d;
             const tc = document.getElementById('tickerContainer'), tt = document.getElementById('tickerText');
             if(tc && tt) { tt.innerText = d.text; tc.classList.remove('hidden'); }
         }
-    }).catch(e => {});
+    }).catch(e => console.error('Ticker error:', e));
     fetch(STARS_CHANCE_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
         if(d.chance !== undefined) starsData.chance = d.chance;
         if(d.amount !== undefined) starsData.amount = d.amount;
-    }).catch(e => {});
+    }).catch(e => console.error('Stars chance error:', e));
     fetch(RELOAD_TIMER_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
         if(d.minutes !== undefined) {
             reloadTimeMinutes = d.minutes;
@@ -380,15 +373,7 @@ function fetchAllJSON() {
                 el.innerText = `${m}:${s.toString().padStart(2, '0')}`;
             }
         }
-    }).catch(e => {});
-    fetch(VOTE_CONFIG_URL + "?t=" + Date.now()).then(r => r.json()).then(d => {
-        voteConfig = d;
-        const voteBtn = document.getElementById('voteBtn');
-        if (voteBtn) {
-            if (voteConfig.active) voteBtn.style.display = 'flex';
-            else voteBtn.style.display = 'none';
-        }
-    }).catch(e => {});
+    }).catch(e => console.error('Reload timer error:', e));
 }
 
 function startWeather(type) {
@@ -415,12 +400,6 @@ window.addEventListener('load', async () => {
         const szModule = await import('https://cdn.jsdelivr.net/npm/scorezilla@0.5.2/+esm');
         sz = new szModule.Scorezilla({ publicKey: SCOREZILLA_PUBLIC_KEY });
     } catch (e) { console.error('Ошибка Scorezilla:', e); }
-
-    // ИМПОРТ SUPABASE
-    try {
-        const sbModule = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-        supabase = sbModule.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } catch (e) { console.error('Ошибка Supabase:', e); }
 
     setTimeout(checkForUpdates, 2000);
     setTimeout(checkIfClosed, 2000);
@@ -460,31 +439,12 @@ window.addEventListener('load', async () => {
     let unlockedAchievements = JSON.parse(localStorage.getItem('neuralAch') || '[]');
     Object.defineProperty(window, '__stars', { get: () => stars });
 
-    // Идентификатор для лидербордов
+    // Идентификатор для лидерборда
     let playerId = localStorage.getItem('gamePlayerId');
     if (!playerId) {
         playerId = 'player-' + Math.floor(Math.random() * 1000000000);
         localStorage.setItem('gamePlayerId', playerId);
     }
-
-    // === СЧЕТЧИК ОНЛАЙНА (SUPABASE PRESENCE) ===
-    if (supabase) {
-        const onlineRoom = supabase.channel('online_room', {
-            config: { presence: { key: playerId } }
-        });
-
-        onlineRoom.on('presence', { event: 'sync' }, () => {
-            const state = onlineRoom.presenceState();
-            const count = Object.keys(state).length;
-            const counterEl = document.getElementById('onlineCount');
-            if (counterEl) counterEl.innerText = count;
-        }).subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') {
-                await onlineRoom.track({ online_at: new Date().toISOString() });
-            }
-        });
-    }
-    // === КОНЕЦ СЧЕТЧИКА ОНЛАЙНА ===
     
     const nicknameInput = document.getElementById('nicknameInput');
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
@@ -1283,524 +1243,6 @@ window.addEventListener('load', async () => {
     }
 
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
-
-    // ===== ТУРНИР (SUPABASE) =====
-    async function syncClicksToSupabase() {
-        if (!supabase) return;
-        const playerName = localStorage.getItem('gamePlayerName') || 'Аноним';
-        try {
-            const { data, error } = await supabase.from('clicks').select('id').eq('player_id', playerId).single();
-            if (data) {
-                await supabase.from('clicks').update({ clicks: totalClicks, player_name: playerName }).eq('id', data.id);
-            } else {
-                await supabase.from('clicks').insert([{ player_id: playerId, player_name: playerName, clicks: totalClicks }]);
-            }
-        } catch (e) { console.error('Ошибка синхронизации Supabase:', e); }
-    }
-    
-    // Синхронизация каждые 15 секунд
-    setInterval(syncClicksToSupabase, 15000);
-
-    async function showTournament() {
-        if (!supabase) { showToast('❌ База данных недоступна. Проверь интернет.'); return; }
-        
-        await syncClicksToSupabase();
-
-        let modal = document.getElementById('tournamentModal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'tournamentModal';
-            modal.className = 'modal-overlay';
-            modal.innerHTML = `
-                <div class="modal-content" style="text-align:left;">
-                    <div class="modal-title" style="text-align:center;">🏆 ТУРНИР ПО КЛИКАМ 🏆</div>
-                    <div style="text-align:center; font-size:12px; color:#aaa; margin-bottom:10px;">Нажми на игрока, чтобы вызвать его на дуэль!</div>
-                    <div id="tournamentList" style="margin-bottom:15px; max-height: 50vh; overflow-y:auto; color: white;"></div>
-                    <button class="modal-btn" onclick="document.getElementById('tournamentModal').classList.remove('show')" style="width:100%;">ЗАКРЫТЬ</button>
-                </div>`;
-            document.body.appendChild(modal);
-        }
-        
-        const list = modal.querySelector('#tournamentList');
-        list.innerHTML = '<div style="text-align:center; padding:10px;">Загрузка...</div>';
-        modal.classList.add('show');
-
-        try {
-            const { data, error } = await supabase.from('clicks').select('player_id, player_name, clicks').order('clicks', { ascending: false }).limit(20);
-            if (error) throw error;
-            
-            if (!data || data.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding:10px;">Пока нет участников</div>';
-            } else {
-                list.innerHTML = data.map((e, i) => {
-                    const isMe = e.player_id === playerId;
-                    return `
-                    <div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px; display:flex; justify-content:space-between; align-items:center; ${isMe ? 'background: rgba(255,215,0,0.1); border-radius: 10px; padding: 8px;' : ''}">
-                        <span>${i+1}. ${e.player_name} ${isMe ? '(Ты)' : ''}</span>
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <b style="color:#ffd966;">${formatNumber(e.clicks)}</b>
-                            ${!isMe ? `<button class="modal-btn" style="padding:4px 8px; font-size:11px; margin:0; background:#e74c3c;" onclick="challengePlayer('${e.player_id}', '${e.player_name}')">Вызвать</button>` : ''}
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-        } catch (err) {
-            console.error(err);
-            list.innerHTML = '<div style="text-align:center; padding:10px; color:#ff4444;">Ошибка загрузки</div>';
-        }
-    }
-    
-    document.getElementById('tournamentBtn')?.addEventListener('click', showTournament);
-
-    // ===== ДУЭЛИ (SUPABASE REALTIME) =====
-    let activeDuelId = null;
-    let myDuelClicks = 0;
-    let duelTimerInterval = null;
-
-    window.challengePlayer = async function(opponentId, opponentName) {
-        if (!supabase) return;
-        if (opponentId === playerId) return showToast('Нельзя вызвать себя!');
-        
-        const myName = localStorage.getItem('gamePlayerName') || 'Аноним';
-        if (!localStorage.getItem('gamePlayerName')) return showToast('Введи ник в настройках!');
-
-        document.getElementById('tournamentModal')?.classList.remove('show');
-        
-        try {
-            const { data, error } = await supabase.from('duels').insert([{
-                challenger_id: playerId,
-                challenger_name: myName,
-                opponent_id: opponentId,
-                status: 'pending'
-            }]).select().single();
-            
-            if (error) throw error;
-            
-            activeDuelId = data.id;
-            showDuelWaitModal(opponentName);
-            
-            // Подписываемся на обновление этого вызова
-            supabase.channel('duel_' + activeDuelId)
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'duels', filter: `id=eq.${activeDuelId}` }, payload => {
-                    const d = payload.new;
-                    if (d.status === 'rejected') {
-                        hideDuelWaitModal();
-                        showToast('❌ Вызов отклонен');
-                    } else if (d.status === 'accepted') {
-                        hideDuelWaitModal();
-                        startDuelArena();
-                    } else if (d.status === 'finished') {
-                        showDuelResult(d);
-                    }
-                }).subscribe();
-                
-        } catch (e) {
-            console.error(e);
-            showToast('❌ Ошибка: ' + (e.message || e.error_description || JSON.stringify(e)));
-        }
-    };
-
-    // Ожидание ответа (для того, кто вызвал)
-    function showDuelWaitModal(name) {
-        let m = document.getElementById('duelWaitModal');
-        if (!m) {
-            m = document.createElement('div');
-            m.id = 'duelWaitModal';
-            m.className = 'modal-overlay';
-            m.innerHTML = `
-                <div class="modal-content" style="text-align:center;">
-                    <div class="modal-title">⏳ ОЖИДАНИЕ</div>
-                    <div style="margin: 20px 0; font-size: 16px;">Ждём ответа от игрока <b>${name}</b>...</div>
-                    <div class="loader" style="margin:0 auto 20px; border-top-color: #ffd966;"></div>
-                    <button class="modal-btn" onclick="cancelDuel()" style="width:100%; background:#aa2222;">ОТМЕНИТЬ</button>
-                </div>`;
-            document.body.appendChild(m);
-        }
-        m.classList.add('show');
-    }
-    function hideDuelWaitModal() { document.getElementById('duelWaitModal')?.classList.remove('show'); }
-
-    window.cancelDuel = async function() {
-        hideDuelWaitModal();
-        if (activeDuelId && supabase) {
-            await supabase.from('duels').update({ status: 'rejected' }).eq('id', activeDuelId);
-            activeDuelId = null;
-        }
-    };
-
-    // Прием вызова (для того, кого вызвали)
-    function showChallengeReceivedModal(duel) {
-        let m = document.getElementById('duelReceiveModal');
-        if (!m) {
-            m = document.createElement('div');
-            m.id = 'duelReceiveModal';
-            m.className = 'modal-overlay';
-            document.body.appendChild(m);
-        }
-        m.innerHTML = `
-            <div class="modal-content" style="text-align:center; border: 3px solid #ffaa00;">
-                <div class="modal-title">🥊 ВЫЗОВ НА ДУЭЛЬ!</div>
-                <div style="margin: 20px 0; font-size: 18px; line-height: 1.5;">Игрок <b>${duel.challenger_name}</b> вызывает вас на дуэль!</div>
-                <div style="font-size:14px; color:#aaa; margin-bottom:20px;">У вас будет 30 секунд, чтобы накликать больше.</div>
-                <div style="display:flex; gap:10px;">
-                    <button class="modal-btn" id="acceptDuelBtn" style="flex:1; background:#2e7d32;">ДА</button>
-                    <button class="modal-btn" id="rejectDuelBtn" style="flex:1; background:#aa2222;">НЕТ</button>
-                </div>
-            </div>`;
-        m.classList.add('show');
-
-        document.getElementById('acceptDuelBtn').onclick = async () => {
-            m.classList.remove('show');
-            activeDuelId = duel.id;
-            await supabase.from('duels').update({ status: 'accepted' }).eq('id', activeDuelId);
-            startDuelArena();
-        };
-        document.getElementById('rejectDuelBtn').onclick = async () => {
-            m.classList.remove('show');
-            await supabase.from('duels').update({ status: 'rejected' }).eq('id', duel.id);
-        };
-    }
-
-    // Сама арена дуэли
-    function startDuelArena() {
-        if (duelTimerInterval) clearInterval(duelTimerInterval);
-        myDuelClicks = 0;
-        
-        let m = document.getElementById('duelArenaModal');
-        if (!m) {
-            m = document.createElement('div');
-            m.id = 'duelArenaModal';
-            m.className = 'modal-overlay';
-            m.style.background = 'rgba(0,0,0,0.95)';
-            document.body.appendChild(m);
-        }
-        
-        m.innerHTML = `
-            <div class="modal-content" style="text-align:center; max-width: 400px;">
-                <div class="modal-title" style="color:#ff4444; font-size: 24px;">🥊 ДУЭЛЬ!</div>
-                <div id="duelTimerDisplay" style="font-size: 40px; font-weight: 900; color: #ffd966; margin: 10px 0;">30.0</div>
-                <div style="font-size: 18px; margin-bottom: 20px;">Твои клики: <b id="duelMyClicks" style="color:#00ff41; font-size:24px;">0</b></div>
-                <div id="duelClickZone" style="width: 150px; height: 150px; background: radial-gradient(circle, #ffaa00, #ff5500); border-radius: 50%; margin: 0 auto 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 60px; user-select: none; box-shadow: 0 10px 0 #aa4400;">🧠</div>
-                <div style="font-size:12px; color:#aaa;">Кликай как можно быстрее!</div>
-            </div>`;
-        m.classList.add('show');
-
-        const zone = document.getElementById('duelClickZone');
-        const display = document.getElementById('duelMyClicks');
-        
-        zone.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            myDuelClicks++;
-            display.innerText = myDuelClicks;
-            zone.style.transform = 'scale(0.9)';
-            setTimeout(() => zone.style.transform = '', 50);
-        });
-
-        let timeLeft = 30.0;
-        const timerEl = document.getElementById('duelTimerDisplay');
-        
-        duelTimerInterval = setInterval(() => {
-            timeLeft -= 0.1;
-            timerEl.innerText = timeLeft.toFixed(1);
-            if (timeLeft <= 0) {
-                clearInterval(duelTimerInterval);
-                finishDuel();
-            }
-        }, 100);
-    }
-
-    async function finishDuel() {
-        const zone = document.getElementById('duelClickZone');
-        if (zone) zone.style.pointerEvents = 'none';
-        const timerEl = document.getElementById('duelTimerDisplay');
-        if (timerEl) timerEl.innerText = 'ВРЕМЯ ВЫШЛО!';
-        
-        if (!activeDuelId) return;
-
-        try {
-            // Получаем текущее состояние дуэли
-            const { data, error } = await supabase.from('duels').select('*').eq('id', activeDuelId).single();
-            if (error) throw error;
-
-            const isChallenger = (data.challenger_id === playerId);
-            
-            // Обновляем свои очки
-            let updateData = {};
-            if (isChallenger) {
-                updateData.challenger_score = myDuelClicks;
-            } else {
-                updateData.opponent_score = myDuelClicks;
-            }
-
-            // Проверяем, отправил ли второй игрок свои очки
-            // Если оба отправили или статус уже finished, просто обновляем
-            // Для простоты обновляем всегда, кто последний обновит - тот и определит победителя
-            await supabase.from('duels').update(updateData).eq('id', activeDuelId);
-            
-            // Ждем 2 секунды, чтобы второй игрок тоже успел обновить (чтобы избежать гонки данных)
-            setTimeout(async () => {
-                const { data: finalData, error: finalErr } = await supabase.from('duels').select('*').eq('id', activeDuelId).single();
-                if (finalErr) return;
-                
-                // Считаем победителя
-                const cScore = finalData.challenger_score || 0;
-                const oScore = finalData.opponent_score || 0;
-                let winner = null;
-                
-                if (cScore > oScore) winner = finalData.challenger_id;
-                else if (oScore > cScore) winner = finalData.opponent_id;
-                else winner = 'draw';
-
-                if (finalData.status !== 'finished') {
-                    await supabase.from('duels').update({ status: 'finished', winner_id: winner }).eq('id', activeDuelId);
-                }
-                
-                // Определяем локальный результат
-                let myScore, oppScore, oppName;
-                if (isChallenger) { myScore = cScore; oppScore = oScore; oppName = 'Соперник'; }
-                else { myScore = oScore; oppScore = cScore; oppName = finalData.challenger_name; }
-                
-                showDuelResultUI(myScore, oppScore, oppName, winner === playerId);
-                
-            }, 2000);
-            
-        } catch (e) {
-            console.error(e);
-            showToast('Ошибка завершения дуэли: ' + (e.message || JSON.stringify(e)));
-        }
-    }
-
-    // Показ финального окна (для того, кто нажал "Да" и для того, кто вызывал)
-    function showDuelResultUI(myScore, oppScore, oppName, isWin) {
-        document.getElementById('duelArenaModal')?.classList.remove('show');
-        
-        let m = document.getElementById('duelResultModal');
-        if (!m) {
-            m = document.createElement('div');
-            m.id = 'duelResultModal';
-            m.className = 'modal-overlay';
-            document.body.appendChild(m);
-        }
-        
-        const resultText = isWin ? '🎉 ПОБЕДА! +10⭐' : '😢 ПРОИГРЫШ';
-        const color = isWin ? '#00ff41' : '#ff4444';
-        
-        m.innerHTML = `
-            <div class="modal-content" style="text-align:center; border: 3px solid ${color};">
-                <div class="modal-title" style="color:${color}; font-size: 26px;">${resultText}</div>
-                <div style="margin: 20px 0; font-size: 18px;">
-                    <div>Ты накликал: <b style="color:#ffd966;">${myScore}</b></div>
-                    <div>${oppName} накликал: <b style="color:#ffd966;">${oppScore}</b></div>
-                </div>
-                <button class="modal-btn" onclick="document.getElementById('duelResultModal').classList.remove('show')" style="width:100%;">ЗАКРЫТЬ</button>
-            </div>`;
-        m.classList.add('show');
-
-        if (isWin) {
-            stars += 10;
-            totalStarsEarned += 10;
-            updateUI(); saveGame();
-            showToast('⭐ +10 звезд за победу!');
-            playBuySound();
-        }
-    }
-
-    // Подписка на ВСЕ вызовы (ожидание входящих)
-    if (supabase) {
-        supabase.channel('global_duels')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'duels', filter: `opponent_id=eq.${playerId}` }, payload => {
-                if (payload.new.status === 'pending') {
-                    showChallengeReceivedModal(payload.new);
-                }
-            })
-            .subscribe();
-    }
-
-    // ===== ЧАТ (SUPABASE) =====
-    function escapeHtml(text) {
-        return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-
-    function appendChatMessage(msg) {
-        const container = document.getElementById('chatMessages');
-        if (!container) return;
-        const isMe = msg.sender_id === playerId;
-        const div = document.createElement('div');
-        div.style.padding = '5px 10px';
-        div.style.borderRadius = '10px';
-        div.style.background = isMe ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255, 255, 255, 0.1)';
-        div.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
-        div.style.maxWidth = '85%';
-        div.innerHTML = `<b style="color:${isMe ? '#00ff41' : '#ffd966'}; font-size:12px;">${escapeHtml(msg.sender_name)}</b><br><span style="font-size:14px;">${escapeHtml(msg.message)}</span>`;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-    }
-
-    async function loadChatMessages() {
-        if (!supabase) return;
-        const container = document.getElementById('chatMessages');
-        container.innerHTML = '<div style="text-align:center; color:#aaa;">Загрузка...</div>';
-        
-        try {
-            const { data, error } = await supabase.from('chat_messages').select('*').order('created_at', { ascending: false }).limit(50);
-            if (error) throw error;
-            container.innerHTML = '';
-            if (!data || data.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:#aaa; margin-top:20px;">Пока нет сообщений. Будь первым!</div>';
-            } else {
-                data.reverse().forEach(msg => appendChatMessage(msg));
-            }
-        } catch (e) {
-            console.error(e);
-            container.innerHTML = '<div style="text-align:center; color:#ff4444;">Ошибка загрузки чата</div>';
-        }
-    }
-
-    async function sendChatMessage() {
-        if (!supabase) return;
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if (!text) return;
-        
-        const name = localStorage.getItem('gamePlayerName');
-        if (!name) {
-            showToast('❌ Сначала введи ник в настройках!');
-            return;
-        }
-
-        input.value = ''; 
-        
-        try {
-            await supabase.from('chat_messages').insert([{
-                sender_id: playerId,
-                sender_name: name,
-                message: text
-            }]);
-        } catch (e) {
-            console.error(e);
-            showToast('❌ Ошибка отправки сообщения');
-        }
-    }
-
-    // Обработчики кнопок чата
-    document.getElementById('chatBtn')?.addEventListener('click', () => {
-        document.getElementById('chatModal').classList.add('show');
-        loadChatMessages();
-    });
-
-    document.getElementById('sendChatBtn')?.addEventListener('click', sendChatMessage);
-    
-    document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendChatMessage();
-    });
-
-    // Подписка на новые сообщения в чате
-    if (supabase) {
-        supabase.channel('chat_room')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
-                if (document.getElementById('chatModal').classList.contains('show')) {
-                    const container = document.getElementById('chatMessages');
-                    if (container.innerHTML.includes('Пока нет сообщений')) container.innerHTML = '';
-                    appendChatMessage(payload.new);
-                }
-            }).subscribe();
-    }
-
-    // ===== ГОЛОСОВАНИЕ (SUPABASE) =====
-    async function openVoteModal() {
-        if (!voteConfig.active) return showToast('Голосование сейчас закрыто!');
-        document.getElementById('voteModal').classList.add('show');
-        await loadVotes();
-    }
-
-    async function loadVotes() {
-        if (!supabase) return;
-        const container = document.getElementById('voteOptionsContainer');
-        const qEl = document.getElementById('voteQuestionText');
-        
-        if (qEl) qEl.innerText = voteConfig.question || "Что включить на следующей неделе?";
-        
-        if (!voteConfig.options || voteConfig.options.length === 0) {
-            container.innerHTML = '<div style="text-align:center; color:#aaa;">Варианты не настроены</div>';
-            return;
-        }
-
-        container.innerHTML = '<div style="text-align:center; color:#aaa;">Загрузка...</div>';
-
-        try {
-            const { data, error } = await supabase.from('event_votes').select('*');
-            if (error) throw error;
-
-            const myVote = data.find(v => v.player_id === playerId);
-            const hasVoted = !!myVote;
-
-            const votes = {};
-            voteConfig.options.forEach(opt => votes[opt.text] = 0);
-            data.forEach(v => {
-                if (votes[v.vote_for] !== undefined) votes[v.vote_for]++;
-            });
-            const totalVotes = data.length || 1;
-
-            if (!hasVoted) {
-                container.innerHTML = voteConfig.options.map(opt => `
-                    <button class="modal-btn" onclick="castVote('${opt.text}')" style="width:100%; background: ${opt.color || '#3498db'}; padding: 15px; font-size:16px; margin:0;">
-                        ${opt.text}
-                    </button>
-                `).join('');
-            } else {
-                container.innerHTML = `
-                    <div style="text-align:center; color:#00ff41; margin-bottom:10px;">✅ Ты уже проголосовал за: <b>${myVote.vote_for}</b></div>
-                    ${voteConfig.options.map(opt => {
-                        const count = votes[opt.text] || 0;
-                        const percent = data.length ? Math.round((count / data.length) * 100) : 0;
-                        return `
-                        <div style="margin-bottom:10px;">
-                            <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px; color:white;">
-                                <span>${opt.text}</span>
-                                <span>${count} голосов (${percent}%)</span>
-                            </div>
-                            <div style="height:12px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden;">
-                                <div style="height:100%; width:${percent}%; background:${opt.color || '#3498db'}; border-radius:10px; transition: width 0.5s;"></div>
-                            </div>
-                        </div>
-                        `;
-                    }).join('')}
-                    <div style="text-align:center; font-size:11px; color:#aaa; margin-top:10px;">Всего голосов: ${data.length}</div>
-                `;
-            }
-
-        } catch (e) {
-            console.error(e);
-            container.innerHTML = '<div style="text-align:center; color:#ff4444;">Ошибка загрузки голосования</div>';
-        }
-    }
-
-    window.castVote = async function(choiceText) {
-        if (!supabase) return;
-        try {
-            await supabase.from('event_votes').insert([{
-                player_id: playerId,
-                vote_for: choiceText
-            }]);
-            await loadVotes();
-            showToast('✅ Твой голос учтен!');
-        } catch (e) {
-            console.error(e);
-            showToast('❌ Ошибка голосования');
-        }
-    };
-
-    document.getElementById('voteBtn')?.addEventListener('click', openVoteModal);
-
-    // Подписка на новые голоса (Реальное время)
-    if (supabase) {
-        supabase.channel('votes_room')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'event_votes' }, payload => {
-                if (document.getElementById('voteModal').classList.contains('show')) {
-                    loadVotes();
-                }
-            }).subscribe();
-    }
 
     // ===== ОБРАБОТЧИКИ UI =====
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
