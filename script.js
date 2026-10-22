@@ -1,5 +1,5 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "14.3";
+const GAME_VERSION = "14.4";
 const ADMIN_PASSWORD = "6769";
 
 // ===== ССЫЛКИ НА JSON =====
@@ -21,6 +21,11 @@ const RELOAD_TIMER_URL = "https://dimakolmakov41-source.github.io/neural-game676
 const SCOREZILLA_PUBLIC_KEY = 'pk_neural-evolution_CLfVnkIF1goJtqPeH26uPu';
 const SCOREZILLA_BOARD_ID = '341898c0-b275-4f17-9b59-908b15881946';
 let sz = null;
+
+// ===== НАСТРОЙКИ SUPABASE (ТУРНИР) =====
+const SUPABASE_URL = 'https://cjzmrnguzvqbipxfhwsh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PsZC-BXk3XtzLdfKYhdAqA_sBpx1AC7';
+let supabase = null;
 
 // Глобальные переменные для JSON
 let globalEventMultiplier = 1;
@@ -395,14 +400,17 @@ function startWeather(type) {
 
 // ===== ОСНОВНАЯ ЛОГИКА =====
 window.addEventListener('load', async () => {
-    // ДИНАМИЧЕСКАЯ ЗАГРУЗКА SCOREZILLA
+    // ИМПОРТ SCOREZILLA
     try {
-        const module = await import('https://cdn.jsdelivr.net/npm/scorezilla@0.5.2/+esm');
-        sz = new module.Scorezilla({ publicKey: SCOREZILLA_PUBLIC_KEY });
-        console.log('Scorezilla загружена успешно');
-    } catch (e) {
-        console.error('ОШИБКА ЗАГРУЗКИ SCOREZILLA:', e);
-    }
+        const szModule = await import('https://cdn.jsdelivr.net/npm/scorezilla@0.5.2/+esm');
+        sz = new szModule.Scorezilla({ publicKey: SCOREZILLA_PUBLIC_KEY });
+    } catch (e) { console.error('Ошибка Scorezilla:', e); }
+
+    // ИМПОРТ SUPABASE
+    try {
+        const sbModule = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+        supabase = sbModule.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) { console.error('Ошибка Supabase:', e); }
 
     setTimeout(checkForUpdates, 2000);
     setTimeout(checkIfClosed, 2000);
@@ -442,18 +450,16 @@ window.addEventListener('load', async () => {
     let unlockedAchievements = JSON.parse(localStorage.getItem('neuralAch') || '[]');
     Object.defineProperty(window, '__stars', { get: () => stars });
 
-    // Идентификатор для лидерборда
+    // Идентификатор для лидербордов
     let playerId = localStorage.getItem('gamePlayerId');
     if (!playerId) {
         playerId = 'player-' + Math.floor(Math.random() * 1000000000);
         localStorage.setItem('gamePlayerId', playerId);
     }
     
-    // Заполняем поля ввода ника при загрузке
     const nicknameInput = document.getElementById('nicknameInput');
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
 
-    // Сохранение ника из настроек
     document.getElementById('saveNicknameBtn')?.addEventListener('click', () => {
         const newName = nicknameInput.value.trim();
         if (newName) {
@@ -465,14 +471,13 @@ window.addEventListener('load', async () => {
         }
     });
 
-    // Сохранение ника из модалки лидерборда
     document.getElementById('saveNicknameModalBtn')?.addEventListener('click', () => {
         const val = document.getElementById('nicknameInputModal').value.trim();
         if (val.length > 0) {
             localStorage.setItem('gamePlayerName', val);
             document.getElementById('nicknameModal').classList.remove('show');
             showToast(`✅ Ник сохранен: ${val}`);
-            showLeaderboard(); // Перезапускаем показ лидерборда
+            showLeaderboard();
         } else {
             showToast('❌ Ник не может быть пустым!');
         }
@@ -1188,27 +1193,19 @@ window.addEventListener('load', async () => {
 
     // ===== ЛИДЕРБОРД (SCOREZILLA) =====
     async function submitScoreToLeaderboard(score) {
-        if (!sz) {
-            showToast('❌ Ошибка: Scorezilla не загрузилась');
-            return;
-        }
+        if (!sz) return;
         const playerName = localStorage.getItem('gamePlayerName') || 'Аноним';
         try {
-            console.log("📤 Отправляем рекорд:", { playerName, score });
             const result = await sz.submitScore({
                 boardId: SCOREZILLA_BOARD_ID,
                 playerId: playerId,
-                name: playerName, // ИСПРАВЛЕНО ТУТ
+                name: playerName,
                 score: Math.floor(score)
             });
-            console.log("✅ Ответ сервера:", result);
             if (result.isPersonalBest) {
                 showToast(`🏆 Новый рекорд! Место: #${result.rank}`);
             }
-        } catch (error) {
-            console.error('❌ ОШИБКА ОТПРАВКИ:', error);
-            showToast(`❌ Ошибка сервера: ${error.message || 'Проверь консоль F12'}`);
-        }
+        } catch (error) { console.error('Ошибка отправки рекорда:', error); }
     }
 
     async function showLeaderboard() {
@@ -1257,6 +1254,71 @@ window.addEventListener('load', async () => {
     }
 
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
+
+    // ===== ТУРНИР (SUPABASE) =====
+    async function syncClicksToSupabase() {
+        if (!supabase) return;
+        const playerName = localStorage.getItem('gamePlayerName') || 'Аноним';
+        try {
+            // Проверяем, есть ли игрок в базе
+            const { data, error } = await supabase.from('clicks').select('id').eq('player_id', playerId).single();
+            if (data) {
+                // Обновляем клики
+                await supabase.from('clicks').update({ clicks: totalClicks, player_name: playerName }).eq('id', data.id);
+            } else {
+                // Создаем новую запись
+                await supabase.from('clicks').insert([{ player_id: playerId, player_name: playerName, clicks: totalClicks }]);
+            }
+        } catch (e) { console.error('Ошибка синхронизации Supabase:', e); }
+    }
+    
+    // Синхронизация каждые 15 секунд
+    setInterval(syncClicksToSupabase, 15000);
+
+    async function showTournament() {
+        if (!supabase) { showToast('❌ База данных недоступна. Проверь интернет.'); return; }
+        
+        // Сначала синхронизируем свои клики, чтобы сразу увидеть себя в таблице
+        await syncClicksToSupabase();
+
+        let modal = document.getElementById('tournamentModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'tournamentModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="text-align:left;">
+                    <div class="modal-title" style="text-align:center;">🏆 ТУРНИР ПО КЛИКАМ 🏆</div>
+                    <div id="tournamentList" style="margin-bottom:15px; max-height: 50vh; overflow-y:auto; color: white;"></div>
+                    <button class="modal-btn" onclick="document.getElementById('tournamentModal').classList.remove('show')" style="width:100%;">ЗАКРЫТЬ</button>
+                </div>`;
+            document.body.appendChild(modal);
+        }
+        
+        const list = modal.querySelector('#tournamentList');
+        list.innerHTML = '<div style="text-align:center; padding:10px;">Загрузка...</div>';
+        modal.classList.add('show');
+
+        try {
+            const { data, error } = await supabase.from('clicks').select('player_name, clicks').order('clicks', { ascending: false }).limit(10);
+            if (error) throw error;
+            
+            if (!data || data.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:10px;">Пока нет участников</div>';
+            } else {
+                list.innerHTML = data.map((e, i) => `
+                    <div style="padding:8px 0; border-bottom:1px solid #444; font-size:14px;">
+                        ${i+1}. ${e.player_name} — <b style="color:#ffd966;">${formatNumber(e.clicks)}</b> кликов
+                    </div>
+                `).join('');
+            }
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = '<div style="text-align:center; padding:10px; color:#ff4444;">Ошибка загрузки</div>';
+        }
+    }
+    
+    document.getElementById('tournamentBtn')?.addEventListener('click', showTournament);
 
     // ===== ОБРАБОТЧИКИ UI =====
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
