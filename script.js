@@ -1,8 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const GAME_VERSION = "15.3";
+const GAME_VERSION = "15.5";
 const ADMIN_PASSWORD = "6769";
-const UPDATE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/update.json";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
 let supabaseClient = null;
@@ -58,12 +57,8 @@ function applyTheme() {
 
 function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold'); if (color && color !== 'blue') document.body.classList.add('btn-' + color); localStorage.setItem('btnColor', color || 'blue'); document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue'))); }
 
-function isNewerVersion(current, latest) { const c = current.split('.').map(Number); const l = latest.split('.').map(Number); for (let i = 0; i < Math.max(c.length, l.length); i++) { const cNum = c[i] || 0; const lNum = l[i] || 0; if (lNum > cNum) return true; if (lNum < cNum) return false; } return false; }
-function checkForUpdates() { if (!navigator.onLine) return; fetch(UPDATE_CHECK_URL + "?t=" + Date.now()).then(res => res.json()).then(data => { if (data && data.latest_version && isNewerVersion(GAME_VERSION, data.latest_version)) { document.getElementById('updateOverlay')?.classList.add('show'); document.body.style.pointerEvents = "none"; document.getElementById('updateOverlay').style.pointerEvents = "auto"; } }).catch(e => console.log(e)); }
-
 // ===== ОСНОВНАЯ ЛОГИКА =====
 window.addEventListener('load', () => {
-    setTimeout(checkForUpdates, 2000);
     try { supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.log('Ошибка Supabase:', e); }
 
     setTimeout(() => document.getElementById('loadingScreen')?.classList.add('hidden'), 1500);
@@ -97,120 +92,56 @@ window.addEventListener('load', () => {
     }
     setTimeout(updateOnlineStatus, 1000); setInterval(updateOnlineStatus, 15000);
 
-    // ===== КЛАНЫ =====
-    let currentClanId = null, currentClanName = null, clanChatSub = null;
-
-    window.openClanList = async function() {
-        document.getElementById('clanListModal').classList.add('show');
-        const cont = document.getElementById('clanListContainer');
-        cont.innerHTML = 'Загрузка...';
+    // ПРОВЕРКА ВЕРСИИ И ЗАКРЫТИЯ ЧЕРЕЗ SUPABASE
+    async function checkServerStatus() {
         if (!supabaseClient) return;
-        const { data, error } = await supabaseClient.from('clans').select('*').order('total_clicks', { ascending: false });
-        if (error) { cont.innerHTML = 'Ошибка загрузки'; return; }
-        
-        if (!data || data.length === 0) { cont.innerHTML = 'Кланов пока нет. Создай первый!'; return; }
-        
-        cont.innerHTML = data.map(c => `
-            <div style="background: #d9534f; border: 2px solid #000; margin-bottom: 5px; padding: 5px; display: flex; justify-content: space-between; align-items: center;">
-                <div style="text-align: left;">
-                    <div style="font-weight: bold; color: white;">${c.name}</div>
-                    <div style="font-size: 10px; color: #eee;">${c.description || 'Без описания'}</div>
-                    <div style="font-size: 10px; color: #ffd966;">${formatNumber(c.total_clicks)} очков</div>
-                </div>
-                <button class="modal-btn" style="background: #222; color: white; border: 2px solid #000; margin: 0; padding: 5px 10px; font-size: 12px;" onclick="joinClan(${c.id}, '${c.name}')">Войти</button>
-            </div>
-        `).join('');
-    };
+        try {
+            const { data, error } = await supabaseClient.from('game_settings').select('*').eq('id', 1).single();
+            if (error) return;
+            if (data.is_closed) {
+                document.getElementById('closedOverlay')?.classList.add('show');
+                document.body.style.pointerEvents = "none"; document.getElementById('closedOverlay').style.pointerEvents = "auto";
+                return;
+            }
+            if (data.latest_version) {
+                const c = GAME_VERSION.split('.').map(Number), l = data.latest_version.split('.').map(Number);
+                let isNewer = false;
+                for (let i = 0; i < Math.max(c.length, l.length); i++) {
+                    const cNum = c[i] || 0, lNum = l[i] || 0;
+                    if (lNum > cNum) { isNewer = true; break; } if (lNum < cNum) break;
+                }
+                if (isNewer) {
+                    document.getElementById('updateOverlay')?.classList.add('show');
+                    document.body.style.pointerEvents = "none"; document.getElementById('updateOverlay').style.pointerEvents = "auto";
+                }
+            }
+        } catch(e) { console.log(e); }
+    }
+    setTimeout(checkServerStatus, 2000);
 
-    window.joinClan = async function(clanId, clanName) {
+    // ТОП-10 ЛИДЕРБОРД
+    async function syncLeaderboard() {
+        if (!supabaseClient) return;
         const name = localStorage.getItem('gamePlayerName') || 'Аноним';
+        try {
+            await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: totalClicks, updated_at: new Date().toISOString() }, { onConflict: 'player_id' });
+        } catch(e) {}
+    }
+    setInterval(syncLeaderboard, 60000);
+
+    async function showLeaderboard() {
+        const modal = document.getElementById('leaderboardModal');
+        const list = document.getElementById('leaderboardList');
+        modal.classList.add('show');
+        list.innerHTML = 'Загрузка...';
         if (!supabaseClient) return;
-        const { error } = await supabaseClient.from('clan_members').insert([{ clan_id: clanId, player_id: playerId, player_name: name, role: 'member' }]);
-        if (error) { showToast('Ошибка: ' + error.message); return; }
-        currentClanId = clanId; currentClanName = clanName;
-        document.getElementById('clanListModal').classList.remove('show');
-        openClanDetails(clanId, clanName);
-    };
-
-    window.createClan = async function() {
-        const name = document.getElementById('newClanName').value.trim();
-        const desc = document.getElementById('newClanDesc').value.trim();
-        const pName = localStorage.getItem('gamePlayerName') || 'Аноним';
-        if (!name) return showToast('Введите название!');
-        
-        const { data, error } = await supabaseClient.from('clans').insert([{ name, description: desc, leader_id: playerId }]).select().single();
-        if (error) return showToast('Ошибка: ' + error.message);
-        
-        await supabaseClient.from('clan_members').insert([{ clan_id: data.id, player_id: playerId, player_name: pName, role: 'leader' }]);
-        currentClanId = data.id; currentClanName = data.name;
-        document.getElementById('createClanModal').classList.remove('show');
-        document.getElementById('clanListModal').classList.remove('show');
-        openClanDetails(data.id, data.name);
-    };
-
-    window.openClanDetails = async function(clanId, clanName) {
-        currentClanId = clanId; currentClanName = clanName;
-        document.getElementById('clanDetailsModal').classList.add('show');
-        document.getElementById('clanTitleDisplay').innerText = clanName;
-        document.getElementById('clanMembersList').innerHTML = 'Загрузка...';
-        document.getElementById('clanChatMessages').innerHTML = '';
-
-        if (!supabaseClient) return;
-        
-        const { data: members } = await supabaseClient.from('clan_members').select('*').eq('clan_id', clanId);
-        if (members) {
-            document.getElementById('clanMembersList').innerHTML = members.map(m => `<div style="padding: 4px; border-bottom: 1px solid #444;">${m.role === 'leader' ? '👑' : '👤'} ${m.player_name}</div>`).join('');
-        }
-
-        const { data: clan } = await supabaseClient.from('clans').select('total_clicks').eq('id', clanId).single();
-        if (clan) document.getElementById('clanTotalClicks').innerText = formatNumber(clan.total_clicks) + ' очков';
-
-        const { data: chat } = await supabaseClient.from('clan_chat').select('*').eq('clan_id', clanId).order('created_at', { ascending: true }).limit(50);
-        if (chat) {
-            const c = document.getElementById('clanChatMessages');
-            c.innerHTML = chat.map(m => `<div><b style="color:#88ff88">${m.player_name}:</b> ${m.message}</div>`).join('');
-            c.scrollTop = c.scrollHeight;
-        }
-
-        if (clanChatSub) supabaseClient.removeChannel(clanChatSub);
-        clanChatSub = supabaseClient.channel('chat_' + clanId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'clan_chat', filter: `clan_id=eq.${clanId}` }, payload => {
-            const c = document.getElementById('clanChatMessages');
-            const msg = document.createElement('div');
-            msg.innerHTML = `<b style="color:#88ff88">${payload.new.player_name}:</b> ${payload.new.message}`;
-            c.appendChild(msg); c.scrollTop = c.scrollHeight;
-        }).subscribe();
-    };
-
-    window.sendClanMsg = async function() {
-        const input = document.getElementById('clanChatInput');
-        const text = input.value.trim();
-        if (!text || !currentClanId) return;
-        const name = localStorage.getItem('gamePlayerName') || 'Аноним';
-        input.value = '';
-        await supabaseClient.from('clan_chat').insert([{ clan_id: currentClanId, player_name: name, message: text }]);
-    };
-
-    window.leaveClan = async function() {
-        if (!currentClanId) return;
-        await supabaseClient.from('clan_members').delete().eq('player_id', playerId);
-        document.getElementById('clanDetailsModal').classList.remove('show');
-        if (clanChatSub) supabaseClient.removeChannel(clanChatSub);
-        currentClanId = null; currentClanName = null;
-    };
-
-    // Обработчики кнопок кланов
-    document.getElementById('clansBtn')?.addEventListener('click', () => {
-        if (currentClanId) openClanDetails(currentClanId, currentClanName);
-        else openClanList();
-    });
-    document.getElementById('closeClanListBtn')?.addEventListener('click', () => document.getElementById('clanListModal').classList.remove('show'));
-    document.getElementById('openCreateClanBtn')?.addEventListener('click', () => { document.getElementById('clanListModal').classList.remove('show'); document.getElementById('createClanModal').classList.add('show'); });
-    document.getElementById('closeCreateClanBtn')?.addEventListener('click', () => document.getElementById('createClanModal').classList.remove('show'));
-    document.getElementById('submitCreateClanBtn')?.addEventListener('click', createClan);
-    document.getElementById('closeClanDetailsBtn')?.addEventListener('click', () => document.getElementById('clanDetailsModal').classList.remove('show'));
-    document.getElementById('leaveClanBtn')?.addEventListener('click', leaveClan);
-    document.getElementById('sendClanChatBtn')?.addEventListener('click', sendClanChatBtn => sendClanMsg());
-    document.getElementById('clanChatInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendClanMsg(); });
+        await syncLeaderboard();
+        const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
+        if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
+        list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${p.player_name}</span> <span style="color:#ffd966;">${formatNumber(p.score)}</span></div>`).join('');
+    }
+    document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
+    document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
 
     // ===== ОСТАЛЬНАЯ ЛОГИКА ИГРЫ =====
     const ACHIEVEMENTS = [{ id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },{ id: 'click1000', name: 'Кликер-маньяк', desc: 'Сделай 1000 кликов', condition: () => totalClicks >= 1000, points: 5000, stars: 10 },{ id: 'neuron10', name: 'Новичок', desc: 'Купи 10 сетей', condition: () => purchasedCount >= 10, points: 1000, stars: 5 },{ id: 'neuron100', name: 'Коллекционер', desc: 'Купи 100 сетей', condition: () => purchasedCount >= 100, points: 50000, stars: 50 },{ id: 'neuron500', name: 'Сетевой магнат', desc: 'Купи 500 сетей', condition: () => purchasedCount >= 500, points: 500000, stars: 200 },{ id: 'prestige1', name: 'Перерождение', desc: 'Сделай первый престиж', condition: () => prestigeLevel >= 1, points: 100000, stars: 100 },{ id: 'star100', name: 'Звездочёт', desc: 'Накопи 100 звёзд', condition: () => stars >= 100, points: 10000, stars: 0 },{ id: 'star1000', name: 'Галактика', desc: 'Накопи 1000 звёзд', condition: () => stars >= 1000, points: 100000, stars: 0 },{ id: 'boss', name: 'Босс', desc: 'Купи ВСЕ 2200 сетей', condition: () => purchasedCount >= 2200, points: 10000000, stars: 5000 }];
