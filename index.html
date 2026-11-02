@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="style.css?v=15.1">
 </head>
 <body class="bg-early-autumn">
+    <div id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
+        <div class="loading-sub">v15.1</div>
+    </div>
+
     <div class="music-toggle" id="musicToggle">🔇</div>
     <div class="boost-timer-panel" id="boostTimerPanel"></div>
     <div id="pet" class="pet hidden">✨</div>
@@ -15,7 +21,6 @@
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
             <div class="game-version" id="menuVersion">v15.1</div>
-
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn" data-i18n="play">🎮 ИГРАТЬ</div>
                 <div class="menu-btn" id="settingsBtn" data-i18n="settings">⚙️ НАСТРОЙКИ</div>
@@ -36,15 +41,12 @@
         <div id="gameInterface" class="game-interface hidden">
             <div class="top-bar"><div>🧠 <span id="points">10</span></div><div>⚡ <span id="power">1</span></div></div>
             <div class="diamond-bar"><div id="starLabel">⭐ <span id="stars">0</span></div><div>⏱️ <span id="playtime">0</span> <span data-i18n="min">мин</span></div></div>
-
             <div class="stats-panel-extended">
                 <div class="stat-card"><div class="stat-card-value" id="statTotalClicks">0</div><div class="stat-card-label" data-i18n="stat_total_clicks">Всего кликов</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label" data-i18n="stat_neurons">Нейросетей</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label" data-i18n="stat_session">За сессию</div></div>
             </div>
-
             <div class="timers" id="reloadTimer"><span data-i18n="reload">🔄 ПЕРЕЗАГРУЗКА:</span> <span id="reloadCountdown">5:00</span></div>
-
             <div class="brain-container">
                 <div id="clickableObject" class="brain">
                     <span class="skin-emoji" id="brainEmoji">🧠</span>
@@ -59,28 +61,21 @@
                     <div class="brain-speech" id="brainSpeech">С 8 марта девушки</div>
                 </div>
             </div>
-
             <div class="click-hint" id="clickHint">+1</div>
-
             <div class="boost-btn" id="boostBtn">⚡ БУСТ X5 — 20⭐</div>
             <div class="autoclicker-btn" id="autoclickerBtn">🤖 АВТОКЛИКЕР — 500⭐</div>
             <div class="roulette-btn" id="rouletteBtn">🎰 РУЛЕТКА — 50⭐</div>
-            
             <div class="achievements-btn" id="achBtn" data-i18n="achievements">🏆 ДОСТИЖЕНИЯ</div>
-
             <div class="pass-container" id="passContainer">
                 <div class="pass-header">
                     <span id="passTitle">🎃 AI PASS 8 🎃</span>
                     <span class="pass-timer-header" id="passTimer">⏱️ 25:00</span>
                 </div>
-                <div class="pass-progress-bar">
-                    <div class="pass-progress-fill" id="passProgressFill"></div>
-                </div>
+                <div class="pass-progress-bar"><div class="pass-progress-fill" id="passProgressFill"></div></div>
                 <div class="pass-levels" id="passLevels"></div>
                 <button class="open-tasks-btn" id="openTasksBtn" data-i18n="open_tasks">📋 ОТКРЫТЬ ЗАДАНИЯ</button>
                 <div class="pass-end" id="passEndTimer">⏳ -- дн. -- ч. -- мин.</div>
             </div>
-
             <div class="shop-panel" id="shopPanel">
                 <div class="shop-tabs-row">
                     <div class="shop-tab active" data-tab="neurons" data-i18n="shop_neurons">🧠 НЕЙРОСЕТИ</div>
@@ -95,7 +90,6 @@
                 <div class="action-btn" id="buyAllBtn" style="background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; margin-bottom: 6px;" data-i18n="buy_all">💰 КУПИТЬ ВСЁ ДОСТУПНОЕ</div>
                 <div class="action-btn" id="closeShopBtn" data-i18n="close">ЗАКРЫТЬ</div>
             </div>
-
             <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn" data-i18n="shop">🛒 МАГАЗИН</div></div>
             <div class="save-badge" data-i18n="autosave">💾 автосохранение</div>
         </div>
@@ -131,9 +125,7 @@
                     <span class="robot-emoji">🤖</span>
                     <span class="robot-text" id="robotText2">: Нажми на мозг !</span>
                 </div>
-                <div class="tutorial-text" id="tutorialText">
-                    Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)
-                </div>
+                <div class="tutorial-text" id="tutorialText">Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)</div>
                 <div class="tutorial-hand">👇</div>
                 <button class="tutorial-btn-ok" id="tutorialOk" data-i18n="ok">ПОНЯЛ</button>
             </div>
@@ -240,18 +232,10 @@
             <div class="admin-password-header">Введите пароль от панели</div>
             <input type="password" id="adminPasswordInput" class="admin-password-input" readonly>
             <div class="admin-password-keypad">
-                <button class="admin-key" data-key="1">1</button>
-                <button class="admin-key" data-key="2">2</button>
-                <button class="admin-key" data-key="3">3</button>
-                <button class="admin-key" data-key="4">4</button>
-                <button class="admin-key" data-key="5">5</button>
-                <button class="admin-key" data-key="6">6</button>
-                <button class="admin-key" data-key="7">7</button>
-                <button class="admin-key" data-key="8">8</button>
-                <button class="admin-key" data-key="9">9</button>
-                <button class="admin-key admin-key-clear" data-key="clear">⌫</button>
-                <button class="admin-key" data-key="0">0</button>
-                <button class="admin-key admin-key-ok" data-key="ok">OK</button>
+                <button class="admin-key" data-key="1">1</button><button class="admin-key" data-key="2">2</button><button class="admin-key" data-key="3">3</button>
+                <button class="admin-key" data-key="4">4</button><button class="admin-key" data-key="5">5</button><button class="admin-key" data-key="6">6</button>
+                <button class="admin-key" data-key="7">7</button><button class="admin-key" data-key="8">8</button><button class="admin-key" data-key="9">9</button>
+                <button class="admin-key admin-key-clear" data-key="clear">⌫</button><button class="admin-key" data-key="0">0</button><button class="admin-key admin-key-ok" data-key="ok">OK</button>
             </div>
             <button class="admin-password-cancel" id="adminPasswordCancel">Отмена</button>
         </div>
@@ -268,7 +252,6 @@
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title" data-i18n="settings_title">⚙️ НАСТРОЙКИ</div>
-            
             <div class="setting-item">
                 <span data-i18n="nickname">👤 Никнейм</span>
                 <div style="display:flex; gap:5px; align-items:center;">
@@ -276,7 +259,6 @@
                     <button class="modal-btn" id="saveNicknameBtn" style="padding:5px 10px; margin:0; font-size:12px;">ОК</button>
                 </div>
             </div>
-
             <div class="setting-item">
                 <span data-i18n="btn_color">🎨 Цвет кнопок</span>
                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
@@ -287,26 +269,11 @@
                     <button class="color-btn color-gold" data-color="gold">🟡</button>
                 </div>
             </div>
-            <div class="setting-item">
-                <span data-i18n="save_progress">💾 Сохранить прогресс</span>
-                <button class="modal-btn" id="exportSaveBtn" data-i18n="download_json">Скачать JSON</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="load_progress">📂 Загрузить прогресс</span>
-                <button class="modal-btn" id="importSaveBtn" data-i18n="choose_file">Выбрать файл</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="promo">🎫 Промокоды</span>
-                <button class="modal-btn" id="promoBtn" data-i18n="open">Открыть</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="sound">🔊 Звук клика</span>
-                <button class="modal-btn" id="soundToggleBtn">Сменить (Обычный)</button>
-            </div>
-            <div class="setting-item">
-                <span data-i18n="fullscreen">⛶ Полный экран</span>
-                <button class="modal-btn" id="fullscreenBtn" data-i18n="on">Включить</button>
-            </div>
+            <div class="setting-item"><span data-i18n="save_progress">💾 Сохранить прогресс</span><button class="modal-btn" id="exportSaveBtn" data-i18n="download_json">Скачать JSON</button></div>
+            <div class="setting-item"><span data-i18n="load_progress">📂 Загрузить прогресс</span><button class="modal-btn" id="importSaveBtn" data-i18n="choose_file">Выбрать файл</button></div>
+            <div class="setting-item"><span data-i18n="promo">🎫 Промокоды</span><button class="modal-btn" id="promoBtn" data-i18n="open">Открыть</button></div>
+            <div class="setting-item"><span data-i18n="sound">🔊 Звук клика</span><button class="modal-btn" id="soundToggleBtn">Сменить (Обычный)</button></div>
+            <div class="setting-item"><span data-i18n="fullscreen">⛶ Полный экран</span><button class="modal-btn" id="fullscreenBtn" data-i18n="on">Включить</button></div>
             <div class="setting-item">
                 <span data-i18n="language">🌐 Язык / Language</span>
                 <div style="display:flex; gap:5px;">
