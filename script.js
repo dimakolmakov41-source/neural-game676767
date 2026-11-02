@@ -1,6 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const GAME_VERSION = "15.8";
+const GAME_VERSION = "15.9";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -94,6 +94,50 @@ window.addEventListener('load', () => {
         } catch (e) {}
     }
     setTimeout(updateOnlineStatus, 1000); setInterval(updateOnlineStatus, 15000);
+
+    // ЧАТ
+    async function loadChatMessages() {
+        if (!supabaseClient) return;
+        const list = document.getElementById('chatMessages');
+        if (!list) return;
+        try {
+            const { data, error } = await supabaseClient.from('global_chat').select('*').order('created_at', { ascending: true }).limit(50);
+            if (error || !data) return;
+            const isScrolledToBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 60;
+            
+            // БЕЗ ЗАЩИТЫ ОТ HTML (как ты и просил!)
+            list.innerHTML = data.map(msg => `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff;"><b style="color: #ffd966;">${msg.player_name}:</b> <span>${msg.message}</span></div>`).join('');
+            
+            if (isScrolledToBottom) {
+                list.scrollTop = list.scrollHeight;
+            }
+        } catch(e) {}
+    }
+
+    async function sendChatMessage() {
+        if (!supabaseClient) return;
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text) return;
+        
+        input.value = '';
+        const name = localStorage.getItem('gamePlayerName') || 'Аноним';
+        
+        try {
+            await supabaseClient.from('global_chat').insert([{ player_id: playerId, player_name: name, message: text }]);
+            loadChatMessages();
+        } catch(e) { showToast('❌ Ошибка чата'); }
+    }
+
+    document.getElementById('chatBtn')?.addEventListener('click', () => {
+        document.getElementById('chatModal')?.classList.add('show');
+        loadChatMessages();
+    });
+    document.getElementById('closeChatBtn')?.addEventListener('click', () => document.getElementById('chatModal')?.classList.remove('show'));
+    document.getElementById('sendChatBtn')?.addEventListener('click', sendChatMessage);
+    document.getElementById('chatInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
+    
+    setInterval(() => { if (document.getElementById('chatModal')?.classList.contains('show')) loadChatMessages(); }, 3000);
 
     // ПРОВЕРКА ВЕРСИИ, ЗАКРЫТИЯ, БУСТА И БЕГУЩЕЙ СТРОКИ
     async function checkServerStatus() {
