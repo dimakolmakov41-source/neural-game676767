@@ -102,16 +102,29 @@ window.addEventListener('load', () => {
         if (!list) return;
         try {
             const { data, error } = await supabaseClient.from('global_chat').select('*').order('created_at', { ascending: true }).limit(50);
-            if (error || !data) return;
+            
+            // ЕСЛИ ОШИБКА - ВЫВОДИМ ЕЕ НА ЭКРАН
+            if (error) {
+                list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">ОШИБКА ЧТЕНИЯ:<br>${error.message}<br>Код: ${error.code}</div>`;
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                list.innerHTML = `<div style="color: #888; font-size: 12px; text-align: center; padding: 10px;">Сообщений пока нет...</div>`;
+                return;
+            }
+
             const isScrolledToBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 60;
             
-            // БЕЗ ЗАЩИТЫ ОТ HTML (как ты и просил!)
+            // БЕЗ ЗАЩИТЫ ОТ HTML
             list.innerHTML = data.map(msg => `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff;"><b style="color: #ffd966;">${msg.player_name}:</b> <span>${msg.message}</span></div>`).join('');
             
             if (isScrolledToBottom) {
                 list.scrollTop = list.scrollHeight;
             }
-        } catch(e) {}
+        } catch(e) {
+            list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">КРИТИЧЕСКАЯ ОШИБКА:<br>${e.message}</div>`;
+        }
     }
 
     async function sendChatMessage() {
@@ -124,9 +137,13 @@ window.addEventListener('load', () => {
         const name = localStorage.getItem('gamePlayerName') || 'Аноним';
         
         try {
-            await supabaseClient.from('global_chat').insert([{ player_id: playerId, player_name: name, message: text }]);
-            loadChatMessages();
-        } catch(e) { showToast('❌ Ошибка чата'); }
+            const { error } = await supabaseClient.from('global_chat').insert([{ player_id: playerId, player_name: name, message: text }]);
+            if (error) {
+                showToast(`❌ Ошибка отправки: ${error.message}`);
+            } else {
+                loadChatMessages();
+            }
+        } catch(e) { showToast('❌ Ошибка сети'); }
     }
 
     document.getElementById('chatBtn')?.addEventListener('click', () => {
