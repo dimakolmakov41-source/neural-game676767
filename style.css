@@ -1,5 +1,5 @@
 /* =========================================
-   VERSION 15.0 (OFFLINE)
+   VERSION 15.1
    ========================================= */
 
 * {
@@ -352,9 +352,6 @@ body.bg-hacker .roulette-btn { background: linear-gradient(145deg, #003300, #001
 .prestige-confirm-btn { background: linear-gradient(145deg, #8c5cd4, #5a3b8e) !important; border: 2px solid #d4a0ff !important; font-size: 16px; padding: 12px 20px !important; box-shadow: 0 0 15px rgba(200, 160, 255, 0.6); }
 .prestige-confirm-btn:active { transform: scale(0.96); }
 
-.telegram-btn { background: linear-gradient(145deg, #229ED9, #196e9e) !important; border-color: #5ec1ea !important; box-shadow: 0 0 10px rgba(34, 158, 217, 0.6); }
-.telegram-btn:hover { background: linear-gradient(145deg, #35a8e3, #229ED9) !important; box-shadow: 0 0 20px rgba(34, 158, 217, 0.9) !important; }
-
 .color-btn { width: 44px; height: 44px; border-radius: 50%; border: 3px solid #ffffff40; font-size: 20px; cursor: pointer; transition: 0.15s; display: flex; align-items: center; justify-content: center; }
 .color-btn:hover { transform: scale(1.1); }
 .color-btn.active { border-color: #ffffff; box-shadow: 0 0 15px #ffffff; transform: scale(1.15); }
@@ -594,7 +591,6 @@ body.btn-gold .boost-btn.active { background: linear-gradient(145deg, #ffee66, #
 .page-btn:hover { background: #ffcc44; transform: scale(1.05); }
 .page-btn:active { transform: scale(0.95); }
 
-/* ИСПРАВЛЕННЫЙ БЛОК ДЛЯ ВКЛАДОК */
 .shop-tabs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
 .shop-tabs-row .shop-tab { font-size: 13px; font-weight: 900; padding: 10px 8px; letter-spacing: 1px; }
 
@@ -693,7 +689,6 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
 .lang-btn.active { background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; box-shadow: 0 0 15px rgba(76,175,80,0.6); }
 #setLangRu.active, #setLangEn.active { background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; box-shadow: 0 0 15px rgba(76,175,80,0.6); }
 
-/* ===== АДАПТАЦИЯ ДЛЯ ПК ===== */
 @media (min-width: 900px) {
     body { padding: 20px; }
     .game-container { max-width: 700px; padding: 30px 24px; border-radius: 60px; }
@@ -756,11 +751,15 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
     .shop-tabs-row { grid-template-columns: repeat(4, 1fr); }
 }
 
-/* ===== АДАПТАЦИЯ ДЛЯ ОЧЕНЬ БОЛЬШИХ ЭКРАНОВ ===== */
 @media (min-width: 1400px) {
     .game-container { max-width: 800px; }
     .brain { width: 280px; height: 280px; }
     .brain .skin-emoji { font-size: 120px; }
     .amethyst-diamond { font-size: 120px; }
     .game-title { font-size: 44px; }
-             }
+}
+
+#updateOverlay { z-index: 99999 !important; background: rgba(0, 0, 0, 0.95) !important; }
+#updateOverlay .modal-content { background: linear-gradient(145deg, #2a0a0a, #1a0000) !important; border: 3px solid #ff4444 !important; box-shadow: 0 0 40px rgba(255, 68, 68, 0.6) !important; }
+#updateOverlay .modal-title { color: #ff4444 !important; animation: updatePulse 1.5s ease-in-out infinite; }
+@keyframes updatePulse { 0%, 100% { transform: scale(1); text-shadow: 0 0 10px #ff4444; } 50% { transform: scale(1.05); text-shadow: 0 0 20px #ff4444, 0 0 30px #ff0000; } }
