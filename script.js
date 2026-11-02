@@ -1,8 +1,9 @@
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "15.0";
+const GAME_VERSION = "15.1";
 const ADMIN_PASSWORD = "6769";
+const UPDATE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/update.json";
 
-// Глобальные переменные (зашиты в код, без JSON)
+// Глобальные переменные для JSON
 let globalEventMultiplier = 1;
 let saleData = { active: false, discount_percent: 0 };
 let rouletteCost = 50;
@@ -270,8 +271,31 @@ function applyButtonColor(color) {
     document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue')));
 }
 
+// ===== ПРОВЕРКА ОБНОВЛЕНИЙ =====
+function isNewerVersion(current, latest) {
+    const c = current.split('.').map(Number); const l = latest.split('.').map(Number);
+    for (let i = 0; i < Math.max(c.length, l.length); i++) {
+        const cNum = c[i] || 0; const lNum = l[i] || 0;
+        if (lNum > cNum) return true; if (lNum < cNum) return false;
+    }
+    return false;
+}
+
+function checkForUpdates() {
+    if (!navigator.onLine) return; 
+    fetch(UPDATE_CHECK_URL + "?t=" + Date.now()).then(res => res.json()).then(data => {
+        if (data && data.latest_version && isNewerVersion(GAME_VERSION, data.latest_version)) {
+            document.getElementById('updateOverlay')?.classList.add('show');
+            document.body.style.pointerEvents = "none"; 
+            document.getElementById('updateOverlay').style.pointerEvents = "auto";
+        }
+    }).catch(e => console.log(e));
+}
+
 // ===== ОСНОВНАЯ ЛОГИКА =====
 window.addEventListener('load', () => {
+    setTimeout(checkForUpdates, 2000);
+
     setTimeout(() => document.getElementById('loadingScreen')?.classList.add('hidden'), 1500);
     document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
