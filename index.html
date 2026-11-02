@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=15.3">
+    <link rel="stylesheet" href="style.css?v=15.5">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v15.3</div>
+        <div class="loading-sub">v15.5</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -20,7 +20,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v15.3</div>
+            <div class="game-version" id="menuVersion">v15.5</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -68,7 +68,6 @@
                     <div class="flower-decor" id="flowerDecor">🌷</div>
                     <div class="brain-speech" id="brainSpeech">С 8 марта девушки</div>
                 </div>
-                <div class="action-btn" id="clansBtn" style="position: absolute; top: 10px; right: 0; padding: 8px 15px; background: #88ff88; color: #1a1a2e; border: 2px solid #fff; font-weight: 900; border-radius: 20px; flex: none; min-width: 80px;">🛡️ КЛАНЫ</div>
             </div>
 
             <div class="click-hint" id="clickHint">+1</div>
@@ -78,6 +77,7 @@
             <div class="roulette-btn" id="rouletteBtn">🎰 РУЛЕТКА — 50⭐</div>
             
             <div class="achievements-btn" id="achBtn" data-i18n="achievements">🏆 ДОСТИЖЕНИЯ</div>
+            <div class="leaderboard-btn" id="leaderboardBtn">🏆 ТОП-10</div>
 
             <div class="pass-container" id="passContainer">
                 <div class="pass-header">
@@ -112,72 +112,15 @@
         </div>
     </div>
 
-    <!-- Окно: Список кланов -->
-    <div id="clanListModal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
-        <div class="modal-content" style="border: 4px solid #000; background: #444; max-width: 450px; padding: 10px;">
-            <div class="modal-title" style="font-size: 28px; color: white; text-shadow: 2px 2px 0 #000; margin-bottom: 10px;">Выбор кланов</div>
-            <button class="modal-btn" id="openCreateClanBtn" style="background: #4caf50; margin-bottom: 10px; font-size: 14px;">➕ Создать клан</button>
-            <div id="clanListContainer" style="max-height: 50vh; overflow-y: auto; margin-bottom: 10px;">
-                <!-- Сюда будут загружаться кланы -->
+    <!-- Окно Топ-10 -->
+    <div id="leaderboardModal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
+        <div class="modal-content" style="border: 3px solid #ffd700; background: #1a1a2e; max-width: 400px; padding: 20px;">
+            <div class="modal-title" style="font-size: 24px; color: #ffd700; text-shadow: 0 0 10px #ffaa00; margin-bottom: 15px;">🏆 ТОП-10 ИГРОКОВ</div>
+            <div id="leaderboardList" style="max-height: 50vh; overflow-y: auto; text-align: left; margin-bottom: 15px; color: white;">
+                <!-- Сюда будут загружаться игроки -->
                 <div style="text-align: center; padding: 20px;">Загрузка...</div>
             </div>
-            <button class="modal-btn" id="closeClanListBtn" style="background: #222; color: white; border: 2px solid #000; font-size: 20px; width: 100%;">Выйти</button>
-            <div style="text-align: left; color: white; font-size: 12px; margin-top: 5px;">V1</div>
-        </div>
-    </div>
-
-    <!-- Окно: Создание клана -->
-    <div id="createClanModal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
-        <div class="modal-content" style="border: 4px solid #000; background: #444; max-width: 400px;">
-            <div class="modal-title" style="font-size: 24px; color: white; text-shadow: 2px 2px 0 #000;">Создание клана</div>
-            <div style="text-align: left; color: white; margin-top: 15px; font-weight: bold;">Название</div>
-            <input type="text" id="newClanName" class="modal-input" placeholder="Введите название" maxlength="20" style="background: #222; border: 2px solid #000; color: white; margin-bottom: 15px;">
-            <div style="text-align: left; color: white; font-weight: bold;">Описание</div>
-            <input type="text" id="newClanDesc" class="modal-input" placeholder="Введите описание" maxlength="50" style="background: #222; border: 2px solid #000; color: white; margin-bottom: 20px;">
-            <button class="modal-btn" id="submitCreateClanBtn" style="background: #4caf50; width: 100%; font-size: 18px; margin-bottom: 10px;">Создать</button>
-            <button class="modal-btn" id="closeCreateClanBtn" style="background: #222; color: white; border: 2px solid #000; width: 100%;">Отмена</button>
-        </div>
-    </div>
-
-    <!-- Окно: Внутри клана -->
-    <div id="clanDetailsModal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
-        <div class="modal-content" style="border: 4px solid #000; background: #444; max-width: 450px; padding: 10px; display: flex; flex-direction: column;">
-            <div id="clanTitleDisplay" class="modal-title" style="font-size: 24px; color: white; text-shadow: 2px 2px 0 #000; text-align: left;">Название</div>
-            
-            <div style="display: flex; gap: 10px; height: 50vh;">
-                <!-- Левая колонка: Участники -->
-                <div style="flex: 1; background: #222; border: 2px solid #000; border-radius: 10px; display: flex; flex-direction: column;">
-                    <div style="color: white; text-align: center; font-weight: bold; padding: 5px; background: #111;">Участники</div>
-                    <div id="clanMembersList" style="overflow-y: auto; padding: 5px; text-align: left; color: white; font-size: 12px;">
-                        <!-- Сюда будут грузиться люди -->
-                    </div>
-                </div>
-
-                <!-- Правая колонка: Копилка и Чат -->
-                <div style="flex: 1.5; display: flex; flex-direction: column; gap: 10px;">
-                    <!-- Копилка -->
-                    <div style="background: #222; border: 2px solid #000; border-radius: 10px; padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                        <div style="color: #aaa; font-size: 12px;">Мега копилка скоро</div>
-                        <div style="font-size: 50px; margin: 10px 0;">🗑️</div>
-                        <div style="color: white; font-weight: bold;" id="clanTotalClicks">0 очков</div>
-                    </div>
-                    
-                    <!-- Чат -->
-                    <div style="background: #222; border: 2px solid #000; border-radius: 10px; flex: 2; display: flex; flex-direction: column; overflow: hidden;">
-                        <div style="color: white; text-align: center; font-weight: bold; padding: 5px; background: #111;">Чат</div>
-                        <div id="clanChatMessages" style="flex: 1; overflow-y: auto; padding: 5px; text-align: left; font-size: 11px; color: white; display: flex; flex-direction: column; gap: 5px;">
-                            <!-- Сообщения -->
-                        </div>
-                        <div style="display: flex; padding: 5px; background: #111;">
-                            <input type="text" id="clanChatInput" placeholder="Сообщение..." style="flex: 1; border-radius: 5px; border: none; padding: 5px; font-size: 12px;">
-                            <button id="sendClanChatBtn" style="background: #4caf50; border: none; border-radius: 5px; color: white; padding: 0 10px; margin-left: 5px; font-weight: bold;">➤</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <button class="modal-btn" id="leaveClanBtn" style="background: #222; color: white; border: 2px solid #000; font-size: 20px; width: 100%; margin-top: 10px;">Выйти из клана</button>
-            <button class="modal-btn" id="closeClanDetailsBtn" style="background: #8c5cd4; width: 100%; margin-top: 5px;">Закрыть</button>
+            <button class="modal-btn" id="closeLeaderboardBtn" style="background: #8c5cd4; width: 100%;">ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -415,6 +358,14 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=15.3"></script>
+    <div id="closedOverlay" class="modal-overlay" style="z-index: 100000;">
+        <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
+            <div class="modal-title" style="color: #ff4444; font-size: 24px;">🚫 ИГРА ЗАКРЫТА 🚫</div>
+            <div class="modal-text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Игра закрыта или недоступна на данный момент. Пожалуйста, зайдите позже.</div>
+            <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" style="display: inline-block; padding: 10px 20px; background: #229ED9; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(34,158,217,0.6); margin-top: 10px;">💬 Наш Telegram</a>
+        </div>
+    </div>
+
+    <script type="module" src="script.js?v=15.5"></script>
 </body>
 </html>
