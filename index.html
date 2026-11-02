@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=15.0">
+    <link rel="stylesheet" href="style.css?v=15.1">
 </head>
 <body class="bg-early-autumn">
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -14,7 +14,7 @@
     <div class="game-container">
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v15.0</div>
+            <div class="game-version" id="menuVersion">v15.1</div>
 
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="playBtn" data-i18n="play">🎮 ИГРАТЬ</div>
@@ -329,6 +329,14 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=15.0"></script>
+    <div id="updateOverlay" class="modal-overlay" style="z-index: 99999;">
+        <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
+            <div class="modal-title" style="color: #ff4444; font-size: 24px;">🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨</div>
+            <div class="modal-text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта.</div>
+            <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" style="display: inline-block; padding: 10px 20px; background: #229ED9; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(34,158,217,0.6); margin-top: 10px;">💬 Наш Telegram</a>
+        </div>
+    </div>
+
+    <script type="module" src="script.js?v=15.1"></script>
 </body>
 </html>
