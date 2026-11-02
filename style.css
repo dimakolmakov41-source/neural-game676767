@@ -8,12 +8,24 @@ body { transition: background 0.8s ease; min-height: 100vh; display: flex; justi
 @keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 @keyframes tickerBgAnim { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
-/* КРУГЛАЯ ИКОНКА НОВОСТЕЙ */
+/* КРУГЛЫЕ ИКОНКИ В УГЛУ */
 .corner-news-btn { position: fixed; top: 20px; right: 20px; width: 50px; height: 50px; background: linear-gradient(145deg, #2a4b6e, #1a3150); border: 2px solid #7aa5d9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 1000; box-shadow: 0 0 15px rgba(122, 165, 217, 0.5); transition: 0.2s; user-select: none; }
 .corner-news-btn:active { transform: scale(0.9); }
 .corner-news-btn:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(122, 165, 217, 0.8); }
 body.bg-hacker .corner-news-btn { background: #001a00; border: 2px solid #00ff41; box-shadow: 0 0 15px rgba(0,255,65,0.6); }
 body.bg-hacker .corner-news-btn:hover { box-shadow: 0 0 25px rgba(0,255,65,0.9); }
+
+.corner-chat-btn { position: fixed; top: 80px; right: 20px; width: 50px; height: 50px; background: linear-gradient(145deg, #2a4b6e, #1a3150); border: 2px solid #7aa5d9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 1000; box-shadow: 0 0 15px rgba(122, 165, 217, 0.5); transition: 0.2s; user-select: none; }
+.corner-chat-btn:active { transform: scale(0.9); }
+.corner-chat-btn:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(122, 165, 217, 0.8); }
+body.bg-hacker .corner-chat-btn { background: #001a00; border: 2px solid #00ff41; box-shadow: 0 0 15px rgba(0,255,65,0.6); }
+body.bg-hacker .corner-chat-btn:hover { box-shadow: 0 0 25px rgba(0,255,65,0.9); }
+
+/* СКРОЛЛБАР ЧАТА */
+#chatMessages::-webkit-scrollbar { width: 6px; }
+#chatMessages::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
+#chatMessages::-webkit-scrollbar-thumb { background: #7aa5d9; border-radius: 10px; }
+body.bg-hacker #chatMessages::-webkit-scrollbar-thumb { background: #00ff41; }
 
 /* ЧАСТИЦЫ ПРИ КЛИКЕ */
 .click-particle { position: fixed; width: 10px; height: 10px; background: #ffd966; border-radius: 50%; pointer-events: none; z-index: 2000; box-shadow: 0 0 10px #ffaa00; animation: particleExplode 0.6s ease-out forwards; }
@@ -593,6 +605,7 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
     .boss-hint { font-size: 18px; }
     .shop-tabs-row { grid-template-columns: repeat(4, 1fr); }
     .corner-news-btn { width: 60px; height: 60px; font-size: 30px; top: 30px; right: 30px; }
+    .corner-chat-btn { width: 60px; height: 60px; font-size: 30px; top: 100px; right: 30px; }
     .top-ticker { height: 42px; font-size: 18px; }
 }
 
