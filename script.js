@@ -1,12 +1,15 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const GAME_VERSION = "15.5";
+const GAME_VERSION = "15.6";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
 let supabaseClient = null;
 
 let globalEventMultiplier = 1, saleData = { active: false, discount_percent: 0 }, rouletteCost = 50, autoclickerRateBonus = 0, customTheme = "normal", weatherData = { active: false, type: "none" }, phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" }, tickerData = { active: false, text: "" }, starsData = { chance: 0.001, amount: 3 }, reloadTimeMinutes = 5;
+
+// ГЛОБАЛЬНЫЙ БУСТ
+let globalBoost = { active: false, type: 'points', multiplier: 1, text: '' };
 
 const TRANSLATIONS = {
     ru: { loading: "ЗАГРУЗКА...", title: "🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ", play: "🎮 ИГРАТЬ", settings: "⚙️ НАСТРОЙКИ", news: "📢 НОВОСТИ", share: "📤 ПОДЕЛИТЬСЯ", min: "мин", stat_total_clicks: "Всего кликов", stat_neurons: "Нейросетей", stat_session: "За сессию", reload: "🔄 ПЕРЕЗАГРУЗКА:", sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", boost: "⚡ БУСТ X5 — 20⭐", boost_active: "⚡ X5 АКТИВЕН —", open_tasks: "📋 ОТКРЫТЬ ЗАДАНИЯ", shop_neurons: "🧠 НЕЙРОСЕТИ", shop_stars: "⭐ ЗВЁЗДЫ", shop_skins: "💎 СКИНЫ", shop_helpers: "👷 ПОМОЩНИКИ", buy_all: "💰 КУПИТЬ ВСЁ ДОСТУПНОЕ", close: "ЗАКРЫТЬ", back_menu: "◀ МЕНЮ", shop: "🛒 МАГАЗИН", autosave: "💾 автосохранение", yes: "Да", no: "Нет", ok: "ПОНЯЛ", robot1: ": Привет я робот !<br>Я вижу ты тут впервые ?", robot2: ": Нажми на мозг !", tutorial_text: "Потом пролистай вниз и нажми<br>магазин , потом купи любую<br>нейросеть (нажми на неё)", conv1: "Ваши алмазы конвертированы в звёзды", conv2: "Алмазы полностью удалены", settings_title: "⚙️ НАСТРОЙКИ", btn_color: "🎨 Цвет кнопок", nickname: "👤 Никнейм", save_progress: "💾 Сохранить прогресс", download_json: "Скачать JSON", load_progress: "📂 Загрузить прогресс", choose_file: "Выбрать файл", promo: "🎫 Промокоды", open: "Открыть", sound: "🔊 Звук клика", sound_toggle: "Сменить", fullscreen: "⛶ Полный экран", on: "Включить", off: "Выключить", language: "🌐 Язык / Language", reset_all: "⚠️ СБРОСИТЬ ВСЁ", promo_title: "🎫 ПРОМОКОД", activate: "АКТИВИРОВАТЬ", news_title: "📢 НОВОСТИ", news_text: "Игра переведена в оффлайн режим!", pass_no_active: "✨ НЕТ АКТИВНОГО ПАССА ✨", pass_tasks_title: "ЗАДАНИЯ", level: "Уровень", clicks_done: "кликов", done: "✅ ВЫПОЛНЕНО", claim: "ЗАБРАТЬ", lock_first: "🔒 Сначала пройди уровень", until_end: "До конца AI Pass", days: "дн.", hours: "ч.", minutes: "мин.", pass_finished: "ЗАВЕРШЁН!", soon: "скоро", need_stars: "Нужно", need_points: "Нужно", bought: "куплена!", not_enough: "❌ Не хватает очков", boost_already: "⚡ Буст уже активен", boost_activated: "⚡ БУСТ X5 АКТИВЕН (5 минут)!", boost_ended: "⏳ Буст закончился", promo_ok: "✅ Промокод активирован!", promo_bad: "❌ Неверный код", star_got: "⭐ ЗВЁЗДЫ! +3", candy_got: "🍬 КОНФЕТЫ! +3", snowflake_got: "❄️ СНЕЖИНКИ! +3", triple_click: "⚡ ТРОЙНОЙ КЛИК! x3!", crit_click: "💥 КРИТИЧЕСКИЙ КЛИК! x10!", banned: "🌚 Ты забанен на", banned_min: "минут", ban_lifted: "✅ Бан снят.", copied: "✅ Скопировано!", saved: "💾 Сохранено!", loaded: "📂 Загружено!", load_error: "❌ Ошибка", reload_toast: "Перезагрузка...", bought_count: "Куплено сетей", all_neurons: "Все нейросети куплены!", all_passes: "Все AI Pass открыты!", god_on: "БОГ ВКЛ", god_off: "БОГ ВЫКЛ", soon_feature: "⏳ Скоро!", task_claimed: "Уровень", task_received: "получен!", pass_reward: "Награда AI Pass", fact_title: "ФАКТ ДНЯ", roulette_no_stars: "❌ Нужно 50⭐", roulette_win: "🎉 ВЫИГРЫШ", roulette_spinning: "🎲 КРУТИТСЯ...", roulette_spin: "🎲 КРУТИТЬ", roulette_nothing: "🕳️ ПУСТО!", roulette_jackpot: "🎉 ДЖЕКПОТ!!!", first_page: "⏮ НАЧАЛО", last_page: "КОНЕЦ ⏭", prev_page: "⬅️ НАЗАД", next_page: "ВПЕРЁД ➡️", prestige: "🌟 ПРЕСТИЖ", prestige_level: "Уровень:", prestige_bonus: "Бонус:", prestige_need: "Нужно:", prestige_warning: "⚠️ Сбросятся очки и сети. Звёзды останутся.", prestige_yes: "ДА, ПРЕСТИЖ!", prestige_done: "🌟 ПРЕСТИЖ! Уровень", prestige_not_enough: "❌ Нужно 100 000 000 🧠", prestige_confirm: "Точно престиж?", offline_title: "С ВОЗВРАЩЕНИЕМ!", offline_text: "Пока тебя не было, накапало:", offline_capped: "(макс 8ч)", meteor_win: "📢 МЕТЕОРИТ! +", birthday_boost: "🎂 БУСТ X10!", march8_boost: "🌷 БУСТ X15!", ghost_win: "👻 ПРИЗРАК! +", spider_win: "🕷️ ПАУК! +3⭐", witch_win: "🧙 ВЕДЬМА! +", web_destroyed: "🕸️ ПАУТИНА РАЗБИТА! +", web_progress: "🕸️ Паутина:", web_hint: "Кликни 20 раз чтобы разбить", autoclicker: "🤖 АВТОКЛИКЕР — 500⭐", autoclicker_active: "🤖 АВТОКЛИКЕР АКТИВЕН", autoclicker_bought: "✅ Автокликер куплен!", autoclicker_no_stars: "❌ Нужно 500⭐", daily_gift: "🎁 ПОДАРОК", daily_gift_got: "🎁 Подарок получен!", daily_gift_already: "⏰ Уже получен сегодня", pumpkin_click: "🎃 ТЫКВА! +5⭐", x10_boost: "🧠 БУСТ X10! 5 часов!", achievements: "🏆 ДОСТИЖЕНИЯ", ach_unlocked: "🏆 Достижение:", bat_win: "🦇 МЫШЬ! +500🧠", admin_wrong_pass: "❌ Неверный пароль!", skin_normal: "Обычный", skin_halloween: "Тыква", skin_amethyst: "Аметист", skin_mult: "Множитель: ×", skin_free: "Бесплатно", skin_event_free: "Бесплатно (Ивент)", skin_equipped: "✅ Надет", skin_equip: "Одеть", skin_buy: "Купить за ", skin_equipped_toast: "Скин надет!", skin_bought: "куплен!", helpers_buy: "Купить", helpers_upgrade: "Прокачать", helpers_level: "Ур.", boss_title: "🐛 СЕКРЕТНЫЙ БОСС: БАГ 🐛", boss_hint: "Кликай по багу, чтобы убить его!", boss_killed: "🐛 БАГ УБИТ! Награда:" },
@@ -92,12 +95,13 @@ window.addEventListener('load', () => {
     }
     setTimeout(updateOnlineStatus, 1000); setInterval(updateOnlineStatus, 15000);
 
-    // ПРОВЕРКА ВЕРСИИ И ЗАКРЫТИЯ ЧЕРЕЗ SUPABASE
+    // ПРОВЕРКА ВЕРСИИ, ЗАКРЫТИЯ И БУСТА
     async function checkServerStatus() {
         if (!supabaseClient) return;
         try {
             const { data, error } = await supabaseClient.from('game_settings').select('*').eq('id', 1).single();
             if (error) return;
+
             if (data.is_closed) {
                 document.getElementById('closedOverlay')?.classList.add('show');
                 document.body.style.pointerEvents = "none"; document.getElementById('closedOverlay').style.pointerEvents = "auto";
@@ -115,9 +119,26 @@ window.addEventListener('load', () => {
                     document.body.style.pointerEvents = "none"; document.getElementById('updateOverlay').style.pointerEvents = "auto";
                 }
             }
+
+            globalBoost = {
+                active: data.boost_active || false,
+                type: data.boost_type || 'points',
+                multiplier: data.boost_multiplier || 1,
+                text: data.boost_text || ''
+            };
+            
+            const banner = document.getElementById('globalBoostBanner');
+            const bannerText = document.getElementById('globalBoostText');
+            if (globalBoost.active) {
+                if (banner) banner.classList.remove('hidden');
+                if (bannerText) bannerText.innerText = globalBoost.text;
+            } else {
+                if (banner) banner.classList.add('hidden');
+            }
         } catch(e) { console.log(e); }
     }
     setTimeout(checkServerStatus, 2000);
+    setInterval(checkServerStatus, 30000); // Проверка каждые 30 секунд
 
     // ТОП-10 ЛИДЕРБОРД
     async function syncLeaderboard() {
@@ -317,7 +338,24 @@ window.addEventListener('load', () => {
     function hideSleepMsg() { if (sleepMsgTimer) clearTimeout(sleepMsgTimer); if (sleepMsgShowing) { sleepMsgShowing = false; document.getElementById('sleepMsg')?.classList.remove('show'); } startSleepMsgTimer(); }
 
     function shareProgress() { const text = `🧠 ${t('title')}:\n🧠 ${formatNumber(points)}\n⭐ ${formatNumber(stars)}\n🖱️ ${formatNumber(totalClicks)}\n🧬 ${purchasedCount}/${upgrades.length}\n🌟 Престиж: ${prestigeLevel}\n📅 ${GAME_VERSION}`; navigator.clipboard.writeText(text); showToast(t('copied')); }
-    function getClickPower() { let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; }); if (godMode) base *= 10; if (isBoostActive()) base *= BOOST_MULTIPLIER; if (isBirthdayBoostActive()) base *= BIRTHDAY_BOOST_MULT; if (isMarch8BoostActive()) base *= MARCH8_BOOST_MULT; if (isX10BoostActive()) base *= X10_BOOST_MULT; if (globalEventMultiplier > 1) base *= globalEventMultiplier; base *= getPrestigeMultiplier(); base *= getSkinMultiplier(); return Math.floor(base); }
+    
+    function getClickPower() {
+        let base = 1; upgrades.forEach(u => { if (u.purchased) base += u.power; });
+        if (godMode) base *= 10;
+        if (isBoostActive()) base *= BOOST_MULTIPLIER;
+        if (isBirthdayBoostActive()) base *= BIRTHDAY_BOOST_MULT;
+        if (isMarch8BoostActive()) base *= MARCH8_BOOST_MULT;
+        if (isX10BoostActive()) base *= X10_BOOST_MULT;
+        if (globalEventMultiplier > 1) base *= globalEventMultiplier;
+        
+        // ГЛОБАЛЬНЫЙ БУСТ НА ОЧКИ
+        if (globalBoost.active && globalBoost.type === 'points') {
+            base *= globalBoost.multiplier;
+        }
+
+        base *= getPrestigeMultiplier(); base *= getSkinMultiplier(); return Math.floor(base);
+    }
+
     function updateUI() { document.getElementById('points').innerText = formatNumber(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${formatNumber(getClickPower())} (БОГ)` : `+${formatNumber(getClickPower())}`; document.getElementById('stars').innerText = formatNumber(stars); updateStatsUI(); updatePlaytime(); document.getElementById('comboText')?.classList.remove('show'); checkPassProgress(); checkAchievements(); }
     function showToast(msg) { const t2 = document.createElement('div'); t2.className = 'toast'; t2.innerText = msg; document.body.appendChild(t2); setTimeout(() => t2.remove(), 2500); }
 
@@ -351,7 +389,19 @@ window.addEventListener('load', () => {
         if (Math.random() < 0.02) { finalGain *= 3; spawnFloatText(x, y - 40, "⚡ x3!"); showToast(t('triple_click')); playBuySound(); }
         if (Math.random() < 0.05) { finalGain *= 10; spawnFloatText(x, y - 60, phrasesData.crit || t('crit_click')); showToast(phrasesData.crit || t('crit_click')); playBuySound(); const brain = document.getElementById('clickableObject'); if(brain) { brain.style.boxShadow = '0 0 50px #ffd700'; setTimeout(() => brain.style.boxShadow = '', 300); } }
         points += finalGain; totalClicks++; sessionClicks++; playClickSound();
-        if (Math.random() < starsData.chance) { stars += starsData.amount; totalStarsEarned += starsData.amount; showToast(t('star_got')); playBuySound(); spawnFloatText(x, y - 30, "⭐⭐⭐"); }
+        
+        if (Math.random() < starsData.chance) { 
+            let starAmount = starsData.amount;
+            if (globalBoost.active && globalBoost.type === 'stars') {
+                starAmount *= globalBoost.multiplier;
+            }
+            stars += starAmount; 
+            totalStarsEarned += starAmount; 
+            showToast(`⭐ ЗВЁЗДЫ! +${starAmount}`); 
+            playBuySound(); 
+            spawnFloatText(x, y - 30, "⭐⭐⭐"); 
+        }
+        
         if (isHalloween() && Math.random() < 0.02) { stars += 5; totalStarsEarned += 5; showToast(t('pumpkin_click')); spawnFloatText(x, y - 50, "🎃 +5⭐"); playBuySound(); }
     }
 
