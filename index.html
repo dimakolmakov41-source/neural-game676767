@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=15.7">
+    <link rel="stylesheet" href="style.css?v=15.8">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v15.7</div>
+        <div class="loading-sub">v15.8</div>
+    </div>
+
+    <!-- БЕГУЩАЯ СТРОКА -->
+    <div id="globalTicker" class="top-ticker hidden">
+        <span id="tickerText"></span>
     </div>
 
     <!-- Круглая иконка новостей в правом верхнем углу -->
@@ -28,7 +33,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v15.7</div>
+            <div class="game-version" id="menuVersion">v15.8</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -369,6 +374,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=15.7"></script>
+    <script type="module" src="script.js?v=15.8"></script>
 </body>
 </html>
