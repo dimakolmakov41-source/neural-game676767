@@ -459,6 +459,10 @@ window.addEventListener('load', () => {
         console.log('🧪 TEST STATE:', state); showToast(`🧪 v${GAME_VERSION} | 🧠${formatNumber(points)} ⭐${formatNumber(stars)} 🧬${purchasedCount}`);
     });
 
+    document.getElementById('testBtn2')?.addEventListener('click', () => {
+        showToast("тест кнопка работает");
+    });
+
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     if (fullscreenBtn) { fullscreenBtn.addEventListener('click', () => { const el = document.documentElement; const isFull = document.fullscreenElement || document.webkitFullscreenElement; if (!isFull) { if (el.requestFullscreen) el.requestFullscreen(); else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); fullscreenBtn.innerText = t('off'); showToast("⛶ " + t('fullscreen')); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); fullscreenBtn.innerText = t('on'); showToast("⛶ " + t('fullscreen')); } }); }
 
