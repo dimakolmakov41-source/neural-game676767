@@ -1,6 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const GAME_VERSION = "15.7";
+const GAME_VERSION = "15.8";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -95,7 +95,7 @@ window.addEventListener('load', () => {
     }
     setTimeout(updateOnlineStatus, 1000); setInterval(updateOnlineStatus, 15000);
 
-    // ПРОВЕРКА ВЕРСИИ, ЗАКРЫТИЯ И БУСТА
+    // ПРОВЕРКА ВЕРСИИ, ЗАКРЫТИЯ, БУСТА И БЕГУЩЕЙ СТРОКИ
     async function checkServerStatus() {
         if (!supabaseClient) return;
         try {
@@ -135,6 +135,20 @@ window.addEventListener('load', () => {
             } else {
                 if (banner) banner.classList.add('hidden');
             }
+
+            // БЕГУЩАЯ СТРОКА
+            const tickerEl = document.getElementById('globalTicker');
+            const tickerTextEl = document.getElementById('tickerText');
+            if (data.ticker_text && data.ticker_text.trim() !== '') {
+                tickerData.text = data.ticker_text;
+                tickerData.active = true;
+                if (tickerTextEl) tickerTextEl.innerText = tickerData.text;
+                if (tickerEl) tickerEl.classList.remove('hidden');
+            } else {
+                tickerData.active = false;
+                if (tickerEl) tickerEl.classList.add('hidden');
+            }
+
         } catch(e) { console.log(e); }
     }
     setTimeout(checkServerStatus, 2000);
