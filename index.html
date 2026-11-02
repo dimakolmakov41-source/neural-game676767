@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=15.8">
+    <link rel="stylesheet" href="style.css?v=15.9">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v15.8</div>
+        <div class="loading-sub">v15.9</div>
     </div>
 
     <!-- БЕГУЩАЯ СТРОКА -->
@@ -18,8 +18,9 @@
         <span id="tickerText"></span>
     </div>
 
-    <!-- Круглая иконка новостей в правом верхнем углу -->
+    <!-- ИКОНКИ В ПРАВОМ ВЕРХНЕМ УГЛУ -->
     <div class="corner-news-btn" id="newsBtn">📢</div>
+    <div class="corner-chat-btn" id="chatBtn">💬</div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
     <div class="boost-timer-panel" id="boostTimerPanel"></div>
@@ -33,7 +34,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v15.8</div>
+            <div class="game-version" id="menuVersion">v15.9</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -118,6 +119,21 @@
 
             <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn" data-i18n="shop">🛒 МАГАЗИН</div></div>
             <div class="save-badge" data-i18n="autosave">💾 автосохранение</div>
+        </div>
+    </div>
+
+    <!-- Окно Глобального Чата -->
+    <div id="chatModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; height: 75vh; display: flex; flex-direction: column; padding: 15px;">
+            <div class="modal-title" style="margin-bottom: 10px; flex-shrink: 0;">💬 ГЛОБАЛЬНЫЙ ЧАТ</div>
+            <div id="chatMessages" style="flex: 1; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; word-break: break-word;">
+                <!-- Сообщения будут здесь -->
+            </div>
+            <div style="display: flex; gap: 5px; flex-shrink: 0;">
+                <input type="text" id="chatInput" class="modal-input" style="margin: 0; flex: 1; padding: 10px;" placeholder="Написать..." maxlength="200">
+                <button class="modal-btn" id="sendChatBtn" style="margin: 0; padding: 10px 15px; background: #2e7d32; font-size: 16px;">➤</button>
+            </div>
+            <button class="modal-btn" id="closeChatBtn" style="margin-top: 10px; width: 100%; flex-shrink: 0;">ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -374,6 +390,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=15.8"></script>
+    <script type="module" src="script.js?v=15.9"></script>
 </body>
 </html>
