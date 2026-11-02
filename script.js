@@ -1,6 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const GAME_VERSION = "15.9";
+const GAME_VERSION = "16.0";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -103,7 +103,6 @@ window.addEventListener('load', () => {
         try {
             const { data, error } = await supabaseClient.from('global_chat').select('*').order('created_at', { ascending: true }).limit(50);
             
-            // ЕСЛИ ОШИБКА - ВЫВОДИМ ЕЕ НА ЭКРАН
             if (error) {
                 list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">ОШИБКА ЧТЕНИЯ:<br>${error.message}<br>Код: ${error.code}</div>`;
                 return;
@@ -215,15 +214,15 @@ window.addEventListener('load', () => {
     setTimeout(checkServerStatus, 2000);
     setInterval(checkServerStatus, 30000);
 
-    // ТОП-10 ЛИДЕРБОРД
+    // ЛИДЕРБОРД
     async function syncLeaderboard() {
         if (!supabaseClient) return;
         const name = localStorage.getItem('gamePlayerName') || 'Аноним';
         try {
-            await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: totalClicks, updated_at: new Date().toISOString() }, { onConflict: 'player_id' });
-        } catch(e) {}
+            await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: Math.floor(points), updated_at: new Date().toISOString() }, { onConflict: 'player_id' });
+            return true;
+        } catch(e) { return false; }
     }
-    setInterval(syncLeaderboard, 60000);
 
     async function showLeaderboard() {
         const modal = document.getElementById('leaderboardModal');
@@ -231,13 +230,25 @@ window.addEventListener('load', () => {
         modal.classList.add('show');
         list.innerHTML = 'Загрузка...';
         if (!supabaseClient) return;
-        await syncLeaderboard();
+        
         const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
-        list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${p.player_name}</span> <span style="color:#ffd966;">${formatNumber(p.score)}</span></div>`).join('');
+        list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${p.player_name}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
     }
+    
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
+    
+    // Кнопка ручной отправки в Топ-10
+    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => {
+        const success = await syncLeaderboard();
+        if (success) {
+            showToast('✅ Твои очки добавлены в Топ-10!');
+            showLeaderboard(); // Обновляем список на экране
+        } else {
+            showToast('❌ Ошибка отправки');
+        }
+    });
 
     // ===== ОСТАЛЬНАЯ ЛОГИКА ИГРЫ =====
     const ACHIEVEMENTS = [{ id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },{ id: 'click1000', name: 'Кликер-маньяк', desc: 'Сделай 1000 кликов', condition: () => totalClicks >= 1000, points: 5000, stars: 10 },{ id: 'neuron10', name: 'Новичок', desc: 'Купи 10 сетей', condition: () => purchasedCount >= 10, points: 1000, stars: 5 },{ id: 'neuron100', name: 'Коллекционер', desc: 'Купи 100 сетей', condition: () => purchasedCount >= 100, points: 50000, stars: 50 },{ id: 'neuron500', name: 'Сетевой магнат', desc: 'Купи 500 сетей', condition: () => purchasedCount >= 500, points: 500000, stars: 200 },{ id: 'prestige1', name: 'Перерождение', desc: 'Сделай первое перерождение', condition: () => prestigeLevel >= 1, points: 100000, stars: 100 },{ id: 'star100', name: 'Звездочёт', desc: 'Накопи 100 звёзд', condition: () => stars >= 100, points: 10000, stars: 0 },{ id: 'star1000', name: 'Галактика', desc: 'Накопи 1000 звёзд', condition: () => stars >= 1000, points: 100000, stars: 0 },{ id: 'boss', name: 'Босс', desc: 'Купи ВСЕ 2200 сетей', condition: () => purchasedCount >= 2200, points: 10000000, stars: 5000 }];
