@@ -1,9 +1,16 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
 // ===== ВЕРСИЯ =====
-const GAME_VERSION = "15.1";
+const GAME_VERSION = "15.2";
 const ADMIN_PASSWORD = "6769";
 const UPDATE_CHECK_URL = "https://dimakolmakov41-source.github.io/neural-game676767/update.json";
 
-// Глобальные переменные для JSON
+// ===== НАСТРОЙКИ SUPABASE (ОНЛАЙН) =====
+const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
+let supabaseClient = null;
+
+// Глобальные переменные
 let globalEventMultiplier = 1;
 let saleData = { active: false, discount_percent: 0 };
 let rouletteCost = 50;
@@ -296,6 +303,11 @@ function checkForUpdates() {
 window.addEventListener('load', () => {
     setTimeout(checkForUpdates, 2000);
 
+    // Инициализация Supabase
+    try {
+        supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch(e) { console.log('Ошибка Supabase:', e); }
+
     setTimeout(() => document.getElementById('loadingScreen')?.classList.add('hidden'), 1500);
     document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
@@ -350,6 +362,31 @@ window.addEventListener('load', () => {
             showToast(`✅ Ник сброшен`);
         }
     });
+
+    // Функция онлайна
+    async function updateOnlineStatus() {
+        if (!supabaseClient) return;
+        try {
+            await supabaseClient.from('online_players').upsert({ 
+                player_id: playerId, 
+                last_seen: new Date().toISOString() 
+            }, { onConflict: 'player_id' });
+
+            const thirtySecsAgo = new Date(Date.now() - 30000).toISOString();
+            const { count, error } = await supabaseClient
+                .from('online_players')
+                .select('*', { count: 'exact', head: true })
+                .gte('last_seen', thirtySecsAgo);
+
+            if (!error && count !== null) {
+                const el = document.getElementById('onlinePlayersNum');
+                if (el) el.innerText = count;
+            }
+        } catch (e) { console.error('Ошибка онлайна:', e); }
+    }
+
+    setTimeout(updateOnlineStatus, 1000);
+    setInterval(updateOnlineStatus, 15000);
 
     const ACHIEVEMENTS = [
         { id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },
