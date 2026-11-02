@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=15.5">
+    <link rel="stylesheet" href="style.css?v=15.6">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v15.5</div>
+        <div class="loading-sub">v15.6</div>
     </div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
@@ -18,9 +18,14 @@
     <div id="pet" class="pet hidden">✨</div>
 
     <div class="game-container">
+        <!-- ГЛОБАЛЬНЫЙ БАННЕР БУСТА -->
+        <div id="globalBoostBanner" class="global-boost-banner hidden">
+            <span id="globalBoostText">🔥 ГЛОБАЛЬНЫЙ БУСТ!</span>
+        </div>
+
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v15.5</div>
+            <div class="game-version" id="menuVersion">v15.6</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -117,7 +122,6 @@
         <div class="modal-content" style="border: 3px solid #ffd700; background: #1a1a2e; max-width: 400px; padding: 20px;">
             <div class="modal-title" style="font-size: 24px; color: #ffd700; text-shadow: 0 0 10px #ffaa00; margin-bottom: 15px;">🏆 ТОП-10 ИГРОКОВ</div>
             <div id="leaderboardList" style="max-height: 50vh; overflow-y: auto; text-align: left; margin-bottom: 15px; color: white;">
-                <!-- Сюда будут загружаться игроки -->
                 <div style="text-align: center; padding: 20px;">Загрузка...</div>
             </div>
             <button class="modal-btn" id="closeLeaderboardBtn" style="background: #8c5cd4; width: 100%;">ЗАКРЫТЬ</button>
@@ -366,6 +370,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=15.5"></script>
+    <script type="module" src="script.js?v=15.6"></script>
 </body>
 </html>
