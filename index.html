@@ -54,6 +54,9 @@
                 <div class="menu-btn" id="testBtn3">3</div>
                 <div class="menu-btn" id="testBtn4">4</div>
             </div>
+            <div class="menu-buttons-row">
+                <div class="menu-btn" id="friendsBtn">👥 ДРУЗЬЯ</div>
+            </div>
         </div>
 
         <div id="gameInterface" class="game-interface hidden">
@@ -212,6 +215,22 @@
         </div>
     </div>
 
+    <div id="friendsModal" class="modal-overlay">
+        <div class="modal-content friends-modal-content">
+            <div class="modal-title friends-modal-title">👥 ДРУЗЬЯ</div>
+            <div class="friends-count" id="friendsCount">Друзей: 0</div>
+            <div class="friends-search-row">
+                <input id="friendsSearchInput" class="modal-input" type="text" maxlength="24" placeholder="Найти игрока по нику...">
+                <button id="friendsSearchBtn" class="modal-btn">НАЙТИ</button>
+            </div>
+            <div id="friendsSearchResults" class="friends-list"><div class="friends-empty">Введи ник игрока для поиска.</div></div>
+            <div class="friends-section-title">📨 ЗАЯВКИ</div>
+            <div id="friendsRequestsList" class="friends-list"><div class="friends-empty">Нет новых заявок.</div></div>
+            <div class="friends-section-title">⭐ МОИ ДРУЗЬЯ</div>
+            <div id="friendsList" class="friends-list"><div class="friends-empty">Пока нет друзей.</div></div>
+            <button id="closeFriendsBtn" class="modal-btn friends-close-btn">ЗАКРЫТЬ</button>
+        </div>
+    </div>
     <div id="leaderboardModal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
         <div class="modal-content" style="border: 3px solid #ffd700; background: #1a1a2e; max-width: 400px; padding: 20px;">
             <div class="modal-title" style="font-size: 24px; color: #ffd700; text-shadow: 0 0 10px #ffaa00; margin-bottom: 15px;">🏆 ТОП-10 ИГРОКОВ</div>
