@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=16.7">
+    <link rel="stylesheet" href="style.css?v=16.8">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v16.7</div>
+        <div class="loading-sub">v16.8</div>
     </div>
 
     <div id="globalTicker" class="top-ticker hidden">
@@ -33,7 +33,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v16.7</div>
+            <div class="game-version" id="menuVersion">v16.8</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -93,6 +93,7 @@
             <div class="roulette-btn" id="rouletteBtn">🎰 РУЛЕТКА — 250⭐</div>
             
             <div class="achievements-btn" id="achBtn" data-i18n="achievements">🏆 ДОСТИЖЕНИЯ</div>
+            <div class="balloon-game-btn" id="balloonGameBtn">🎈 ЛОПАЙ ШАРИКИ</div>
             <div class="leaderboard-btn" id="leaderboardBtn">🏆 ТОП-10</div>
 
             <div class="shop-panel" id="shopPanel">
@@ -112,6 +113,26 @@
 
             <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn" data-i18n="shop">🛒 МАГАЗИН</div></div>
             <div class="save-badge" data-i18n="autosave">💾 автосохранение</div>
+        </div>
+    </div>
+
+    <div id="balloonGameModal" class="modal-overlay balloon-game-overlay">
+        <div class="balloon-game-panel">
+            <div class="balloon-game-heading">🎈 ЛОПАЙ ШАРИКИ!</div>
+            <div class="balloon-game-settings">
+                <label for="balloonSize">Размер шариков: <strong id="balloonSizeLabel">Средние</strong></label>
+                <input id="balloonSize" type="range" min="1" max="3" step="1" value="2">
+                <label for="balloonCount">Шариков одновременно: <strong id="balloonCountLabel">15</strong></label>
+                <input id="balloonCount" type="range" min="5" max="60" step="5" value="15">
+            </div>
+            <div id="balloonPlayfield" class="balloon-playfield">
+                <div class="balloon-start-hint" id="balloonStartHint">Нажми «НАЧАТЬ»!</div>
+            </div>
+            <div class="balloon-game-controls">
+                <button class="modal-btn balloon-start-btn" id="balloonStartBtn">▶ НАЧАТЬ</button>
+                <button class="modal-btn balloon-close-btn" id="balloonCloseBtn">ЗАКРЫТЬ</button>
+            </div>
+            <div class="balloon-game-note">Шарики появляются бесконечно. Нажимай на них, чтобы лопать!</div>
         </div>
     </div>
 
@@ -474,7 +495,7 @@
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
             <div class="modal-text" id="newsText" style="font-size: 14px; line-height: 1.5; text-align: left;">
-                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.7!</b><br><br>
+                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.8!</b><br><br>
                 🗳️ <b>НАСТОЯЩИЕ ГОЛОСОВАНИЯ:</b> Теперь шкала «Да/Нет» реально двигается и показывает проценты!<br><br>
                 Играйте и делитесь ссылкой с друзьями! 💙
             </div>
@@ -498,6 +519,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=16.7"></script>
+    <script type="module" src="script.js?v=16.8"></script>
 </body>
 </html>
