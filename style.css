@@ -803,3 +803,60 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
     .balloon-game-panel { padding: 11px; }
     .balloon-game-heading { font-size: 21px; }
 }
+
+
+/* ===== GLOBAL EVENT v17.0 ===== */
+.global-event-panel {
+    width: min(92%, 560px);
+    margin: 14px auto 18px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 65, 65, .72);
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(70, 12, 18, .96), rgba(28, 8, 13, .96));
+    box-shadow: 0 0 18px rgba(255, 35, 45, .18), inset 0 0 16px rgba(255, 35, 45, .07);
+    color: #fff;
+    text-align: center;
+}
+.global-event-panel.hidden { display: none !important; }
+.global-event-heading {
+    color: #ff626b;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: .5px;
+    text-shadow: 0 0 9px rgba(255, 55, 65, .45);
+    margin-bottom: 8px;
+}
+.global-event-count {
+    font-size: 17px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 9px;
+}
+.global-event-track {
+    width: 100%;
+    height: 15px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 120, 120, .65);
+    border-radius: 20px;
+    background: #21090d;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, .65);
+}
+.global-event-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #b80018, #ff2638, #ff737b);
+    box-shadow: 0 0 12px rgba(255, 35, 55, .65);
+    transition: width .35s ease;
+}
+.global-event-status {
+    margin-top: 8px;
+    color: #ffc4c7;
+    font-size: 12px;
+}
+.global-event-reward {
+    margin-top: 7px;
+    color: #ffe6a6;
+    font-size: 12px;
+    font-weight: 700;
+}
