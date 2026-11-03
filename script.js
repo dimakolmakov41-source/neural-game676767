@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.3";
+const GAME_VERSION = "16.4";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -330,7 +330,6 @@ window.addEventListener('load', () => {
             document.getElementById('voteQuestion').innerText = data.q;
             document.getElementById('voteModal').classList.add('show');
             
-            // Очищаем старые обработчики и ставим новые
             const btnYes = document.getElementById('voteBtnYes');
             const btnNo = document.getElementById('voteBtnNo');
             const newBtnYes = btnYes.cloneNode(true);
@@ -573,9 +572,10 @@ window.addEventListener('load', () => {
     }
 
     function loadGame() {
+        startPassEndTimer(); // <--- ПЕРЕНЕС СЮДА
         initPassSeason(true); const activeSeason = localStorage.getItem('aiPassSeason') || '0'; let _showAnim = false; const saved = localStorage.getItem('neuralEvoSave');
         if (saved) { try { const d = JSON.parse(saved); points = d.points || 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (String(d.passSeason) === String(activeSeason) && d.passTasks) { d.passTasks.forEach((data, i) => { if (passTasks[i]) { passTasks[i].claimed = data.claimed; passTasks[i].completed = data.completed; } }); if (d.passCurrentTask !== undefined) passCurrentTask = d.passCurrentTask; if (d.passRewardSeconds !== undefined) passRewardSeconds = d.passRewardSeconds; } if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) {} }
-        updateUI(); renderShopNeurons(); renderPassBadges(); renderTasksList(); updateStatsUI(); renderAchievements(); startPassEndTimer(); startPassRewardTimer(); startBoostTimer(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applyPassStyle(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
+        updateUI(); renderShopNeurons(); renderPassBadges(); renderTasksList(); updateStatsUI(); renderAchievements(); startPassRewardTimer(); startBoostTimer(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applyPassStyle(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
         const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) { birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION; localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('birthday_boost')), 3000); saveGame(); }
         if (isMarch8() && !isMarch8BoostActive() && !localStorage.getItem('march8BoostUsed_' + new Date().toDateString())) { march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION; localStorage.setItem('march8BoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('march8_boost')), 3000); saveGame(); }
@@ -757,26 +757,13 @@ window.addEventListener('load', () => {
                 } else {
                     await toggleAbuseEffect('rainbow', true);
                 }
-                renderAdminBody(); // Обновить кнопку
+                renderAdminBody();
             };
             document.getElementById('admStarRain').onclick = () => { sendAdminCommand('star_rain'); showToast('Звездный дождь запущен!'); };
-            document.getElementById('admPointsGive').onclick = () => {
-                const v = document.getElementById('admPointsAmount').value;
-                if (v) sendAdminCommand('give_points', v);
-            };
-            document.getElementById('admStarsGive').onclick = () => {
-                const v = document.getElementById('admStarsAmount').value;
-                if (v) sendAdminCommand('give_stars', v);
-            };
-            document.getElementById('admBrainSay').onclick = () => {
-                const v = document.getElementById('admBrainText').value;
-                if (v) sendAdminCommand('dialogue', v);
-            };
-            document.getElementById('admStartVote').onclick = () => {
-                const q = document.getElementById('admVoteTitle').value || "Голосование";
-                const payload = JSON.stringify({ q: q, o: ['Да', 'Нет'] });
-                sendAdminCommand('start_vote', payload);
-            };
+            document.getElementById('admPointsGive').onclick = () => { const v = document.getElementById('admPointsAmount').value; if (v) sendAdminCommand('give_points', v); };
+            document.getElementById('admStarsGive').onclick = () => { const v = document.getElementById('admStarsAmount').value; if (v) sendAdminCommand('give_stars', v); };
+            document.getElementById('admBrainSay').onclick = () => { const v = document.getElementById('admBrainText').value; if (v) sendAdminCommand('dialogue', v); };
+            document.getElementById('admStartVote').onclick = () => { const q = document.getElementById('admVoteTitle').value || "Голосование"; const payload = JSON.stringify({ q: q, o: ['Да', 'Нет'] }); sendAdminCommand('start_vote', payload); };
             document.getElementById('admGlobalBoss').onclick = () => sendAdminCommand('spawn_global_boss');
         }
     }
