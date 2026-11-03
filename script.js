@@ -48,7 +48,11 @@ const FACTS = { ru: ["Первый перцептрон создан в 1958 г�
 function getFactOfDay() { const now = new Date(); const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000); return FACTS[currentLang][dayOfYear % FACTS[currentLang].length]; }
 function checkDailyFact() { const today = new Date().toISOString().slice(0, 10); if (localStorage.getItem('factShownDate') !== today) { localStorage.setItem('factShownDate', today); const factText = document.getElementById('factText'); if (factText) factText.innerText = getFactOfDay(); setTimeout(() => document.getElementById('factOverlay')?.classList.add('show'), 2500); } }
 
-if (localStorage.getItem('gameVersion') !== GAME_VERSION) { localStorage.removeItem('neuralEvoSave'); localStorage.removeItem('banEnd'); localStorage.setItem('gameVersion', GAME_VERSION); }
+// Обновление версии больше не удаляет сохранение игрока.
+const storedGameVersion = localStorage.getItem('gameVersion');
+if (storedGameVersion !== GAME_VERSION) {
+    localStorage.setItem('gameVersion', GAME_VERSION);
+}
 
 function isHalloween() { if (customTheme === 'halloween') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return n.getMonth() === 9 && n.getDate() >= 5 && n.getDate() <= 31; }
 function isNewYear() { if (customTheme === 'newyear') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return (n.getMonth() === 11 && n.getDate() === 31) || (n.getMonth() === 0 && n.getDate() === 1); }
@@ -1170,12 +1174,68 @@ window.addEventListener('load', () => {
 
     function saveGame() {
         lastSaveTime = Date.now();
-        localStorage.setItem('neuralEvoSave', JSON.stringify({ points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode, comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements, helpers: helpers.map(h => ({ bought: h.bought, level: h.level })), currentSkin, purchasedSkins, upgrades: upgrades.map(u => ({ purchased: u.purchased })), passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime }));
+        const saveData = {
+            points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode,
+            comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime,
+            x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements,
+            helpers: helpers.map(h => ({ bought: h.bought, level: h.level })),
+            currentSkin, purchasedSkins,
+            upgrades: upgrades.map(u => ({ purchased: u.purchased })),
+            passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime,
+            currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime
+        };
+        try {
+            localStorage.setItem('neuralEvoSave', JSON.stringify(saveData));
+        } catch (e) {
+            console.error('Не удалось сохранить прогресс:', e);
+        }
     }
 
     function loadGame() {
         const saved = localStorage.getItem('neuralEvoSave');
-        if (saved) { try { const d = JSON.parse(saved); points = d.points || 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (d.passPlayTimeSeconds !== undefined) passPlayTimeSeconds = d.passPlayTimeSeconds; if (d.passClaimedRewards) passClaimedRewards = d.passClaimedRewards; if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) {} }
+        if (saved) {
+            try {
+                const d = JSON.parse(saved);
+                if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Некорректный формат сохранения');
+                if (Number.isFinite(Number(d.points))) points = Number(d.points);
+                if (Number.isFinite(Number(d.stars))) stars = Number(d.stars);
+                else if (Number.isFinite(Number(d.diamonds))) stars = Math.floor(Number(d.diamonds) / 10);
+                if (Number.isFinite(Number(d.totalClicks))) totalClicks = Number(d.totalClicks);
+                if (Number.isFinite(Number(d.totalStarsEarned))) totalStarsEarned = Number(d.totalStarsEarned);
+                else if (Number.isFinite(Number(d.totalDiamondsEarned))) totalStarsEarned = Number(d.totalDiamondsEarned);
+                if (typeof d.godMode === 'boolean') godMode = d.godMode;
+                if (Number.isFinite(Number(d.comboCounter))) comboCounter = Number(d.comboCounter);
+                if (Number.isFinite(Number(d.prestigeLevel))) prestigeLevel = Number(d.prestigeLevel);
+                if (Number.isFinite(Number(d.boostEndTime))) boostEndTime = Number(d.boostEndTime);
+                if (Number.isFinite(Number(d.birthdayBoostEndTime))) birthdayBoostEndTime = Number(d.birthdayBoostEndTime);
+                if (Number.isFinite(Number(d.march8BoostEndTime))) march8BoostEndTime = Number(d.march8BoostEndTime);
+                if (Number.isFinite(Number(d.x10BoostEndTime))) x10BoostEndTime = Number(d.x10BoostEndTime);
+                if (typeof d.autoclickerBought === 'boolean') autoclickerBought = d.autoclickerBought;
+                if (Number.isFinite(Number(d.autoclickerLevel))) autoclickerLevel = Number(d.autoclickerLevel);
+                if (Array.isArray(d.unlockedAchievements)) unlockedAchievements = d.unlockedAchievements;
+                if (Array.isArray(d.helpers)) d.helpers.forEach((hData, i) => {
+                    if (helpers[i] && hData && typeof hData === 'object') {
+                        if (typeof hData.bought === 'boolean') helpers[i].bought = hData.bought;
+                        if (Number.isFinite(Number(hData.level))) helpers[i].level = Number(hData.level);
+                    }
+                });
+                if (Number.isFinite(Number(d.lastSaveTime)) && Number(d.lastSaveTime) > 0) lastSaveTime = Number(d.lastSaveTime);
+                if (typeof d.currentSkin === 'string' && d.currentSkin) currentSkin = d.currentSkin;
+                if (Array.isArray(d.purchasedSkins)) purchasedSkins = d.purchasedSkins;
+                if (Array.isArray(d.upgrades)) d.upgrades.forEach((data, i) => {
+                    if (upgrades[i] && data && typeof data.purchased === 'boolean') upgrades[i].purchased = data.purchased;
+                });
+                if (Number.isFinite(Number(d.passPlayTimeSeconds))) passPlayTimeSeconds = Number(d.passPlayTimeSeconds);
+                if (Array.isArray(d.passClaimedRewards)) passClaimedRewards = d.passClaimedRewards;
+                if (Number.isFinite(Number(d.gameStartTime)) && Number(d.gameStartTime) > 0) gameStartTime = Number(d.gameStartTime);
+                if (Number.isFinite(Number(d.currentSoundProfile))) currentSoundProfile = Number(d.currentSoundProfile);
+                purchasedCount = upgrades.filter(u => u.purchased).length;
+                // Мигрируем старое сохранение на текущую версию без потери данных.
+                saveGame();
+            } catch(e) {
+                console.error('Ошибка чтения сохранения. Исходные данные оставлены без изменений:', e);
+            }
+        }
         updateUI(); renderShopNeurons(); updateStatsUI(); renderAchievements(); startBoostTimer(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
         const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) { birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION; localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('birthday_boost')), 3000); saveGame(); }
@@ -1448,6 +1508,10 @@ window.addEventListener('load', () => {
     let reloadSeconds = reloadTimeMinutes * 60;
     setInterval(() => { if (reloadSeconds > 0) { reloadSeconds--; const el = document.getElementById('reloadCountdown'); if (el) el.innerText = `${Math.floor(reloadSeconds / 60)}:${(reloadSeconds % 60).toString().padStart(2, '0')}`; if (reloadSeconds === 0) { showToast(t('reload_toast')); setTimeout(() => location.reload(), 2000); } } }, 1000);
     setInterval(saveGame, 5000);
+    window.addEventListener('pagehide', saveGame);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') saveGame();
+    });
 
     let adminPasswordBuffer = '';
     function openAdminPasswordPanel() { adminPasswordBuffer = ''; document.getElementById('adminPasswordInput').value = ''; document.getElementById('adminPasswordOverlay')?.classList.add('show'); }
