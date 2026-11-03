@@ -60,6 +60,77 @@ function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'b
 window.addEventListener('load', () => {
     try { supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.log('Ошибка Supabase:', e); }
 
+    // ===== ПРОВЕРКА СТАТУСА СЕРВЕРА (game_settings) =====
+    async function checkServerStatus() {
+        if (!supabaseClient) return;
+        try {
+            const { data, error } = await supabaseClient.from('game_settings').select('*').limit(1).maybeSingle();
+            if (error) { console.log('game_settings ошибка:', error.message); return; }
+            if (!data) { console.log('game_settings: нет данных в таблице'); return; }
+
+            // 1. ЗАКРЫТИЕ ИГРЫ
+            const isClosed = (data.is_closed === true || data.is_closed === 'true');
+            if (isClosed) {
+                document.getElementById('closedOverlay')?.classList.add('show');
+                document.getElementById('mainMenu')?.classList.add('hidden');
+                document.getElementById('gameInterface')?.classList.add('hidden');
+                return;
+            } else {
+                document.getElementById('closedOverlay')?.classList.remove('show');
+            }
+
+            // 2. ПРОВЕРКА ВЕРСИИ
+            if (data.latest_version && String(data.latest_version).trim() !== GAME_VERSION) {
+                document.getElementById('updateOverlay')?.classList.add('show');
+                document.getElementById('mainMenu')?.classList.add('hidden');
+                document.getElementById('gameInterface')?.classList.add('hidden');
+                return;
+            } else {
+                document.getElementById('updateOverlay')?.classList.remove('show');
+            }
+
+            // 3. БЕГУЩАЯ СТРОКА
+            const tickerActive = (data.ticker_active === true || data.ticker_active === 'true');
+            if (tickerActive && data.ticker_text) {
+                const ticker = document.getElementById('globalTicker');
+                const tickerText = document.getElementById('tickerText');
+                if (ticker && tickerText) {
+                    if (tickerText.innerText !== data.ticker_text) tickerText.innerText = data.ticker_text;
+                    ticker.classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('globalTicker')?.classList.add('hidden');
+            }
+
+            // 4. ГЛОБАЛЬНЫЙ БУСТ
+            const boostActive = (data.boost_active === true || data.boost_active === 'true');
+            if (boostActive) {
+                globalBoost = {
+                    active: true,
+                    type: data.boost_type || 'points',
+                    multiplier: Number(data.boost_multiplier) || 2,
+                    text: data.boost_text || '🔥 ГЛОБАЛЬНЫЙ БУСТ!'
+                };
+                const banner = document.getElementById('globalBoostBanner');
+                const boostText = document.getElementById('globalBoostText');
+                if (banner && boostText) {
+                    boostText.innerText = globalBoost.text;
+                    banner.classList.remove('hidden');
+                }
+            } else {
+                if (globalBoost.active) {
+                    globalBoost = { active: false, type: 'points', multiplier: 1, text: '' };
+                    document.getElementById('globalBoostBanner')?.classList.add('hidden');
+                    if (typeof updateUI === 'function') updateUI();
+                }
+            }
+        } catch(e) { console.log('checkServerStatus catch:', e); }
+    }
+
+    // Вызываем сразу + каждые 60 секунд
+    setTimeout(checkServerStatus, 800);
+    setInterval(checkServerStatus, 60000);
+
     setTimeout(() => document.getElementById('loadingScreen')?.classList.add('hidden'), 1500);
     document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
 
@@ -82,7 +153,7 @@ window.addEventListener('load', () => {
     // ===== НОВЫЙ AI PASS =====
     let passPlayTimeSeconds = 0;
     let passClaimedRewards = [];
-    let isPassActive = true; // Для тестов стоит true
+    let isPassActive = true;
 
     function updatePassTime() {
         if (isPassActive) {
@@ -116,7 +187,6 @@ window.addEventListener('load', () => {
             if (m === 15) { rewardPoints = 3500; rewardStars = 20; }
 
             let cardClass = 'pass-card';
-            let textClass = 'pass-card-text';
             let btnHtml = '';
 
             if (isClaimed) {
@@ -695,7 +765,6 @@ window.addEventListener('load', () => {
         document.getElementById('tourneyBtn')?.classList.add('hidden'); 
     });
 
-    // ===== ТЕСТ КНОПКА 3 =====
     document.getElementById('testBtn3')?.addEventListener('click', () => {
         showToast('✅ Тест 3 работает');
     });
