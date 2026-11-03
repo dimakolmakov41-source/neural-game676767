@@ -1176,17 +1176,45 @@ window.addEventListener('load', () => {
             currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime
         };
         try {
-            localStorage.setItem('neuralEvoSave', JSON.stringify(saveData));
+            const serialized = JSON.stringify(saveData);
+            // Сначала записываем резервную копию, затем основное сохранение.
+            localStorage.setItem('neuralEvoSaveBackup', serialized);
+            localStorage.setItem('neuralEvoSave', serialized);
+            // Проверяем, что основная запись действительно доступна для чтения.
+            const check = JSON.parse(localStorage.getItem('neuralEvoSave'));
+            if (!check || Number(check.points) !== Number(points)) {
+                throw new Error('Проверка сохранения не пройдена');
+            }
         } catch (e) {
             console.error('Не удалось сохранить прогресс:', e);
         }
     }
 
     function loadGame() {
-        const saved = localStorage.getItem('neuralEvoSave');
-        if (saved) {
+        let saved = null;
+        let d = null;
+        try {
+            saved = localStorage.getItem('neuralEvoSave');
+            if (saved) d = JSON.parse(saved);
+        } catch (e) {
+            console.error('Основное сохранение повреждено, пробуем резервное:', e);
+        }
+        if (!d || typeof d !== 'object' || Array.isArray(d)) {
             try {
-                const d = JSON.parse(saved);
+                saved = localStorage.getItem('neuralEvoSaveBackup');
+                d = saved ? JSON.parse(saved) : null;
+                if (d && typeof d === 'object' && !Array.isArray(d)) {
+                    console.warn('Прогресс восстановлен из резервной копии.');
+                } else {
+                    d = null;
+                }
+            } catch (e) {
+                console.error('Резервная копия сохранения недоступна:', e);
+                d = null;
+            }
+        }
+        if (d) {
+            try {
                 if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Некорректный формат сохранения');
                 if (Number.isFinite(Number(d.points))) points = Number(d.points);
                 if (Number.isFinite(Number(d.stars))) stars = Number(d.stars);
