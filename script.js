@@ -931,6 +931,10 @@ window.addEventListener('load', () => {
         showToast('✅ Тест 3 работает');
     });
 
+    document.getElementById('testBtn4')?.addEventListener('click', () => {
+        showToast('✅ Тест 4 работает');
+    });
+
     document.getElementById('openShopBtn')?.addEventListener('click', () => { document.getElementById('shopPanel').classList.add('show'); switchShopTab('neurons'); });
     document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
