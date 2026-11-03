@@ -5,6 +5,7 @@ import { createHtmlEscaper } from './src/utils/escapeHTML.js';
 import { selectFactOfDay } from './src/utils/selectFactOfDay.js';
 import { isCalendarDate } from './src/utils/isCalendarDate.js';
 import { calculateOfflineIncome as calculateOfflineIncomeTS } from './src/utils/calculateOfflineIncome.js';
+import { isHalloween as isHalloweenTS } from './src/utils/isHalloween.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -45,7 +46,7 @@ if (storedGameVersion !== GAME_VERSION) {
     localStorage.setItem('gameVersion', GAME_VERSION);
 }
 
-function isHalloween() { if (customTheme === 'halloween') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return n.getMonth() === 9 && n.getDate() >= 5 && n.getDate() <= 31; }
+function isHalloween() { return isHalloweenTS(customTheme); }
 function isNewYear() { if (customTheme === 'newyear') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return (n.getMonth() === 11 && n.getDate() === 31) || (n.getMonth() === 0 && n.getDate() === 1); }
 function isHackerMode() { const n = Date.now(); return n >= new Date(2026, 8, 29).getTime() && n <= new Date(2026, 9, 5).getTime(); }
 function isBirthday() { return isCalendarDate(new Date(), 2, 17); }
