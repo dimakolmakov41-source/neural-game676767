@@ -13,6 +13,19 @@
         <div class="loading-sub">v17.0</div>
     </div>
 
+
+    <div id="mandatoryNicknameOverlay" class="mandatory-nick-overlay" role="dialog" aria-modal="true" aria-labelledby="mandatoryNicknameTitle">
+        <div class="mandatory-nick-panel">
+            <div class="mandatory-nick-emoji">👤</div>
+            <div class="mandatory-nick-title" id="mandatoryNicknameTitle">ДОБРО ПОЖАЛОВАТЬ!</div>
+            <div class="mandatory-nick-description">Придумай ник, чтобы начать играть и появиться среди игроков.</div>
+            <input id="mandatoryNicknameInput" class="mandatory-nick-input" type="text" maxlength="32" autocomplete="nickname" placeholder="Твой ник" aria-label="Твой ник">
+            <div id="mandatoryNicknameError" class="mandatory-nick-error" role="alert"></div>
+            <button id="mandatoryNicknameSave" class="mandatory-nick-save">ПРОДОЛЖИТЬ</button>
+            <div class="mandatory-nick-note">Ник сохранится даже после сброса игрового прогресса.</div>
+        </div>
+    </div>
+
     <div id="globalTicker" class="top-ticker hidden">
         <span id="tickerText"></span>
     </div>
