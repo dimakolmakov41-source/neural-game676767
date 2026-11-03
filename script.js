@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.7";
+const GAME_VERSION = "16.8";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
@@ -1015,6 +1015,118 @@ window.addEventListener('load', () => {
 
     function handlePointerDown(e) { e.preventDefault(); if (e.pointerType === 'mouse' && e.button !== 0) return; const gain = getClickPower(); processSingleClick(gain, e.clientX, e.clientY); const brain = document.getElementById('clickableObject'); if(brain) { brain.style.transform = 'scale(0.92)'; setTimeout(() => brain.style.transform = '', 120); } updateUI(); saveGame(); }
     const clickable = document.getElementById('clickableObject'); if (clickable) { clickable.addEventListener('pointerdown', handlePointerDown); }
+
+
+    // Мини-игра v16.8: бесконечные реалистичные воздушные шарики
+    const balloonModal = document.getElementById('balloonGameModal');
+    const balloonField = document.getElementById('balloonPlayfield');
+    const balloonSizeInput = document.getElementById('balloonSize');
+    const balloonCountInput = document.getElementById('balloonCount');
+    let balloonGameActive = false;
+    let balloonSpawnTimer = null;
+    let balloonSizeValue = 2;
+    let balloonTargetCount = 15;
+    const balloonColors = [
+        'radial-gradient(ellipse at 30% 22%, #fff2f2 0%, #ffb5b5 9%, #f23d4e 32%, #a90825 78%, #620719 100%)',
+        'radial-gradient(ellipse at 30% 22%, #f1fbff 0%, #b6edff 9%, #31a9ed 32%, #0759ad 78%, #06346c 100%)',
+        'radial-gradient(ellipse at 30% 22%, #fffdf0 0%, #fff0a5 9%, #ffc52e 32%, #df7900 78%, #8b4300 100%)',
+        'radial-gradient(ellipse at 30% 22%, #fff5ff 0%, #f3c7ff 9%, #bd55e8 32%, #7620a9 78%, #3c105f 100%)',
+        'radial-gradient(ellipse at 30% 22%, #f0fff7 0%, #a9f5c8 9%, #28bd75 32%, #087344 78%, #03452b 100%)'
+    ];
+    function updateBalloonSettings() {
+        balloonSizeValue = Number(balloonSizeInput?.value || 2);
+        balloonTargetCount = Number(balloonCountInput?.value || 15);
+        const sizeNames = ['Маленькие', 'Средние', 'Большие'];
+        const sizeLabel = document.getElementById('balloonSizeLabel');
+        const countLabel = document.getElementById('balloonCountLabel');
+        if (sizeLabel) sizeLabel.textContent = sizeNames[balloonSizeValue - 1];
+        if (countLabel) countLabel.textContent = String(balloonTargetCount);
+        if (balloonGameActive) fillBalloonField();
+    }
+    function createBalloon() {
+        if (!balloonField || !balloonGameActive) return;
+        const balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        const dimensions = [34, 58, 88][balloonSizeValue - 1];
+        const variation = 0.82 + Math.random() * 0.36;
+        const width = Math.round(dimensions * variation);
+        const height = Math.round(width * 1.28);
+        const fieldWidth = balloonField.clientWidth;
+        balloon.style.width = width + 'px';
+        balloon.style.height = height + 'px';
+        balloon.style.left = Math.max(0, Math.random() * Math.max(1, fieldWidth - width)) + 'px';
+        balloon.style.background = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+        balloon.style.setProperty('--rise-time', (6 + Math.random() * 5) + 's');
+        balloon.addEventListener('pointerdown', (event) => {
+            event.preventDefault();
+            if (!balloon.isConnected || balloon.classList.contains('balloon-pop')) return;
+            const rect = balloon.getBoundingClientRect();
+            const fieldRect = balloonField.getBoundingClientRect();
+            balloon.classList.add('balloon-pop');
+            for (let i = 0; i < 7; i++) {
+                const bit = document.createElement('i');
+                bit.className = 'balloon-burst';
+                bit.style.left = (rect.left - fieldRect.left + rect.width / 2) + 'px';
+                bit.style.top = (rect.top - fieldRect.top + rect.height / 2) + 'px';
+                bit.style.background = balloonColors[Math.floor(Math.random() * balloonColors.length)].match(/#[0-9a-f]{3,8}/i)?.[0] || '#ffffff';
+                const angle = Math.PI * 2 * i / 7;
+                bit.style.setProperty('--dx', Math.cos(angle) * (18 + Math.random() * 28) + 'px');
+                bit.style.setProperty('--dy', Math.sin(angle) * (18 + Math.random() * 28) + 'px');
+                balloonField.appendChild(bit);
+                setTimeout(() => bit.remove(), 450);
+            }
+            setTimeout(() => balloon.remove(), 170);
+            setTimeout(fillBalloonField, 180);
+        });
+        balloon.addEventListener('animationend', (event) => {
+            if (event.animationName === 'balloonRise') {
+                balloon.remove();
+                fillBalloonField();
+            }
+        });
+        balloonField.appendChild(balloon);
+    }
+    function fillBalloonField() {
+        if (!balloonGameActive || !balloonField) return;
+        const current = balloonField.querySelectorAll('.balloon:not(.balloon-pop)').length;
+        for (let i = current; i < balloonTargetCount; i++) {
+            setTimeout(() => { if (balloonGameActive && balloonField.querySelectorAll('.balloon:not(.balloon-pop)').length < balloonTargetCount) createBalloon(); }, i * 75);
+        }
+    }
+    function startBalloonGame() {
+        if (!balloonField) return;
+        balloonGameActive = true;
+        balloonField.innerHTML = '';
+        document.getElementById('balloonStartHint')?.remove();
+        fillBalloonField();
+        const startButton = document.getElementById('balloonStartBtn');
+        if (startButton) startButton.textContent = '↻ ПЕРЕЗАПУСТИТЬ';
+    }
+    function stopBalloonGame() {
+        balloonGameActive = false;
+        if (balloonSpawnTimer) clearInterval(balloonSpawnTimer);
+        balloonSpawnTimer = null;
+        if (balloonField) balloonField.innerHTML = '<div class="balloon-start-hint">Нажми «НАЧАТЬ»!</div>';
+        const startButton = document.getElementById('balloonStartBtn');
+        if (startButton) startButton.textContent = '▶ НАЧАТЬ';
+    }
+    document.getElementById('balloonGameBtn')?.addEventListener('click', () => {
+        balloonModal?.classList.add('show');
+        updateBalloonSettings();
+    });
+    document.getElementById('balloonStartBtn')?.addEventListener('click', startBalloonGame);
+    document.getElementById('balloonCloseBtn')?.addEventListener('click', () => {
+        stopBalloonGame();
+        balloonModal?.classList.remove('show');
+    });
+    balloonSizeInput?.addEventListener('input', updateBalloonSettings);
+    balloonCountInput?.addEventListener('input', updateBalloonSettings);
+    balloonModal?.addEventListener('click', (event) => {
+        if (event.target === balloonModal) {
+            stopBalloonGame();
+            balloonModal.classList.remove('show');
+        }
+    });
 
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
     function showTutorial() { tutorialStep1?.classList.remove('hidden'); tutorialStep2?.classList.add('hidden'); tutorialOverlay?.classList.add('show'); }
