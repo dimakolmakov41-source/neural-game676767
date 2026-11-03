@@ -694,6 +694,12 @@ window.addEventListener('load', () => {
         document.getElementById('chatBtn')?.classList.add('hidden'); 
         document.getElementById('tourneyBtn')?.classList.add('hidden'); 
     });
+
+    // ===== ТЕСТ КНОПКА 3 =====
+    document.getElementById('testBtn3')?.addEventListener('click', () => {
+        showToast('✅ Тест 3 работает');
+    });
+
     document.getElementById('openShopBtn')?.addEventListener('click', () => { document.getElementById('shopPanel').classList.add('show'); switchShopTab('neurons'); });
     document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
