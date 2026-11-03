@@ -201,6 +201,119 @@ window.addEventListener('load', () => {
         }
     });
 
+
+    // ===== СИСТЕМА ДРУЗЕЙ =====
+    const friendsModal = document.getElementById('friendsModal');
+    const getMyFriendName = () => (localStorage.getItem('gamePlayerName') || '').trim();
+
+    function friendsMessage(id, message) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<div class="friends-empty">' + escapeHTML(message) + '</div>';
+    }
+
+    async function loadFriends() {
+        if (!supabaseClient) {
+            friendsMessage('friendsList', 'Нет подключения к серверу.');
+            friendsMessage('friendsRequestsList', 'Нет подключения к серверу.');
+            return;
+        }
+        try {
+            const [sent, received] = await Promise.all([
+                supabaseClient.from('friends').select('*').eq('player_id', playerId).eq('status', 'accepted'),
+                supabaseClient.from('friends').select('*').eq('friend_id', playerId).eq('status', 'accepted')
+            ]);
+            if (sent.error || received.error) throw (sent.error || received.error);
+            const rows = [
+                ...(sent.data || []).map(x => ({ otherId: x.friend_id, name: x.friend_name })),
+                ...(received.data || []).map(x => ({ otherId: x.player_id, name: x.player_name }))
+            ];
+            const unique = [...new Map(rows.map(x => [x.otherId, x])).values()];
+            const count = document.getElementById('friendsCount');
+            if (count) count.textContent = 'Друзей: ' + unique.length;
+            const list = document.getElementById('friendsList');
+            if (!unique.length) friendsMessage('friendsList', 'Пока нет друзей.');
+            else {
+                const ids = unique.map(x => x.otherId);
+                const online = await supabaseClient.from('online_players').select('player_id').in('player_id', ids).gte('last_seen', new Date(Date.now() - 30000).toISOString());
+                const onlineIds = new Set((online.data || []).map(x => x.player_id));
+                list.innerHTML = unique.map(x => '<div class="friend-row"><div class="friend-player-info"><div class="friend-player-name">' + escapeHTML(x.name) + '</div><div class="friend-player-status ' + (onlineIds.has(x.otherId) ? 'online' : '') + '">' + (onlineIds.has(x.otherId) ? '🟢 В сети' : '⚫ Не в сети') + '</div></div><button class="friend-action-btn danger" data-friend-remove="' + escapeHTML(x.otherId) + '">УДАЛИТЬ</button></div>').join('');
+            }
+
+            const incoming = await supabaseClient.from('friends').select('*').eq('friend_id', playerId).eq('status', 'pending');
+            if (incoming.error) throw incoming.error;
+            if (!incoming.data?.length) friendsMessage('friendsRequestsList', 'Нет новых заявок.');
+            else document.getElementById('friendsRequestsList').innerHTML = incoming.data.map(x => '<div class="friend-row"><div class="friend-player-info"><div class="friend-player-name">' + escapeHTML(x.player_name) + '</div><div class="friend-player-status">Хочет добавить тебя</div></div><button class="friend-action-btn" data-friend-accept="' + x.id + '">ПРИНЯТЬ</button></div>').join('');
+        } catch (e) {
+            showToast('❌ Не удалось загрузить друзей');
+            console.error('Friends:', e);
+        }
+    }
+
+    async function searchFriend() {
+        const nick = document.getElementById('friendsSearchInput')?.value.trim();
+        if (!supabaseClient) { showToast('❌ Нет подключения к серверу'); return; }
+        if (!nick) { friendsMessage('friendsSearchResults', 'Введи ник игрока.'); return; }
+        if (!getMyFriendName()) { showToast('⚠️ Сначала установи себе ник в настройках'); return; }
+        try {
+            const { data, error } = await supabaseClient.from('player_profiles').select('player_id, player_name').ilike('player_name', nick).limit(10);
+            if (error) throw error;
+            const matches = (data || []).filter(x => x.player_id !== playerId);
+            const results = document.getElementById('friendsSearchResults');
+            if (!matches.length) { friendsMessage('friendsSearchResults', 'Игрок не найден.'); return; }
+            results.innerHTML = matches.map(x => '<div class="friend-row"><div class="friend-player-info"><div class="friend-player-name">' + escapeHTML(x.player_name) + '</div><div class="friend-player-status">Игрок</div></div><button class="friend-action-btn" data-friend-add="' + escapeHTML(x.player_id) + '" data-friend-name="' + escapeHTML(x.player_name) + '">ДОБАВИТЬ</button></div>').join('');
+        } catch (e) {
+            friendsMessage('friendsSearchResults', 'Ошибка поиска. Проверь подключение и таблицы Supabase.');
+            console.error('Friend search:', e);
+        }
+    }
+
+    async function sendFriendRequest(targetId, targetName) {
+        if (!supabaseClient || !getMyFriendName()) return;
+        try {
+            const { data, error: checkError } = await supabaseClient.from('friends').select('id,status').or('and(player_id.eq.' + playerId + ',friend_id.eq.' + targetId + '),and(player_id.eq.' + targetId + ',friend_id.eq.' + playerId + ')').limit(1);
+            if (checkError) throw checkError;
+            if (data?.length) { showToast(data[0].status === 'accepted' ? 'Вы уже друзья' : 'Заявка уже существует'); return; }
+            const { error } = await supabaseClient.from('friends').insert({
+                player_id: playerId, friend_id: targetId,
+                player_name: getMyFriendName(), friend_name: targetName,
+                status: 'pending'
+            });
+            if (error) throw error;
+            showToast('✅ Заявка отправлена');
+            loadFriends();
+        } catch (e) {
+            showToast('❌ Не удалось отправить заявку');
+            console.error('Friend request:', e);
+        }
+    }
+
+    document.getElementById('friendsBtn')?.addEventListener('click', () => {
+        friendsModal?.classList.add('show');
+        loadFriends();
+    });
+    document.getElementById('closeFriendsBtn')?.addEventListener('click', () => friendsModal?.classList.remove('show'));
+    document.getElementById('friendsSearchBtn')?.addEventListener('click', searchFriend);
+    document.getElementById('friendsSearchInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') searchFriend(); });
+    document.getElementById('friendsSearchResults')?.addEventListener('click', e => {
+        const btn = e.target.closest('[data-friend-add]');
+        if (btn) sendFriendRequest(btn.dataset.friendAdd, btn.dataset.friendName);
+    });
+    document.getElementById('friendsRequestsList')?.addEventListener('click', async e => {
+        const btn = e.target.closest('[data-friend-accept]');
+        if (!btn || !supabaseClient) return;
+        const { error } = await supabaseClient.from('friends').update({ status: 'accepted' }).eq('id', btn.dataset.friendAccept).eq('friend_id', playerId);
+        if (error) showToast('❌ Не удалось принять заявку');
+        else { showToast('🤝 Теперь вы друзья!'); loadFriends(); }
+    });
+    document.getElementById('friendsList')?.addEventListener('click', async e => {
+        const btn = e.target.closest('[data-friend-remove]');
+        if (!btn || !supabaseClient) return;
+        const otherId = btn.dataset.friendRemove;
+        const { error } = await supabaseClient.from('friends').delete().or('and(player_id.eq.' + playerId + ',friend_id.eq.' + otherId + '),and(player_id.eq.' + otherId + ',friend_id.eq.' + playerId + ')');
+        if (error) showToast('❌ Не удалось удалить друга');
+        else { showToast('Друг удалён'); loadFriends(); }
+    });
+
     // ===== НОВЫЙ AI PASS =====
     let passPlayTimeSeconds = 0;
     let passClaimedRewards = [];
