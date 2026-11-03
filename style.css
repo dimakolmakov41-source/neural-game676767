@@ -2,6 +2,18 @@
 body { transition: background 0.8s ease; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; color: white; text-shadow: 0 0 5px black, 0 0 10px black; overflow-x: hidden; }
 .hidden { display: none !important; }
 
+/* АНИМАЦИЯ РАДУЖНОГО ФОНА */
+@keyframes rainbowBg {
+    0% { background-color: #ff0000; }
+    17% { background-color: #ff8800; }
+    33% { background-color: #ffff00; }
+    50% { background-color: #00ff00; }
+    67% { background-color: #00ffff; }
+    83% { background-color: #0000ff; }
+    100% { background-color: #ff00ff; }
+}
+body.bg-rainbow { animation: rainbowBg 5s linear infinite !important; background-image: none !important; }
+
 /* БЕГУЩАЯ СТРОКА */
 .top-ticker { position: fixed; top: 0; left: 0; width: 100%; height: 36px; background: linear-gradient(90deg, #1a1a2e, #8c5cd4, #1a1a2e); background-size: 200% 100%; color: #ffffff; font-weight: 900; font-size: 14px; display: flex; align-items: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.8); overflow: hidden; border-bottom: 2px solid #ffd700; animation: tickerBgAnim 3s linear infinite; }
 #tickerText { white-space: nowrap; padding-left: 100vw; animation: tickerScroll 15s linear infinite; text-shadow: 0 0 5px black, 0 0 10px #ffaa00; }
@@ -43,7 +55,7 @@ body.bg-hacker #chatMessages::-webkit-scrollbar-thumb { background: #00ff41; }
 .brain.evo-stage-5::after { content: "👑"; position: absolute; top: -55px; left: 50%; transform: translateX(-50%); font-size: 50px; filter: drop-shadow(0 0 15px gold); animation: crownFloat 2s ease-in-out infinite; pointer-events: none; z-index: 10; }
 @keyframes crownFloat { 0%, 100% { transform: translateX(-50%) translateY(0) rotate(-10deg); } 50% { transform: translateX(-50%) translateY(-10px) rotate(10deg); } }
 
-/* ===== ОКНО ТУРНИРА (ТОЧЬ В ТОЧЬ) ===== */
+/* ===== ОКНО ТУРНИРА ===== */
 .tourney-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 10px; }
 .tourney-container { background: #105ab5; border: 6px solid #000; border-radius: 30px; width: 100%; max-width: 420px; height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
 .tourney-header { background: #0d4a96; border-bottom: 6px solid #000; padding: 15px; text-align: center; position: relative; flex-shrink: 0; }
@@ -53,28 +65,23 @@ body.bg-hacker #chatMessages::-webkit-scrollbar-thumb { background: #00ff41; }
 .tourney-screen { display: flex; flex-direction: column; height: 100%; }
 .tourney-screen.hidden { display: none !important; }
 
-/* Экран 1: Список игроков */
 .tourney-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
 .tourney-player-row { background: #888; border: 4px solid #000; padding: 10px 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
 .tourney-player-name { font-size: 22px; font-weight: 900; color: #fff; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
 .tourney-player-row button { padding: 8px 15px; font-size: 18px; }
 
-/* Кнопки */
 .tourney-btn-green, .tourney-btn-red, .tourney-btn-grey { border: 4px solid #000; border-radius: 10px; font-weight: 900; color: #fff; cursor: pointer; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000; transition: 0.1s; }
 .tourney-btn-green:active, .tourney-btn-red:active, .tourney-btn-grey:active { transform: scale(0.95); }
 .tourney-btn-green { background: #00ff00; flex: 1; font-size: 24px; padding: 15px; }
 .tourney-btn-red { background: #ff0000; flex: 1; font-size: 20px; padding: 10px; }
 .tourney-btn-grey { background: #888; width: 100%; font-size: 24px; padding: 15px; }
 
-/* Экран 2, 3: Ожидание и Вызов */
 .tourney-text-center { text-align: center; font-size: 22px; font-weight: 900; color: #fff; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000; line-height: 1.4; }
 .tourney-action-btns { display: flex; gap: 15px; margin-top: 40px; justify-content: center; }
 
-/* Экран 4: Отсчет */
 .tourney-countdown { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 150px; font-weight: 900; color: #fff; text-shadow: -6px -6px 0 #000, 6px -6px 0 #000, -6px 6px 0 #000, 6px 6px 0 #000; animation: countdownPop 1s ease-in-out infinite; }
 @keyframes countdownPop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
-/* Экран 5: Бой */
 .tourney-battle-title { text-align: center; font-size: 32px; font-weight: 900; color: #fff; text-shadow: -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000; margin-bottom: 20px; }
 .tourney-battle-brain { width: 180px; height: 180px; background: #ff9900; border: 6px solid #ffd700; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 90px; margin: 0 auto; cursor: pointer; box-shadow: 0 10px 0 #cc6600, inset 0 0 20px rgba(255,255,255,0.5); transition: 0.05s; }
 .tourney-battle-brain:active { transform: scale(0.9); box-shadow: 0 5px 0 #cc6600; }
@@ -83,12 +90,53 @@ body.bg-hacker #chatMessages::-webkit-scrollbar-thumb { background: #00ff41; }
 .tourney-score-name { font-size: 24px; font-weight: 900; color: #fff; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000; margin-bottom: 5px; }
 .tourney-score-val { font-size: 48px; font-weight: 900; color: #fff; text-shadow: -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000; }
 
-/* Экран 6: Результат */
 #tourneyResultText { font-size: 48px; font-weight: 900; color: #fff; text-shadow: -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000; margin-top: 40px; }
 #tourneyResultReward { font-size: 24px; font-weight: 900; color: #ffd700; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000; margin-top: 20px; }
-
-/* Футер турнира */
 .tourney-footer { padding: 15px; background: #0d4a96; border-top: 6px solid #000; flex-shrink: 0; }
+
+/* ===== ОКНО ГОЛОСОВАНИЯ (ТОЧЬ В ТОЧЬ) ===== */
+.vote-modal-box { background: #000; border: 4px solid #fff; border-radius: 40px; padding: 30px 20px; width: 100%; max-width: 350px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 0 30px rgba(255,255,255,0.3); }
+.vote-title { color: #fff; font-size: 24px; font-weight: 900; text-align: center; margin-bottom: 30px; text-shadow: none; letter-spacing: 1px; }
+.vote-progress-bar-bg { width: 100%; height: 45px; background: #888; border: 3px solid #fff; border-radius: 12px; display: flex; margin-bottom: 50px; position: relative; overflow: hidden; }
+.vote-progress-left, .vote-progress-right { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #fff; text-shadow: none; position: relative; }
+.vote-progress-left { border-right: 3px solid #000; }
+.vote-progress-left::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 25px; background: #ff0000; border-radius: 8px 0 0 8px; }
+.vote-progress-right::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 25px; background: #0000ff; border-radius: 0 8px 8px 0; }
+.vote-btn-row { display: flex; gap: 15px; width: 100%; justify-content: center; }
+.vote-btn-red, .vote-btn-blue { flex: 1; padding: 15px; font-size: 28px; font-weight: 900; border: 4px solid #fff; border-radius: 12px; cursor: pointer; color: #fff; text-shadow: none; transition: 0.1s; }
+.vote-btn-red:active, .vote-btn-blue:active { transform: scale(0.95); }
+.vote-btn-red { background: #ff0000; }
+.vote-btn-blue { background: #0000ff; }
+
+/* ===== АДМИН ПАНЕЛЬ ===== */
+.admin-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 3000; opacity: 0; visibility: hidden; transition: 0.2s; padding: 20px; }
+.admin-overlay.show { opacity: 1; visibility: visible; }
+.admin-panel { background: #ff0000; border: 6px solid #000; border-radius: 10px; width: 100%; max-width: 400px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 40px rgba(255, 0, 0, 0.6); }
+.admin-header { background: #ff0000; color: white; font-size: 22px; font-weight: 900; text-align: center; padding: 14px; letter-spacing: 2px; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; border-bottom: 4px solid #000; }
+.admin-tabs { display: flex; background: #000; gap: 4px; padding: 6px; }
+.admin-tab { flex: 1; background: #fff; color: #000; text-align: center; padding: 10px 4px; font-weight: 800; font-size: 13px; cursor: pointer; border: 2px solid #fff; user-select: none; }
+.admin-tab.active { background: #ffcc00; border-color: #000; color: #000; }
+.admin-body { background: #ff0000; color: white; padding: 16px; overflow-y: auto; flex: 1; min-height: 200px; font-size: 14px; }
+.admin-item { display: flex; justify-content: space-between; align-items: center; background: #8b0000; padding: 10px 12px; margin-bottom: 10px; border-radius: 8px; border: 3px solid #000; gap: 8px; flex-wrap: wrap; }
+.admin-item span { font-weight: 700; color: white; text-shadow: 1px 1px 0 #000; }
+.admin-item button { background: #666; color: #fff; border: 3px solid #000; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; text-shadow: 1px 1px 0 #000; }
+.admin-item button:active { transform: scale(0.95); background: #444; }
+.admin-input { background: #555; color: #fff; border: 3px solid #000; padding: 6px 10px; border-radius: 6px; font-size: 14px; width: 90px; text-align: center; font-weight: 700; text-shadow: none; }
+.admin-close { background: #000; color: #fff; border: none; padding: 12px; font-size: 16px; font-weight: 900; cursor: pointer; border-top: 4px solid #fff; letter-spacing: 1px; }
+.admin-close:active { background: #333; }
+
+.admin-password-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 3500; opacity: 0; visibility: hidden; transition: 0.25s; padding: 20px; }
+.admin-password-overlay.show { opacity: 1; visibility: visible; }
+.admin-password-box { background: #ff0000; border: 8px solid #000; border-radius: 6px; padding: 20px; width: 100%; max-width: 380px; box-shadow: 0 0 40px rgba(255, 0, 0, 0.8); display: flex; flex-direction: column; gap: 15px; }
+.admin-password-header { background: #000; color: #fff; font-size: 18px; font-weight: 900; text-align: center; padding: 12px 8px; letter-spacing: 1px; text-shadow: 1px 1px 0 rgba(255,255,255,0.2); border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-password-input { background: #fff; color: #000; border: 4px solid #000; border-radius: 6px; padding: 12px 16px; font-size: 24px; font-weight: 900; text-align: center; letter-spacing: 8px; width: 100%; outline: none; font-family: 'Courier New', monospace; caret-color: transparent; }
+.admin-password-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.admin-key { background: #fff; color: #000; border: 4px solid #000; border-radius: 6px; padding: 14px 0; font-size: 26px; font-weight: 900; cursor: pointer; transition: 0.1s; font-family: 'Courier New', monospace; user-select: none; text-shadow: none; }
+.admin-key:active { transform: scale(0.93); background: #ccc; }
+.admin-key-clear { background: #ffaa00; font-size: 22px; }
+.admin-key-ok { background: #00cc44; color: #fff; font-size: 20px; }
+.admin-password-cancel { background: #000; color: #fff; border: 4px solid #fff; border-radius: 6px; padding: 12px; font-size: 16px; font-weight: 900; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; transition: 0.1s; font-family: 'Courier New', monospace; }
+.admin-password-cancel:active { background: #333; transform: scale(0.97); }
 
 /* ===== ОСТАЛЬНЫЕ СТИЛИ ===== */
 body.bg-early-autumn { background: linear-gradient(145deg, #f5e6b0, #d4a373); }
@@ -482,33 +530,6 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .loading-text { color: #ffd966; font-size: 24px; font-weight: 800; margin-top: 20px; text-shadow: 0 0 20px #ffaa00; }
 .loading-sub { color: #88aaff; font-size: 12px; margin-top: 10px; }
-.admin-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 3000; opacity: 0; visibility: hidden; transition: 0.2s; padding: 20px; }
-.admin-overlay.show { opacity: 1; visibility: visible; }
-.admin-panel { background: #ff0000; border: 6px solid #000; border-radius: 10px; width: 100%; max-width: 400px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 40px rgba(255, 0, 0, 0.6); }
-.admin-header { background: #ff0000; color: white; font-size: 22px; font-weight: 900; text-align: center; padding: 14px; letter-spacing: 2px; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; border-bottom: 4px solid #000; }
-.admin-tabs { display: flex; background: #000; gap: 4px; padding: 6px; }
-.admin-tab { flex: 1; background: #fff; color: #000; text-align: center; padding: 10px 4px; font-weight: 800; font-size: 13px; cursor: pointer; border: 2px solid #fff; user-select: none; }
-.admin-tab.active { background: #ffcc00; border-color: #000; color: #000; }
-.admin-body { background: #ff0000; color: white; padding: 16px; overflow-y: auto; flex: 1; min-height: 200px; font-size: 14px; }
-.admin-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border: 2px solid #000; gap: 8px; flex-wrap: wrap; }
-.admin-item span { font-weight: 700; color: white; }
-.admin-item button { background: #000; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
-.admin-item button:active { transform: scale(0.95); background: #333; }
-.admin-input { background: #fff; color: #000; border: 2px solid #000; padding: 6px 10px; border-radius: 6px; font-size: 13px; width: 90px; text-align: center; font-weight: 700; }
-.admin-close { background: #000; color: #fff; border: none; padding: 12px; font-size: 16px; font-weight: 900; cursor: pointer; border-top: 4px solid #fff; letter-spacing: 1px; }
-.admin-close:active { background: #333; }
-.admin-password-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 3500; opacity: 0; visibility: hidden; transition: 0.25s; padding: 20px; }
-.admin-password-overlay.show { opacity: 1; visibility: visible; }
-.admin-password-box { background: #ff0000; border: 8px solid #000; border-radius: 6px; padding: 20px; width: 100%; max-width: 380px; box-shadow: 0 0 40px rgba(255, 0, 0, 0.8); display: flex; flex-direction: column; gap: 15px; }
-.admin-password-header { background: #000; color: #fff; font-size: 18px; font-weight: 900; text-align: center; padding: 12px 8px; letter-spacing: 1px; text-shadow: 1px 1px 0 rgba(255,255,255,0.2); border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.admin-password-input { background: #fff; color: #000; border: 4px solid #000; border-radius: 6px; padding: 12px 16px; font-size: 24px; font-weight: 900; text-align: center; letter-spacing: 8px; width: 100%; outline: none; font-family: 'Courier New', monospace; caret-color: transparent; }
-.admin-password-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.admin-key { background: #fff; color: #000; border: 4px solid #000; border-radius: 6px; padding: 14px 0; font-size: 26px; font-weight: 900; cursor: pointer; transition: 0.1s; font-family: 'Courier New', monospace; user-select: none; text-shadow: none; }
-.admin-key:active { transform: scale(0.93); background: #ccc; }
-.admin-key-clear { background: #ffaa00; font-size: 22px; }
-.admin-key-ok { background: #00cc44; color: #fff; font-size: 20px; }
-.admin-password-cancel { background: #000; color: #fff; border: 4px solid #fff; border-radius: 6px; padding: 12px; font-size: 16px; font-weight: 900; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; transition: 0.1s; font-family: 'Courier New', monospace; }
-.admin-password-cancel:active { background: #333; transform: scale(0.97); }
 .tutorial-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 20px; opacity: 0; visibility: hidden; transition: 0.3s; }
 .tutorial-overlay.show { opacity: 1; visibility: visible; }
 .tutorial-box { background: #0a0a0a; border: 4px solid #000; border-radius: 12px; padding: 20px; width: 100%; max-width: 360px; box-shadow: 0 0 40px rgba(0,0,0,0.9); color: white; text-align: center; }
@@ -603,6 +624,11 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
     .tourney-container { max-width: 500px; }
     .tourney-header span { font-size: 40px; }
     .tourney-countdown { font-size: 200px; }
+    .vote-modal-box { max-width: 500px; padding: 40px; }
+    .vote-title { font-size: 32px; }
+    .vote-progress-bar-bg { height: 60px; }
+    .vote-progress-left, .vote-progress-right { font-size: 32px; }
+    .vote-btn-red, .vote-btn-blue { font-size: 36px; padding: 20px; }
 }
 @media (min-width: 1400px) {
     .game-container { max-width: 800px; }
