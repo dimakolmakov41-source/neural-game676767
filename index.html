@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=16.8">
+    <link rel="stylesheet" href="style.css?v=17.0">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v16.8</div>
+        <div class="loading-sub">v17.0</div>
     </div>
 
     <div id="globalTicker" class="top-ticker hidden">
@@ -33,7 +33,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v16.8</div>
+            <div class="game-version" id="menuVersion">v17.0</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -68,6 +68,14 @@
                 <div class="stat-card"><div class="stat-card-value" id="statNeuronsBought">0</div><div class="stat-card-label" data-i18n="stat_neurons">Нейросетей</div></div>
                 <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label" data-i18n="stat_session">За сессию</div></div>
             </div>
+
+            <section id="globalEventPanel" class="global-event-panel hidden" aria-live="polite">
+                <div class="global-event-heading" id="globalEventTitle">🌍 ГЛОБАЛЬНОЕ СОБЫТИЕ</div>
+                <div class="global-event-count"><span id="globalEventClicks">0</span> / <span id="globalEventGoal">20 000 000</span></div>
+                <div class="global-event-track"><div id="globalEventFill" class="global-event-fill"></div></div>
+                <div class="global-event-status" id="globalEventStatus">Общий прогресс всех игроков</div>
+                <div class="global-event-reward" id="globalEventReward">🎁 Награда: 200 000 🧠 и 150 ⭐</div>
+            </section>
 
             <div class="timers" id="reloadTimer"><span data-i18n="reload">🔄 ПЕРЕЗАГРУЗКА:</span> <span id="reloadCountdown">5:00</span></div>
 
@@ -495,7 +503,7 @@
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
             <div class="modal-text" id="newsText" style="font-size: 14px; line-height: 1.5; text-align: left;">
-                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.8!</b><br><br>
+                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 17.0!</b><br><br>
                 🗳️ <b>НАСТОЯЩИЕ ГОЛОСОВАНИЯ:</b> Теперь шкала «Да/Нет» реально двигается и показывает проценты!<br><br>
                 Играйте и делитесь ссылкой с друзьями! 💙
             </div>
@@ -519,6 +527,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=16.8"></script>
+    <script type="module" src="script.js?v=17.0"></script>
 </body>
 </html>
