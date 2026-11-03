@@ -1043,6 +1043,42 @@ window.addEventListener('load', () => {
         if (countLabel) countLabel.textContent = String(balloonTargetCount);
         if (balloonGameActive) fillBalloonField();
     }
+    let balloonAudioContext = null;
+    function playBalloonPopSound() {
+        try {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+            if (!balloonAudioContext) balloonAudioContext = new AudioContextClass();
+            if (balloonAudioContext.state === 'suspended') balloonAudioContext.resume();
+            const context = balloonAudioContext;
+            const now = context.currentTime;
+            const duration = 0.11;
+            const buffer = context.createBuffer(1, Math.floor(context.sampleRate * duration), context.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const fade = Math.pow(1 - i / data.length, 2.4);
+                data[i] = (Math.random() * 2 - 1) * fade;
+            }
+            const noise = context.createBufferSource();
+            noise.buffer = buffer;
+            const filter = context.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1250 + Math.random() * 450, now);
+            filter.Q.value = 0.75;
+            const gain = context.createGain();
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(0.42, now + 0.008);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(context.destination);
+            noise.start(now);
+            noise.stop(now + duration);
+        } catch (error) {
+            console.warn('Не удалось воспроизвести звук шарика:', error);
+        }
+    }
+
     function createBalloon() {
         if (!balloonField || !balloonGameActive) return;
         const balloon = document.createElement('div');
@@ -1063,6 +1099,7 @@ window.addEventListener('load', () => {
             const rect = balloon.getBoundingClientRect();
             const fieldRect = balloonField.getBoundingClientRect();
             balloon.classList.add('balloon-pop');
+            playBalloonPopSound();
             for (let i = 0; i < 7; i++) {
                 const bit = document.createElement('i');
                 bit.className = 'balloon-burst';
