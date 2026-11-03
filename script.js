@@ -8,6 +8,7 @@ import { calculateOfflineIncome as calculateOfflineIncomeTS } from './src/utils/
 import { isHalloween as isHalloweenTS } from './src/utils/isHalloween.js';
 import { isNewYear as isNewYearTS } from './src/utils/isNewYear.js';
 import { isBirthday as isBirthdayTS } from './src/utils/isBirthday.js';
+import { isMarch8 as isMarch8TS } from './src/utils/isMarch8.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -52,7 +53,7 @@ function isHalloween() { return isHalloweenTS(customTheme); }
 function isNewYear() { return isNewYearTS(customTheme); }
 function isHackerMode() { const n = Date.now(); return n >= new Date(2026, 8, 29).getTime() && n <= new Date(2026, 9, 5).getTime(); }
 function isBirthday() { return isBirthdayTS(); }
-function isMarch8() { return isCalendarDate(new Date(), 2, 8); }
+function isMarch8() { return isMarch8TS(); }
 
 function applyTheme() {
     const body = document.body; const brain = document.getElementById('clickableObject'); const brainEmoji = document.getElementById('brainEmoji'); const starLabel = document.getElementById('starLabel'); const sleepMsg = document.getElementById('sleepMsg'); const reloadTimer = document.getElementById('reloadTimer'); const title = document.getElementById('gameTitle'); const partyHat = document.getElementById('partyHat'); const flowerDecor = document.getElementById('flowerDecor'); const brainSpeech = document.getElementById('brainSpeech');
