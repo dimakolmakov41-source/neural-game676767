@@ -4,7 +4,8 @@
   "version": "17.0.0",
   "description": "Кликер: Эволюция Нейросетей",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:ts": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
