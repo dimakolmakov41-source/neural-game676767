@@ -1,6 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const GAME_VERSION = "16.0";
+const GAME_VERSION = "16.1";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -8,7 +8,6 @@ let supabaseClient = null;
 
 let globalEventMultiplier = 1, saleData = { active: false, discount_percent: 0 }, rouletteCost = 250, autoclickerRateBonus = 0, customTheme = "normal", weatherData = { active: false, type: "none" }, phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" }, tickerData = { active: false, text: "" }, starsData = { chance: 0.0001, amount: 3 }, reloadTimeMinutes = 5;
 
-// ГЛОБАЛЬНЫЙ БУСТ
 let globalBoost = { active: false, type: 'points', multiplier: 1, text: '' };
 
 const TRANSLATIONS = {
@@ -83,11 +82,12 @@ window.addEventListener('load', () => {
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
     document.getElementById('saveNicknameBtn')?.addEventListener('click', () => { const newName = nicknameInput.value.trim(); if (newName) { localStorage.setItem('gamePlayerName', newName); showToast(`✅ Ник: ${newName}`); } else { localStorage.removeItem('gamePlayerName'); showToast(`✅ Ник сброшен`); } });
 
-    // ОНЛАЙН
+    // ОНЛАЙН (ТЕПЕРЬ С ИМЕНАМИ ДЛЯ ТУРНИРА)
     async function updateOnlineStatus() {
         if (!supabaseClient) return;
+        const myName = localStorage.getItem('gamePlayerName') || 'Аноним';
         try {
-            await supabaseClient.from('online_players').upsert({ player_id: playerId, last_seen: new Date().toISOString() }, { onConflict: 'player_id' });
+            await supabaseClient.from('online_players').upsert({ player_id: playerId, player_name: myName, last_seen: new Date().toISOString() }, { onConflict: 'player_id' });
             const thirtySecsAgo = new Date(Date.now() - 30000).toISOString();
             const { count, error } = await supabaseClient.from('online_players').select('*', { count: 'exact', head: true }).gte('last_seen', thirtySecsAgo);
             if (!error && count !== null) { const el = document.getElementById('onlinePlayersNum'); if (el) el.innerText = count; }
@@ -115,7 +115,6 @@ window.addEventListener('load', () => {
 
             const isScrolledToBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 60;
             
-            // БЕЗ ЗАЩИТЫ ОТ HTML
             list.innerHTML = data.map(msg => `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff;"><b style="color: #ffd966;">${msg.player_name}:</b> <span>${msg.message}</span></div>`).join('');
             
             if (isScrolledToBottom) {
@@ -154,6 +153,287 @@ window.addEventListener('load', () => {
     document.getElementById('chatInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
     
     setInterval(() => { if (document.getElementById('chatModal')?.classList.contains('show')) loadChatMessages(); }, 3000);
+
+    // ===== ТУРНИР =====
+    let currentDuelId = null;
+    let myDuelRole = null;
+    let myDuelScore = 0;
+    let oppDuelScore = 0;
+    let duelChannel = null;
+    let battleInterval = null;
+    let isDuelActive = false;
+
+    function showTourneyScreen(screenId) {
+        document.querySelectorAll('.tourney-screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function closeTourney() {
+        document.getElementById('tournamentModal').classList.add('hidden');
+        if (currentDuelId && (myDuelRole === 'player1' && !isDuelActive)) {
+            // Отменяем дуэль, если мы её создали и она ещё не началась
+            supabaseClient.from('duels').update({ status: 'cancelled' }).eq('id', currentDuelId).then();
+        }
+        currentDuelId = null;
+        isDuelActive = false;
+        if (duelChannel) { supabaseClient.removeChannel(duelChannel); duelChannel = null; }
+        if (battleInterval) { clearInterval(battleInterval); battleInterval = null; }
+    }
+
+    async function loadTourneyList() {
+        const list = document.getElementById('tourneyOnlineList');
+        list.innerHTML = 'Загрузка...';
+        if (!supabaseClient) return;
+        const thirtySecsAgo = new Date(Date.now() - 30000).toISOString();
+        const { data, error } = await supabaseClient.from('online_players').select('*').gte('last_seen', thirtySecsAgo);
+        if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
+        
+        const others = data.filter(p => p.player_id !== playerId);
+        if (others.length === 0) {
+            list.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Никого нет в сети...</div>';
+            return;
+        }
+        
+        list.innerHTML = others.map(p => `<div class="tourney-player-item" data-name="${p.player_name}">${p.player_name}</div>`).join('');
+        
+        document.querySelectorAll('.tourney-player-item').forEach(el => {
+            el.addEventListener('click', () => {
+                document.getElementById('tourneyNameInput').value = el.dataset.name;
+            });
+        });
+    }
+
+    async function callPlayer() {
+        const targetName = document.getElementById('tourneyNameInput').value.trim();
+        const myName = localStorage.getItem('gamePlayerName') || 'Аноним';
+        
+        if (!targetName) { showToast('Введите имя!'); return; }
+        if (targetName === myName) { showToast('Нельзя вызвать себя!'); return; }
+        
+        if (!supabaseClient) return;
+        
+        const thirtySecsAgo = new Date(Date.now() - 30000).toISOString();
+        const { data: targetData } = await supabaseClient.from('online_players').select('*').eq('player_name', targetName).gte('last_seen', thirtySecsAgo).single();
+        
+        if (!targetData) { showToast('Игрок не в сети!'); return; }
+        
+        const { data, error } = await supabaseClient.from('duels').insert([{
+            player1_id: playerId,
+            player1_name: myName,
+            player2_id: targetData.player_id,
+            player2_name: targetData.player_name,
+            status: 'waiting'
+        }]).select();
+        
+        if (error || !data) { showToast('Ошибка создания дуэли'); return; }
+        
+        currentDuelId = data[0].id;
+        myDuelRole = 'player1';
+        
+        document.getElementById('tourneyTargetNameWait').innerText = targetData.player_name;
+        showTourneyScreen('tourneyWaitScreen');
+        
+        subscribeToDuel();
+    }
+
+    function subscribeToDuel() {
+        if (duelChannel) supabaseClient.removeChannel(duelChannel);
+        duelChannel = supabaseClient.channel('duel_'+currentDuelId)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'duels', filter: `id=eq.${currentDuelId}` }, payload => {
+                const duel = payload.new;
+                
+                if (duel.status === 'accepted') {
+                    startCountdown(duel);
+                } else if (duel.status === 'declined') {
+                    showToast('❌ Игрок отклонил вызов');
+                    closeTourney();
+                } else if (duel.status === 'cancelled') {
+                    showToast('❌ Игрок отменил дуэль');
+                    closeTourney();
+                } else if (duel.status === 'playing') {
+                    showTourneyScreen('tourneyBattleScreen');
+                    document.getElementById('tourneyP1Name').innerText = duel.player1_name;
+                    document.getElementById('tourneyP2Name').innerText = duel.player2_name;
+                    
+                    myDuelScore = (myDuelRole === 'player1') ? duel.player1_score : duel.player2_score;
+                    oppDuelScore = (myDuelRole === 'player1') ? duel.player2_score : duel.player1_score;
+                    updateDuelScoreUI();
+                    
+                    // Запускаем таймер боя
+                    startBattleTimer();
+                    
+                } else if (duel.status === 'finished') {
+                    endBattle(duel);
+                }
+            }).subscribe();
+    }
+
+    // Слушаем входящие вызовы
+    if (supabaseClient) {
+        supabaseClient.channel('duel_invites')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'duels', filter: `player2_id=eq.${playerId}` }, payload => {
+                const duel = payload.new;
+                if (duel.status === 'waiting' && !currentDuelId) {
+                    currentDuelId = duel.id;
+                    myDuelRole = 'player2';
+                    document.getElementById('tourneyChallengerName').innerText = duel.player1_name;
+                    document.getElementById('tournamentModal').classList.remove('hidden');
+                    showTourneyScreen('tourneyChallengeScreen');
+                    subscribeToDuel();
+                }
+            }).subscribe();
+    }
+
+    function startCountdown(duel) {
+        showTourneyScreen('tourneyCountdownScreen');
+        let count = 3;
+        const text = document.getElementById('tourneyCountdownText');
+        text.innerText = count;
+        
+        const countInt = setInterval(() => {
+            count--;
+            if (count > 0) {
+                text.innerText = count;
+            } else if (count === 0) {
+                text.innerText = "1!";
+            } else {
+                clearInterval(countInt);
+                // Переводим в статус 'playing'
+                if (myDuelRole === 'player1') {
+                    supabaseClient.from('duels').update({ status: 'playing' }).eq('id', currentDuelId).then();
+                }
+            }
+        }, 1000);
+    }
+
+    function startBattleTimer() {
+        isDuelActive = true;
+        myDuelScore = 0; // Сброс
+        let timeLeft = 10; // 10 секунд на бой
+        
+        // Синхронизация счета с базой каждую секунду
+        battleInterval = setInterval(() => {
+            if (!isDuelActive) return;
+            timeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(battleInterval);
+                if (myDuelRole === 'player1') {
+                    supabaseClient.from('duels').update({ status: 'finished' }).eq('id', currentDuelId).then();
+                }
+            } else {
+                if (myDuelRole === 'player1') {
+                    supabaseClient.from('duels').update({ player1_score: myDuelScore }).eq('id', currentDuelId).then();
+                } else {
+                    supabaseClient.from('duels').update({ player2_score: myDuelScore }).eq('id', currentDuelId).then();
+                }
+            }
+        }, 1000);
+    }
+
+    function updateDuelScoreUI() {
+        document.getElementById('tourneyP1Score').innerText = (myDuelRole === 'player1') ? myDuelScore : oppDuelScore;
+        document.getElementById('tourneyP2Score').innerText = (myDuelRole === 'player1') ? oppDuelScore : myDuelScore;
+    }
+
+    // Клик по мозгу в турнире
+    document.getElementById('tourneyBrain')?.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (!isDuelActive) return;
+        myDuelScore++;
+        updateDuelScoreUI();
+        playClickSound();
+    });
+
+    function endBattle(duel) {
+        isDuelActive = false;
+        showTourneyScreen('tourneyResultScreen');
+        
+        const p1Score = duel.player1_score;
+        const p2Score = duel.player2_score;
+        
+        let iWon = false;
+        if (myDuelRole === 'player1' && p1Score > p2Score) iWon = true;
+        if (myDuelRole === 'player2' && p2Score > p1Score) iWon = true;
+        
+        const resText = document.getElementById('tourneyResultText');
+        const resReward = document.getElementById('tourneyResultReward');
+        
+        if (iWon) {
+            resText.innerText = 'Победа!';
+            resText.style.color = '#00ff00';
+            resReward.innerText = '+10⭐ +200 000🧠';
+            
+            stars += 10;
+            points += 200000;
+            updateUI(); saveGame();
+        } else if (p1Score === p2Score) {
+            resText.innerText = 'Ничья!';
+            resText.style.color = '#ffffff';
+            resReward.innerText = 'Без награды';
+        } else {
+            resText.innerText = 'Поражение...';
+            resText.style.color = '#ff0000';
+            resReward.innerText = 'В следующий раз повезет';
+        }
+    }
+
+    // Кнопки турнира
+    document.getElementById('tourneyBtn')?.addEventListener('click', () => {
+        const myName = localStorage.getItem('gamePlayerName');
+        if (!myName) { showToast('Сначала задайте ник в настройках!'); return; }
+        document.getElementById('tournamentModal').classList.remove('hidden');
+        showTourneyScreen('tourneySearchScreen');
+        loadTourneyList();
+    });
+    
+    document.getElementById('tourneyCallBtn')?.addEventListener('click', callPlayer);
+    document.getElementById('tourneyExitBtn')?.addEventListener('click', () => {
+        if (isDuelActive) { showToast('Нельзя выйти во время боя!'); return; }
+        closeTourney();
+    });
+    
+    document.getElementById('tourneyAcceptBtn')?.addEventListener('click', () => {
+        if (currentDuelId) supabaseClient.from('duels').update({ status: 'accepted' }).eq('id', currentDuelId).then();
+    });
+    document.getElementById('tourneyDeclineBtn')?.addEventListener('click', () => {
+        if (currentDuelId) supabaseClient.from('duels').update({ status: 'declined' }).eq('id', currentDuelId).then();
+        closeTourney();
+    });
+
+    // ===== ЛИДЕРБОРД =====
+    async function syncLeaderboard() {
+        if (!supabaseClient) return;
+        const name = localStorage.getItem('gamePlayerName') || 'Аноним';
+        try {
+            await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: Math.floor(points), updated_at: new Date().toISOString() }, { onConflict: 'player_id' });
+            return true;
+        } catch(e) { return false; }
+    }
+
+    async function showLeaderboard() {
+        const modal = document.getElementById('leaderboardModal');
+        const list = document.getElementById('leaderboardList');
+        modal.classList.add('show');
+        list.innerHTML = 'Загрузка...';
+        if (!supabaseClient) return;
+        
+        const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
+        if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
+        list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${p.player_name}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
+    }
+    
+    document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
+    document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
+    
+    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => {
+        const success = await syncLeaderboard();
+        if (success) {
+            showToast('✅ Твои очки добавлены в Топ-10!');
+            showLeaderboard();
+        } else {
+            showToast('❌ Ошибка отправки');
+        }
+    });
 
     // ПРОВЕРКА ВЕРСИИ, ЗАКРЫТИЯ, БУСТА И БЕГУЩЕЙ СТРОКИ
     async function checkServerStatus() {
@@ -196,7 +476,6 @@ window.addEventListener('load', () => {
                 if (banner) banner.classList.add('hidden');
             }
 
-            // БЕГУЩАЯ СТРОКА
             const tickerEl = document.getElementById('globalTicker');
             const tickerTextEl = document.getElementById('tickerText');
             if (data.ticker_text && data.ticker_text.trim() !== '') {
@@ -213,42 +492,6 @@ window.addEventListener('load', () => {
     }
     setTimeout(checkServerStatus, 2000);
     setInterval(checkServerStatus, 30000);
-
-    // ЛИДЕРБОРД
-    async function syncLeaderboard() {
-        if (!supabaseClient) return;
-        const name = localStorage.getItem('gamePlayerName') || 'Аноним';
-        try {
-            await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: Math.floor(points), updated_at: new Date().toISOString() }, { onConflict: 'player_id' });
-            return true;
-        } catch(e) { return false; }
-    }
-
-    async function showLeaderboard() {
-        const modal = document.getElementById('leaderboardModal');
-        const list = document.getElementById('leaderboardList');
-        modal.classList.add('show');
-        list.innerHTML = 'Загрузка...';
-        if (!supabaseClient) return;
-        
-        const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
-        if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
-        list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${p.player_name}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
-    }
-    
-    document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
-    document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
-    
-    // Кнопка ручной отправки в Топ-10
-    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => {
-        const success = await syncLeaderboard();
-        if (success) {
-            showToast('✅ Твои очки добавлены в Топ-10!');
-            showLeaderboard(); // Обновляем список на экране
-        } else {
-            showToast('❌ Ошибка отправки');
-        }
-    });
 
     // ===== ОСТАЛЬНАЯ ЛОГИКА ИГРЫ =====
     const ACHIEVEMENTS = [{ id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },{ id: 'click1000', name: 'Кликер-маньяк', desc: 'Сделай 1000 кликов', condition: () => totalClicks >= 1000, points: 5000, stars: 10 },{ id: 'neuron10', name: 'Новичок', desc: 'Купи 10 сетей', condition: () => purchasedCount >= 10, points: 1000, stars: 5 },{ id: 'neuron100', name: 'Коллекционер', desc: 'Купи 100 сетей', condition: () => purchasedCount >= 100, points: 50000, stars: 50 },{ id: 'neuron500', name: 'Сетевой магнат', desc: 'Купи 500 сетей', condition: () => purchasedCount >= 500, points: 500000, stars: 200 },{ id: 'prestige1', name: 'Перерождение', desc: 'Сделай первое перерождение', condition: () => prestigeLevel >= 1, points: 100000, stars: 100 },{ id: 'star100', name: 'Звездочёт', desc: 'Накопи 100 звёзд', condition: () => stars >= 100, points: 10000, stars: 0 },{ id: 'star1000', name: 'Галактика', desc: 'Накопи 1000 звёзд', condition: () => stars >= 1000, points: 100000, stars: 0 },{ id: 'boss', name: 'Босс', desc: 'Купи ВСЕ 2200 сетей', condition: () => purchasedCount >= 2200, points: 10000000, stars: 5000 }];
@@ -466,7 +709,6 @@ window.addEventListener('load', () => {
         if (isX10BoostActive()) base *= X10_BOOST_MULT;
         if (globalEventMultiplier > 1) base *= globalEventMultiplier;
         
-        // ГЛОБАЛЬНЫЙ БУСТ НА ОЧКИ
         if (globalBoost.active && globalBoost.type === 'points') {
             base *= globalBoost.multiplier;
         }
