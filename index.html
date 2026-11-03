@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=16.2">
+    <link rel="stylesheet" href="style.css?v=16.3">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v16.2</div>
+        <div class="loading-sub">v16.3</div>
     </div>
 
     <!-- БЕГУЩАЯ СТРОКА -->
@@ -37,7 +37,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v16.2</div>
+            <div class="game-version" id="menuVersion">v16.3</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -125,7 +125,7 @@
         </div>
     </div>
 
-    <!-- ОКНО ТУРНИРА (БЕЗ ПОЛЯ ВВОДА) -->
+    <!-- ОКНО ТУРНИРА -->
     <div id="tournamentModal" class="tourney-overlay hidden">
         <div class="tourney-container">
             <div class="tourney-header">
@@ -134,22 +134,18 @@
             </div>
             
             <div class="tourney-body">
-                <!-- Экран 1: Список игроков в сети -->
                 <div id="tourneySearchScreen" class="tourney-screen">
                     <div id="tourneyOnlineList" class="tourney-list">
-                        <!-- Сюда скрипт будет добавлять серые плашки с никами и кнопкой Вызвать -->
                         <div style="text-align:center; padding:20px; color:#fff; font-weight:900; text-shadow:-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">Загрузка игроков...</div>
                     </div>
                 </div>
 
-                <!-- Экран 2: Ожидание (Первый игрок) -->
                 <div id="tourneyWaitScreen" class="tourney-screen hidden">
                     <div class="tourney-text-center" style="margin-top: 50px;">
                         Ждём ответа от "<span id="tourneyTargetNameWait"></span>"
                     </div>
                 </div>
 
-                <!-- Экран 3: Вызов (Второй игрок) -->
                 <div id="tourneyChallengeScreen" class="tourney-screen hidden">
                     <div class="tourney-text-center" style="margin-top: 50px;">
                         Игрок "<span id="tourneyChallengerName"></span>" вызвал вас на турнир!
@@ -160,12 +156,10 @@
                     </div>
                 </div>
 
-                <!-- Экран 4: Отсчет (3, 2, 1) -->
                 <div id="tourneyCountdownScreen" class="tourney-screen hidden">
                     <div id="tourneyCountdownText" class="tourney-countdown">3</div>
                 </div>
 
-                <!-- Экран 5: Бой -->
                 <div id="tourneyBattleScreen" class="tourney-screen hidden">
                     <div class="tourney-battle-title">Кликай быстрее!</div>
                     <div class="tourney-battle-brain" id="tourneyBrain">🧠</div>
@@ -181,7 +175,6 @@
                     </div>
                 </div>
 
-                <!-- Экран 6: Результат -->
                 <div id="tourneyResultScreen" class="tourney-screen hidden">
                     <div class="tourney-text-center" id="tourneyResultText" style="margin-top: 50px; font-size: 30px;">
                         Победа!
@@ -192,7 +185,6 @@
                 </div>
             </div>
 
-            <!-- Нижняя кнопка (Выйти / Отменить) -->
             <div class="tourney-footer">
                 <button id="tourneyExitBtn" class="tourney-btn-grey">Выйти</button>
             </div>
@@ -203,9 +195,7 @@
     <div id="chatModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px; height: 75vh; display: flex; flex-direction: column; padding: 15px;">
             <div class="modal-title" style="margin-bottom: 10px; flex-shrink: 0;">💬 ГЛОБАЛЬНЫЙ ЧАТ</div>
-            <div id="chatMessages" style="flex: 1; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; word-break: break-word;">
-                <!-- Сообщения будут здесь -->
-            </div>
+            <div id="chatMessages" style="flex: 1; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; word-break: break-word;"></div>
             <div style="display: flex; gap: 5px; flex-shrink: 0;">
                 <input type="text" id="chatInput" class="modal-input" style="margin: 0; flex: 1; padding: 10px;" placeholder="Написать..." maxlength="200">
                 <button class="modal-btn" id="sendChatBtn" style="margin: 0; padding: 10px 15px; background: #2e7d32; font-size: 16px;">➤</button>
@@ -221,19 +211,24 @@
             <div id="leaderboardList" style="max-height: 50vh; overflow-y: auto; text-align: left; margin-bottom: 15px; color: white;">
                 <div style="text-align: center; padding: 20px;">Загрузка...</div>
             </div>
-            
             <button class="modal-btn" id="submitLeaderboardBtn" style="background: linear-gradient(145deg, #ffd966, #cc8800); color: #1a1a2e; width: 100%; margin-bottom: 10px; font-weight: 900; box-shadow: 0 0 15px rgba(255, 217, 102, 0.5);">🏆 ДОБАВИТЬСЯ В ТОП-10</button>
-            
             <button class="modal-btn" id="closeLeaderboardBtn" style="background: #8c5cd4; width: 100%;">ЗАКРЫТЬ</button>
         </div>
     </div>
 
-    <!-- Окно Голосования (Админ Абьюз) -->
-    <div id="voteModal" class="modal-overlay" style="z-index: 999999;">
-        <div class="modal-content" style="border: 4px solid #00ff41; background: #0a0a0a; box-shadow: 0 0 30px #00ff41;">
-            <div class="modal-title" id="voteQuestion" style="color: #00ff41; text-shadow: 0 0 10px #00ff41; font-size: 22px;">Голосование</div>
-            <div id="voteOptions" style="display: flex; flex-direction: column; gap: 10px; margin: 20px 0;">
-                <!-- Варианты ответов будут здесь -->
+    <!-- НОВОЕ ОКНО ГОЛОСОВАНИЯ (ТОЧЬ В ТОЧЬ) -->
+    <div id="voteModal" class="modal-overlay" style="z-index: 999999; background: rgba(0,0,0,0.85);">
+        <div class="vote-modal-box">
+            <div class="vote-title" id="voteQuestion">*Название ивента*</div>
+            
+            <div class="vote-progress-bar-bg">
+                <div class="vote-progress-left" id="voteProgressYes">1%</div>
+                <div class="vote-progress-right" id="voteProgressNo">1%</div>
+            </div>
+
+            <div class="vote-btn-row">
+                <button class="vote-btn-red" id="voteBtnYes">Да</button>
+                <button class="vote-btn-blue" id="voteBtnNo">Нет</button>
             </div>
         </div>
     </div>
@@ -360,7 +355,7 @@
 
     <div class="admin-overlay" id="adminOverlay">
         <div class="admin-panel">
-            <div class="admin-header">АДМИН ПАНЕЛЬ v5</div>
+            <div class="admin-header">АДМИН ПАНЕЛЬ v 6</div>
             <div class="admin-tabs">
                 <div class="admin-tab active" data-tab="game">Игра</div>
                 <div class="admin-tab" data-tab="settings">Настройки</div>
@@ -462,7 +457,7 @@
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
             <div class="modal-text" id="newsText" style="font-size: 14px; line-height: 1.5; text-align: left;">
-                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.2!</b><br><br>
+                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.3!</b><br><br>
                 👑 <b>ADMIN ABUSE TOOL:</b> Создатель игры получил безграничную власть! Следите за глобальными ивентами, голосованиями и бустами!<br><br>
                 ⚔️ <b>ТУРНИР:</b> Вызывайте других игроков на дуэль в реальном времени! Победитель забирает <b>10⭐ и 200 000🧠</b>!<br><br>
                 💬 <b>ГЛОБАЛЬНЫЙ ЧАТ:</b> Общайтесь с другими игроками прямо в игре!<br><br>
@@ -490,6 +485,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=16.2"></script>
+    <script type="module" src="script.js?v=16.3"></script>
 </body>
 </html>
