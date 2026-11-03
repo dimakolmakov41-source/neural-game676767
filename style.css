@@ -860,3 +860,68 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
     font-size: 12px;
     font-weight: 700;
 }
+
+
+/* ОБЯЗАТЕЛЬНЫЙ ВВОД НИКА */
+.mandatory-nick-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.94);
+    backdrop-filter: blur(10px);
+}
+.mandatory-nick-overlay.show { display: flex; }
+.mandatory-nick-panel {
+    width: 100%;
+    max-width: 390px;
+    padding: 28px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    color: #fff;
+    background: linear-gradient(145deg, #182b49, #241443);
+    border: 3px solid #7aa5d9;
+    border-radius: 24px;
+    box-shadow: 0 0 35px rgba(80, 150, 255, 0.45);
+}
+.mandatory-nick-emoji { font-size: 48px; }
+.mandatory-nick-title {
+    color: #ffd966;
+    font-size: 23px;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(255, 190, 60, 0.6);
+}
+.mandatory-nick-description { font-size: 14px; line-height: 1.45; }
+.mandatory-nick-input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #7aa5d9;
+    border-radius: 12px;
+    outline: none;
+    background: #101827;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    user-select: text;
+}
+.mandatory-nick-input:focus { border-color: #ffd966; }
+.mandatory-nick-save {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #ffe28a;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #ffd966, #cc8800);
+    color: #211600;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+}
+.mandatory-nick-save:disabled { opacity: 0.6; cursor: wait; }
+.mandatory-nick-error { min-height: 18px; color: #ff7777; font-size: 13px; font-weight: 700; }
+.mandatory-nick-note { color: #c9d5e8; font-size: 11px; line-height: 1.35; }
