@@ -1,0 +1,12 @@
+{
+  "name": "neural-evolution-clicker",
+  "private": true,
+  "version": "17.0.0",
+  "description": "Кликер: Эволюция Нейросетей",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
