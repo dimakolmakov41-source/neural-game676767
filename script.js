@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.5";
+const GAME_VERSION = "16.6";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -82,7 +82,6 @@ window.addEventListener('load', () => {
             if (error) { console.log('game_settings ошибка:', error.message); return; }
             if (!data) { console.log('game_settings: нет данных в таблице'); return; }
 
-            // 1. ЗАКРЫТИЕ ИГРЫ
             const isClosed = (data.is_closed === true || data.is_closed === 'true');
             if (isClosed) {
                 document.getElementById('closedOverlay')?.classList.add('show');
@@ -93,7 +92,6 @@ window.addEventListener('load', () => {
                 document.getElementById('closedOverlay')?.classList.remove('show');
             }
 
-            // 2. ПРОВЕРКА ВЕРСИИ
             if (data.latest_version && String(data.latest_version).trim() !== GAME_VERSION) {
                 document.getElementById('updateOverlay')?.classList.add('show');
                 document.getElementById('mainMenu')?.classList.add('hidden');
@@ -103,7 +101,6 @@ window.addEventListener('load', () => {
                 document.getElementById('updateOverlay')?.classList.remove('show');
             }
 
-            // 3. БЕГУЩАЯ СТРОКА
             const tickerActive = (data.ticker_active === true || data.ticker_active === 'true');
             if (tickerActive && data.ticker_text) {
                 const ticker = document.getElementById('globalTicker');
@@ -116,7 +113,6 @@ window.addEventListener('load', () => {
                 document.getElementById('globalTicker')?.classList.add('hidden');
             }
 
-            // 4. ГЛОБАЛЬНЫЙ БУСТ
             const boostActive = (data.boost_active === true || data.boost_active === 'true');
             if (boostActive) {
                 globalBoost = {
@@ -161,7 +157,47 @@ window.addEventListener('load', () => {
     
     const nicknameInput = document.getElementById('nicknameInput');
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
-    document.getElementById('saveNicknameBtn')?.addEventListener('click', () => { const newName = nicknameInput.value.trim(); if (newName) { localStorage.setItem('gamePlayerName', escapeHTML(newName)); showToast(`✅ Ник: ${escapeHTML(newName)}`); } else { localStorage.removeItem('gamePlayerName'); showToast(`✅ Ник сброшен`); } });
+
+    // === СОХРАНЕНИЕ УНИКАЛЬНОГО НИКА ===
+    document.getElementById('saveNicknameBtn')?.addEventListener('click', async () => {
+        const newName = nicknameInput.value.trim();
+        if (!newName) { 
+            localStorage.removeItem('gamePlayerName'); 
+            showToast(`✅ Ник сброшен`); 
+            return; 
+        }
+
+        const safeName = escapeHTML(newName);
+        if (!supabaseClient) {
+            localStorage.setItem('gamePlayerName', safeName);
+            showToast(`✅ Ник: ${safeName} (офлайн)`);
+            return;
+        }
+
+        try {
+            // Проверяем, занят ли ник
+            const { data, error } = await supabaseClient.from('player_profiles').select('player_id').eq('player_name', safeName).maybeSingle();
+            
+            if (error && error.code !== 'PGRST116') { // PGRST116 = нет результатов
+                showToast('❌ Ошибка проверки ника');
+                console.error(error);
+                return;
+            }
+
+            if (data && data.player_id !== playerId) {
+                showToast('❌ Этот ник уже занят другим игроком!');
+                return;
+            }
+
+            // Сохраняем
+            await supabaseClient.from('player_profiles').upsert({ player_id: playerId, player_name: safeName });
+            localStorage.setItem('gamePlayerName', safeName);
+            showToast(`✅ Ник: ${safeName}`);
+            
+        } catch(e) {
+            showToast('❌ Ошибка сети');
+        }
+    });
 
     // ===== НОВЫЙ AI PASS =====
     let passPlayTimeSeconds = 0;
@@ -263,7 +299,7 @@ window.addEventListener('load', () => {
     }
     setTimeout(updateOnlineStatus, 1000); setInterval(updateOnlineStatus, 15000);
 
-    // ЧАТ
+    // ЧАТ С РЕАКЦИЯМИ
     async function loadChatMessages() {
         if (!supabaseClient) return;
         const list = document.getElementById('chatMessages');
@@ -272,12 +308,49 @@ window.addEventListener('load', () => {
             const { data, error } = await supabaseClient.from('global_chat').select('*').order('created_at', { ascending: true }).limit(50);
             if (error) { list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">ОШИБКА ЧТЕНИЯ:<br>${error.message}<br>Код: ${error.code}</div>`; return; }
             if (!data || data.length === 0) { list.innerHTML = `<div style="color: #888; font-size: 12px; text-align: center; padding: 10px;">Сообщений пока нет...</div>`; return; }
+
+            // Получаем реакции
+            const messageIds = data.map(m => m.id);
+            const { data: reactions } = await supabaseClient.from('chat_reactions').select('*').in('message_id', messageIds);
+
+            const reactionsMap = {};
+            if (reactions) {
+                reactions.forEach(r => {
+                    if (!reactionsMap[r.message_id]) reactionsMap[r.message_id] = { fire: 0, laugh: 0 };
+                    if (r.reaction === 'fire') reactionsMap[r.message_id].fire++;
+                    if (r.reaction === 'laugh') reactionsMap[r.message_id].laugh++;
+                });
+            }
+
             const isScrolledToBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 60;
-            // ЗАЩИТА: используем escapeHTML для ника и сообщения
-            list.innerHTML = data.map(msg => `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff; word-wrap: break-word;"><b style="color: #ffd966;">${escapeHTML(msg.player_name)}:</b> <span>${escapeHTML(msg.message)}</span></div>`).join('');
+            
+            list.innerHTML = data.map(msg => {
+                const rx = reactionsMap[msg.id] || { fire: 0, laugh: 0 };
+                // Проверка, ставил ли я уже реакцию (чтобы не спамить)
+                return `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff; word-wrap: break-word;">
+                    <b style="color: #ffd966;">${escapeHTML(msg.player_name)}:</b> <span>${escapeHTML(msg.message)}</span>
+                    <div style="display:flex; gap:10px; margin-top:3px; font-size:12px;">
+                        <span style="cursor:pointer;" onclick="addReaction(${msg.id}, 'fire')">🔥 ${rx.fire}</span>
+                        <span style="cursor:pointer;" onclick="addReaction(${msg.id}, 'laugh')">😂 ${rx.laugh}</span>
+                    </div>
+                </div>`;
+            }).join('');
+            
             if (isScrolledToBottom) { list.scrollTop = list.scrollHeight; }
         } catch(e) { list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">КРИТИЧЕСКАЯ ОШИБКА:<br>${e.message}</div>`; }
     }
+
+    window.addReaction = async function(msgId, type) {
+        if (!supabaseClient) return;
+        try {
+            const { error } = await supabaseClient.from('chat_reactions').insert([{ message_id: msgId, player_id: playerId, reaction: type }]);
+            if (error && error.code === '23505') { // уникальный индекс (уже ставил)
+                showToast('Вы уже ставили эту реакцию');
+            } else {
+                loadChatMessages();
+            }
+        } catch(e) {}
+    };
 
     async function sendChatMessage() {
         if (!supabaseClient) return;
@@ -287,7 +360,6 @@ window.addEventListener('load', () => {
         input.value = '';
         const name = escapeHTML(localStorage.getItem('gamePlayerName') || 'Аноним');
         try {
-            // Защита на входе (обрезаем слишком длинные сообщения)
             const safeMessage = text.substring(0, 200);
             const { error } = await supabaseClient.from('global_chat').insert([{ player_id: playerId, player_name: name, message: safeMessage }]);
             if (error) { showToast(`❌ Ошибка отправки: ${error.message}`); } else { loadChatMessages(); }
@@ -447,9 +519,11 @@ window.addEventListener('load', () => {
         }
     }
 
-    async function sendAdminCommand(type, payload = '') {
+    async function sendAdminCommand(type, payload = '', targetPlayer = null) {
         if (!supabaseClient) return;
-        await supabaseClient.from('admin_commands').insert([{ command_type: type, payload: String(payload) }]);
+        const insertData = { command_type: type, payload: String(payload) };
+        if (targetPlayer) insertData.target_player = targetPlayer;
+        await supabaseClient.from('admin_commands').insert([insertData]);
     }
 
     async function toggleAbuseEffect(feature, enable) {
@@ -462,8 +536,17 @@ window.addEventListener('load', () => {
         supabaseClient.channel('admin_events')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_commands' }, payload => {
                 const cmd = payload.new;
-                if (cmd.command_type === 'give_points') { points += parseInt(cmd.payload); updateUI(); showToast(`👑 Админ дал вам +${cmd.payload}🧠!`); }
-                if (cmd.command_type === 'give_stars') { stars += parseInt(cmd.payload); totalStarsEarned += parseInt(cmd.payload); updateUI(); showToast(`👑 Админ дал вам +${cmd.payload}⭐!`); }
+                
+                // Фильтр по игроку (если указан target_player)
+                if (cmd.target_player) {
+                    const myName = localStorage.getItem('gamePlayerName');
+                    if (!myName || cmd.target_player.toLowerCase() !== myName.toLowerCase()) {
+                        return; // Игнорируем, если это не для нас
+                    }
+                }
+
+                if (cmd.command_type === 'give_points') { points += parseInt(cmd.payload); updateUI(); showToast(`👑 Разработчик дал вам +${cmd.payload}🧠!`); }
+                if (cmd.command_type === 'give_stars') { stars += parseInt(cmd.payload); totalStarsEarned += parseInt(cmd.payload); updateUI(); showToast(`👑 Разработчик дал вам +${cmd.payload}⭐!`); }
                 if (cmd.command_type === 'star_rain') { startStarRain(); }
                 if (cmd.command_type === 'dialogue') { showBrainSpeech(cmd.payload); }
                 if (cmd.command_type === 'start_vote') { showVoteModal(cmd.payload); }
@@ -857,26 +940,24 @@ window.addEventListener('load', () => {
         else if (adminCurrentTab === 'abuse') {
             body.innerHTML = `
                 <div class="admin-item">
+                    <span>Выдать награду по нику</span>
+                    <div style="display:flex; flex-direction:column; gap:5px; width:100%;">
+                        <input type="text" id="admTargetNick" class="admin-input" style="width:100%; text-align:left;" placeholder="Ник игрока...">
+                        <input type="number" id="admTargetAmount" class="admin-input" style="width:100%;" placeholder="Сумма...">
+                        <select id="admTargetType" class="admin-input" style="width:100%;">
+                            <option value="give_points">Очки 🧠</option>
+                            <option value="give_stars">Звёзды ⭐</option>
+                        </select>
+                        <button id="admTargetGive" style="background:#ffd700; color:#000; font-weight:bold;">Выдать</button>
+                    </div>
+                </div>
+                <div class="admin-item">
                     <span>Начать админ абьюз (радужный фон)</span>
                     <button id="admRainbowToggle" style="background:#888;">${activeAbuseEffects.includes('rainbow') ? 'Закончить' : 'Начать'}</button>
                 </div>
                 <div class="admin-item">
                     <span>Звёздный дождь</span>
                     <button id="admStarRain" style="background:#888;">Начать</button>
-                </div>
-                <div class="admin-item">
-                    <span>Дать очки</span>
-                    <div style="display:flex;gap:5px;">
-                        <input type="number" id="admPointsAmount" class="admin-input" style="width:70px;" value="1000">
-                        <button id="admPointsGive" style="background:#888;">Выдать</button>
-                    </div>
-                </div>
-                <div class="admin-item">
-                    <span>Дать звезды</span>
-                    <div style="display:flex;gap:5px;">
-                        <input type="number" id="admStarsAmount" class="admin-input" style="width:70px;" value="100">
-                        <button id="admStarsGive" style="background:#888;">Выдать</button>
-                    </div>
                 </div>
                 <div class="admin-item">
                     <span>Сказать от лица мозга</span>
@@ -894,6 +975,23 @@ window.addEventListener('load', () => {
                 </div>
             `;
             
+            document.getElementById('admTargetGive').onclick = async () => {
+                const nick = document.getElementById('admTargetNick').value.trim();
+                const amount = document.getElementById('admTargetAmount').value;
+                const type = document.getElementById('admTargetType').value;
+                if (!nick || !amount) { showToast('Заполни ник и сумму!'); return; }
+                
+                if (!supabaseClient) return;
+                // Проверяем, существует ли такой игрок
+                const { data } = await supabaseClient.from('player_profiles').select('player_name').eq('player_name', nick).maybeSingle();
+                if (!data) { showToast('❌ Игрок с таким ником не найден!'); return; }
+                
+                await sendAdminCommand(type, amount, nick);
+                showToast(`✅ Отправлено для ${nick}`);
+                document.getElementById('admTargetNick').value = '';
+                document.getElementById('admTargetAmount').value = '';
+            };
+
             document.getElementById('admRainbowToggle').onclick = async () => {
                 if (activeAbuseEffects.includes('rainbow')) {
                     await toggleAbuseEffect('rainbow', false);
@@ -903,8 +1001,6 @@ window.addEventListener('load', () => {
                 renderAdminBody();
             };
             document.getElementById('admStarRain').onclick = () => { sendAdminCommand('star_rain'); showToast('Звездный дождь запущен!'); };
-            document.getElementById('admPointsGive').onclick = () => { const v = document.getElementById('admPointsAmount').value; if (v) sendAdminCommand('give_points', v); };
-            document.getElementById('admStarsGive').onclick = () => { const v = document.getElementById('admStarsAmount').value; if (v) sendAdminCommand('give_stars', v); };
             document.getElementById('admBrainSay').onclick = () => { const v = document.getElementById('admBrainText').value; if (v) sendAdminCommand('dialogue', v); };
             document.getElementById('admStartVote').onclick = () => { const q = document.getElementById('admVoteTitle').value || "Голосование"; const payload = JSON.stringify({ q: q, o: ['Да', 'Нет'] }); sendAdminCommand('start_vote', payload); };
             document.getElementById('admGlobalBoss').onclick = () => sendAdminCommand('spawn_global_boss');
