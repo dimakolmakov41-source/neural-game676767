@@ -1221,14 +1221,20 @@ window.addEventListener('load', () => {
                 if (Number.isFinite(Number(d.gameStartTime)) && Number(d.gameStartTime) > 0) gameStartTime = Number(d.gameStartTime);
                 if (Number.isFinite(Number(d.currentSoundProfile))) currentSoundProfile = Number(d.currentSoundProfile);
                 purchasedCount = upgrades.filter(u => u.purchased).length;
-                // Мигрируем старое сохранение на текущую версию без потери данных.
-                saveGame();
+                // Миграцию сохраняем после расчёта офлайн-дохода, чтобы не сбросить время отсутствия.
             } catch(e) {
                 console.error('Ошибка чтения сохранения. Исходные данные оставлены без изменений:', e);
             }
         }
         updateUI(); renderShopNeurons(); updateStatsUI(); renderAchievements(); startBoostTimer(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
-        const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
+        const offlineIncome = calculateOfflineIncome();
+        if (offlineIncome > 0) {
+            points += offlineIncome;
+            setTimeout(() => showOfflineReward(offlineIncome), 2600);
+            updateUI();
+        }
+        // Сохраняем новое время только после расчёта награды за прошлое отсутствие.
+        saveGame();
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) { birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION; localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('birthday_boost')), 3000); saveGame(); }
         if (isMarch8() && !isMarch8BoostActive() && !localStorage.getItem('march8BoostUsed_' + new Date().toDateString())) { march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION; localStorage.setItem('march8BoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('march8_boost')), 3000); saveGame(); }
         loadActiveAbuse();
