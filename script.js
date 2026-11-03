@@ -4,6 +4,7 @@ import { formatNumber } from './src/utils/formatNumber.js';
 import { createHtmlEscaper } from './src/utils/escapeHTML.js';
 import { selectFactOfDay } from './src/utils/selectFactOfDay.js';
 import { isCalendarDate } from './src/utils/isCalendarDate.js';
+import { calculateOfflineIncome as calculateOfflineIncomeTS } from './src/utils/calculateOfflineIncome.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -1109,7 +1110,7 @@ window.addEventListener('load', () => {
         prestigeLevel++; points = 10; purchasedCount = 1; upgrades.forEach((u, i) => { u.purchased = (i === 0); }); updateUI(); renderShopNeurons(); updatePrestigeDisplay(); saveGame(); showToast(`🌟 ${t('prestige_done')} ${prestigeLevel}!`); playBuySound(); document.getElementById('prestigeModal')?.classList.remove('show'); 
     }
     
-    function calculateOfflineIncome() { const awaySec = Math.min((Date.now() - lastSaveTime) / 1000, OFFLINE_MAX_HOURS * 3600); if (awaySec < 60) return 0; return Math.floor(getClickPower() * awaySec * OFFLINE_RATE); }
+    function calculateOfflineIncome() { return calculateOfflineIncomeTS(Date.now(), lastSaveTime, getClickPower(), OFFLINE_MAX_HOURS, OFFLINE_RATE); }
     function showOfflineReward(amount) { document.getElementById('offlineReward').innerText = '+' + formatNumber(amount) + ' 🧠'; document.getElementById('offlineOverlay')?.classList.add('show'); }
 
     const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }];
