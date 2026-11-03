@@ -1,6 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 import { formatNumber } from './src/utils/formatNumber.js';
+import { createHtmlEscaper } from './src/utils/escapeHTML.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -17,19 +18,7 @@ let currentLang = localStorage.getItem('gameLang') || 'ru';
 function t(key) { return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.ru[key] || key; }
 
 // ===== ЗАЩИТА ОТ HTML (XSS) =====
-function escapeHTML(str) {
-    if (!str) return '';
-    if (!ENABLE_HTML_PROTECTION) return String(str); // Если защита выключена, возвращаем как есть
-    return String(str).replace(/[&<>'"]/g, 
-        tag => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;'
-        }[tag] || tag)
-    );
-}
+const escapeHTML = createHtmlEscaper(ENABLE_HTML_PROTECTION);
 
 
 
