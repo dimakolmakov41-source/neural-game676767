@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.4";
+const GAME_VERSION = "16.5";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -32,7 +32,7 @@ const FACTS = { ru: ["Первый перцептрон создан в 1958 г�
 function getFactOfDay() { const now = new Date(); const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000); return FACTS[currentLang][dayOfYear % FACTS[currentLang].length]; }
 function checkDailyFact() { const today = new Date().toISOString().slice(0, 10); if (localStorage.getItem('factShownDate') !== today) { localStorage.setItem('factShownDate', today); const factText = document.getElementById('factText'); if (factText) factText.innerText = getFactOfDay(); setTimeout(() => document.getElementById('factOverlay')?.classList.add('show'), 2500); } }
 
-if (localStorage.getItem('gameVersion') !== GAME_VERSION) { localStorage.removeItem('neuralEvoSave'); localStorage.removeItem('aiPassSeason'); localStorage.removeItem('banEnd'); localStorage.setItem('gameVersion', GAME_VERSION); }
+if (localStorage.getItem('gameVersion') !== GAME_VERSION) { localStorage.removeItem('neuralEvoSave'); localStorage.removeItem('banEnd'); localStorage.setItem('gameVersion', GAME_VERSION); }
 
 function isHalloween() { if (customTheme === 'halloween') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return n.getMonth() === 9 && n.getDate() >= 5 && n.getDate() <= 31; }
 function isNewYear() { if (customTheme === 'newyear') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return (n.getMonth() === 11 && n.getDate() === 31) || (n.getMonth() === 0 && n.getDate() === 1); }
@@ -78,6 +78,94 @@ window.addEventListener('load', () => {
     const nicknameInput = document.getElementById('nicknameInput');
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
     document.getElementById('saveNicknameBtn')?.addEventListener('click', () => { const newName = nicknameInput.value.trim(); if (newName) { localStorage.setItem('gamePlayerName', newName); showToast(`✅ Ник: ${newName}`); } else { localStorage.removeItem('gamePlayerName'); showToast(`✅ Ник сброшен`); } });
+
+    // ===== НОВЫЙ AI PASS =====
+    let passPlayTimeSeconds = 0;
+    let passClaimedRewards = [];
+    let isPassActive = true; // Для тестов стоит true
+
+    function updatePassTime() {
+        if (isPassActive) {
+            passPlayTimeSeconds++;
+            if (document.getElementById('passModal')?.classList.contains('show')) {
+                renderPassCards();
+            }
+        }
+    }
+    setInterval(updatePassTime, 1000);
+
+    function renderPassCards() {
+        if (!isPassActive) {
+            document.getElementById('passContent').classList.add('hidden');
+            document.getElementById('noActivePassMessage').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('passContent').classList.remove('hidden');
+        document.getElementById('noActivePassMessage').classList.add('hidden');
+
+        const container = document.getElementById('passCardsContainer');
+        let html = '';
+        
+        for (let m = 10; m <= 240; m += 5) {
+            const isClaimed = passClaimedRewards.includes(m);
+            const isUnlocked = passPlayTimeSeconds >= (m * 60);
+            
+            let rewardPoints = m * 200;
+            let rewardStars = m % 10 === 5 ? 20 : 0;
+            if (m === 10) rewardPoints = 2000;
+            if (m === 15) { rewardPoints = 3500; rewardStars = 20; }
+
+            let cardClass = 'pass-card';
+            let textClass = 'pass-card-text';
+            let btnHtml = '';
+
+            if (isClaimed) {
+                cardClass += ' claimed';
+                btnHtml = `<div style="font-size:20px;color:#00ff00;margin-top:10px;">✅</div>`;
+            } else if (isUnlocked) {
+                cardClass += ' active';
+                btnHtml = `<button class="claim-pass-btn" onclick="claimPassReward(${m}, ${rewardPoints}, ${rewardStars})" style="margin-top:10px;padding:5px;background:#4caf50;border:none;border-radius:5px;color:#fff;font-weight:bold;cursor:pointer;">Забрать</button>`;
+            }
+
+            let starsText = rewardStars > 0 ? `<div style="font-size:14px;color:#ffd700;">⭐ ${rewardStars}</div>` : '';
+
+            html += `
+                <div class="${cardClass}">
+                    <div style="font-size:14px;color:#fff;font-weight:bold;margin-bottom:5px;">${m} минут</div>
+                    <div style="font-size:18px;color:#ffd700;font-weight:900;">🧠 ${formatNumber(rewardPoints)}</div>
+                    ${starsText}
+                    ${btnHtml}
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    window.claimPassReward = function(minute, pts, strs) {
+        if (passClaimedRewards.includes(minute)) return;
+        if (passPlayTimeSeconds < minute * 60) return;
+
+        passClaimedRewards.push(minute);
+        points += pts;
+        stars += strs;
+        totalStarsEarned += strs;
+        
+        updateUI();
+        saveGame();
+        playBuySound();
+        showToast(`🎁 Получено: +${formatNumber(pts)}🧠 ${strs > 0 ? '+'+strs+'⭐' : ''}`);
+        renderPassCards();
+    };
+
+    document.getElementById('passBtn')?.addEventListener('click', () => {
+        document.getElementById('passModal').classList.remove('hidden');
+        document.getElementById('passEndDate').innerText = "31.12.2026";
+        renderPassCards();
+    });
+    document.getElementById('closePassBtn')?.addEventListener('click', () => document.getElementById('passModal').classList.add('hidden'));
+    document.getElementById('passScrollRight')?.addEventListener('click', () => {
+        document.getElementById('passCardsContainer').scrollBy({ left: 250, behavior: 'smooth' });
+    });
 
     // ОНЛАЙН
     async function updateOnlineStatus() {
@@ -484,38 +572,6 @@ window.addEventListener('load', () => {
     function calculateOfflineIncome() { const awaySec = Math.min((Date.now() - lastSaveTime) / 1000, OFFLINE_MAX_HOURS * 3600); if (awaySec < 60) return 0; return Math.floor(getClickPower() * awaySec * OFFLINE_RATE); }
     function showOfflineReward(amount) { document.getElementById('offlineReward').innerText = '+' + formatNumber(amount) + ' 🧠'; document.getElementById('offlineOverlay')?.classList.add('show'); }
 
-    let passTasks = [], passCurrentTask = 0;
-    const pass8StartDate = new Date(2026, 9, 5).getTime(), pass8EndDate = new Date(2026, 9, 25, 23, 59, 59).getTime(), pass9StartDate = new Date(2026, 9, 26, 0, 0, 0).getTime(), pass9EndDate = new Date(2026, 10, 4, 23, 59, 59).getTime();
-    let passEndTimerInterval = null, passRewardSeconds = 600, passRewardInterval = null;
-
-    function getActivePassNumber() { const n = Date.now(); if (n >= pass8StartDate && n <= pass8EndDate) return 8; if (n >= pass9StartDate && n <= pass9EndDate) return 9; return 0; }
-    function getPassEndTime(s) { if (s === 8) return pass8EndDate; if (s === 9) return pass9EndDate; return 0; }
-    function getPassRewardSeconds() { const num = getActivePassNumber(); if (num === 8) return 1500; if (num === 9) return 1800; return 600; }
-    function getPassRewardRewards() { const num = getActivePassNumber(); if (num === 8) return { points: 20000, stars: 50 }; if (num === 9) return { points: 30000, stars: 75 }; return { points: 5000, stars: 50 }; }
-    function getPassTitleText() { const num = getActivePassNumber(); if (num === 8) return '🎃 AI PASS 8 🎃'; if (num === 9) return '🧠 AI PASS 9 🧠'; return t('pass_no_active'); }
-    function getPassTasksTitleText() { const num = getActivePassNumber(); if (num === 8) return '🎃 ЗАДАНИЯ AI PASS 8 🎃'; if (num === 9) return '🧠 ЗАДАНИЯ AI PASS 9 🧠'; return t('pass_tasks_title'); }
-    function applyPassStyle() { const c = document.getElementById('passContainer'), title = document.getElementById('passTitle'); const tasksTitle = document.getElementById('passTasksTitle'); if (!c || !title) return; c.classList.remove('pass-v8', 'pass-v9'); const num = getActivePassNumber(); if (num === 8) c.classList.add('pass-v8'); else if (num === 9) c.classList.add('pass-v9'); title.innerHTML = getPassTitleText(); if (tasksTitle) tasksTitle.innerHTML = getPassTasksTitleText(); }
-    function fillPassTasks(s) { passTasks = []; if (s === 8) { for (let i = 1; i <= 40; i++) passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: 20000, rewardStars: 50, completed: false, claimed: false }); } else if (s === 9) { for (let i = 1; i <= 50; i++) passTasks.push({ level: i, targetClicks: i * 500, rewardPoints: 30000, rewardStars: 75, completed: false, claimed: false }); } }
-    function initPassSeason(skipSave) { const active = getActivePassNumber(), saved = parseInt(localStorage.getItem('aiPassSeason')) || 0; fillPassTasks(active); if (saved !== active) { passCurrentTask = 0; passRewardSeconds = getPassRewardSeconds(); localStorage.setItem('aiPassSeason', String(active)); if (!skipSave) saveGame(); } }
-    function renderPassBadges() { const c = document.getElementById('passLevels'); if (!c) return; let html = ''; passTasks.forEach((task, idx) => { let cls = 'pass-badge', st = ''; if (task.claimed) { cls += ' completed'; st = '✅'; } else if (idx === passCurrentTask) { cls += ' available'; st = '🎯'; } else if (idx < passCurrentTask) { cls += ' completed'; st = '✔'; } else { cls += ' locked'; st = '🔒'; } html += `<div class="${cls}">${task.level}<br>${st}</div>`; }); c.innerHTML = html; const pf = document.getElementById('passProgressFill'); if (pf) pf.style.width = (passTasks.length > 0 ? (passTasks.filter(t => t.claimed).length / passTasks.length) * 100 : 0) + '%'; }
-    function updatePassRewardTimerDisplay() { const el = document.getElementById('passTimer'); if (el) el.innerHTML = `⏱️ ${Math.floor(passRewardSeconds / 60)}:${(passRewardSeconds % 60).toString().padStart(2, '0')}`; }
-    function startPassRewardTimer() { if (passRewardInterval) clearInterval(passRewardInterval); updatePassRewardTimerDisplay(); passRewardInterval = setInterval(() => { passRewardSeconds--; if (passRewardSeconds <= 0) { if (getActivePassNumber() > 0) { const r = getPassRewardRewards(); points += r.points; stars += r.stars; totalStarsEarned += r.stars; updateUI(); saveGame(); showToast(`🎁 ${t('pass_reward')}! +${formatNumber(r.points)}🧠 +${r.stars}⭐`); playBuySound(); } passRewardSeconds = getPassRewardSeconds(); } updatePassRewardTimerDisplay(); }, 1000); }
-    function renderTasksList() {
-        const c = document.getElementById('tasksList'); if (!c) return; let html = '';
-        passTasks.forEach((task, idx) => {
-            let cls = 'task-item', st = '', cb = '';
-            if (task.claimed) { cls += ' completed'; st = t('done'); }
-            else if (idx === passCurrentTask) { cls += ' current'; const prog = Math.min(totalClicks, task.targetClicks); const perc = Math.min(100, (prog / task.targetClicks) * 100); st = `${prog} / ${task.targetClicks} ${t('clicks_done')}`; if (totalClicks >= task.targetClicks) cb = `<button class="task-claim-btn" data-idx="${idx}">${t('claim')}</button>`; html += `<div class="${cls}"><div class="task-header"><span class="task-level">🎯 ${t('level')} ${task.level}</span><span class="task-reward">+${formatNumber(task.rewardPoints)}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">${task.targetClicks} ${t('clicks_done')}</div><div class="task-progress-bar"><div class="task-progress-fill" style="width:${perc}%"></div></div><div class="task-progress-text">${st}</div>${cb}</div>`; return; }
-            else if (idx < passCurrentTask) { cls += ' completed'; st = t('done'); } else st = `${t('lock_first')} ${idx}`;
-            html += `<div class="${cls}"><div class="task-header"><span class="task-level">${idx === passCurrentTask ? '🎯' : '🔒'} ${t('level')} ${task.level}</span><span class="task-reward">+${formatNumber(task.rewardPoints)}🧠 +${task.rewardStars}⭐</span></div><div class="task-desc">${task.targetClicks} ${t('clicks_done')}</div><div class="task-progress-text">${st}</div></div>`;
-        });
-        c.innerHTML = html; document.querySelectorAll('.task-claim-btn').forEach(b => b.addEventListener('click', () => claimTask(parseInt(b.dataset.idx))));
-    }
-    function claimTask(idx) { const task = passTasks[idx]; if (!task || task.claimed || idx !== passCurrentTask || totalClicks < task.targetClicks) return; task.claimed = true; points += task.rewardPoints; stars += task.rewardStars; totalStarsEarned += task.rewardStars; passCurrentTask++; updateUI(); renderPassBadges(); renderTasksList(); saveGame(); showToast(`🎉 ${t('task_claimed')} ${task.level} ${t('task_received')}`); playBuySound(); }
-    function checkPassProgress() { const m = document.getElementById('passTasksModal'); if (m && m.classList.contains('show')) renderTasksList(); }
-    function updatePassEndTimer() { const el = document.getElementById('passEndTimer'); if (!el) return; const num = getActivePassNumber(); if (num === 0) { el.innerHTML = `⏳ ${t('pass_no_active')}`; return; } const diff = getPassEndTime(num) - Date.now(); if (diff <= 0) { el.innerHTML = `⏳ AI PASS ${num} ${t('pass_finished')}`; return; } el.innerHTML = `⏳ ${t('until_end')} ${num}: ${Math.floor(diff / 86400000)} ${t('days')} ${Math.floor((diff % 86400000) / 3600000)} ${t('hours')}`; }
-    function startPassEndTimer() { if (passEndTimerInterval) clearInterval(passEndTimerInterval); updatePassEndTimer(); passEndTimerInterval = setInterval(updatePassEndTimer, 60000); }
-
     const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }];
     let currentSoundProfile = 0, audioCtx = null, musicEnabled = localStorage.getItem('musicEnabled') === 'true';
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
@@ -568,14 +624,13 @@ window.addEventListener('load', () => {
 
     function saveGame() {
         lastSaveTime = Date.now();
-        localStorage.setItem('neuralEvoSave', JSON.stringify({ points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode, comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements, helpers: helpers.map(h => ({ bought: h.bought, level: h.level })), currentSkin, purchasedSkins, upgrades: upgrades.map(u => ({ purchased: u.purchased })), passTasks: passTasks.map(t => ({ claimed: t.claimed, completed: t.completed })), passCurrentTask, passRewardSeconds, passSeason: localStorage.getItem('aiPassSeason') || '0', boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime }));
+        localStorage.setItem('neuralEvoSave', JSON.stringify({ points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode, comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements, helpers: helpers.map(h => ({ bought: h.bought, level: h.level })), currentSkin, purchasedSkins, upgrades: upgrades.map(u => ({ purchased: u.purchased })), passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime }));
     }
 
     function loadGame() {
-        startPassEndTimer(); // <--- ПЕРЕНЕС СЮДА
-        initPassSeason(true); const activeSeason = localStorage.getItem('aiPassSeason') || '0'; let _showAnim = false; const saved = localStorage.getItem('neuralEvoSave');
-        if (saved) { try { const d = JSON.parse(saved); points = d.points || 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (String(d.passSeason) === String(activeSeason) && d.passTasks) { d.passTasks.forEach((data, i) => { if (passTasks[i]) { passTasks[i].claimed = data.claimed; passTasks[i].completed = data.completed; } }); if (d.passCurrentTask !== undefined) passCurrentTask = d.passCurrentTask; if (d.passRewardSeconds !== undefined) passRewardSeconds = d.passRewardSeconds; } if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) {} }
-        updateUI(); renderShopNeurons(); renderPassBadges(); renderTasksList(); updateStatsUI(); renderAchievements(); startPassRewardTimer(); startBoostTimer(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applyPassStyle(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
+        const saved = localStorage.getItem('neuralEvoSave');
+        if (saved) { try { const d = JSON.parse(saved); points = d.points || 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (d.passPlayTimeSeconds !== undefined) passPlayTimeSeconds = d.passPlayTimeSeconds; if (d.passClaimedRewards) passClaimedRewards = d.passClaimedRewards; if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) {} }
+        updateUI(); renderShopNeurons(); updateStatsUI(); renderAchievements(); startBoostTimer(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
         const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) { birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION; localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('birthday_boost')), 3000); saveGame(); }
         if (isMarch8() && !isMarch8BoostActive() && !localStorage.getItem('march8BoostUsed_' + new Date().toDateString())) { march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION; localStorage.setItem('march8BoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('march8_boost')), 3000); saveGame(); }
@@ -665,9 +720,6 @@ window.addEventListener('load', () => {
 
     document.querySelectorAll('.color-btn').forEach(btn => btn.addEventListener('click', () => { applyButtonColor(btn.dataset.color); showToast(`🎨 ${btn.dataset.color}`); }));
     document.querySelectorAll('.shop-tab').forEach(tab => tab.addEventListener('click', () => switchShopTab(tab.dataset.tab)));
-
-    document.getElementById('openTasksBtn')?.addEventListener('click', () => { renderTasksList(); applyPassStyle(); document.getElementById('passTasksModal').classList.add('show'); });
-    document.getElementById('closeTasksBtn')?.addEventListener('click', () => document.getElementById('passTasksModal').classList.remove('show'));
 
     document.getElementById('exportSaveBtn')?.addEventListener('click', exportProgress);
     document.getElementById('importSaveBtn')?.addEventListener('click', () => importInput.click());
