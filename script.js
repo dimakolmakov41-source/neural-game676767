@@ -340,6 +340,7 @@ window.addEventListener('load', () => {
         if (nicknameInput) nicknameInput.value = newName;
         try {
             await ensureGlobalEventProfile();
+            syncLeaderboard();
             updateOnlineStatus();
             refreshGlobalEvent();
             checkGlobalEventReward();
@@ -771,23 +772,44 @@ window.addEventListener('load', () => {
     document.getElementById('tourneyAcceptBtn')?.addEventListener('click', () => { if (currentDuelId) supabaseClient.from('duels').update({ status: 'accepted' }).eq('id', currentDuelId).then(); });
     document.getElementById('tourneyDeclineBtn')?.addEventListener('click', () => { if (currentDuelId) supabaseClient.from('duels').update({ status: 'declined' }).eq('id', currentDuelId).then(); closeTourney(); });
 
-    // ЛИДЕРБОРД
+    // ЛИДЕРБОРД — АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ
+    let leaderboardSyncBusy = false;
     async function syncLeaderboard() {
-        if (!supabaseClient) return;
-        const name = escapeHTML(localStorage.getItem('gamePlayerName') || 'Аноним');
-        try { await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: Math.floor(points), updated_at: new Date().toISOString() }, { onConflict: 'player_id' }); return true; } catch(e) { return false; }
+        const rawName = (localStorage.getItem('gamePlayerName') || '').trim();
+        if (!supabaseClient || !rawName || leaderboardSyncBusy) return false;
+        leaderboardSyncBusy = true;
+        try {
+            const { error } = await supabaseClient.from('leaderboard').upsert({
+                player_id: playerId,
+                player_name: rawName,
+                score: Math.floor(Number(points) || 0),
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'player_id' });
+            if (error) throw error;
+            return true;
+        } catch(e) {
+            console.error('Синхронизация лидерборда:', e);
+            return false;
+        } finally {
+            leaderboardSyncBusy = false;
+        }
     }
     async function showLeaderboard() {
         const modal = document.getElementById('leaderboardModal'), list = document.getElementById('leaderboardList');
         modal.classList.add('show'); list.innerHTML = 'Загрузка...';
-        if (!supabaseClient) return;
+        if (!supabaseClient) { list.innerHTML = 'Нет подключения к серверу'; return; }
         const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
         list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${escapeHTML(p.player_name)}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
     }
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
-    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-10!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
+
+    // Сразу добавляем игрока с сохранённым ником и далее обновляем его результат каждые 5 секунд.
+    if ((localStorage.getItem('gamePlayerName') || '').trim()) syncLeaderboard();
+    setInterval(() => {
+        if ((localStorage.getItem('gamePlayerName') || '').trim()) syncLeaderboard();
+    }, 5000);
 
     // ===== ADMIN ABUSE TOOL =====
     let activeAbuseEffects = [];
