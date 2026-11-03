@@ -14,6 +14,20 @@ let globalBoost = { active: false, type: 'points', multiplier: 1, text: '' };
 let currentLang = localStorage.getItem('gameLang') || 'ru';
 function t(key) { return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.ru[key] || key; }
 
+// ===== ЗАЩИТА ОТ HTML (XSS) =====
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
 function formatNumber(num) {
     if (num >= 1e21) return (num / 1e21).toFixed(2) + 'Sx'; if (num >= 1e18) return (num / 1e18).toFixed(2) + 'Qi'; if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K'; return Math.floor(num).toString();
 }
@@ -127,7 +141,6 @@ window.addEventListener('load', () => {
         } catch(e) { console.log('checkServerStatus catch:', e); }
     }
 
-    // Вызываем сразу + каждые 60 секунд
     setTimeout(checkServerStatus, 800);
     setInterval(checkServerStatus, 60000);
 
@@ -148,7 +161,7 @@ window.addEventListener('load', () => {
     
     const nicknameInput = document.getElementById('nicknameInput');
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
-    document.getElementById('saveNicknameBtn')?.addEventListener('click', () => { const newName = nicknameInput.value.trim(); if (newName) { localStorage.setItem('gamePlayerName', newName); showToast(`✅ Ник: ${newName}`); } else { localStorage.removeItem('gamePlayerName'); showToast(`✅ Ник сброшен`); } });
+    document.getElementById('saveNicknameBtn')?.addEventListener('click', () => { const newName = nicknameInput.value.trim(); if (newName) { localStorage.setItem('gamePlayerName', escapeHTML(newName)); showToast(`✅ Ник: ${escapeHTML(newName)}`); } else { localStorage.removeItem('gamePlayerName'); showToast(`✅ Ник сброшен`); } });
 
     // ===== НОВЫЙ AI PASS =====
     let passPlayTimeSeconds = 0;
@@ -240,7 +253,7 @@ window.addEventListener('load', () => {
     // ОНЛАЙН
     async function updateOnlineStatus() {
         if (!supabaseClient) return;
-        const myName = localStorage.getItem('gamePlayerName') || 'Аноним';
+        const myName = escapeHTML(localStorage.getItem('gamePlayerName') || 'Аноним');
         try {
             await supabaseClient.from('online_players').upsert({ player_id: playerId, player_name: myName, last_seen: new Date().toISOString() }, { onConflict: 'player_id' });
             const thirtySecsAgo = new Date(Date.now() - 30000).toISOString();
@@ -260,7 +273,8 @@ window.addEventListener('load', () => {
             if (error) { list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">ОШИБКА ЧТЕНИЯ:<br>${error.message}<br>Код: ${error.code}</div>`; return; }
             if (!data || data.length === 0) { list.innerHTML = `<div style="color: #888; font-size: 12px; text-align: center; padding: 10px;">Сообщений пока нет...</div>`; return; }
             const isScrolledToBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 60;
-            list.innerHTML = data.map(msg => `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff;"><b style="color: #ffd966;">${msg.player_name}:</b> <span>${msg.message}</span></div>`).join('');
+            // ЗАЩИТА: используем escapeHTML для ника и сообщения
+            list.innerHTML = data.map(msg => `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff; word-wrap: break-word;"><b style="color: #ffd966;">${escapeHTML(msg.player_name)}:</b> <span>${escapeHTML(msg.message)}</span></div>`).join('');
             if (isScrolledToBottom) { list.scrollTop = list.scrollHeight; }
         } catch(e) { list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">КРИТИЧЕСКАЯ ОШИБКА:<br>${e.message}</div>`; }
     }
@@ -271,9 +285,11 @@ window.addEventListener('load', () => {
         const text = input.value.trim();
         if (!text) return;
         input.value = '';
-        const name = localStorage.getItem('gamePlayerName') || 'Аноним';
+        const name = escapeHTML(localStorage.getItem('gamePlayerName') || 'Аноним');
         try {
-            const { error } = await supabaseClient.from('global_chat').insert([{ player_id: playerId, player_name: name, message: text }]);
+            // Защита на входе (обрезаем слишком длинные сообщения)
+            const safeMessage = text.substring(0, 200);
+            const { error } = await supabaseClient.from('global_chat').insert([{ player_id: playerId, player_name: name, message: safeMessage }]);
             if (error) { showToast(`❌ Ошибка отправки: ${error.message}`); } else { loadChatMessages(); }
         } catch(e) { showToast('❌ Ошибка сети'); }
     }
@@ -299,12 +315,12 @@ window.addEventListener('load', () => {
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
         const others = data.filter(p => p.player_id !== playerId);
         if (others.length === 0) { list.innerHTML = '<div style="text-align:center; padding:20px; color:#fff; font-weight:900; text-shadow:-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">Никого нет в сети...</div>'; return; }
-        list.innerHTML = others.map(p => `<div class="tourney-player-row"><div class="tourney-player-name">${p.player_name}</div><button class="tourney-btn-red call-player-btn" data-id="${p.player_id}" data-name="${p.player_name}">Вызвать</button></div>`).join('');
+        list.innerHTML = others.map(p => `<div class="tourney-player-row"><div class="tourney-player-name">${escapeHTML(p.player_name)}</div><button class="tourney-btn-red call-player-btn" data-id="${p.player_id}" data-name="${escapeHTML(p.player_name)}">Вызвать</button></div>`).join('');
         document.querySelectorAll('.call-player-btn').forEach(btn => { btn.addEventListener('click', (e) => { callPlayer(e.target.dataset.id, e.target.dataset.name); }); });
     }
 
     async function callPlayer(targetId, targetName) {
-        const myName = localStorage.getItem('gamePlayerName') || 'Аноним';
+        const myName = escapeHTML(localStorage.getItem('gamePlayerName') || 'Аноним');
         if (!supabaseClient) return;
         const { data, error } = await supabaseClient.from('duels').insert([{ player1_id: playerId, player1_name: myName, player2_id: targetId, player2_name: targetName, status: 'waiting' }]).select();
         if (error || !data) { showToast('Ошибка создания дуэли'); return; }
@@ -338,7 +354,7 @@ window.addEventListener('load', () => {
                 const duel = payload.new;
                 if (duel.status === 'waiting' && !currentDuelId) {
                     currentDuelId = duel.id; myDuelRole = 'player2';
-                    document.getElementById('tourneyChallengerName').innerText = duel.player1_name;
+                    document.getElementById('tourneyChallengerName').innerText = escapeHTML(duel.player1_name);
                     document.getElementById('tournamentModal').classList.remove('hidden');
                     showTourneyScreen('tourneyChallengeScreen'); subscribeToDuel();
                 }
@@ -393,7 +409,7 @@ window.addEventListener('load', () => {
     // ЛИДЕРБОРД
     async function syncLeaderboard() {
         if (!supabaseClient) return;
-        const name = localStorage.getItem('gamePlayerName') || 'Аноним';
+        const name = escapeHTML(localStorage.getItem('gamePlayerName') || 'Аноним');
         try { await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: Math.floor(points), updated_at: new Date().toISOString() }, { onConflict: 'player_id' }); return true; } catch(e) { return false; }
     }
     async function showLeaderboard() {
@@ -402,7 +418,7 @@ window.addEventListener('load', () => {
         if (!supabaseClient) return;
         const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
-        list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${p.player_name}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
+        list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${escapeHTML(p.player_name)}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
     }
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
