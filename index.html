@@ -19,8 +19,8 @@
     </div>
 
     <!-- ИКОНКИ В ИГРЕ (ЧАТ И ТУРНИР) -->
-    <div class="corner-chat-btn" id="chatBtn">💬</div>
-    <div class="corner-tourney-btn" id="tourneyBtn">⚔️</div>
+    <div class="corner-chat-btn hidden" id="chatBtn">💬</div>
+    <div class="corner-tourney-btn hidden" id="tourneyBtn">⚔️</div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
     <div class="boost-timer-panel" id="boostTimerPanel"></div>
@@ -132,15 +132,11 @@
             </div>
             
             <div class="tourney-body">
-                <!-- Экран 1: Список игроков (Первый игрок) -->
+                <!-- Экран 1: Список игроков в сети (БЕЗ ПОЛЯ ВВОДА) -->
                 <div id="tourneySearchScreen" class="tourney-screen">
-                    <div class="tourney-input-row">
-                        <input type="text" id="tourneyNameInput" placeholder="Имя игрока" class="tourney-input">
-                        <button id="tourneyCallBtn" class="tourney-btn-red">Вызвать</button>
-                    </div>
                     <div id="tourneyOnlineList" class="tourney-list">
-                        <!-- Сюда будут падать ники игроков онлайн -->
-                        <div style="text-align:center; padding:20px; color:#ccc;">Загрузка игроков...</div>
+                        <!-- Сюда скрипт будет добавлять серые плашки с никами и кнопкой Вызвать -->
+                        <div style="text-align:center; padding:20px; color:#fff; font-weight:900; text-shadow:-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">Загрузка игроков...</div>
                     </div>
                 </div>
 
@@ -404,6 +400,12 @@
                 </div>
             </div>
 
+            <!-- Кнопка новостей в настройках -->
+            <div class="setting-item">
+                <span data-i18n="news">📢 Новости</span>
+                <button class="modal-btn" id="newsBtnSettings" style="background: #e6a800;">Открыть</button>
+            </div>
+
             <div class="setting-item">
                 <span data-i18n="btn_color">🎨 Цвет кнопок</span>
                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
@@ -448,10 +450,20 @@
 
     <div id="promoModal" class="modal-overlay"><div class="modal-content"><div class="modal-title" data-i18n="promo_title">🎫 ПРОМОКОД</div><input type="text" id="promoInput" class="modal-input"><button class="modal-btn" id="activatePromoBtn" data-i18n="activate">АКТИВИРОВАТЬ</button><button class="modal-btn" id="closePromoBtn" data-i18n="close">ЗАКРЫТЬ</button></div></div>
     
+    <!-- НОВЫЙ ТЕКСТ НОВОСТЕЙ -->
     <div id="newsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
-            <div class="modal-text" id="newsText" data-i18n="news_text">Загрузка новостей...</div>
+            <div class="modal-text" id="newsText" style="font-size: 14px; line-height: 1.5; text-align: left;">
+                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.1!</b><br><br>
+                ⚔️ <b>ТУРНИР:</b> Теперь вы можете вызывать других игроков на дуэль в реальном времени! Победитель забирает <b>10⭐ и 200 000🧠</b>!<br><br>
+                💬 <b>ГЛОБАЛЬНЫЙ ЧАТ:</b> Общайтесь с другими игроками прямо в игре!<br><br>
+                🧠 <b>ЭВОЛЮЦИЯ:</b> Мозг теперь визуально меняется в зависимости от купленных сетей. Прокачай его до короны 👑!<br><br>
+                🏆 <b>ЛИДЕРБОРД:</b> Теперь в топ попадают ОЧКИ (🧠), а не клики. Не забудьте нажать кнопку «Добавиться»!<br><br>
+                🌟 <b>ПЕРЕРОЖДЕНИЕ:</b> Доступно только после полной эволюции (все 2200 сетей).<br><br>
+                📢 <b>НОВОСТИ:</b> Кнопка новостей теперь находится только в главном меню.<br><br>
+                Играйте и делитесь ссылкой с друзьями! 💙
+            </div>
             <button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button>
         </div>
     </div>
