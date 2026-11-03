@@ -197,6 +197,8 @@ window.addEventListener('load', () => {
 
     async function ensureGlobalEventProfile() {
         if (!supabaseClient) return;
+        const name = (localStorage.getItem('gamePlayerName') || '').trim().slice(0, 32);
+        if (!name) return;
         const { data, error } = await supabaseClient
             .from('player_profiles')
             .select('player_id')
@@ -204,7 +206,6 @@ window.addEventListener('load', () => {
             .maybeSingle();
         if (error) throw error;
         if (!data) {
-            const name = (localStorage.getItem('gamePlayerName') || 'Игрок').slice(0, 32);
             const { error: insertError } = await supabaseClient
                 .from('player_profiles')
                 .insert({ player_id: playerId, player_name: name });
@@ -213,7 +214,7 @@ window.addEventListener('load', () => {
     }
 
     async function checkGlobalEventReward() {
-        if (!supabaseClient) return;
+        if (!supabaseClient || !(localStorage.getItem('gamePlayerName') || '').trim()) return;
         try {
             await ensureGlobalEventProfile();
             const { data, error } = await supabaseClient.rpc('claim_global_click_event_reward', {
@@ -273,7 +274,7 @@ window.addEventListener('load', () => {
     }
 
     async function registerGlobalEventClick() {
-        if (!supabaseClient) return;
+        if (!supabaseClient || !(localStorage.getItem('gamePlayerName') || '').trim()) return;
         try {
             const { data, error } = await supabaseClient.rpc('increment_global_click', {
                 p_player_id: playerId
@@ -303,48 +304,81 @@ window.addEventListener('load', () => {
 
     
     const nicknameInput = document.getElementById('nicknameInput');
+    const mandatoryNicknameOverlay = document.getElementById('mandatoryNicknameOverlay');
+    const mandatoryNicknameInput = document.getElementById('mandatoryNicknameInput');
+    const mandatoryNicknameError = document.getElementById('mandatoryNicknameError');
+    const mandatoryNicknameSave = document.getElementById('mandatoryNicknameSave');
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
 
-    // === СОХРАНЕНИЕ УНИКАЛЬНОГО НИКА ===
-    document.getElementById('saveNicknameBtn')?.addEventListener('click', async () => {
-        const newName = nicknameInput.value.trim();
-        if (!newName) { 
-            localStorage.removeItem('gamePlayerName'); 
-            showToast(`✅ Ник сброшен`); 
-            return; 
+    async function savePlayerNickname(rawName) {
+        const newName = String(rawName || '').trim().replace(/\\s+/g, ' ');
+        if (!newName) return { ok: false, message: 'Введи ник.' };
+        if (newName.length > 32) return { ok: false, message: 'Максимум 32 символа.' };
+
+        if (supabaseClient) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('player_profiles')
+                    .select('player_id')
+                    .eq('player_name', newName)
+                    .maybeSingle();
+                if (error) throw error;
+                if (data && data.player_id !== playerId) {
+                    return { ok: false, message: 'Этот ник уже занят другим игроком!' };
+                }
+                const { error: saveError } = await supabaseClient
+                    .from('player_profiles')
+                    .upsert({ player_id: playerId, player_name: newName }, { onConflict: 'player_id' });
+                if (saveError) throw saveError;
+            } catch (e) {
+                console.error('Сохранение ника:', e);
+                return { ok: false, message: 'Не удалось сохранить ник. Проверь подключение и попробуй ещё раз.' };
+            }
         }
 
-        const safeName = escapeHTML(newName);
-        if (!supabaseClient) {
-            localStorage.setItem('gamePlayerName', safeName);
-            showToast(`✅ Ник: ${safeName} (офлайн)`);
+        localStorage.setItem('gamePlayerName', newName);
+        if (nicknameInput) nicknameInput.value = newName;
+        try {
+            await ensureGlobalEventProfile();
+            updateOnlineStatus();
+            refreshGlobalEvent();
+            checkGlobalEventReward();
+        } catch (e) {
+            console.error('Обновление профиля игрока:', e);
+        }
+        return { ok: true, offline: !supabaseClient };
+    }
+
+    document.getElementById('saveNicknameBtn')?.addEventListener('click', async () => {
+        const result = await savePlayerNickname(nicknameInput?.value);
+        if (!result.ok) {
+            showToast(result.message);
             return;
         }
-
-        try {
-            // Проверяем, занят ли ник
-            const { data, error } = await supabaseClient.from('player_profiles').select('player_id').eq('player_name', safeName).maybeSingle();
-            
-            if (error && error.code !== 'PGRST116') { // PGRST116 = нет результатов
-                showToast('❌ Ошибка проверки ника');
-                console.error(error);
-                return;
-            }
-
-            if (data && data.player_id !== playerId) {
-                showToast('❌ Этот ник уже занят другим игроком!');
-                return;
-            }
-
-            // Сохраняем
-            await supabaseClient.from('player_profiles').upsert({ player_id: playerId, player_name: safeName });
-            localStorage.setItem('gamePlayerName', safeName);
-            showToast(`✅ Ник: ${safeName}`);
-            
-        } catch(e) {
-            showToast('❌ Ошибка сети');
-        }
+        showToast(result.offline ? '✅ Ник сохранён локально (офлайн)' : '✅ Ник сохранён');
     });
+
+    mandatoryNicknameSave?.addEventListener('click', async () => {
+        const result = await savePlayerNickname(mandatoryNicknameInput?.value);
+        if (!result.ok) {
+            if (mandatoryNicknameError) mandatoryNicknameError.textContent = result.message;
+            mandatoryNicknameInput?.focus();
+            return;
+        }
+        mandatoryNicknameSave.disabled = true;
+        mandatoryNicknameOverlay?.classList.remove('show');
+        if (!localStorage.getItem('tutorialDone')) {
+            showTutorial();
+        }
+        mandatoryNicknameSave.disabled = false;
+        if (result.offline) showToast('Ник сохранён офлайн. Онлайн-функции подключатся при наличии сети.');
+    });
+
+    if (mandatoryNicknameInput) {
+        mandatoryNicknameInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') mandatoryNicknameSave?.click();
+        });
+    }
 
 
     // ===== СИСТЕМА ДРУЗЕЙ =====
@@ -1293,7 +1327,11 @@ window.addEventListener('load', () => {
 
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
     function showTutorial() { tutorialStep1?.classList.remove('hidden'); tutorialStep2?.classList.add('hidden'); tutorialOverlay?.classList.add('show'); }
-    function goToGame() { 
+    function goToGame() {
+        if (!(localStorage.getItem('gamePlayerName') || '').trim()) {
+            mandatoryNicknameOverlay?.classList.add('show');
+            return;
+        }
         document.getElementById('mainMenu').classList.add('hidden'); 
         document.getElementById('gameInterface').classList.remove('hidden'); 
         document.getElementById('newsBtn')?.classList.add('hidden'); 
@@ -1303,7 +1341,15 @@ window.addEventListener('load', () => {
     document.getElementById('tutorialYes')?.addEventListener('click', () => { tutorialStep1.classList.add('hidden'); tutorialStep2.classList.remove('hidden'); });
     document.getElementById('tutorialNo')?.addEventListener('click', () => { localStorage.setItem('tutorialDone', 'true'); tutorialOverlay?.classList.remove('show'); goToGame(); });
     document.getElementById('tutorialOk')?.addEventListener('click', () => { localStorage.setItem('tutorialDone', 'true'); tutorialOverlay?.classList.remove('show'); goToGame(); });
-    document.getElementById('playBtn')?.addEventListener('click', () => { if (!localStorage.getItem('tutorialDone')) { showTutorial(); return; } goToGame(); });
+    document.getElementById('playBtn')?.addEventListener('click', () => {
+        if (!(localStorage.getItem('gamePlayerName') || '').trim()) {
+            mandatoryNicknameOverlay?.classList.add('show');
+            mandatoryNicknameInput?.focus();
+            return;
+        }
+        if (!localStorage.getItem('tutorialDone')) { showTutorial(); return; }
+        goToGame();
+    });
     document.getElementById('prestigeBtn')?.addEventListener('click', () => { updatePrestigeDisplay(); document.getElementById('prestigeModal')?.classList.add('show'); });
     document.getElementById('doPrestigeBtn')?.addEventListener('click', doPrestige);
     document.getElementById('closePrestigeBtn')?.addEventListener('click', () => document.getElementById('prestigeModal')?.classList.remove('show'));
@@ -1337,7 +1383,16 @@ window.addEventListener('load', () => {
     document.getElementById('factCloseBtn')?.addEventListener('click', () => document.getElementById('factOverlay')?.classList.remove('show'));
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
-    document.getElementById('resetGameBtn')?.addEventListener('click', () => { if (confirm("Сбросить всё? / Reset all?")) { localStorage.clear(); location.reload(); } });
+    function resetGameKeepingPlayerIdentity() {
+        const savedName = localStorage.getItem('gamePlayerName');
+        const savedPlayerId = localStorage.getItem('gamePlayerId');
+        localStorage.clear();
+        if (savedName) localStorage.setItem('gamePlayerName', savedName);
+        if (savedPlayerId) localStorage.setItem('gamePlayerId', savedPlayerId);
+        location.reload();
+    }
+
+    document.getElementById('resetGameBtn')?.addEventListener('click', () => { if (confirm("Сбросить всё? / Reset all?")) { resetGameKeepingPlayerIdentity(); } });
     
     document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
     document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
@@ -1387,7 +1442,7 @@ window.addEventListener('load', () => {
             document.getElementById('admStars').onclick = () => { const v = parseInt(document.getElementById('admStarsInput').value) || 100; stars += v; totalStarsEarned += v; updateUI(); saveGame(); showToast(`+${formatNumber(v)}⭐`); }; 
             document.getElementById('admBuyAll').onclick = () => { upgrades.forEach((u) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } }); updateUI(); renderShopNeurons(); saveGame(); showToast(t('all_neurons')); }; 
             document.getElementById('admBoss').onclick = () => { spawnBoss(); showToast('🐛 Босс заспавнен!'); }; 
-            document.getElementById('admReset').onclick = () => { if (confirm("Сброс?")) { localStorage.clear(); location.reload(); } }; 
+            document.getElementById('admReset').onclick = () => { if (confirm("Сброс?")) { resetGameKeepingPlayerIdentity(); } }; 
         } 
         else if (adminCurrentTab === 'settings') {
             body.innerHTML = `<div class="admin-item"><span>Открыть все пасы</span><button onclick="alert('Функция в разработке')">Открыть</button></div>`;
@@ -1468,4 +1523,8 @@ window.addEventListener('load', () => {
 
     applyTranslations(); loadGame(); checkDailyFact();
     loadActiveAbuse();
+    if (!(localStorage.getItem('gamePlayerName') || '').trim()) {
+        mandatoryNicknameOverlay?.classList.add('show');
+        setTimeout(() => mandatoryNicknameInput?.focus(), 100);
+    }
 });
