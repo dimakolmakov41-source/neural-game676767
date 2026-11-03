@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.1";
+const GAME_VERSION = "16.2";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -132,22 +132,14 @@ window.addEventListener('load', () => {
         
         try {
             const { error } = await supabaseClient.from('global_chat').insert([{ player_id: playerId, player_name: name, message: text }]);
-            if (error) {
-                showToast(`❌ Ошибка отправки: ${error.message}`);
-            } else {
-                loadChatMessages();
-            }
+            if (error) { showToast(`❌ Ошибка отправки: ${error.message}`); } else { loadChatMessages(); }
         } catch(e) { showToast('❌ Ошибка сети'); }
     }
 
-    document.getElementById('chatBtn')?.addEventListener('click', () => {
-        document.getElementById('chatModal')?.classList.add('show');
-        loadChatMessages();
-    });
+    document.getElementById('chatBtn')?.addEventListener('click', () => { document.getElementById('chatModal')?.classList.add('show'); loadChatMessages(); });
     document.getElementById('closeChatBtn')?.addEventListener('click', () => document.getElementById('chatModal')?.classList.remove('show'));
     document.getElementById('sendChatBtn')?.addEventListener('click', sendChatMessage);
     document.getElementById('chatInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
-    
     setInterval(() => { if (document.getElementById('chatModal')?.classList.contains('show')) loadChatMessages(); }, 3000);
 
     // ===== ТУРНИР =====
@@ -189,7 +181,6 @@ window.addEventListener('load', () => {
             return;
         }
         
-        // Создаем серые плашки с ником и кнопкой
         list.innerHTML = others.map(p => `
             <div class="tourney-player-row">
                 <div class="tourney-player-name">${p.player_name}</div>
@@ -198,35 +189,19 @@ window.addEventListener('load', () => {
         `).join('');
         
         document.querySelectorAll('.call-player-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const targetId = e.target.dataset.id;
-                const targetName = e.target.dataset.name;
-                callPlayer(targetId, targetName);
-            });
+            btn.addEventListener('click', (e) => { callPlayer(e.target.dataset.id, e.target.dataset.name); });
         });
     }
 
     async function callPlayer(targetId, targetName) {
         const myName = localStorage.getItem('gamePlayerName') || 'Аноним';
-        
         if (!supabaseClient) return;
-        
-        const { data, error } = await supabaseClient.from('duels').insert([{
-            player1_id: playerId,
-            player1_name: myName,
-            player2_id: targetId,
-            player2_name: targetName,
-            status: 'waiting'
-        }]).select();
-        
+        const { data, error } = await supabaseClient.from('duels').insert([{ player1_id: playerId, player1_name: myName, player2_id: targetId, player2_name: targetName, status: 'waiting' }]).select();
         if (error || !data) { showToast('Ошибка создания дуэли'); return; }
-        
         currentDuelId = data[0].id;
         myDuelRole = 'player1';
-        
         document.getElementById('tourneyTargetNameWait').innerText = targetName;
         showTourneyScreen('tourneyWaitScreen');
-        
         subscribeToDuel();
     }
 
@@ -235,33 +210,21 @@ window.addEventListener('load', () => {
         duelChannel = supabaseClient.channel('duel_'+currentDuelId)
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'duels', filter: `id=eq.${currentDuelId}` }, payload => {
                 const duel = payload.new;
-                
-                if (duel.status === 'accepted') {
-                    startCountdown(duel);
-                } else if (duel.status === 'declined') {
-                    showToast('❌ Игрок отклонил вызов');
-                    closeTourney();
-                } else if (duel.status === 'cancelled') {
-                    showToast('❌ Игрок отменил дуэль');
-                    closeTourney();
-                } else if (duel.status === 'playing') {
+                if (duel.status === 'accepted') { startCountdown(duel); }
+                else if (duel.status === 'declined') { showToast('❌ Игрок отклонил вызов'); closeTourney(); }
+                else if (duel.status === 'cancelled') { showToast('❌ Игрок отменил дуэль'); closeTourney(); }
+                else if (duel.status === 'playing') {
                     showTourneyScreen('tourneyBattleScreen');
                     document.getElementById('tourneyP1Name').innerText = duel.player1_name;
                     document.getElementById('tourneyP2Name').innerText = duel.player2_name;
-                    
                     myDuelScore = (myDuelRole === 'player1') ? duel.player1_score : duel.player2_score;
                     oppDuelScore = (myDuelRole === 'player1') ? duel.player2_score : duel.player1_score;
                     updateDuelScoreUI();
-                    
                     startBattleTimer();
-                    
-                } else if (duel.status === 'finished') {
-                    endBattle(duel);
-                }
+                } else if (duel.status === 'finished') { endBattle(duel); }
             }).subscribe();
     }
 
-    // Слушаем входящие вызовы
     if (supabaseClient) {
         supabaseClient.channel('duel_invites')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'duels', filter: `player2_id=eq.${playerId}` }, payload => {
@@ -282,18 +245,13 @@ window.addEventListener('load', () => {
         let count = 3;
         const text = document.getElementById('tourneyCountdownText');
         text.innerText = count;
-        
         const countInt = setInterval(() => {
             count--;
-            if (count > 0) {
-                text.innerText = count;
-            } else if (count === 0) {
-                text.innerText = "1!";
-            } else {
+            if (count > 0) { text.innerText = count; }
+            else if (count === 0) { text.innerText = "1!"; }
+            else {
                 clearInterval(countInt);
-                if (myDuelRole === 'player1') {
-                    supabaseClient.from('duels').update({ status: 'playing' }).eq('id', currentDuelId).then();
-                }
+                if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ status: 'playing' }).eq('id', currentDuelId).then(); }
             }
         }, 1000);
     }
@@ -302,21 +260,15 @@ window.addEventListener('load', () => {
         isDuelActive = true;
         myDuelScore = 0;
         let timeLeft = 10;
-        
         battleInterval = setInterval(() => {
             if (!isDuelActive) return;
             timeLeft--;
             if (timeLeft <= 0) {
                 clearInterval(battleInterval);
-                if (myDuelRole === 'player1') {
-                    supabaseClient.from('duels').update({ status: 'finished' }).eq('id', currentDuelId).then();
-                }
+                if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ status: 'finished' }).eq('id', currentDuelId).then(); }
             } else {
-                if (myDuelRole === 'player1') {
-                    supabaseClient.from('duels').update({ player1_score: myDuelScore }).eq('id', currentDuelId).then();
-                } else {
-                    supabaseClient.from('duels').update({ player2_score: myDuelScore }).eq('id', currentDuelId).then();
-                }
+                if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ player1_score: myDuelScore }).eq('id', currentDuelId).then(); }
+                else { supabaseClient.from('duels').update({ player2_score: myDuelScore }).eq('id', currentDuelId).then(); }
             }
         }, 1000);
     }
@@ -337,33 +289,18 @@ window.addEventListener('load', () => {
     function endBattle(duel) {
         isDuelActive = false;
         showTourneyScreen('tourneyResultScreen');
-        
-        const p1Score = duel.player1_score;
-        const p2Score = duel.player2_score;
-        
+        const p1Score = duel.player1_score, p2Score = duel.player2_score;
         let iWon = false;
         if (myDuelRole === 'player1' && p1Score > p2Score) iWon = true;
         if (myDuelRole === 'player2' && p2Score > p1Score) iWon = true;
-        
-        const resText = document.getElementById('tourneyResultText');
-        const resReward = document.getElementById('tourneyResultReward');
-        
+        const resText = document.getElementById('tourneyResultText'), resReward = document.getElementById('tourneyResultReward');
         if (iWon) {
-            resText.innerText = 'Победа!';
-            resText.style.color = '#00ff00';
-            resReward.innerText = '+10⭐ +200 000🧠';
-            
-            stars += 10;
-            points += 200000;
-            updateUI(); saveGame();
+            resText.innerText = 'Победа!'; resText.style.color = '#00ff00'; resReward.innerText = '+10⭐ +200 000🧠';
+            stars += 10; points += 200000; updateUI(); saveGame();
         } else if (p1Score === p2Score) {
-            resText.innerText = 'Ничья!';
-            resText.style.color = '#ffffff';
-            resReward.innerText = 'Без награды';
+            resText.innerText = 'Ничья!'; resText.style.color = '#ffffff'; resReward.innerText = 'Без награды';
         } else {
-            resText.innerText = 'Поражение...';
-            resText.style.color = '#ff0000';
-            resReward.innerText = 'В следующий раз повезет';
+            resText.innerText = 'Поражение...'; resText.style.color = '#ff0000'; resReward.innerText = 'В следующий раз повезет';
         }
     }
 
@@ -375,111 +312,145 @@ window.addEventListener('load', () => {
         loadTourneyList();
     });
     
-    document.getElementById('tourneyExitBtn')?.addEventListener('click', () => {
-        if (isDuelActive) { showToast('Нельзя выйти во время боя!'); return; }
-        closeTourney();
-    });
-    
-    document.getElementById('tourneyAcceptBtn')?.addEventListener('click', () => {
-        if (currentDuelId) supabaseClient.from('duels').update({ status: 'accepted' }).eq('id', currentDuelId).then();
-    });
-    document.getElementById('tourneyDeclineBtn')?.addEventListener('click', () => {
-        if (currentDuelId) supabaseClient.from('duels').update({ status: 'declined' }).eq('id', currentDuelId).then();
-        closeTourney();
-    });
+    document.getElementById('tourneyExitBtn')?.addEventListener('click', () => { if (isDuelActive) { showToast('Нельзя выйти во время боя!'); return; } closeTourney(); });
+    document.getElementById('tourneyAcceptBtn')?.addEventListener('click', () => { if (currentDuelId) supabaseClient.from('duels').update({ status: 'accepted' }).eq('id', currentDuelId).then(); });
+    document.getElementById('tourneyDeclineBtn')?.addEventListener('click', () => { if (currentDuelId) supabaseClient.from('duels').update({ status: 'declined' }).eq('id', currentDuelId).then(); closeTourney(); });
 
     // ЛИДЕРБОРД
     async function syncLeaderboard() {
         if (!supabaseClient) return;
         const name = localStorage.getItem('gamePlayerName') || 'Аноним';
-        try {
-            await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: Math.floor(points), updated_at: new Date().toISOString() }, { onConflict: 'player_id' });
-            return true;
-        } catch(e) { return false; }
+        try { await supabaseClient.from('leaderboard').upsert({ player_id: playerId, player_name: name, score: Math.floor(points), updated_at: new Date().toISOString() }, { onConflict: 'player_id' }); return true; } catch(e) { return false; }
     }
-
     async function showLeaderboard() {
-        const modal = document.getElementById('leaderboardModal');
-        const list = document.getElementById('leaderboardList');
-        modal.classList.add('show');
-        list.innerHTML = 'Загрузка...';
+        const modal = document.getElementById('leaderboardModal'), list = document.getElementById('leaderboardList');
+        modal.classList.add('show'); list.innerHTML = 'Загрузка...';
         if (!supabaseClient) return;
-        
         const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
         list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${p.player_name}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
     }
-    
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
-    
-    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => {
-        const success = await syncLeaderboard();
-        if (success) {
-            showToast('✅ Твои очки добавлены в Топ-10!');
-            showLeaderboard();
-        } else {
-            showToast('❌ Ошибка отправки');
-        }
-    });
+    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-10!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
 
-    // ПРОВЕРКА ВЕРСИИ, ЗАКРЫТИЯ, БУСТА И БЕГУЩЕЙ СТРОКИ
-    async function checkServerStatus() {
+    // ===== ADMIN ABUSE TOOL =====
+    let activeAbuseEffects = [];
+    let starRainInterval = null;
+
+    async function loadActiveAbuse() {
         if (!supabaseClient) return;
-        try {
-            const { data, error } = await supabaseClient.from('game_settings').select('*').eq('id', 1).single();
-            if (error) return;
-
-            if (data.is_closed) {
-                document.getElementById('closedOverlay')?.classList.add('show');
-                document.body.style.pointerEvents = "none"; document.getElementById('closedOverlay').style.pointerEvents = "auto";
-                return;
-            }
-            if (data.latest_version) {
-                const c = GAME_VERSION.split('.').map(Number), l = data.latest_version.split('.').map(Number);
-                let isNewer = false;
-                for (let i = 0; i < Math.max(c.length, l.length); i++) {
-                    const cNum = c[i] || 0, lNum = l[i] || 0;
-                    if (lNum > cNum) { isNewer = true; break; } if (lNum < cNum) break;
-                }
-                if (isNewer) {
-                    document.getElementById('updateOverlay')?.classList.add('show');
-                    document.body.style.pointerEvents = "none"; document.getElementById('updateOverlay').style.pointerEvents = "auto";
-                }
-            }
-
-            globalBoost = {
-                active: data.boost_active || false,
-                type: data.boost_type || 'points',
-                multiplier: data.boost_multiplier || 1,
-                text: data.boost_text || ''
-            };
-            
-            const banner = document.getElementById('globalBoostBanner');
-            const bannerText = document.getElementById('globalBoostText');
-            if (globalBoost.active) {
-                if (banner) banner.classList.remove('hidden');
-                if (bannerText) bannerText.innerText = globalBoost.text;
-            } else {
-                if (banner) banner.classList.add('hidden');
-            }
-
-            const tickerEl = document.getElementById('globalTicker');
-            const tickerTextEl = document.getElementById('tickerText');
-            if (data.ticker_text && data.ticker_text.trim() !== '') {
-                tickerData.text = data.ticker_text;
-                tickerData.active = true;
-                if (tickerTextEl) tickerTextEl.innerText = tickerData.text;
-                if (tickerEl) tickerEl.classList.remove('hidden');
-            } else {
-                tickerData.active = false;
-                if (tickerEl) tickerEl.classList.add('hidden');
-            }
-
-        } catch(e) { console.log(e); }
+        const { data } = await supabaseClient.from('active_abuse').select('*');
+        if (data) {
+            activeAbuseEffects = data.map(d => d.feature);
+            applyAbuseEffects();
+        }
     }
-    setTimeout(checkServerStatus, 2000);
-    setInterval(checkServerStatus, 30000);
+    
+    function applyAbuseEffects() {
+        if (activeAbuseEffects.includes('rainbow')) {
+            document.body.classList.add('bg-rainbow');
+        } else {
+            document.body.classList.remove('bg-rainbow');
+        }
+    }
+
+    function showBrainSpeech(text) {
+        const speech = document.getElementById('brainSpeech');
+        if (speech) {
+            speech.innerText = text;
+            speech.style.display = 'block';
+            clearTimeout(window.brainSpeechTimeout);
+            window.brainSpeechTimeout = setTimeout(() => { speech.style.display = 'none'; }, 5000);
+        }
+    }
+
+    async function sendAdminCommand(type, payload = '') {
+        if (!supabaseClient) return;
+        await supabaseClient.from('admin_commands').insert([{ command_type: type, payload: payload }]);
+    }
+
+    async function toggleAbuseEffect(feature, enable) {
+        if (!supabaseClient) return;
+        if (enable) {
+            await supabaseClient.from('active_abuse').insert([{ feature: feature, payload: 'true' }]);
+        } else {
+            await supabaseClient.from('active_abuse').delete().eq('feature', feature);
+        }
+    }
+
+    if (supabaseClient) {
+        supabaseClient.channel('admin_events')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_commands' }, payload => {
+                const cmd = payload.new;
+                if (cmd.command_type === 'give_points') { points += parseInt(cmd.payload); updateUI(); showToast(`👑 Админ дал вам +${cmd.payload}🧠!`); }
+                if (cmd.command_type === 'give_stars') { stars += parseInt(cmd.payload); totalStarsEarned += parseInt(cmd.payload); updateUI(); showToast(`👑 Админ дал вам +${cmd.payload}⭐!`); }
+                if (cmd.command_type === 'star_rain') { startStarRain(); }
+                if (cmd.command_type === 'dialogue') { showBrainSpeech(cmd.payload); }
+                if (cmd.command_type === 'start_vote') { showVoteModal(cmd.payload); }
+                if (cmd.command_type === 'spawn_global_boss') { spawnBoss(); showToast('🌍 МИРОВОЙ БОСС ЗАСПАВНЕН!'); }
+            })
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'active_abuse' }, payload => {
+                if (!activeAbuseEffects.includes(payload.new.feature)) activeAbuseEffects.push(payload.new.feature);
+                applyAbuseEffects();
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'active_abuse' }, payload => {
+                activeAbuseEffects = activeAbuseEffects.filter(f => f !== payload.old.feature);
+                applyAbuseEffects();
+            })
+            .subscribe();
+    }
+
+    function startStarRain() {
+        showToast('🌟 ЗВЕЗДНЫЙ ДОЖДЬ НАЧАЛСЯ!');
+        if (starRainInterval) clearInterval(starRainInterval);
+        let count = 0;
+        starRainInterval = setInterval(() => {
+            if (count > 50) { clearInterval(starRainInterval); return; }
+            count++;
+            const star = document.createElement('div');
+            star.className = 'meteor'; // Используем стиль метеорита
+            star.innerText = '⭐';
+            star.style.left = Math.random() * window.innerWidth + 'px';
+            star.style.top = '-50px';
+            star.style.fontSize = '30px';
+            star.style.cursor = 'pointer';
+            star.style.position = 'fixed';
+            star.style.zIndex = '99999';
+            document.body.appendChild(star);
+            
+            const duration = 2000 + Math.random() * 2000;
+            star.animate([{ transform: `translateY(0) rotate(0deg)` }, { transform: `translateY(100vh) rotate(360deg)` }], { duration: duration, iterations: 1, easing: 'linear' });
+            
+            star.onclick = () => {
+                stars += 1; totalStarsEarned += 1; updateUI(); saveGame();
+                playBuySound();
+                star.remove();
+            };
+            setTimeout(() => { if (star.parentNode) star.remove(); }, duration);
+        }, 200);
+    }
+
+    function showVoteModal(jsonStr) {
+        try {
+            const data = JSON.parse(jsonStr);
+            document.getElementById('voteQuestion').innerText = data.q;
+            const opts = document.getElementById('voteOptions');
+            opts.innerHTML = '';
+            data.o.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'modal-btn';
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    showToast(`✅ Вы проголосовали за: ${opt}`);
+                    document.getElementById('voteModal').classList.remove('show');
+                    // Можно отправить голос в базу, если нужно
+                };
+                opts.appendChild(btn);
+            });
+            document.getElementById('voteModal').classList.add('show');
+        } catch(e) { console.log('Ошибка парсинга голосования', e); }
+    }
 
     // ===== ОСТАЛЬНАЯ ЛОГИКА ИГРЫ =====
     const ACHIEVEMENTS = [{ id: 'click1', name: 'Первый клик', desc: 'Сделай 1 клик', condition: () => totalClicks >= 1, points: 100, stars: 1 },{ id: 'click1000', name: 'Кликер-маньяк', desc: 'Сделай 1000 кликов', condition: () => totalClicks >= 1000, points: 5000, stars: 10 },{ id: 'neuron10', name: 'Новичок', desc: 'Купи 10 сетей', condition: () => purchasedCount >= 10, points: 1000, stars: 5 },{ id: 'neuron100', name: 'Коллекционер', desc: 'Купи 100 сетей', condition: () => purchasedCount >= 100, points: 50000, stars: 50 },{ id: 'neuron500', name: 'Сетевой магнат', desc: 'Купи 500 сетей', condition: () => purchasedCount >= 500, points: 500000, stars: 200 },{ id: 'prestige1', name: 'Перерождение', desc: 'Сделай первое перерождение', condition: () => prestigeLevel >= 1, points: 100000, stars: 100 },{ id: 'star100', name: 'Звездочёт', desc: 'Накопи 100 звёзд', condition: () => stars >= 100, points: 10000, stars: 0 },{ id: 'star1000', name: 'Галактика', desc: 'Накопи 1000 звёзд', condition: () => stars >= 1000, points: 100000, stars: 0 },{ id: 'boss', name: 'Босс', desc: 'Купи ВСЕ 2200 сетей', condition: () => purchasedCount >= 2200, points: 10000000, stars: 5000 }];
@@ -697,9 +668,7 @@ window.addEventListener('load', () => {
         if (isX10BoostActive()) base *= X10_BOOST_MULT;
         if (globalEventMultiplier > 1) base *= globalEventMultiplier;
         
-        if (globalBoost.active && globalBoost.type === 'points') {
-            base *= globalBoost.multiplier;
-        }
+        if (globalBoost.active && globalBoost.type === 'points') { base *= globalBoost.multiplier; }
 
         base *= getPrestigeMultiplier(); base *= getSkinMultiplier(); return Math.floor(base);
     }
@@ -719,6 +688,7 @@ window.addEventListener('load', () => {
         const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) { birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION; localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('birthday_boost')), 3000); saveGame(); }
         if (isMarch8() && !isMarch8BoostActive() && !localStorage.getItem('march8BoostUsed_' + new Date().toDateString())) { march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION; localStorage.setItem('march8BoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('march8_boost')), 3000); saveGame(); }
+        loadActiveAbuse();
     }
 
     document.getElementById('diamondRemovalOk')?.addEventListener('click', () => document.getElementById('diamondRemovalOverlay')?.classList.remove('show'));
@@ -741,9 +711,7 @@ window.addEventListener('load', () => {
         
         if (Math.random() < starsData.chance) { 
             let starAmount = starsData.amount;
-            if (globalBoost.active && globalBoost.type === 'stars') {
-                starAmount *= globalBoost.multiplier;
-            }
+            if (globalBoost.active && globalBoost.type === 'stars') { starAmount *= globalBoost.multiplier; }
             stars += starAmount; 
             totalStarsEarned += starAmount; 
             showToast(`⭐ ЗВЁЗДЫ! +${starAmount}`); 
@@ -839,7 +807,69 @@ window.addEventListener('load', () => {
     document.getElementById('adminPasswordCancel')?.addEventListener('click', closeAdminPasswordPanel);
 
     let adminCurrentTab = 'game';
-    function renderAdminBody() { const body = document.getElementById('adminBody'); if (!body) return; if (adminCurrentTab === 'game') { body.innerHTML = `<div class="admin-item"><span>Дать очков:</span><input type="number" id="admPointsInput" class="admin-input" placeholder="1000"></div><div class="admin-item"><span></span><button id="admPoints">Дать</button></div><div class="admin-item"><span>Дать звёзд:</span><input type="number" id="admStarsInput" class="admin-input" placeholder="100"></div><div class="admin-item"><span></span><button id="admStars">Дать</button></div><div class="admin-item"><span>Купить все нейросети</span><button id="admBuyAll">Купить</button></div><div class="admin-item"><span>Секретный Босс</span><button id="admBoss">Спавн</button></div><div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сброс</button></div>`; document.getElementById('admPoints').onclick = () => { const v = parseInt(document.getElementById('admPointsInput').value) || 1000; points += v; updateUI(); saveGame(); showToast(`+${formatNumber(v)}🧠`); }; document.getElementById('admStars').onclick = () => { const v = parseInt(document.getElementById('admStarsInput').value) || 100; stars += v; totalStarsEarned += v; updateUI(); saveGame(); showToast(`+${formatNumber(v)}⭐`); }; document.getElementById('admBuyAll').onclick = () => { upgrades.forEach((u) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } }); updateUI(); renderShopNeurons(); saveGame(); showToast(t('all_neurons')); }; document.getElementById('admBoss').onclick = () => { spawnBoss(); showToast('🐛 Босс заспавнен!'); }; document.getElementById('admReset').onclick = () => { if (confirm("Сброс?")) { localStorage.clear(); location.reload(); } }; } }
+    function renderAdminBody() { 
+        const body = document.getElementById('adminBody'); if (!body) return; 
+        if (adminCurrentTab === 'game') { 
+            body.innerHTML = `<div class="admin-item"><span>Дать очков:</span><input type="number" id="admPointsInput" class="admin-input" placeholder="1000"></div><div class="admin-item"><span></span><button id="admPoints">Дать</button></div><div class="admin-item"><span>Дать звёзд:</span><input type="number" id="admStarsInput" class="admin-input" placeholder="100"></div><div class="admin-item"><span></span><button id="admStars">Дать</button></div><div class="admin-item"><span>Купить все нейросети</span><button id="admBuyAll">Купить</button></div><div class="admin-item"><span>Секретный Босс</span><button id="admBoss">Спавн</button></div><div class="admin-item"><span>Сбросить прогресс</span><button id="admReset">Сброс</button></div>`; 
+            document.getElementById('admPoints').onclick = () => { const v = parseInt(document.getElementById('admPointsInput').value) || 1000; points += v; updateUI(); saveGame(); showToast(`+${formatNumber(v)}🧠`); }; 
+            document.getElementById('admStars').onclick = () => { const v = parseInt(document.getElementById('admStarsInput').value) || 100; stars += v; totalStarsEarned += v; updateUI(); saveGame(); showToast(`+${formatNumber(v)}⭐`); }; 
+            document.getElementById('admBuyAll').onclick = () => { upgrades.forEach((u) => { if (!u.purchased) { u.purchased = true; purchasedCount++; } }); updateUI(); renderShopNeurons(); saveGame(); showToast(t('all_neurons')); }; 
+            document.getElementById('admBoss').onclick = () => { spawnBoss(); showToast('🐛 Босс заспавнен!'); }; 
+            document.getElementById('admReset').onclick = () => { if (confirm("Сброс?")) { localStorage.clear(); location.reload(); } }; 
+        } 
+        else if (adminCurrentTab === 'settings') {
+            body.innerHTML = `<div class="admin-item"><span>Открыть все пасы</span><button onclick="alert('Функция в разработке')">Открыть</button></div>`;
+        }
+        else if (adminCurrentTab === 'abuse') {
+            body.innerHTML = `
+                <div style="color:#00ff41; font-weight:900; margin-bottom:10px;">ГЛОБАЛЬНЫЕ ИВЕНТЫ</div>
+                <div class="admin-item"><span>Радужный фон</span><button id="admRainbowToggle" style="background:#00ff41;color:#000;">Закончить</button></div>
+                <div class="admin-item"><span>Звездный дождь</span><button id="admStarRain">Запустить</button></div>
+                
+                <div style="color:#ffd700; font-weight:900; margin:15px 0 10px 0;">РАЗДАЧА ОЧКОВ (ВСЕМ В СЕТИ)</div>
+                <div class="admin-item"><span>Дать очки:</span><div style="display:flex;gap:5px;">
+                    <button onclick="sendAdminCommand('give_points', 100)" style="background:#4caf50;">+100</button>
+                    <button onclick="sendAdminCommand('give_points', 300)" style="background:#4caf50;">+300</button>
+                    <button onclick="sendAdminCommand('give_points', 2000)" style="background:#4caf50;">+2000</button>
+                </div></div>
+                <div class="admin-item"><span>Дать звезды:</span><div style="display:flex;gap:5px;">
+                    <button onclick="sendAdminCommand('give_stars', 100)" style="background:#e6a800;">+100</button>
+                    <button onclick="sendAdminCommand('give_stars', 300)" style="background:#e6a800;">+300</button>
+                    <button onclick="sendAdminCommand('give_stars', 2000)" style="background:#e6a800;">+2000</button>
+                </div></div>
+
+                <div style="color:#ff4444; font-weight:900; margin:15px 0 10px 0;">ДИАЛОГИ И ГОЛОСОВАНИЯ</div>
+                <div class="admin-item"><span>Сказать от лица мозга:</span><input type="text" id="admBrainText" class="admin-input" style="width:120px;" placeholder="Текст..."><button id="admBrainSay">Сказать</button></div>
+                <div class="admin-item"><span>Запустить голосование</span><button id="admStartVote" style="background:#00ffff;color:#000;">Создать</button></div>
+
+                <div style="color:#a020f0; font-weight:900; margin:15px 0 10px 0;">МИРОВЫЕ БОССЫ</div>
+                <div class="admin-item"><span>Глобальный Босс</span><button onclick="sendAdminCommand('spawn_global_boss')" style="background:#ff0000;">Заспавнить</button></div>
+            `;
+            
+            document.getElementById('admRainbowToggle').onclick = async () => {
+                if (activeAbuseEffects.includes('rainbow')) {
+                    await toggleAbuseEffect('rainbow', false);
+                    showToast('Радужный фон выключен');
+                } else {
+                    await toggleAbuseEffect('rainbow', true);
+                    showToast('Радужный фон включен');
+                }
+            };
+            document.getElementById('admStarRain').onclick = () => { sendAdminCommand('star_rain'); showToast('Звездный дождь запущен!'); };
+            document.getElementById('admBrainSay').onclick = () => { const text = document.getElementById('admBrainText').value; if (text) sendAdminCommand('dialogue', text); };
+            document.getElementById('admStartVote').onclick = () => {
+                const q = prompt("Вопрос голосования:", "Вам нравится игра?");
+                if (!q) return;
+                const o1 = prompt("Вариант 1:", "Да");
+                const o2 = prompt("Вариант 2:", "Нет");
+                if (o1 && o2) {
+                    const payload = JSON.stringify({ q: q, o: [o1, o2] });
+                    sendAdminCommand('start_vote', payload);
+                    showToast('Голосование запущено!');
+                }
+            };
+        }
+    }
     function openAdminPanel() { const overlay = document.getElementById('adminOverlay'); if (!overlay) return; adminCurrentTab = 'game'; document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'game')); renderAdminBody(); overlay.classList.add('show'); }
     const versionEl = document.getElementById('menuVersion'); if (versionEl) { versionEl.style.cursor = 'pointer'; versionEl.addEventListener('click', openAdminPasswordPanel); }
     document.querySelectorAll('.admin-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); adminCurrentTab = tab.dataset.tab; renderAdminBody(); }); });
@@ -847,4 +877,5 @@ window.addEventListener('load', () => {
     document.getElementById('adminOverlay')?.addEventListener('click', (e) => { if (e.target.id === 'adminOverlay') document.getElementById('adminOverlay').classList.remove('show'); });
 
     applyTranslations(); loadGame(); checkDailyFact();
+    loadActiveAbuse();
 });
