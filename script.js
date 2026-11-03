@@ -1044,36 +1044,16 @@ window.addEventListener('load', () => {
         if (balloonGameActive) fillBalloonField();
     }
     let balloonAudioContext = null;
+    const balloonPopAudio = new Audio('./assets/a-short-clear-sound-of-a-bursting-balloon.mp3');
+    balloonPopAudio.preload = 'auto';
+
     function playBalloonPopSound() {
         try {
-            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContextClass) return;
-            if (!balloonAudioContext) balloonAudioContext = new AudioContextClass();
-            if (balloonAudioContext.state === 'suspended') balloonAudioContext.resume();
-            const context = balloonAudioContext;
-            const now = context.currentTime;
-            const duration = 0.11;
-            const buffer = context.createBuffer(1, Math.floor(context.sampleRate * duration), context.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < data.length; i++) {
-                const fade = Math.pow(1 - i / data.length, 2.4);
-                data[i] = (Math.random() * 2 - 1) * fade;
+            balloonPopAudio.currentTime = 0;
+            const playback = balloonPopAudio.play();
+            if (playback && typeof playback.catch === 'function') {
+                playback.catch(error => console.warn('Не удалось воспроизвести звук шарика:', error));
             }
-            const noise = context.createBufferSource();
-            noise.buffer = buffer;
-            const filter = context.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(1250 + Math.random() * 450, now);
-            filter.Q.value = 0.75;
-            const gain = context.createGain();
-            gain.gain.setValueAtTime(0.0001, now);
-            gain.gain.exponentialRampToValueAtTime(0.42, now + 0.008);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(context.destination);
-            noise.start(now);
-            noise.stop(now + duration);
         } catch (error) {
             console.warn('Не удалось воспроизвести звук шарика:', error);
         }
