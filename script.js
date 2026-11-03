@@ -311,7 +311,7 @@ window.addEventListener('load', () => {
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
 
     async function savePlayerNickname(rawName) {
-        const newName = String(rawName || '').trim().replace(/\\s+/g, ' ');
+        const newName = String(rawName || '').trim().replace(/\s+/g, ' ');
         if (!newName) return { ok: false, message: 'Введи ник.' };
         if (newName.length > 32) return { ok: false, message: 'Максимум 32 символа.' };
 
