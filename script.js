@@ -3,6 +3,7 @@ import { TRANSLATIONS } from './translations.js';
 import { formatNumber } from './src/utils/formatNumber.js';
 import { createHtmlEscaper } from './src/utils/escapeHTML.js';
 import { selectFactOfDay } from './src/utils/selectFactOfDay.js';
+import { isCalendarDate } from './src/utils/isCalendarDate.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -46,8 +47,8 @@ if (storedGameVersion !== GAME_VERSION) {
 function isHalloween() { if (customTheme === 'halloween') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return n.getMonth() === 9 && n.getDate() >= 5 && n.getDate() <= 31; }
 function isNewYear() { if (customTheme === 'newyear') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return (n.getMonth() === 11 && n.getDate() === 31) || (n.getMonth() === 0 && n.getDate() === 1); }
 function isHackerMode() { const n = Date.now(); return n >= new Date(2026, 8, 29).getTime() && n <= new Date(2026, 9, 5).getTime(); }
-function isBirthday() { const n = new Date(); return n.getMonth() === 2 && n.getDate() === 17; }
-function isMarch8() { const n = new Date(); return n.getMonth() === 2 && n.getDate() === 8; }
+function isBirthday() { return isCalendarDate(new Date(), 2, 17); }
+function isMarch8() { return isCalendarDate(new Date(), 2, 8); }
 
 function applyTheme() {
     const body = document.body; const brain = document.getElementById('clickableObject'); const brainEmoji = document.getElementById('brainEmoji'); const starLabel = document.getElementById('starLabel'); const sleepMsg = document.getElementById('sleepMsg'); const reloadTimer = document.getElementById('reloadTimer'); const title = document.getElementById('gameTitle'); const partyHat = document.getElementById('partyHat'); const flowerDecor = document.getElementById('flowerDecor'); const brainSpeech = document.getElementById('brainSpeech');
