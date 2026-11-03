@@ -171,7 +171,6 @@ window.addEventListener('load', () => {
     function closeTourney() {
         document.getElementById('tournamentModal').classList.add('hidden');
         if (currentDuelId && (myDuelRole === 'player1' && !isDuelActive)) {
-            // Отменяем дуэль, если мы её создали и она ещё не началась
             supabaseClient.from('duels').update({ status: 'cancelled' }).eq('id', currentDuelId).then();
         }
         currentDuelId = null;
@@ -190,38 +189,37 @@ window.addEventListener('load', () => {
         
         const others = data.filter(p => p.player_id !== playerId);
         if (others.length === 0) {
-            list.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Никого нет в сети...</div>';
+            list.innerHTML = '<div style="text-align:center; padding:20px; color:#fff; font-weight:900; text-shadow:-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">Никого нет в сети...</div>';
             return;
         }
         
-        list.innerHTML = others.map(p => `<div class="tourney-player-item" data-name="${p.player_name}">${p.player_name}</div>`).join('');
+        // Создаем серые плашки с ником и кнопкой
+        list.innerHTML = others.map(p => `
+            <div class="tourney-player-row">
+                <div class="tourney-player-name">${p.player_name}</div>
+                <button class="tourney-btn-red call-player-btn" data-id="${p.player_id}" data-name="${p.player_name}">Вызвать</button>
+            </div>
+        `).join('');
         
-        document.querySelectorAll('.tourney-player-item').forEach(el => {
-            el.addEventListener('click', () => {
-                document.getElementById('tourneyNameInput').value = el.dataset.name;
+        document.querySelectorAll('.call-player-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetId = e.target.dataset.id;
+                const targetName = e.target.dataset.name;
+                callPlayer(targetId, targetName);
             });
         });
     }
 
-    async function callPlayer() {
-        const targetName = document.getElementById('tourneyNameInput').value.trim();
+    async function callPlayer(targetId, targetName) {
         const myName = localStorage.getItem('gamePlayerName') || 'Аноним';
         
-        if (!targetName) { showToast('Введите имя!'); return; }
-        if (targetName === myName) { showToast('Нельзя вызвать себя!'); return; }
-        
         if (!supabaseClient) return;
-        
-        const thirtySecsAgo = new Date(Date.now() - 30000).toISOString();
-        const { data: targetData } = await supabaseClient.from('online_players').select('*').eq('player_name', targetName).gte('last_seen', thirtySecsAgo).single();
-        
-        if (!targetData) { showToast('Игрок не в сети!'); return; }
         
         const { data, error } = await supabaseClient.from('duels').insert([{
             player1_id: playerId,
             player1_name: myName,
-            player2_id: targetData.player_id,
-            player2_name: targetData.player_name,
+            player2_id: targetId,
+            player2_name: targetName,
             status: 'waiting'
         }]).select();
         
@@ -230,7 +228,7 @@ window.addEventListener('load', () => {
         currentDuelId = data[0].id;
         myDuelRole = 'player1';
         
-        document.getElementById('tourneyTargetNameWait').innerText = targetData.player_name;
+        document.getElementById('tourneyTargetNameWait').innerText = targetName;
         showTourneyScreen('tourneyWaitScreen');
         
         subscribeToDuel();
@@ -259,7 +257,6 @@ window.addEventListener('load', () => {
                     oppDuelScore = (myDuelRole === 'player1') ? duel.player2_score : duel.player1_score;
                     updateDuelScoreUI();
                     
-                    // Запускаем таймер боя
                     startBattleTimer();
                     
                 } else if (duel.status === 'finished') {
@@ -298,7 +295,6 @@ window.addEventListener('load', () => {
                 text.innerText = "1!";
             } else {
                 clearInterval(countInt);
-                // Переводим в статус 'playing'
                 if (myDuelRole === 'player1') {
                     supabaseClient.from('duels').update({ status: 'playing' }).eq('id', currentDuelId).then();
                 }
@@ -308,10 +304,9 @@ window.addEventListener('load', () => {
 
     function startBattleTimer() {
         isDuelActive = true;
-        myDuelScore = 0; // Сброс
-        let timeLeft = 10; // 10 секунд на бой
+        myDuelScore = 0;
+        let timeLeft = 10;
         
-        // Синхронизация счета с базой каждую секунду
         battleInterval = setInterval(() => {
             if (!isDuelActive) return;
             timeLeft--;
@@ -335,7 +330,6 @@ window.addEventListener('load', () => {
         document.getElementById('tourneyP2Score').innerText = (myDuelRole === 'player1') ? oppDuelScore : myDuelScore;
     }
 
-    // Клик по мозгу в турнире
     document.getElementById('tourneyBrain')?.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if (!isDuelActive) return;
@@ -377,7 +371,6 @@ window.addEventListener('load', () => {
         }
     }
 
-    // Кнопки турнира
     document.getElementById('tourneyBtn')?.addEventListener('click', () => {
         const myName = localStorage.getItem('gamePlayerName');
         if (!myName) { showToast('Сначала задайте ник в настройках!'); return; }
@@ -386,7 +379,6 @@ window.addEventListener('load', () => {
         loadTourneyList();
     });
     
-    document.getElementById('tourneyCallBtn')?.addEventListener('click', callPlayer);
     document.getElementById('tourneyExitBtn')?.addEventListener('click', () => {
         if (isDuelActive) { showToast('Нельзя выйти во время боя!'); return; }
         closeTourney();
@@ -400,7 +392,7 @@ window.addEventListener('load', () => {
         closeTourney();
     });
 
-    // ===== ЛИДЕРБОРД =====
+    // ЛИДЕРБОРД
     async function syncLeaderboard() {
         if (!supabaseClient) return;
         const name = localStorage.getItem('gamePlayerName') || 'Аноним';
@@ -771,7 +763,7 @@ window.addEventListener('load', () => {
 
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
     function showTutorial() { tutorialStep1?.classList.remove('hidden'); tutorialStep2?.classList.add('hidden'); tutorialOverlay?.classList.add('show'); }
-    function goToGame() { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('gameInterface').classList.remove('hidden'); }
+    function goToGame() { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('gameInterface').classList.remove('hidden'); document.getElementById('chatBtn')?.classList.remove('hidden'); document.getElementById('tourneyBtn')?.classList.remove('hidden'); }
     document.getElementById('tutorialYes')?.addEventListener('click', () => { tutorialStep1.classList.add('hidden'); tutorialStep2.classList.remove('hidden'); });
     document.getElementById('tutorialNo')?.addEventListener('click', () => { localStorage.setItem('tutorialDone', 'true'); tutorialOverlay?.classList.remove('show'); goToGame(); });
     document.getElementById('tutorialOk')?.addEventListener('click', () => { localStorage.setItem('tutorialDone', 'true'); tutorialOverlay?.classList.remove('show'); goToGame(); });
@@ -779,7 +771,7 @@ window.addEventListener('load', () => {
     document.getElementById('prestigeBtn')?.addEventListener('click', () => { updatePrestigeDisplay(); document.getElementById('prestigeModal')?.classList.add('show'); });
     document.getElementById('doPrestigeBtn')?.addEventListener('click', doPrestige);
     document.getElementById('closePrestigeBtn')?.addEventListener('click', () => document.getElementById('prestigeModal')?.classList.remove('show'));
-    document.getElementById('backToMenu')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('gameInterface').classList.add('hidden'); });
+    document.getElementById('backToMenu')?.addEventListener('click', () => { document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('gameInterface').classList.add('hidden'); document.getElementById('chatBtn')?.classList.add('hidden'); document.getElementById('tourneyBtn')?.classList.add('hidden'); });
     document.getElementById('openShopBtn')?.addEventListener('click', () => { document.getElementById('shopPanel').classList.add('show'); switchShopTab('neurons'); });
     document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
@@ -797,6 +789,7 @@ window.addEventListener('load', () => {
     document.getElementById('resetGameBtn')?.addEventListener('click', () => { if (confirm("Сбросить всё? / Reset all?")) { localStorage.clear(); location.reload(); } });
     
     document.getElementById('newsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
+    document.getElementById('newsBtnSettings')?.addEventListener('click', () => document.getElementById('newsModal').classList.add('show'));
     document.getElementById('closeNewsBtn')?.addEventListener('click', () => document.getElementById('newsModal').classList.remove('show'));
 
     document.getElementById('langRu')?.addEventListener('click', () => setLanguage('ru'));
