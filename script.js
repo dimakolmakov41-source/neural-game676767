@@ -1,7 +1,8 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.6";
+const GAME_VERSION = "16.7";
+const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -17,6 +18,7 @@ function t(key) { return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang]
 // ===== ЗАЩИТА ОТ HTML (XSS) =====
 function escapeHTML(str) {
     if (!str) return '';
+    if (!ENABLE_HTML_PROTECTION) return String(str); // Если защита выключена, возвращаем как есть
     return String(str).replace(/[&<>'"]/g, 
         tag => ({
             '&': '&amp;',
@@ -326,7 +328,6 @@ window.addEventListener('load', () => {
             
             list.innerHTML = data.map(msg => {
                 const rx = reactionsMap[msg.id] || { fire: 0, laugh: 0 };
-                // Проверка, ставил ли я уже реакцию (чтобы не спамить)
                 return `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff; word-wrap: break-word;">
                     <b style="color: #ffd966;">${escapeHTML(msg.player_name)}:</b> <span>${escapeHTML(msg.message)}</span>
                     <div style="display:flex; gap:10px; margin-top:3px; font-size:12px;">
@@ -344,7 +345,7 @@ window.addEventListener('load', () => {
         if (!supabaseClient) return;
         try {
             const { error } = await supabaseClient.from('chat_reactions').insert([{ message_id: msgId, player_id: playerId, reaction: type }]);
-            if (error && error.code === '23505') { // уникальный индекс (уже ставил)
+            if (error && error.code === '23505') {
                 showToast('Вы уже ставили эту реакцию');
             } else {
                 loadChatMessages();
@@ -537,11 +538,10 @@ window.addEventListener('load', () => {
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_commands' }, payload => {
                 const cmd = payload.new;
                 
-                // Фильтр по игроку (если указан target_player)
                 if (cmd.target_player) {
                     const myName = localStorage.getItem('gamePlayerName');
                     if (!myName || cmd.target_player.toLowerCase() !== myName.toLowerCase()) {
-                        return; // Игнорируем, если это не для нас
+                        return; 
                     }
                 }
 
@@ -584,7 +584,8 @@ window.addEventListener('load', () => {
     function showVoteModal(jsonStr) {
         try {
             const data = JSON.parse(jsonStr);
-            document.getElementById('voteQuestion').innerText = data.q;
+            const pollId = data.q; // Используем текст вопроса как ID
+            document.getElementById('voteQuestion').innerText = pollId;
             document.getElementById('voteModal').classList.add('show');
             
             const btnYes = document.getElementById('voteBtnYes');
@@ -594,9 +595,71 @@ window.addEventListener('load', () => {
             btnYes.parentNode.replaceChild(newBtnYes, btnYes);
             btnNo.parentNode.replaceChild(newBtnNo, btnNo);
             
-            newBtnYes.onclick = () => { showToast('✅ Вы проголосовали ДА'); document.getElementById('voteModal').classList.remove('show'); };
-            newBtnNo.onclick = () => { showToast('✅ Вы проголосовали НЕТ'); document.getElementById('voteModal').classList.remove('show'); };
+            // Загружаем текущие результаты
+            updateVoteProgress(pollId);
+
+            // Подписываемся на обновления голосов
+            if (window.voteChannel) supabaseClient.removeChannel(window.voteChannel);
+            window.voteChannel = supabaseClient.channel('poll_'+pollId)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes', filter: `poll_id=eq.${pollId}` }, () => {
+                    updateVoteProgress(pollId);
+                }).subscribe();
+
+            newBtnYes.onclick = async () => { 
+                await castVote(pollId, 'yes');
+            };
+            newBtnNo.onclick = async () => { 
+                await castVote(pollId, 'no');
+            };
         } catch(e) { console.log('Ошибка парсинга голосования', e); }
+    }
+
+    async function castVote(pollId, voteValue) {
+        if (!supabaseClient) return;
+        try {
+            const { error } = await supabaseClient.from('poll_votes').insert([{ poll_id: pollId, player_id: playerId, vote_value: voteValue }]);
+            if (error && error.code === '23505') {
+                showToast('❌ Вы уже голосовали!');
+            } else if (error) {
+                showToast('❌ Ошибка голосования');
+            } else {
+                showToast('✅ Голос учтен!');
+            }
+        } catch(e) {}
+    }
+
+    async function updateVoteProgress(pollId) {
+        if (!supabaseClient) return;
+        try {
+            const { data, error } = await supabaseClient.from('poll_votes').select('vote_value').eq('poll_id', pollId);
+            if (error || !data) return;
+
+            let yesCount = 0, noCount = 0;
+            data.forEach(v => {
+                if (v.vote_value === 'yes') yesCount++;
+                if (v.vote_value === 'no') noCount++;
+            });
+
+            const total = yesCount + noCount;
+            let yesPercent = 0, noPercent = 0;
+
+            if (total > 0) {
+                yesPercent = Math.round((yesCount / total) * 100);
+                noPercent = 100 - yesPercent;
+            } else {
+                yesPercent = 50;
+                noPercent = 50;
+            }
+
+            const yesEl = document.getElementById('voteProgressYes');
+            const noEl = document.getElementById('voteProgressNo');
+            if (yesEl && noEl) {
+                yesEl.style.width = yesPercent + '%';
+                yesEl.innerText = yesPercent + '%';
+                noEl.style.width = noPercent + '%';
+                noEl.innerText = noPercent + '%';
+            }
+        } catch(e) {}
     }
 
     // ===== ОСТАЛЬНАЯ ЛОГИКА ИГРЫ =====
@@ -982,7 +1045,6 @@ window.addEventListener('load', () => {
                 if (!nick || !amount) { showToast('Заполни ник и сумму!'); return; }
                 
                 if (!supabaseClient) return;
-                // Проверяем, существует ли такой игрок
                 const { data } = await supabaseClient.from('player_profiles').select('player_name').eq('player_name', nick).maybeSingle();
                 if (!data) { showToast('❌ Игрок с таким ником не найден!'); return; }
                 
