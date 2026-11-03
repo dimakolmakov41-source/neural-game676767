@@ -7,6 +7,7 @@ import { isCalendarDate } from './src/utils/isCalendarDate.js';
 import { calculateOfflineIncome as calculateOfflineIncomeTS } from './src/utils/calculateOfflineIncome.js';
 import { isHalloween as isHalloweenTS } from './src/utils/isHalloween.js';
 import { isNewYear as isNewYearTS } from './src/utils/isNewYear.js';
+import { isBirthday as isBirthdayTS } from './src/utils/isBirthday.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -50,7 +51,7 @@ if (storedGameVersion !== GAME_VERSION) {
 function isHalloween() { return isHalloweenTS(customTheme); }
 function isNewYear() { return isNewYearTS(customTheme); }
 function isHackerMode() { const n = Date.now(); return n >= new Date(2026, 8, 29).getTime() && n <= new Date(2026, 9, 5).getTime(); }
-function isBirthday() { return isCalendarDate(new Date(), 2, 17); }
+function isBirthday() { return isBirthdayTS(); }
 function isMarch8() { return isCalendarDate(new Date(), 2, 8); }
 
 function applyTheme() {
