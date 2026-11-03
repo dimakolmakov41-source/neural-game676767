@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.2";
+const GAME_VERSION = "16.3";
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
@@ -51,6 +51,7 @@ function applyTheme() {
     else if (isHackerMode()) { body.classList.add('bg-hacker'); if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>'; }
     else { const savedBg = localStorage.getItem('selectedBg') || 'early_autumn'; const bgThemes = { early_autumn: "bg-early-autumn", golden: "bg-golden", rainy: "bg-rainy", late: "bg-late", forest: "bg-forest", park: "bg-park", mountains: "bg-mountains", village: "bg-village" }; body.classList.add(bgThemes[savedBg] || 'bg-early-autumn'); if (starLabel) starLabel.innerHTML = '⭐ <span id="stars">' + (window.__stars || 0) + '</span>'; }
     if (sleepMsg) sleepMsg.innerText = phrasesData.sleep || t('sleep'); if (reloadTimer) reloadTimer.innerHTML = t('reload') + ' <span id="reloadCountdown">5:00</span>'; if (title) title.innerText = t('title'); if (typeof applySkin === 'function') applySkin();
+    if (activeAbuseEffects.includes('rainbow')) body.classList.add('bg-rainbow'); else body.classList.remove('bg-rainbow');
 }
 
 function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold'); if (color && color !== 'blue') document.body.classList.add('btn-' + color); localStorage.setItem('btnColor', color || 'blue'); document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue'))); }
@@ -98,27 +99,12 @@ window.addEventListener('load', () => {
         if (!list) return;
         try {
             const { data, error } = await supabaseClient.from('global_chat').select('*').order('created_at', { ascending: true }).limit(50);
-            
-            if (error) {
-                list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">ОШИБКА ЧТЕНИЯ:<br>${error.message}<br>Код: ${error.code}</div>`;
-                return;
-            }
-            
-            if (!data || data.length === 0) {
-                list.innerHTML = `<div style="color: #888; font-size: 12px; text-align: center; padding: 10px;">Сообщений пока нет...</div>`;
-                return;
-            }
-
+            if (error) { list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">ОШИБКА ЧТЕНИЯ:<br>${error.message}<br>Код: ${error.code}</div>`; return; }
+            if (!data || data.length === 0) { list.innerHTML = `<div style="color: #888; font-size: 12px; text-align: center; padding: 10px;">Сообщений пока нет...</div>`; return; }
             const isScrolledToBottom = list.scrollHeight - list.scrollTop <= list.clientHeight + 60;
-            
             list.innerHTML = data.map(msg => `<div style="margin-bottom: 5px; font-size: 13px; line-height: 1.3; color: #fff;"><b style="color: #ffd966;">${msg.player_name}:</b> <span>${msg.message}</span></div>`).join('');
-            
-            if (isScrolledToBottom) {
-                list.scrollTop = list.scrollHeight;
-            }
-        } catch(e) {
-            list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">КРИТИЧЕСКАЯ ОШИБКА:<br>${e.message}</div>`;
-        }
+            if (isScrolledToBottom) { list.scrollTop = list.scrollHeight; }
+        } catch(e) { list.innerHTML = `<div style="color: #ff4444; font-size: 12px; padding: 10px;">КРИТИЧЕСКАЯ ОШИБКА:<br>${e.message}</div>`; }
     }
 
     async function sendChatMessage() {
@@ -126,10 +112,8 @@ window.addEventListener('load', () => {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         if (!text) return;
-        
         input.value = '';
         const name = localStorage.getItem('gamePlayerName') || 'Аноним';
-        
         try {
             const { error } = await supabaseClient.from('global_chat').insert([{ player_id: playerId, player_name: name, message: text }]);
             if (error) { showToast(`❌ Ошибка отправки: ${error.message}`); } else { loadChatMessages(); }
@@ -143,29 +127,10 @@ window.addEventListener('load', () => {
     setInterval(() => { if (document.getElementById('chatModal')?.classList.contains('show')) loadChatMessages(); }, 3000);
 
     // ===== ТУРНИР =====
-    let currentDuelId = null;
-    let myDuelRole = null;
-    let myDuelScore = 0;
-    let oppDuelScore = 0;
-    let duelChannel = null;
-    let battleInterval = null;
-    let isDuelActive = false;
+    let currentDuelId = null, myDuelRole = null, myDuelScore = 0, oppDuelScore = 0, duelChannel = null, battleInterval = null, isDuelActive = false;
 
-    function showTourneyScreen(screenId) {
-        document.querySelectorAll('.tourney-screen').forEach(s => s.classList.add('hidden'));
-        document.getElementById(screenId).classList.remove('hidden');
-    }
-
-    function closeTourney() {
-        document.getElementById('tournamentModal').classList.add('hidden');
-        if (currentDuelId && (myDuelRole === 'player1' && !isDuelActive)) {
-            supabaseClient.from('duels').update({ status: 'cancelled' }).eq('id', currentDuelId).then();
-        }
-        currentDuelId = null;
-        isDuelActive = false;
-        if (duelChannel) { supabaseClient.removeChannel(duelChannel); duelChannel = null; }
-        if (battleInterval) { clearInterval(battleInterval); battleInterval = null; }
-    }
+    function showTourneyScreen(screenId) { document.querySelectorAll('.tourney-screen').forEach(s => s.classList.add('hidden')); document.getElementById(screenId).classList.remove('hidden'); }
+    function closeTourney() { document.getElementById('tournamentModal').classList.add('hidden'); if (currentDuelId && (myDuelRole === 'player1' && !isDuelActive)) { supabaseClient.from('duels').update({ status: 'cancelled' }).eq('id', currentDuelId).then(); } currentDuelId = null; isDuelActive = false; if (duelChannel) { supabaseClient.removeChannel(duelChannel); duelChannel = null; } if (battleInterval) { clearInterval(battleInterval); battleInterval = null; } }
 
     async function loadTourneyList() {
         const list = document.getElementById('tourneyOnlineList');
@@ -174,23 +139,10 @@ window.addEventListener('load', () => {
         const thirtySecsAgo = new Date(Date.now() - 30000).toISOString();
         const { data, error } = await supabaseClient.from('online_players').select('*').gte('last_seen', thirtySecsAgo);
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
-        
         const others = data.filter(p => p.player_id !== playerId);
-        if (others.length === 0) {
-            list.innerHTML = '<div style="text-align:center; padding:20px; color:#fff; font-weight:900; text-shadow:-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">Никого нет в сети...</div>';
-            return;
-        }
-        
-        list.innerHTML = others.map(p => `
-            <div class="tourney-player-row">
-                <div class="tourney-player-name">${p.player_name}</div>
-                <button class="tourney-btn-red call-player-btn" data-id="${p.player_id}" data-name="${p.player_name}">Вызвать</button>
-            </div>
-        `).join('');
-        
-        document.querySelectorAll('.call-player-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => { callPlayer(e.target.dataset.id, e.target.dataset.name); });
-        });
+        if (others.length === 0) { list.innerHTML = '<div style="text-align:center; padding:20px; color:#fff; font-weight:900; text-shadow:-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">Никого нет в сети...</div>'; return; }
+        list.innerHTML = others.map(p => `<div class="tourney-player-row"><div class="tourney-player-name">${p.player_name}</div><button class="tourney-btn-red call-player-btn" data-id="${p.player_id}" data-name="${p.player_name}">Вызвать</button></div>`).join('');
+        document.querySelectorAll('.call-player-btn').forEach(btn => { btn.addEventListener('click', (e) => { callPlayer(e.target.dataset.id, e.target.dataset.name); }); });
     }
 
     async function callPlayer(targetId, targetName) {
@@ -198,11 +150,9 @@ window.addEventListener('load', () => {
         if (!supabaseClient) return;
         const { data, error } = await supabaseClient.from('duels').insert([{ player1_id: playerId, player1_name: myName, player2_id: targetId, player2_name: targetName, status: 'waiting' }]).select();
         if (error || !data) { showToast('Ошибка создания дуэли'); return; }
-        currentDuelId = data[0].id;
-        myDuelRole = 'player1';
+        currentDuelId = data[0].id; myDuelRole = 'player1';
         document.getElementById('tourneyTargetNameWait').innerText = targetName;
-        showTourneyScreen('tourneyWaitScreen');
-        subscribeToDuel();
+        showTourneyScreen('tourneyWaitScreen'); subscribeToDuel();
     }
 
     function subscribeToDuel() {
@@ -219,8 +169,7 @@ window.addEventListener('load', () => {
                     document.getElementById('tourneyP2Name').innerText = duel.player2_name;
                     myDuelScore = (myDuelRole === 'player1') ? duel.player1_score : duel.player2_score;
                     oppDuelScore = (myDuelRole === 'player1') ? duel.player2_score : duel.player1_score;
-                    updateDuelScoreUI();
-                    startBattleTimer();
+                    updateDuelScoreUI(); startBattleTimer();
                 } else if (duel.status === 'finished') { endBattle(duel); }
             }).subscribe();
     }
@@ -230,46 +179,32 @@ window.addEventListener('load', () => {
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'duels', filter: `player2_id=eq.${playerId}` }, payload => {
                 const duel = payload.new;
                 if (duel.status === 'waiting' && !currentDuelId) {
-                    currentDuelId = duel.id;
-                    myDuelRole = 'player2';
+                    currentDuelId = duel.id; myDuelRole = 'player2';
                     document.getElementById('tourneyChallengerName').innerText = duel.player1_name;
                     document.getElementById('tournamentModal').classList.remove('hidden');
-                    showTourneyScreen('tourneyChallengeScreen');
-                    subscribeToDuel();
+                    showTourneyScreen('tourneyChallengeScreen'); subscribeToDuel();
                 }
             }).subscribe();
     }
 
     function startCountdown(duel) {
         showTourneyScreen('tourneyCountdownScreen');
-        let count = 3;
-        const text = document.getElementById('tourneyCountdownText');
-        text.innerText = count;
+        let count = 3; const text = document.getElementById('tourneyCountdownText'); text.innerText = count;
         const countInt = setInterval(() => {
             count--;
             if (count > 0) { text.innerText = count; }
             else if (count === 0) { text.innerText = "1!"; }
-            else {
-                clearInterval(countInt);
-                if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ status: 'playing' }).eq('id', currentDuelId).then(); }
-            }
+            else { clearInterval(countInt); if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ status: 'playing' }).eq('id', currentDuelId).then(); } }
         }, 1000);
     }
 
     function startBattleTimer() {
-        isDuelActive = true;
-        myDuelScore = 0;
-        let timeLeft = 10;
+        isDuelActive = true; myDuelScore = 0; let timeLeft = 10;
         battleInterval = setInterval(() => {
             if (!isDuelActive) return;
             timeLeft--;
-            if (timeLeft <= 0) {
-                clearInterval(battleInterval);
-                if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ status: 'finished' }).eq('id', currentDuelId).then(); }
-            } else {
-                if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ player1_score: myDuelScore }).eq('id', currentDuelId).then(); }
-                else { supabaseClient.from('duels').update({ player2_score: myDuelScore }).eq('id', currentDuelId).then(); }
-            }
+            if (timeLeft <= 0) { clearInterval(battleInterval); if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ status: 'finished' }).eq('id', currentDuelId).then(); } }
+            else { if (myDuelRole === 'player1') { supabaseClient.from('duels').update({ player1_score: myDuelScore }).eq('id', currentDuelId).then(); } else { supabaseClient.from('duels').update({ player2_score: myDuelScore }).eq('id', currentDuelId).then(); } }
         }, 1000);
     }
 
@@ -278,40 +213,21 @@ window.addEventListener('load', () => {
         document.getElementById('tourneyP2Score').innerText = (myDuelRole === 'player1') ? oppDuelScore : myDuelScore;
     }
 
-    document.getElementById('tourneyBrain')?.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        if (!isDuelActive) return;
-        myDuelScore++;
-        updateDuelScoreUI();
-        playClickSound();
-    });
+    document.getElementById('tourneyBrain')?.addEventListener('pointerdown', (e) => { e.preventDefault(); if (!isDuelActive) return; myDuelScore++; updateDuelScoreUI(); playClickSound(); });
 
     function endBattle(duel) {
-        isDuelActive = false;
-        showTourneyScreen('tourneyResultScreen');
+        isDuelActive = false; showTourneyScreen('tourneyResultScreen');
         const p1Score = duel.player1_score, p2Score = duel.player2_score;
         let iWon = false;
         if (myDuelRole === 'player1' && p1Score > p2Score) iWon = true;
         if (myDuelRole === 'player2' && p2Score > p1Score) iWon = true;
         const resText = document.getElementById('tourneyResultText'), resReward = document.getElementById('tourneyResultReward');
-        if (iWon) {
-            resText.innerText = 'Победа!'; resText.style.color = '#00ff00'; resReward.innerText = '+10⭐ +200 000🧠';
-            stars += 10; points += 200000; updateUI(); saveGame();
-        } else if (p1Score === p2Score) {
-            resText.innerText = 'Ничья!'; resText.style.color = '#ffffff'; resReward.innerText = 'Без награды';
-        } else {
-            resText.innerText = 'Поражение...'; resText.style.color = '#ff0000'; resReward.innerText = 'В следующий раз повезет';
-        }
+        if (iWon) { resText.innerText = 'Победа!'; resText.style.color = '#00ff00'; resReward.innerText = '+10⭐ +200 000🧠'; stars += 10; points += 200000; updateUI(); saveGame(); }
+        else if (p1Score === p2Score) { resText.innerText = 'Ничья!'; resText.style.color = '#ffffff'; resReward.innerText = 'Без награды'; }
+        else { resText.innerText = 'Поражение...'; resText.style.color = '#ff0000'; resReward.innerText = 'В следующий раз повезет'; }
     }
 
-    document.getElementById('tourneyBtn')?.addEventListener('click', () => {
-        const myName = localStorage.getItem('gamePlayerName');
-        if (!myName) { showToast('Сначала задайте ник в настройках!'); return; }
-        document.getElementById('tournamentModal').classList.remove('hidden');
-        showTourneyScreen('tourneySearchScreen');
-        loadTourneyList();
-    });
-    
+    document.getElementById('tourneyBtn')?.addEventListener('click', () => { const myName = localStorage.getItem('gamePlayerName'); if (!myName) { showToast('Сначала задайте ник в настройках!'); return; } document.getElementById('tournamentModal').classList.remove('hidden'); showTourneyScreen('tourneySearchScreen'); loadTourneyList(); });
     document.getElementById('tourneyExitBtn')?.addEventListener('click', () => { if (isDuelActive) { showToast('Нельзя выйти во время боя!'); return; } closeTourney(); });
     document.getElementById('tourneyAcceptBtn')?.addEventListener('click', () => { if (currentDuelId) supabaseClient.from('duels').update({ status: 'accepted' }).eq('id', currentDuelId).then(); });
     document.getElementById('tourneyDeclineBtn')?.addEventListener('click', () => { if (currentDuelId) supabaseClient.from('duels').update({ status: 'declined' }).eq('id', currentDuelId).then(); closeTourney(); });
@@ -341,25 +257,17 @@ window.addEventListener('load', () => {
     async function loadActiveAbuse() {
         if (!supabaseClient) return;
         const { data } = await supabaseClient.from('active_abuse').select('*');
-        if (data) {
-            activeAbuseEffects = data.map(d => d.feature);
-            applyAbuseEffects();
-        }
+        if (data) { activeAbuseEffects = data.map(d => d.feature); applyAbuseEffects(); }
     }
     
     function applyAbuseEffects() {
-        if (activeAbuseEffects.includes('rainbow')) {
-            document.body.classList.add('bg-rainbow');
-        } else {
-            document.body.classList.remove('bg-rainbow');
-        }
+        if (activeAbuseEffects.includes('rainbow')) { document.body.classList.add('bg-rainbow'); } else { document.body.classList.remove('bg-rainbow'); }
     }
 
     function showBrainSpeech(text) {
         const speech = document.getElementById('brainSpeech');
         if (speech) {
-            speech.innerText = text;
-            speech.style.display = 'block';
+            speech.innerText = text; speech.style.display = 'block';
             clearTimeout(window.brainSpeechTimeout);
             window.brainSpeechTimeout = setTimeout(() => { speech.style.display = 'none'; }, 5000);
         }
@@ -367,16 +275,13 @@ window.addEventListener('load', () => {
 
     async function sendAdminCommand(type, payload = '') {
         if (!supabaseClient) return;
-        await supabaseClient.from('admin_commands').insert([{ command_type: type, payload: payload }]);
+        await supabaseClient.from('admin_commands').insert([{ command_type: type, payload: String(payload) }]);
     }
 
     async function toggleAbuseEffect(feature, enable) {
         if (!supabaseClient) return;
-        if (enable) {
-            await supabaseClient.from('active_abuse').insert([{ feature: feature, payload: 'true' }]);
-        } else {
-            await supabaseClient.from('active_abuse').delete().eq('feature', feature);
-        }
+        if (enable) { await supabaseClient.from('active_abuse').insert([{ feature: feature, payload: 'true' }]); } 
+        else { await supabaseClient.from('active_abuse').delete().eq('feature', feature); }
     }
 
     if (supabaseClient) {
@@ -409,24 +314,12 @@ window.addEventListener('load', () => {
             if (count > 50) { clearInterval(starRainInterval); return; }
             count++;
             const star = document.createElement('div');
-            star.className = 'meteor'; // Используем стиль метеорита
-            star.innerText = '⭐';
-            star.style.left = Math.random() * window.innerWidth + 'px';
-            star.style.top = '-50px';
-            star.style.fontSize = '30px';
-            star.style.cursor = 'pointer';
-            star.style.position = 'fixed';
-            star.style.zIndex = '99999';
+            star.className = 'meteor'; star.innerText = '⭐';
+            star.style.left = Math.random() * window.innerWidth + 'px'; star.style.top = '-50px'; star.style.fontSize = '30px'; star.style.cursor = 'pointer'; star.style.position = 'fixed'; star.style.zIndex = '99999';
             document.body.appendChild(star);
-            
             const duration = 2000 + Math.random() * 2000;
             star.animate([{ transform: `translateY(0) rotate(0deg)` }, { transform: `translateY(100vh) rotate(360deg)` }], { duration: duration, iterations: 1, easing: 'linear' });
-            
-            star.onclick = () => {
-                stars += 1; totalStarsEarned += 1; updateUI(); saveGame();
-                playBuySound();
-                star.remove();
-            };
+            star.onclick = () => { stars += 1; totalStarsEarned += 1; updateUI(); saveGame(); playBuySound(); star.remove(); };
             setTimeout(() => { if (star.parentNode) star.remove(); }, duration);
         }, 200);
     }
@@ -435,20 +328,18 @@ window.addEventListener('load', () => {
         try {
             const data = JSON.parse(jsonStr);
             document.getElementById('voteQuestion').innerText = data.q;
-            const opts = document.getElementById('voteOptions');
-            opts.innerHTML = '';
-            data.o.forEach((opt, i) => {
-                const btn = document.createElement('button');
-                btn.className = 'modal-btn';
-                btn.innerText = opt;
-                btn.onclick = () => {
-                    showToast(`✅ Вы проголосовали за: ${opt}`);
-                    document.getElementById('voteModal').classList.remove('show');
-                    // Можно отправить голос в базу, если нужно
-                };
-                opts.appendChild(btn);
-            });
             document.getElementById('voteModal').classList.add('show');
+            
+            // Очищаем старые обработчики и ставим новые
+            const btnYes = document.getElementById('voteBtnYes');
+            const btnNo = document.getElementById('voteBtnNo');
+            const newBtnYes = btnYes.cloneNode(true);
+            const newBtnNo = btnNo.cloneNode(true);
+            btnYes.parentNode.replaceChild(newBtnYes, btnYes);
+            btnNo.parentNode.replaceChild(newBtnNo, btnNo);
+            
+            newBtnYes.onclick = () => { showToast('✅ Вы проголосовали ДА'); document.getElementById('voteModal').classList.remove('show'); };
+            newBtnNo.onclick = () => { showToast('✅ Вы проголосовали НЕТ'); document.getElementById('voteModal').classList.remove('show'); };
         } catch(e) { console.log('Ошибка парсинга голосования', e); }
     }
 
@@ -699,7 +590,7 @@ window.addEventListener('load', () => {
     const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
     const bgThemes = { early_autumn: "bg-early-autumn", golden: "bg-golden", rainy: "bg-rainy", late: "bg-late", forest: "bg-forest", park: "bg-park", mountains: "bg-mountains", village: "bg-village" };
-    function setBodyBg(theme) { if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); return; } document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); localStorage.setItem('selectedBg', theme); applySkin(); }
+    function setBodyBg(theme) { if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); return; } document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); localStorage.setItem('selectedBg', theme); applySkin(); applyAbuseEffects(); }
 
     function processSingleClick(gain, x, y) {
         hideSleepMsg(); comboCounter++; let finalGain = gain;
@@ -822,52 +713,71 @@ window.addEventListener('load', () => {
         }
         else if (adminCurrentTab === 'abuse') {
             body.innerHTML = `
-                <div style="color:#00ff41; font-weight:900; margin-bottom:10px;">ГЛОБАЛЬНЫЕ ИВЕНТЫ</div>
-                <div class="admin-item"><span>Радужный фон</span><button id="admRainbowToggle" style="background:#00ff41;color:#000;">Закончить</button></div>
-                <div class="admin-item"><span>Звездный дождь</span><button id="admStarRain">Запустить</button></div>
-                
-                <div style="color:#ffd700; font-weight:900; margin:15px 0 10px 0;">РАЗДАЧА ОЧКОВ (ВСЕМ В СЕТИ)</div>
-                <div class="admin-item"><span>Дать очки:</span><div style="display:flex;gap:5px;">
-                    <button onclick="sendAdminCommand('give_points', 100)" style="background:#4caf50;">+100</button>
-                    <button onclick="sendAdminCommand('give_points', 300)" style="background:#4caf50;">+300</button>
-                    <button onclick="sendAdminCommand('give_points', 2000)" style="background:#4caf50;">+2000</button>
-                </div></div>
-                <div class="admin-item"><span>Дать звезды:</span><div style="display:flex;gap:5px;">
-                    <button onclick="sendAdminCommand('give_stars', 100)" style="background:#e6a800;">+100</button>
-                    <button onclick="sendAdminCommand('give_stars', 300)" style="background:#e6a800;">+300</button>
-                    <button onclick="sendAdminCommand('give_stars', 2000)" style="background:#e6a800;">+2000</button>
-                </div></div>
-
-                <div style="color:#ff4444; font-weight:900; margin:15px 0 10px 0;">ДИАЛОГИ И ГОЛОСОВАНИЯ</div>
-                <div class="admin-item"><span>Сказать от лица мозга:</span><input type="text" id="admBrainText" class="admin-input" style="width:120px;" placeholder="Текст..."><button id="admBrainSay">Сказать</button></div>
-                <div class="admin-item"><span>Запустить голосование</span><button id="admStartVote" style="background:#00ffff;color:#000;">Создать</button></div>
-
-                <div style="color:#a020f0; font-weight:900; margin:15px 0 10px 0;">МИРОВЫЕ БОССЫ</div>
-                <div class="admin-item"><span>Глобальный Босс</span><button onclick="sendAdminCommand('spawn_global_boss')" style="background:#ff0000;">Заспавнить</button></div>
+                <div class="admin-item">
+                    <span>Начать админ абьюз (радужный фон)</span>
+                    <button id="admRainbowToggle" style="background:#888;">${activeAbuseEffects.includes('rainbow') ? 'Закончить' : 'Начать'}</button>
+                </div>
+                <div class="admin-item">
+                    <span>Звёздный дождь</span>
+                    <button id="admStarRain" style="background:#888;">Начать</button>
+                </div>
+                <div class="admin-item">
+                    <span>Дать очки</span>
+                    <div style="display:flex;gap:5px;">
+                        <input type="number" id="admPointsAmount" class="admin-input" style="width:70px;" value="1000">
+                        <button id="admPointsGive" style="background:#888;">Выдать</button>
+                    </div>
+                </div>
+                <div class="admin-item">
+                    <span>Дать звезды</span>
+                    <div style="display:flex;gap:5px;">
+                        <input type="number" id="admStarsAmount" class="admin-input" style="width:70px;" value="100">
+                        <button id="admStarsGive" style="background:#888;">Выдать</button>
+                    </div>
+                </div>
+                <div class="admin-item">
+                    <span>Сказать от лица мозга</span>
+                    <input type="text" id="admBrainText" class="admin-input" style="width:100px;" placeholder="Текст...">
+                    <button id="admBrainSay" style="background:#888;">Начать</button>
+                </div>
+                <div class="admin-item">
+                    <span>Запустить голосование</span>
+                    <input type="text" id="admVoteTitle" class="admin-input" style="width:100px;" placeholder="Вопрос...">
+                    <button id="admStartVote" style="background:#888;">Начать</button>
+                </div>
+                <div class="admin-item">
+                    <span>Запустить босса</span>
+                    <button id="admGlobalBoss" style="background:#888;">Начать</button>
+                </div>
             `;
             
             document.getElementById('admRainbowToggle').onclick = async () => {
                 if (activeAbuseEffects.includes('rainbow')) {
                     await toggleAbuseEffect('rainbow', false);
-                    showToast('Радужный фон выключен');
                 } else {
                     await toggleAbuseEffect('rainbow', true);
-                    showToast('Радужный фон включен');
                 }
+                renderAdminBody(); // Обновить кнопку
             };
             document.getElementById('admStarRain').onclick = () => { sendAdminCommand('star_rain'); showToast('Звездный дождь запущен!'); };
-            document.getElementById('admBrainSay').onclick = () => { const text = document.getElementById('admBrainText').value; if (text) sendAdminCommand('dialogue', text); };
-            document.getElementById('admStartVote').onclick = () => {
-                const q = prompt("Вопрос голосования:", "Вам нравится игра?");
-                if (!q) return;
-                const o1 = prompt("Вариант 1:", "Да");
-                const o2 = prompt("Вариант 2:", "Нет");
-                if (o1 && o2) {
-                    const payload = JSON.stringify({ q: q, o: [o1, o2] });
-                    sendAdminCommand('start_vote', payload);
-                    showToast('Голосование запущено!');
-                }
+            document.getElementById('admPointsGive').onclick = () => {
+                const v = document.getElementById('admPointsAmount').value;
+                if (v) sendAdminCommand('give_points', v);
             };
+            document.getElementById('admStarsGive').onclick = () => {
+                const v = document.getElementById('admStarsAmount').value;
+                if (v) sendAdminCommand('give_stars', v);
+            };
+            document.getElementById('admBrainSay').onclick = () => {
+                const v = document.getElementById('admBrainText').value;
+                if (v) sendAdminCommand('dialogue', v);
+            };
+            document.getElementById('admStartVote').onclick = () => {
+                const q = document.getElementById('admVoteTitle').value || "Голосование";
+                const payload = JSON.stringify({ q: q, o: ['Да', 'Нет'] });
+                sendAdminCommand('start_vote', payload);
+            };
+            document.getElementById('admGlobalBoss').onclick = () => sendAdminCommand('spawn_global_boss');
         }
     }
     function openAdminPanel() { const overlay = document.getElementById('adminOverlay'); if (!overlay) return; adminCurrentTab = 'game'; document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'game')); renderAdminBody(); overlay.classList.add('show'); }
