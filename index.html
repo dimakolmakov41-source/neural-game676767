@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=16.0">
+    <link rel="stylesheet" href="style.css?v=16.1">
 </head>
 <body class="bg-early-autumn">
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v16.0</div>
+        <div class="loading-sub">v16.1</div>
     </div>
 
     <!-- БЕГУЩАЯ СТРОКА -->
@@ -18,9 +18,9 @@
         <span id="tickerText"></span>
     </div>
 
-    <!-- ИКОНКИ В ПРАВОМ ВЕРХНЕМ УГЛУ -->
-    <div class="corner-news-btn" id="newsBtn">📢</div>
+    <!-- ИКОНКИ В ИГРЕ (ЧАТ И ТУРНИР) -->
     <div class="corner-chat-btn" id="chatBtn">💬</div>
+    <div class="corner-tourney-btn" id="tourneyBtn">⚔️</div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
     <div class="boost-timer-panel" id="boostTimerPanel"></div>
@@ -34,7 +34,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v16.0</div>
+            <div class="game-version" id="menuVersion">v16.1</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -49,6 +49,7 @@
                 <div class="menu-btn" id="dailyGiftBtn" data-i18n="daily_gift">🎁 ПОДАРОК</div>
             </div>
             <div class="menu-buttons-row">
+                <div class="menu-btn" id="newsBtn" data-i18n="news">📢 НОВОСТИ</div>
                 <div class="menu-btn" id="prestigeBtn" data-i18n="prestige">🌟 ПЕРЕРОЖДЕНИЕ</div>
             </div>
         </div>
@@ -122,6 +123,84 @@
         </div>
     </div>
 
+    <!-- ОКНО ТУРНИРА (ТОЧЬ В ТОЧЬ) -->
+    <div id="tournamentModal" class="tourney-overlay hidden">
+        <div class="tourney-container">
+            <div class="tourney-header">
+                <span>Турнир</span>
+                <span class="tourney-version">v2</span>
+            </div>
+            
+            <div class="tourney-body">
+                <!-- Экран 1: Список игроков (Первый игрок) -->
+                <div id="tourneySearchScreen" class="tourney-screen">
+                    <div class="tourney-input-row">
+                        <input type="text" id="tourneyNameInput" placeholder="Имя игрока" class="tourney-input">
+                        <button id="tourneyCallBtn" class="tourney-btn-red">Вызвать</button>
+                    </div>
+                    <div id="tourneyOnlineList" class="tourney-list">
+                        <!-- Сюда будут падать ники игроков онлайн -->
+                        <div style="text-align:center; padding:20px; color:#ccc;">Загрузка игроков...</div>
+                    </div>
+                </div>
+
+                <!-- Экран 2: Ожидание (Первый игрок) -->
+                <div id="tourneyWaitScreen" class="tourney-screen hidden">
+                    <div class="tourney-text-center" style="margin-top: 50px;">
+                        Ждём ответа от "<span id="tourneyTargetNameWait"></span>"
+                    </div>
+                </div>
+
+                <!-- Экран 3: Вызов (Второй игрок) -->
+                <div id="tourneyChallengeScreen" class="tourney-screen hidden">
+                    <div class="tourney-text-center" style="margin-top: 50px;">
+                        Игрок "<span id="tourneyChallengerName"></span>" вызвал вас на турнир!
+                    </div>
+                    <div class="tourney-action-btns">
+                        <button id="tourneyAcceptBtn" class="tourney-btn-green">Принять</button>
+                        <button id="tourneyDeclineBtn" class="tourney-btn-red">Отменить</button>
+                    </div>
+                </div>
+
+                <!-- Экран 4: Отсчет (3, 2, 1) -->
+                <div id="tourneyCountdownScreen" class="tourney-screen hidden">
+                    <div id="tourneyCountdownText" class="tourney-countdown">3</div>
+                </div>
+
+                <!-- Экран 5: Бой -->
+                <div id="tourneyBattleScreen" class="tourney-screen hidden">
+                    <div class="tourney-battle-title">Кликай быстрее!</div>
+                    <div class="tourney-battle-brain" id="tourneyBrain">🧠</div>
+                    <div class="tourney-scores">
+                        <div class="tourney-score-block">
+                            <div class="tourney-score-name" id="tourneyP1Name">Игрок 1</div>
+                            <div class="tourney-score-val" id="tourneyP1Score">0</div>
+                        </div>
+                        <div class="tourney-score-block">
+                            <div class="tourney-score-name" id="tourneyP2Name">Игрок 2</div>
+                            <div class="tourney-score-val" id="tourneyP2Score">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Экран 6: Результат -->
+                <div id="tourneyResultScreen" class="tourney-screen hidden">
+                    <div class="tourney-text-center" id="tourneyResultText" style="margin-top: 50px; font-size: 30px;">
+                        Победа!
+                    </div>
+                    <div class="tourney-text-center" id="tourneyResultReward" style="font-size: 20px; margin-top: 20px;">
+                        +10⭐ +200 000🧠
+                    </div>
+                </div>
+            </div>
+
+            <!-- Нижняя кнопка (Выйти / Отменить) -->
+            <div class="tourney-footer">
+                <button id="tourneyExitBtn" class="tourney-btn-grey">Выйти</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Окно Глобального Чата -->
     <div id="chatModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px; height: 75vh; display: flex; flex-direction: column; padding: 15px;">
@@ -145,7 +224,6 @@
                 <div style="text-align: center; padding: 20px;">Загрузка...</div>
             </div>
             
-            <!-- НОВАЯ КНОПКА ОТПРАВКИ ОЧКОВ -->
             <button class="modal-btn" id="submitLeaderboardBtn" style="background: linear-gradient(145deg, #ffd966, #cc8800); color: #1a1a2e; width: 100%; margin-bottom: 10px; font-weight: 900; box-shadow: 0 0 15px rgba(255, 217, 102, 0.5);">🏆 ДОБАВИТЬСЯ В ТОП-10</button>
             
             <button class="modal-btn" id="closeLeaderboardBtn" style="background: #8c5cd4; width: 100%;">ЗАКРЫТЬ</button>
@@ -394,6 +472,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=16.0"></script>
+    <script type="module" src="script.js?v=16.1"></script>
 </body>
 </html>
