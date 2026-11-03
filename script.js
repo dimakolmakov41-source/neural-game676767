@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.8";
+const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
@@ -156,6 +156,151 @@ window.addEventListener('load', () => {
 
     let playerId = localStorage.getItem('gamePlayerId') || ('player-' + Math.floor(Math.random() * 1000000000));
     localStorage.setItem('gamePlayerId', playerId);
+
+    // ===== ГЛОБАЛЬНОЕ СОБЫТИЕ v17.0 =====
+    let globalEventState = null;
+    let globalEventRefreshBusy = false;
+    let appliedGlobalEventClaims = [];
+    try {
+        appliedGlobalEventClaims = JSON.parse(localStorage.getItem('globalEventAppliedClaims') || '[]');
+        if (!Array.isArray(appliedGlobalEventClaims)) appliedGlobalEventClaims = [];
+    } catch (_) { appliedGlobalEventClaims = []; }
+
+    function renderGlobalEvent() {
+        const panel = document.getElementById('globalEventPanel');
+        if (!panel) return;
+        if (!globalEventState || !globalEventState.is_active && !globalEventState.is_completed) {
+            panel.classList.add('hidden');
+            return;
+        }
+        panel.classList.remove('hidden');
+        const clicks = Math.max(0, Number(globalEventState.total_clicks) || 0);
+        const goal = Math.max(1, Number(globalEventState.goal) || 1);
+        const percent = Math.min(100, clicks / goal * 100);
+        const title = document.getElementById('globalEventTitle');
+        const count = document.getElementById('globalEventClicks');
+        const goalEl = document.getElementById('globalEventGoal');
+        const fill = document.getElementById('globalEventFill');
+        const status = document.getElementById('globalEventStatus');
+        const reward = document.getElementById('globalEventReward');
+        if (title) title.textContent = globalEventState.title || '🌍 ГЛОБАЛЬНОЕ СОБЫТИЕ';
+        if (count) count.textContent = formatNumber(clicks);
+        if (goalEl) goalEl.textContent = formatNumber(goal);
+        if (fill) fill.style.width = percent.toFixed(3) + '%';
+        if (status) status.textContent = globalEventState.is_completed
+            ? '🎉 ЦЕЛЬ ДОСТИГНУТА! Награды доступны игрокам'
+            : 'Общий прогресс всех игроков';
+        if (reward) reward.textContent = '🎁 Награда: ' +
+            formatNumber(Number(globalEventState.points_reward) || 0) + ' 🧠 и ' +
+            formatNumber(Number(globalEventState.stars_reward) || 0) + ' ⭐';
+    }
+
+    async function ensureGlobalEventProfile() {
+        if (!supabaseClient) return;
+        const { data, error } = await supabaseClient
+            .from('player_profiles')
+            .select('player_id')
+            .eq('player_id', playerId)
+            .maybeSingle();
+        if (error) throw error;
+        if (!data) {
+            const name = (localStorage.getItem('gamePlayerName') || 'Игрок').slice(0, 32);
+            const { error: insertError } = await supabaseClient
+                .from('player_profiles')
+                .insert({ player_id: playerId, player_name: name });
+            if (insertError && insertError.code !== '23505') throw insertError;
+        }
+    }
+
+    async function checkGlobalEventReward() {
+        if (!supabaseClient) return;
+        try {
+            await ensureGlobalEventProfile();
+            const { data, error } = await supabaseClient.rpc('claim_global_click_event_reward', {
+                p_player_id: playerId
+            });
+            if (error) throw error;
+            for (const claim of (data || [])) {
+                const claimId = String(claim.claim_id);
+                if (appliedGlobalEventClaims.includes(claimId)) {
+                    await supabaseClient.rpc('acknowledge_global_click_event_reward', {
+                        p_claim_id: claim.claim_id, p_player_id: playerId
+                    });
+                    continue;
+                }
+                points += Number(claim.points_reward) || 0;
+                stars += Number(claim.stars_reward) || 0;
+                totalStarsEarned += Number(claim.stars_reward) || 0;
+                appliedGlobalEventClaims.push(claimId);
+                localStorage.setItem('globalEventAppliedClaims', JSON.stringify(appliedGlobalEventClaims));
+                updateUI();
+                saveGame();
+                const { error: ackError } = await supabaseClient.rpc('acknowledge_global_click_event_reward', {
+                    p_claim_id: claim.claim_id, p_player_id: playerId
+                });
+                if (ackError) console.error('Подтверждение награды события:', ackError);
+                showToast('🎉 Глобальная награда получена!');
+            }
+        } catch (e) {
+            console.log('Награда глобального события пока недоступна:', e.message || e);
+        }
+    }
+
+    async function refreshGlobalEvent() {
+        if (!supabaseClient || globalEventRefreshBusy) return;
+        globalEventRefreshBusy = true;
+        try {
+            const { data, error } = await supabaseClient.rpc('get_global_click_event');
+            if (error) throw error;
+            const row = Array.isArray(data) ? data[0] : data;
+            if (row && row.event_id) {
+                globalEventState = {
+                    ...row,
+                    total_clicks: Number(row.total_clicks) || 0,
+                    goal: Number(row.goal) || 1
+                };
+                renderGlobalEvent();
+                if (globalEventState.is_completed) await checkGlobalEventReward();
+            } else {
+                globalEventState = null;
+                renderGlobalEvent();
+            }
+        } catch (e) {
+            console.log('Глобальное событие:', e.message || e);
+        } finally {
+            globalEventRefreshBusy = false;
+        }
+    }
+
+    async function registerGlobalEventClick() {
+        if (!supabaseClient) return;
+        try {
+            const { data, error } = await supabaseClient.rpc('increment_global_click', {
+                p_player_id: playerId
+            });
+            if (error) throw error;
+            const row = Array.isArray(data) ? data[0] : data;
+            if (row && globalEventState) {
+                globalEventState.total_clicks = Number(row.total_clicks) || 0;
+                globalEventState.goal = Number(row.goal) || globalEventState.goal;
+                globalEventState.is_completed = !!row.is_completed;
+                if (globalEventState.is_completed) globalEventState.is_active = false;
+                renderGlobalEvent();
+                if (globalEventState.is_completed) await checkGlobalEventReward();
+            } else {
+                await refreshGlobalEvent();
+            }
+        } catch (e) {
+            console.log('Не удалось учесть клик в глобальном событии:', e.message || e);
+        }
+    }
+
+    setTimeout(() => {
+        refreshGlobalEvent();
+        checkGlobalEventReward();
+    }, 1200);
+    setInterval(refreshGlobalEvent, 10000);
+
     
     const nicknameInput = document.getElementById('nicknameInput');
     if (nicknameInput) nicknameInput.value = localStorage.getItem('gamePlayerName') || '';
@@ -998,6 +1143,7 @@ window.addEventListener('load', () => {
         if (Math.random() < 0.02) { finalGain *= 3; spawnFloatText(x, y - 40, "⚡ x3!"); showToast(t('triple_click')); playBuySound(); }
         if (Math.random() < 0.05) { finalGain *= 10; spawnFloatText(x, y - 60, phrasesData.crit || t('crit_click')); showToast(phrasesData.crit || t('crit_click')); playBuySound(); const brain = document.getElementById('clickableObject'); if(brain) { brain.style.boxShadow = '0 0 50px #ffd700'; setTimeout(() => brain.style.boxShadow = '', 300); } }
         points += finalGain; totalClicks++; sessionClicks++; playClickSound();
+        registerGlobalEventClick();
         spawnParticles(x, y);
         
         if (Math.random() < starsData.chance) { 
