@@ -13,6 +13,7 @@ import { getSkinMultiplier as getSkinMultiplierTS } from './src/utils/getSkinMul
 import { getPrestigeMultiplier as getPrestigeMultiplierTS } from './src/utils/getPrestigeMultiplier.js';
 import { isBoostActive as isBoostActiveTS } from './src/utils/isBoostActive.js';
 import { isHackerMode as isHackerModeTS } from './src/utils/isHackerMode.js';
+import { applyButtonColor as applyButtonColorTS } from './src/utils/applyButtonColor.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -73,7 +74,7 @@ function applyTheme() {
     if (activeAbuseEffects.includes('rainbow')) body.classList.add('bg-rainbow'); else body.classList.remove('bg-rainbow');
 }
 
-function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold'); if (color && color !== 'blue') document.body.classList.add('btn-' + color); localStorage.setItem('btnColor', color || 'blue'); document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue'))); }
+function applyButtonColor(color) { return applyButtonColorTS(color); }
 
 // ===== ОСНОВНАЯ ЛОГИКА =====
 window.addEventListener('load', () => {
