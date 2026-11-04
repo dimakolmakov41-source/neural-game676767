@@ -1,7 +1,8 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.0 BETA";
+const GAME_VERSION = "17.1 BETA";
+const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
@@ -133,13 +134,16 @@ window.addEventListener('load', () => {
             // В тестовой сборке проверка latest_version отключена:
             // тестеры могут запускать сборку независимо от версии основной игры.
 
-            const tickerActive = (data.ticker_active === true || data.ticker_active === 'true');
-            if (tickerActive && data.ticker_text) {
+            const tickerActive = (data.ticker_active === true || data.ticker_active === 'true' || data.ticker_active === 1 || data.ticker_active === '1');
+            const tickerMessage = String(data.ticker_text || '').trim();
+            if (tickerActive && tickerMessage) {
                 const ticker = document.getElementById('globalTicker');
                 const tickerText = document.getElementById('tickerText');
                 if (ticker && tickerText) {
-                    if (tickerText.innerText !== data.ticker_text) tickerText.innerText = data.ticker_text;
+                    if (tickerText.textContent !== tickerMessage) tickerText.textContent = tickerMessage;
                     ticker.classList.remove('hidden');
+                    ticker.style.setProperty('display', 'flex', 'important');
+                    ticker.style.setProperty('visibility', 'visible', 'important');
                 }
             } else {
                 document.getElementById('globalTicker')?.classList.add('hidden');
@@ -170,7 +174,7 @@ window.addEventListener('load', () => {
     }
 
     setTimeout(checkServerStatus, 800);
-    setInterval(checkServerStatus, 60000);
+    setInterval(checkServerStatus, 10000);
 
     setTimeout(() => document.getElementById('loadingScreen')?.classList.add('hidden'), 1500);
     document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
@@ -631,7 +635,7 @@ window.addEventListener('load', () => {
     function renderShopNeurons() {
         const start = currentPage * ITEMS_PER_PAGE, end = Math.min(start + ITEMS_PER_PAGE, upgrades.length); let html = '';
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn">${t('first_page')}</button><button class="page-btn" id="prevPageBtn">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn">${t('next_page')}</button><button class="page-btn" id="lastPageBtn">${t('last_page')}</button></div>`;
-        for (let i = start; i < end; i++) { const u = upgrades[i]; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); html += `<div class="shop-item" data-index="${i}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅' : `💰 ${formatNumber(finalPrice)}`}</span></div>`; }
+        for (let i = start; i < end; i++) { const u = upgrades[i]; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); html += `<div class="shop-item ${u.purchased ? 'shop-item-purchased' : ''}" data-index="${i}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅ КУПЛЕНО' : `💰 ${formatNumber(finalPrice)}`}</span></div>`; }
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn2">${t('first_page')}</button><button class="page-btn" id="prevPageBtn2">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">${t('next_page')}</button><button class="page-btn" id="lastPageBtn2">${t('last_page')}</button></div>`;
         document.getElementById('shopNeurons').innerHTML = html;
         document.querySelectorAll('#shopNeurons .shop-item').forEach(el => { const u = upgrades[parseInt(el.dataset.index)]; if (u && !u.purchased) el.addEventListener('click', () => buyUpgrade(u.id)); });
@@ -733,12 +737,31 @@ window.addEventListener('load', () => {
     function isBoostActive() { return Date.now() < boostEndTime; } function getBoostRemaining() { return Math.max(0, boostEndTime - Date.now()); } function isBirthdayBoostActive() { return Date.now() < birthdayBoostEndTime; } function isMarch8BoostActive() { return Date.now() < march8BoostEndTime; } function isX10BoostActive() { return Date.now() < x10BoostEndTime; }
     function updateBoostUI() { const btn = document.getElementById('boostBtn'); if (!btn) return; if (isBoostActive()) { const ms = getBoostRemaining(); btn.innerText = `${t('boost_active')} ${Math.floor(ms / 60000)}:${Math.floor((ms % 60000) / 1000).toString().padStart(2, '0')}`; btn.classList.add('active'); } else { btn.innerText = t('boost'); btn.classList.remove('active'); } updateBoostTimersPanel(); }
     function updateBoostTimersPanel() {
-        const panel = document.getElementById('boostTimerPanel'); if (!panel) return; let html = '';
-        if (isBoostActive()) { const ms = getBoostRemaining(); html += `<div class="boost-timer-item">⚡×5: ${Math.floor(ms/3600000)}:${Math.floor((ms%3600000)/60000).toString().padStart(2,'0')}:${Math.floor((ms%60000)/1000).toString().padStart(2,'0')}</div>`; }
-        if (isBirthdayBoostActive()) { const ms = birthdayBoostEndTime - Date.now(); html += `<div class="boost-timer-item">🎂×10: ${Math.floor(ms/3600000)}:${Math.floor((ms%3600000)/60000).toString().padStart(2,'0')}:${Math.floor((ms%60000)/1000).toString().padStart(2,'0')}</div>`; }
-        if (isMarch8BoostActive()) { const ms = march8BoostEndTime - Date.now(); html += `<div class="boost-timer-item">🌷×15: ${Math.floor(ms/3600000)}:${Math.floor((ms%3600000)/60000).toString().padStart(2,'0')}:${Math.floor((ms%60000)/1000).toString().padStart(2,'0')}</div>`; }
-        if (isX10BoostActive()) { const ms = x10BoostEndTime - Date.now(); html += `<div class="boost-timer-item">🧠×10: ${Math.floor(ms/3600000)}:${Math.floor((ms%3600000)/60000).toString().padStart(2,'0')}:${Math.floor((ms%60000)/1000).toString().padStart(2,'0')}</div>`; }
-        panel.innerHTML = html; panel.classList.toggle('hidden', !html); panel.style.display = html ? 'flex' : 'none';
+        const panel = document.getElementById('boostTimerPanel');
+        if (!panel) return;
+        let html = '';
+        const formatBoostTime = (ms) => {
+            const totalSeconds = Math.ceil(Math.max(0, ms) / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return hours > 0
+                ? `${hours}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`
+                : `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+        };
+        if (isBoostActive()) html += `<div class="boost-timer-item">⚡ БУСТ ×5 · ${formatBoostTime(getBoostRemaining())}</div>`;
+        if (isBirthdayBoostActive()) html += `<div class="boost-timer-item">🎂 ×10 · ${formatBoostTime(birthdayBoostEndTime - Date.now())}</div>`;
+        if (isMarch8BoostActive()) html += `<div class="boost-timer-item">🌷 ×15 · ${formatBoostTime(march8BoostEndTime - Date.now())}</div>`;
+        if (isX10BoostActive()) html += `<div class="boost-timer-item">🧠 ×10 · ${formatBoostTime(x10BoostEndTime - Date.now())}</div>`;
+        panel.innerHTML = html;
+        panel.classList.toggle('hidden', !html);
+        panel.style.setProperty('position', 'fixed', 'important');
+        panel.style.setProperty('left', '12px', 'important');
+        panel.style.setProperty('bottom', '12px', 'important');
+        panel.style.setProperty('z-index', '2147483647', 'important');
+        panel.style.setProperty('display', html ? 'flex' : 'none', 'important');
+        panel.style.setProperty('visibility', html ? 'visible' : 'hidden', 'important');
+        panel.style.setProperty('opacity', html ? '1' : '0', 'important');
     }
     function startBoostTimer() { if (boostInterval) clearInterval(boostInterval); updateBoostUI(); boostInterval = setInterval(() => { if (isBoostActive() || isBirthdayBoostActive() || isMarch8BoostActive() || isX10BoostActive()) updateBoostTimersPanel(); if (isBoostActive()) updateBoostUI(); else if (boostEndTime > 0) { boostEndTime = 0; showToast(t('boost_ended')); updateUI(); } }, 1000); }
     function buyBoost() { if (isBoostActive()) { showToast(t('boost_already')); return; } if (stars < BOOST_PRICE) { showToast(`❌ ${t('need_stars')} ${BOOST_PRICE}⭐`); return; } stars -= BOOST_PRICE; boostEndTime = Date.now() + BOOST_DURATION; updateUI(); updateBoostUI(); updateBoostTimersPanel(); saveGame(); showToast(t('boost_activated')); playBuySound(); }
@@ -824,11 +847,26 @@ window.addEventListener('load', () => {
 
     function saveGame() {
         lastSaveTime = Date.now();
-        localStorage.setItem('neuralEvoSave', JSON.stringify({ points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode, comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements, helpers: helpers.map(h => ({ bought: h.bought, level: h.level })), currentSkin, purchasedSkins, upgrades: upgrades.map(u => ({ purchased: u.purchased })), passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime }));
+        localStorage.setItem(SAVE_KEY, JSON.stringify({ points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode, comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements, helpers: helpers.map(h => ({ bought: h.bought, level: h.level })), currentSkin, purchasedSkins, upgrades: upgrades.map(u => ({ purchased: u.purchased })), passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime }));
     }
 
     function loadGame() {
-        const saved = localStorage.getItem('neuralEvoSave');
+        let saved = localStorage.getItem(SAVE_KEY);
+        // Однократный перенос старого сохранения в отдельное хранилище тестовой версии.
+        if (!saved) {
+            const legacySave = localStorage.getItem('neuralEvoSave');
+            if (legacySave) {
+                try {
+                    const legacyData = JSON.parse(legacySave);
+                    if (legacyData && typeof legacyData === 'object' && Array.isArray(legacyData.upgrades)) {
+                        saved = legacySave;
+                        localStorage.setItem(SAVE_KEY, legacySave);
+                    }
+                } catch (migrationError) {
+                    console.warn('Старое сохранение тестовой версии не удалось перенести:', migrationError);
+                }
+            }
+        }
         if (saved) { try { const d = JSON.parse(saved); points = d.points !== undefined ? Number(d.points) : 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks ?? 0; purchasedCount = d.purchasedCount ?? 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (d.passPlayTimeSeconds !== undefined) passPlayTimeSeconds = d.passPlayTimeSeconds; if (d.passClaimedRewards) passClaimedRewards = d.passClaimedRewards; if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) {} }
         updateUI(); renderShopNeurons(); renderShopHelpers(); renderShopSkins(); updateStatsUI(); renderAchievements(); startBoostTimer(); updateBoostTimersPanel(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
         const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
@@ -840,8 +878,8 @@ window.addEventListener('load', () => {
     document.getElementById('diamondRemovalOk')?.addEventListener('click', () => document.getElementById('diamondRemovalOverlay')?.classList.remove('show'));
     document.getElementById('offlineOkBtn')?.addEventListener('click', () => document.getElementById('offlineOverlay')?.classList.remove('show'));
 
-    function exportProgress() { saveGame(); const saved = localStorage.getItem('neuralEvoSave'); let data = {}; if (saved) try { data = JSON.parse(saved); } catch(e) {} data.gameVersion = GAME_VERSION; data.exportDate = new Date().toISOString(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "neural_evolution_save.json"; a.click(); showToast(t('saved')); }
-    function importProgress(file) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); data.gameVersion = GAME_VERSION; localStorage.setItem('neuralEvoSave', JSON.stringify(data)); showToast(t('loaded')); setTimeout(() => location.reload(), 1000); } catch { showToast(t('load_error')); } }; reader.readAsText(file); }
+    function exportProgress() { saveGame(); const saved = localStorage.getItem(SAVE_KEY); let data = {}; if (saved) try { data = JSON.parse(saved); } catch(e) {} data.gameVersion = GAME_VERSION; data.exportDate = new Date().toISOString(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "neural_evolution_save.json"; a.click(); showToast(t('saved')); }
+    function importProgress(file) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); data.gameVersion = GAME_VERSION; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); showToast(t('loaded')); setTimeout(() => location.reload(), 1000); } catch { showToast(t('load_error')); } }; reader.readAsText(file); }
     const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
     const bgThemes = { early_autumn: "bg-early-autumn", golden: "bg-golden", rainy: "bg-rainy", late: "bg-late", forest: "bg-forest", park: "bg-park", mountains: "bg-mountains", village: "bg-village" };
