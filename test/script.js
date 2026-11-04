@@ -8,7 +8,7 @@ const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
 let supabaseClient = null;
 
-let globalEventMultiplier = 1, saleData = { active: false, discount_percent: 0 }, rouletteCost = 250, autoclickerRateBonus = 0, customTheme = "normal", weatherData = { active: false, type: "none" }, phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" }, tickerData = { active: false, text: "" }, starsData = { chance: 0.0001, amount: 3 }, reloadTimeMinutes = 5;
+let globalEventMultiplier = 1, saleData = { active: false, discount_percent: 0 }, rouletteCost = 250, autoclickerRateBonus = 0, customTheme = "normal", weatherData = { active: false, type: "none" }, phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" }, tickerData = { active: false, text: "" }, starsData = { chance: 0.0001, amount: 3 }, reloadTimeMinutes = 3;
 
 let globalBoost = { active: false, type: 'points', multiplier: 1, text: '' };
 
@@ -48,7 +48,8 @@ const FACTS = { ru: ["Первый перцептрон создан в 1958 г�
 function getFactOfDay() { const now = new Date(); const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000); return FACTS[currentLang][dayOfYear % FACTS[currentLang].length]; }
 function checkDailyFact() { const today = new Date().toISOString().slice(0, 10); if (localStorage.getItem('factShownDate') !== today) { localStorage.setItem('factShownDate', today); const factText = document.getElementById('factText'); if (factText) factText.innerText = getFactOfDay(); setTimeout(() => document.getElementById('factOverlay')?.classList.add('show'), 2500); } }
 
-if (localStorage.getItem('gameVersion') !== GAME_VERSION) { localStorage.removeItem('neuralEvoSave'); localStorage.removeItem('banEnd'); localStorage.setItem('gameVersion', GAME_VERSION); }
+// Бета-версия не удаляет сохранение при смене номера сборки.
+localStorage.setItem('gameVersion', GAME_VERSION);
 
 function isHalloween() { if (customTheme === 'halloween') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return n.getMonth() === 9 && n.getDate() >= 5 && n.getDate() <= 31; }
 function isNewYear() { if (customTheme === 'newyear') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return (n.getMonth() === 11 && n.getDate() === 31) || (n.getMonth() === 0 && n.getDate() === 1); }
@@ -70,7 +71,7 @@ function applyTheme() {
     if (activeAbuseEffects.includes('rainbow')) body.classList.add('bg-rainbow'); else body.classList.remove('bg-rainbow');
 }
 
-function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold'); if (color && color !== 'blue') document.body.classList.add('btn-' + color); localStorage.setItem('btnColor', color || 'blue'); document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue'))); }
+function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold', 'btn-cyan', 'btn-pink'); if (color && color !== 'blue') document.body.classList.add('btn-' + color); localStorage.setItem('btnColor', color || 'blue'); document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue'))); }
 
 // ===== ОСНОВНАЯ ЛОГИКА =====
 window.addEventListener('load', () => {
@@ -578,7 +579,7 @@ window.addEventListener('load', () => {
                 if (cmd.command_type === 'give_stars') { stars += parseInt(cmd.payload); totalStarsEarned += parseInt(cmd.payload); updateUI(); showToast(`👑 Разработчик дал вам +${cmd.payload}⭐!`); }
                 if (cmd.command_type === 'star_rain') { startStarRain(); }
                 if (cmd.command_type === 'dialogue') { showBrainSpeech(cmd.payload); }
-                if (cmd.command_type === 'start_vote') { showVoteModal(cmd.payload); }
+                // Голосование отключено в тестовой сборке.
                 if (cmd.command_type === 'spawn_global_boss') { spawnBoss(); showToast('🌍 МИРОВОЙ БОСС ЗАСПАВНЕН!'); }
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'active_abuse' }, payload => {
@@ -608,87 +609,6 @@ window.addEventListener('load', () => {
             star.onclick = () => { stars += 1; totalStarsEarned += 1; updateUI(); saveGame(); playBuySound(); star.remove(); };
             setTimeout(() => { if (star.parentNode) star.remove(); }, duration);
         }, 200);
-    }
-
-    function showVoteModal(jsonStr) {
-        try {
-            const data = JSON.parse(jsonStr);
-            const pollId = data.q; // Используем текст вопроса как ID
-            document.getElementById('voteQuestion').innerText = pollId;
-            document.getElementById('voteModal').classList.add('show');
-            
-            const btnYes = document.getElementById('voteBtnYes');
-            const btnNo = document.getElementById('voteBtnNo');
-            const newBtnYes = btnYes.cloneNode(true);
-            const newBtnNo = btnNo.cloneNode(true);
-            btnYes.parentNode.replaceChild(newBtnYes, btnYes);
-            btnNo.parentNode.replaceChild(newBtnNo, btnNo);
-            
-            // Загружаем текущие результаты
-            updateVoteProgress(pollId);
-
-            // Подписываемся на обновления голосов
-            if (window.voteChannel) supabaseClient.removeChannel(window.voteChannel);
-            window.voteChannel = supabaseClient.channel('poll_'+pollId)
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes', filter: `poll_id=eq.${pollId}` }, () => {
-                    updateVoteProgress(pollId);
-                }).subscribe();
-
-            newBtnYes.onclick = async () => { 
-                await castVote(pollId, 'yes');
-            };
-            newBtnNo.onclick = async () => { 
-                await castVote(pollId, 'no');
-            };
-        } catch(e) { console.log('Ошибка парсинга голосования', e); }
-    }
-
-    async function castVote(pollId, voteValue) {
-        if (!supabaseClient) return;
-        try {
-            const { error } = await supabaseClient.from('poll_votes').insert([{ poll_id: pollId, player_id: playerId, vote_value: voteValue }]);
-            if (error && error.code === '23505') {
-                showToast('❌ Вы уже голосовали!');
-            } else if (error) {
-                showToast('❌ Ошибка голосования');
-            } else {
-                showToast('✅ Голос учтен!');
-            }
-        } catch(e) {}
-    }
-
-    async function updateVoteProgress(pollId) {
-        if (!supabaseClient) return;
-        try {
-            const { data, error } = await supabaseClient.from('poll_votes').select('vote_value').eq('poll_id', pollId);
-            if (error || !data) return;
-
-            let yesCount = 0, noCount = 0;
-            data.forEach(v => {
-                if (v.vote_value === 'yes') yesCount++;
-                if (v.vote_value === 'no') noCount++;
-            });
-
-            const total = yesCount + noCount;
-            let yesPercent = 0, noPercent = 0;
-
-            if (total > 0) {
-                yesPercent = Math.round((yesCount / total) * 100);
-                noPercent = 100 - yesPercent;
-            } else {
-                yesPercent = 50;
-                noPercent = 50;
-            }
-
-            const yesEl = document.getElementById('voteProgressYes');
-            const noEl = document.getElementById('voteProgressNo');
-            if (yesEl && noEl) {
-                yesEl.style.width = yesPercent + '%';
-                yesEl.innerText = yesPercent + '%';
-                noEl.style.width = noPercent + '%';
-                noEl.innerText = noPercent + '%';
-            }
-        } catch(e) {}
     }
 
     // ===== ОСТАЛЬНАЯ ЛОГИКА ИГРЫ =====
@@ -833,7 +753,7 @@ window.addEventListener('load', () => {
     function calculateOfflineIncome() { const awaySec = Math.min((Date.now() - lastSaveTime) / 1000, OFFLINE_MAX_HOURS * 3600); if (awaySec < 60) return 0; return Math.floor(getClickPower() * awaySec * OFFLINE_RATE); }
     function showOfflineReward(amount) { document.getElementById('offlineReward').innerText = '+' + formatNumber(amount) + ' 🧠'; document.getElementById('offlineOverlay')?.classList.add('show'); }
 
-    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }];
+    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }];
     let currentSoundProfile = 0, audioCtx = null, musicEnabled = localStorage.getItem('musicEnabled') === 'true';
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
     function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { try { const p = soundProfiles[currentSoundProfile]; const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = p.type; o.frequency.value = p.freq; g.gain.value = 0.08; g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.05); } catch(e) {} } }
@@ -1001,7 +921,7 @@ window.addEventListener('load', () => {
     if (fullscreenBtn) { fullscreenBtn.addEventListener('click', () => { const el = document.documentElement; const isFull = document.fullscreenElement || document.webkitFullscreenElement; if (!isFull) { if (el.requestFullscreen) el.requestFullscreen(); else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); fullscreenBtn.innerText = t('off'); showToast("⛶ " + t('fullscreen')); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); fullscreenBtn.innerText = t('on'); showToast("⛶ " + t('fullscreen')); } }); }
 
     const promoCodes = {}; for (let i = 1; i <= 100; i++) promoCodes[`code${i}`] = { points: 100 + i * 5, stars: 1 + Math.floor(i / 10) };
-    promoCodes['dima'] = { points: 500, stars: 10 }; promoCodes['dima god'] = { points: 5000, stars: 100 }; promoCodes['start'] = { points: 100, stars: 5 }; promoCodes['neural'] = { points: 1000, stars: 50 }; promoCodes['evolution'] = { points: 2000, stars: 100 }; promoCodes['prestige'] = { points: 10000, stars: 200 }; promoCodes['legend'] = { points: 20000, stars: 500 }; promoCodes['pass8'] = { points: 8000, stars: 80 }; promoCodes['pass9'] = { points: 10000, stars: 100 }; promoCodes['halloween'] = { points: 6666, stars: 66 }; promoCodes['newyear'] = { points: 7777, stars: 77 }; promoCodes['robot'] = { points: 9999, stars: 99 }; promoCodes['hacker'] = { points: 11111, stars: 111 }; promoCodes['pumpkin'] = { points: 8888, stars: 88 }; promoCodes['birthday'] = { points: 17000, stars: 170 }; promoCodes['march8'] = { points: 8000, stars: 80 };
+    promoCodes['dima'] = { points: 500, stars: 10 }; promoCodes['dima god'] = { points: 5000, stars: 100 }; promoCodes['start'] = { points: 100, stars: 5 }; promoCodes['neural'] = { points: 1000, stars: 50 }; promoCodes['evolution'] = { points: 2000, stars: 100 }; promoCodes['prestige'] = { points: 10000, stars: 200 }; promoCodes['legend'] = { points: 20000, stars: 500 }; promoCodes['pass8'] = { points: 8000, stars: 80 }; promoCodes['pass9'] = { points: 10000, stars: 100 }; promoCodes['halloween'] = { points: 6666, stars: 66 }; promoCodes['newyear'] = { points: 7777, stars: 77 }; promoCodes['robot'] = { points: 9999, stars: 99 }; promoCodes['hacker'] = { points: 11111, stars: 111 }; promoCodes['pumpkin'] = { points: 8888, stars: 88 }; promoCodes['birthday'] = { points: 17000, stars: 170 }; promoCodes['march8'] = { points: 8000, stars: 80 }; promoCodes['beta16'] = { points: 2500, stars: 25 }; promoCodes['neural2026'] = { points: 5000, stars: 50 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => { const code = document.getElementById('promoInput').value.toLowerCase().trim(); if (promoCodes[code]) { const promo = promoCodes[code]; points += promo.points; stars += promo.stars; totalStarsEarned += promo.stars; updateUI(); saveGame(); showToast(t('promo_ok')); document.getElementById('promoInput').value = ''; document.getElementById('promoModal').classList.remove('show'); } else showToast(t('promo_bad')); });
     document.getElementById('soundToggleBtn')?.addEventListener('click', () => { currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length; document.getElementById('soundToggleBtn').innerText = `${t('sound_toggle')} (${soundProfiles[currentSoundProfile].name})`; saveGame(); showToast(`🔊 ${soundProfiles[currentSoundProfile].name}`); });
@@ -1012,6 +932,8 @@ window.addEventListener('load', () => {
     let reloadSeconds = reloadTimeMinutes * 60;
     setInterval(() => { if (reloadSeconds > 0) { reloadSeconds--; const el = document.getElementById('reloadCountdown'); if (el) el.innerText = `${Math.floor(reloadSeconds / 60)}:${(reloadSeconds % 60).toString().padStart(2, '0')}`; if (reloadSeconds === 0) { showToast(t('reload_toast')); setTimeout(() => location.reload(), 2000); } } }, 1000);
     setInterval(saveGame, 5000);
+    window.addEventListener('pagehide', saveGame);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveGame(); });
 
     let adminPasswordBuffer = '';
     function openAdminPasswordPanel() { adminPasswordBuffer = ''; document.getElementById('adminPasswordInput').value = ''; document.getElementById('adminPasswordOverlay')?.classList.add('show'); }
