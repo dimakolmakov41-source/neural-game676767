@@ -31,6 +31,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 <div id="loginStatus" role="status"></div>
 </section>
 <section class="hidden" id="manager">
+<div class="card" id="releaseCard">
+<h2>🚦 Доступность тестовой версии</h2>
+<p class="muted">Закрытие отключит вход в тестовую сборку для всех игроков. Обычная версия игры продолжит работать.</p>
+<div class="row" style="align-items:center">
+<strong id="releaseState">Проверяем статус...</strong>
+<button id="releaseToggle" class="danger" disabled>Загрузка...</button>
+</div>
+<div id="releaseStatus" role="status" class="muted" style="margin-top:10px"></div>
+</div>
 <div class="card">
 <div class="row"><h2 style="margin:0;flex:1">🧪 Управление тестерами</h2><button class="secondary" id="logoutBtn">Выйти</button></div>
 <p class="muted">Добавляй игрока по игровому ID из профиля. Ник нужен только для удобства отображения.</p>
@@ -61,10 +70,33 @@ async function callManager(payload){
  if(data?.error) throw new Error(data.error);
  return data;
 }
+async function refreshReleaseStatus(){
+ const button=$("releaseToggle"),state=$("releaseState");
+ button.disabled=true;button.textContent="Загрузка...";
+ try{
+  const data=await callManager({action:"release_status"});
+  state.textContent=data.is_closed?"🔒 Тестирование закрыто":"🟢 Тестирование открыто";
+  button.textContent=data.is_closed?"🔓 Открыть тестовую версию":"🔒 Закрыть тестовую версию";
+  button.className=data.is_closed?"green":"danger";
+  button.disabled=false;
+  button.dataset.closed=String(!!data.is_closed);
+ }catch(e){state.textContent="Не удалось загрузить статус";message("releaseStatus",e.message,true);}
+}
+$("releaseToggle").addEventListener("click",async()=>{
+ const wasClosed=$("releaseToggle").dataset.closed==="true";
+ const nextClosed=!wasClosed;
+ if(!confirm(nextClosed?"Закрыть тестовую версию для всех тестеров?":"Снова открыть тестовую версию?"))return;
+ $("releaseToggle").disabled=true;
+ try{
+  await callManager({action:"set_release_status",is_closed:nextClosed});
+  message("releaseStatus",nextClosed?"🔒 Тестовая версия отключена.":"✅ Тестовая версия снова доступна.");
+  await refreshReleaseStatus();
+ }catch(e){message("releaseStatus",e.message,true);$("releaseToggle").disabled=false;}
+});
 async function refresh(){
  $("testerList").textContent="Загрузка...";
  try{
-  const data=await callManager({action:"list"}), testers=data.testers||[];
+  const data=await callManager({action:"list"}), testers=data.testers||[]; await refreshReleaseStatus();
   $("count").textContent=String(testers.length);
   $("testerList").innerHTML="";
   if(!testers.length){$("testerList").textContent="Пока тестеров нет.";return;}
