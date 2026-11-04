@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "18.3 BETA";
+const GAME_VERSION = "18.4 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -72,6 +72,23 @@ function applyTheme() {
     if (activeAbuseEffects.includes('rainbow')) body.classList.add('bg-rainbow'); else body.classList.remove('bg-rainbow');
 }
 
+const GAME_STYLES = ['normal', 'cosmic', 'neural'];
+const GAME_STYLE_LABELS = { normal: 'Обычный', cosmic: 'Космический', neural: 'Нейросетевой' };
+function applyGameStyle(style, save = true) {
+    const selected = GAME_STYLES.includes(style) ? style : 'normal';
+    document.body.classList.remove('style-normal', 'style-cosmic', 'style-neural');
+    document.body.classList.add('style-' + selected);
+    if (save) localStorage.setItem('gameVisualStyle', selected);
+    const button = document.getElementById('styleSwitchBtn');
+    if (button) button.textContent = GAME_STYLE_LABELS[selected] + '  ↻';
+    document.querySelectorAll('.shop-orb-btn').forEach(el => el.setAttribute('aria-label', 'Магазин нейросетей — ' + GAME_STYLE_LABELS[selected]));
+}
+function cycleGameStyle() {
+    const current = localStorage.getItem('gameVisualStyle') || 'normal';
+    const next = GAME_STYLES[(GAME_STYLES.indexOf(current) + 1) % GAME_STYLES.length];
+    applyGameStyle(next);
+    showToast('🎨 Стиль: ' + GAME_STYLE_LABELS[next]);
+}
 function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold', 'btn-cyan', 'btn-pink'); if (color && color !== 'blue') document.body.classList.add('btn-' + color); localStorage.setItem('btnColor', color || 'blue'); document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue'))); }
 
 // ===== ОСНОВНАЯ ЛОГИКА =====
@@ -1321,7 +1338,8 @@ window.addEventListener('load', () => {
     });
 
     document.getElementById('openShopBtn')?.addEventListener('click', () => { document.getElementById('shopPanel').classList.add('show'); switchShopTab('neurons'); });
-    document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
+    document.getElementById('shopOrbBtn')?.addEventListener('click', () => { const panel = document.getElementById('shopPanel'); panel.classList.add('show', 'neurons-only'); switchShopTab('neurons'); });
+    document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show', 'neurons-only'));
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
     document.getElementById('boostBtn')?.addEventListener('click', buyBoost);
     document.getElementById('autoclickerBtn')?.addEventListener('click', buyAutoclicker);
@@ -1333,6 +1351,8 @@ window.addEventListener('load', () => {
     document.getElementById('achCloseBtn')?.addEventListener('click', () => document.getElementById('achOverlay')?.classList.remove('show'));
     document.getElementById('factCloseBtn')?.addEventListener('click', () => document.getElementById('factOverlay')?.classList.remove('show'));
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
+    document.getElementById('styleSwitchBtn')?.addEventListener('click', cycleGameStyle);
+    applyGameStyle(localStorage.getItem('gameVisualStyle') || 'normal', false);
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
     document.getElementById('resetGameBtn')?.addEventListener('click', () => { if (confirm("Сбросить всё? / Reset all?")) { localStorage.clear(); location.reload(); } });
     
