@@ -617,3 +617,39 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
 #rouletteSpinBtn { position: relative; z-index: 5; pointer-events: auto; touch-action: manipulation; }
 #rouletteOverlay.show { display: flex !important; visibility: visible; pointer-events: auto; }
 #rouletteWheel .roulette-slot { min-width: 0; }
+
+
+/* Beta 17.1: visible purchase state and reliable overlays */
+.shop-item-purchased {
+    border: 2px solid #43d17a !important;
+    background: linear-gradient(145deg, #17452f, #102c22) !important;
+    color: #caffdc !important;
+}
+.shop-item-purchased span:last-child {
+    color: #8dffb1 !important;
+    font-weight: 900 !important;
+    white-space: nowrap;
+}
+#globalTicker:not(.hidden) {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+#boostTimerPanel:not(.hidden) {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    left: 12px !important;
+    bottom: 12px !important;
+    z-index: 2147483647 !important;
+    max-width: calc(100vw - 24px);
+}
+#boostTimerPanel .boost-timer-item {
+    max-width: calc(100vw - 24px);
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 7px 11px;
+    background: rgba(0, 0, 0, 0.92) !important;
+    border: 2px solid #ffd966 !important;
+}
