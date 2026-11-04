@@ -146,7 +146,12 @@ window.addEventListener('load', () => {
                     ticker.style.setProperty('visibility', 'visible', 'important');
                 }
             } else {
-                document.getElementById('globalTicker')?.classList.add('hidden');
+                const ticker = document.getElementById('globalTicker');
+                if (ticker) {
+                    ticker.classList.add('hidden');
+                    ticker.style.setProperty('display', 'none', 'important');
+                    ticker.style.setProperty('visibility', 'hidden', 'important');
+                }
             }
 
             const boostActive = (data.boost_active === true || data.boost_active === 'true');
