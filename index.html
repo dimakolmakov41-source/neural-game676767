@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=16.7">
+    <link rel="stylesheet" href="style.css?v=17.0">
 </head>
 <body class="bg-early-autumn">
+<a href="https://dimakolmakov41-source.github.io/neural-game676767/" style="display:inline-block;padding:10px 18px;background:#4b9cff;color:#061323;text-decoration:none;border-radius:24px;font-weight:bold;">Вернуться в обычную игру</a></div></div>
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v16.7</div>
+        <div class="loading-sub">v17.0</div>
     </div>
 
     <div id="globalTicker" class="top-ticker hidden">
@@ -33,7 +34,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v16.7</div>
+            <div class="game-version" id="menuVersion">v17.0</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -51,6 +52,13 @@
                 <div class="menu-btn" id="prestigeBtn" data-i18n="prestige">🌟 ПЕРЕРОЖДЕНИЕ</div>
             </div>
             <div class="menu-buttons-row">
+                <div class="menu-btn" id="friendsBtn">👥 ДРУЗЬЯ</div>
+                <div class="menu-btn" id="myProfileBtn">👤 МОЙ ПРОФИЛЬ</div>
+            </div>
+            <div class="menu-buttons-row">
+                
+            </div>
+            <div class="menu-buttons-row">
                 <div class="menu-btn" id="testBtn3">3</div>
                 <div class="menu-btn" id="testButton">🔌 тест кнопка</div>
             </div>
@@ -58,6 +66,7 @@
 
         <div id="gameInterface" class="game-interface hidden">
             <div class="top-bar"><div>🧠 <span id="points">10</span></div><div>⚡ <span id="power">1</span></div></div>
+            <button id="shopOrbBtn" class="shop-orb-btn" type="button" aria-label="Открыть магазин нейросетей" title="Магазин нейросетей">🧠</button>
             <div class="diamond-bar"><div id="starLabel">⭐ <span id="stars">0</span></div><div>⏱️ <span id="playtime">0</span> <span data-i18n="min">мин</span></div></div>
 
             <div class="stats-panel-extended">
@@ -66,7 +75,7 @@
                 <div class="stat-card"><div class="stat-card-value" id="statSessionClicks">0</div><div class="stat-card-label" data-i18n="stat_session">За сессию</div></div>
             </div>
 
-            <div class="timers" id="reloadTimer"><span data-i18n="reload">🔄 ПЕРЕЗАГРУЗКА:</span> <span id="reloadCountdown">5:00</span></div>
+            <div class="timers" id="reloadTimer"><span data-i18n="reload">🔄 ПЕРЕЗАГРУЗКА:</span> <span id="reloadCountdown">3:00</span></div>
 
             <div class="brain-container">
                 <div id="clickableObject" class="brain">
@@ -108,7 +117,7 @@
             </div>
 
             <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn" data-i18n="shop">🛒 МАГАЗИН</div></div>
-            <div class="save-badge" data-i18n="autosave">💾 автосохранение</div>
+            
         </div>
     </div>
 
@@ -212,31 +221,72 @@
         </div>
     </div>
 
-    <div id="leaderboardModal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
-        <div class="modal-content" style="border: 3px solid #ffd700; background: #1a1a2e; max-width: 400px; padding: 20px;">
-            <div class="modal-title" style="font-size: 24px; color: #ffd700; text-shadow: 0 0 10px #ffaa00; margin-bottom: 15px;">🏆 ТОП-10 ИГРОКОВ</div>
-            <div id="leaderboardList" style="max-height: 50vh; overflow-y: auto; text-align: left; margin-bottom: 15px; color: white;">
-                <div style="text-align: center; padding: 20px;">Загрузка...</div>
+    <div id="friendsModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:420px; max-height:85vh; overflow-y:auto;">
+            <div class="modal-title">👥 ДРУЗЬЯ</div>
+            <div style="font-size:12px;opacity:.8;margin-bottom:8px;">Твой игровой ID — поделись им, чтобы тебя могли найти</div>
+            <div style="display:flex;gap:6px;margin-bottom:12px;">
+                <input id="myFriendId" class="modal-input" readonly style="margin:0;flex:1;font-size:12px;">
+                <button id="copyMyFriendId" class="modal-btn" style="margin:0;padding:8px 10px;">КОПИРОВАТЬ</button>
             </div>
-            <button class="modal-btn" id="submitLeaderboardBtn" style="background: linear-gradient(145deg, #ffd966, #cc8800); color: #1a1a2e; width: 100%; margin-bottom: 10px; font-weight: 900; box-shadow: 0 0 15px rgba(255, 217, 102, 0.5);">🏆 ДОБАВИТЬСЯ В ТОП-10</button>
-            <button class="modal-btn" id="closeLeaderboardBtn" style="background: #8c5cd4; width: 100%;">ЗАКРЫТЬ</button>
+            <div style="font-weight:bold;margin:10px 0 5px;">Добавить игрока</div>
+            <input id="friendSearchInput" class="modal-input" maxlength="60" placeholder="Введи игровой ID или точный ник">
+            <button id="sendFriendRequestBtn" class="modal-btn" style="width:100%;">➕ ОТПРАВИТЬ ЗАПРОС</button>
+            <div id="friendStatus" style="font-size:12px;min-height:18px;margin:6px 0;color:#ffd966;"></div>
+            <div style="font-weight:bold;margin:12px 0 6px;">📨 Входящие запросы</div>
+            <div id="incomingFriendsList" style="max-height:140px;overflow-y:auto;text-align:left;">Загрузка...</div>
+            <div style="font-weight:bold;margin:12px 0 6px;">⭐ Мои друзья</div>
+            <div id="myFriendsList" style="max-height:180px;overflow-y:auto;text-align:left;">Загрузка...</div>
+            <button id="closeFriendsBtn" class="modal-btn" style="width:100%;margin-top:12px;">ЗАКРЫТЬ</button>
         </div>
     </div>
 
-    <!-- НОВОЕ ОКНО ГОЛОСОВАНИЯ (С ПОДВИЖНЫМИ ПОЛОСКАМИ) -->
-    <div id="voteModal" class="modal-overlay" style="z-index: 999999; background: rgba(0,0,0,0.85);">
-        <div class="vote-modal-box">
-            <div class="vote-title" id="voteQuestion">*Название ивента*</div>
-            
-            <div class="vote-progress-bar-bg">
-                <div class="vote-progress-yes" id="voteProgressYes" style="width: 50%;">50%</div>
-                <div class="vote-progress-no" id="voteProgressNo" style="width: 50%;">50%</div>
+        <div id="profileModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:430px;max-height:88vh;overflow-y:auto;">
+            <div class="modal-title">👤 ПРОФИЛЬ ИГРОКА</div>
+            <div id="profileView" style="text-align:center;padding:8px 0;">
+                <div id="profileAvatarView" style="font-size:64px;line-height:1.3;">🙂</div>
+                <div id="profileNameView" style="font-size:22px;font-weight:900;margin:6px 0;">Игрок</div>
+                <div id="profileIdView" style="font-size:11px;opacity:.65;overflow-wrap:anywhere;"></div>
+                <div id="profileBioView" style="margin:12px 0;padding:12px;border-radius:12px;background:rgba(255,255,255,.07);">Пока нет описания</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;">
+                    <div style="padding:10px;border-radius:10px;background:rgba(255,255,255,.07);">🧠<div id="profileScoreView" style="font-weight:bold;">0</div><small>Очки</small></div>
+                    <div style="padding:10px;border-radius:10px;background:rgba(255,255,255,.07);"><span id="profileOnlineView">⚪</span><div id="profileStatusView" style="font-weight:bold;">Не в сети</div><small>Статус</small></div>
+                </div>
+                <div id="profileJoinedView" style="font-size:11px;opacity:.65;"></div>
             </div>
+            <div id="profileEditArea" style="display:none;text-align:left;border-top:1px solid #555;padding-top:12px;">
+                <div style="font-weight:bold;margin-bottom:8px;">🎭 Выбери аватар</div>
+                <div id="profileAvatarChoices" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                    <button type="button" class="profile-avatar-choice" data-avatar="🙂">🙂</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="😎">😎</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🐱">🐱</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🐼">🐼</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🦊">🦊</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🐸">🐸</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="👾">👾</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="⭐">⭐</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🔥">🔥</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🎮">🎮</button>
+                </div>
+                <label for="profileBioInput" style="font-size:12px;font-weight:bold;">📝 Описание (до 120 символов)</label>
+                <textarea id="profileBioInput" class="modal-input" maxlength="120" rows="3" placeholder="Расскажи немного об игровых интересах..." style="width:100%;resize:vertical;"></textarea>
+                <div id="profileEditStatus" style="font-size:12px;min-height:18px;color:#ffd966;"></div>
+                <button id="saveProfileBtn" class="modal-btn" style="width:100%;">💾 СОХРАНИТЬ ПРОФИЛЬ</button>
+            </div>
+            <button id="editProfileBtn" class="modal-btn" style="width:100%;margin-top:10px;display:none;">✏️ РЕДАКТИРОВАТЬ</button>
+            <button id="closeProfileBtn" class="modal-btn" style="width:100%;margin-top:8px;">ЗАКРЫТЬ</button>
+        </div>
+    </div>
 
-            <div class="vote-btn-row">
-                <button class="vote-btn-red" id="voteBtnYes">Да</button>
-                <button class="vote-btn-blue" id="voteBtnNo">Нет</button>
+    <div id="leaderboardModal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
+        <div class="modal-content" style="border: 3px solid #ffd700; background: #1a1a2e; max-width: 400px; padding: 20px;">
+            <div class="modal-title" style="font-size: 24px; color: #ffd700; text-shadow: 0 0 10px #ffaa00; margin-bottom: 15px;">🏆 ТОП-100 ИГРОКОВ</div>
+            <div id="leaderboardList" style="max-height: 50vh; overflow-y: auto; text-align: left; margin-bottom: 15px; color: white;">
+                <div style="text-align: center; padding: 20px;">Загрузка...</div>
             </div>
+            <button class="modal-btn" id="submitLeaderboardBtn" style="background: linear-gradient(145deg, #ffd966, #cc8800); color: #1a1a2e; width: 100%; margin-bottom: 10px; font-weight: 900; box-shadow: 0 0 15px rgba(255, 217, 102, 0.5);">🏆 ДОБАВИТЬСЯ В ТОП-100</button>
+            <button class="modal-btn" id="closeLeaderboardBtn" style="background: #8c5cd4; width: 100%;">ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -407,6 +457,10 @@
                 </div>
             </div>
 
+            <div class="setting-item style-switch-setting">
+                <span>🎨 Стиль игры</span>
+                <button class="modal-btn" id="styleSwitchBtn" type="button">Обычный</button>
+            </div>
             <div class="setting-item">
                 <span data-i18n="btn_color">🎨 Цвет кнопок</span>
                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
@@ -415,6 +469,8 @@
                     <button class="color-btn color-red" data-color="red">🔴</button>
                     <button class="color-btn color-purple" data-color="purple">🟣</button>
                     <button class="color-btn color-gold" data-color="gold">🟡</button>
+                    <button class="color-btn color-cyan" data-color="cyan">🩵</button>
+                    <button class="color-btn color-pink" data-color="pink">🩷</button>
                 </div>
             </div>
             <div class="setting-item">
@@ -455,30 +511,12 @@
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
             <div class="modal-text" id="newsText" style="font-size: 14px; line-height: 1.5; text-align: left;">
-                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.7!</b><br><br>
-                🗳️ <b>НАСТОЯЩИЕ ГОЛОСОВАНИЯ:</b> Теперь шкала «Да/Нет» реально двигается и показывает проценты!<br><br>
-                Играйте и делитесь ссылкой с друзьями! 💙
+                🚀 <b>ТЕСТОВОЕ ОБНОВЛЕНИЕ 17.0!</b><br><br>Добавлены новые звуки, комбо, критические клики и анимации! Спасибо за тестирование! 💙
             </div>
             <button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button>
         </div>
     </div>
 
-    <div id="updateOverlay" class="modal-overlay" style="z-index: 99999;">
-        <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
-            <div class="modal-title" style="color: #ff4444; font-size: 24px;">🚨 ДОСТУП ЗАБЛОКИРОВАН 🚨</div>
-            <div class="modal-text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Эта версия игры устарела. Пожалуйста, удалите её и установите новую версию с официального сайта.</div>
-            <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" style="display: inline-block; padding: 10px 20px; background: #229ED9; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(34,158,217,0.6); margin-top: 10px;">💬 Наш Telegram</a>
-        </div>
-    </div>
-
-    <div id="closedOverlay" class="modal-overlay" style="z-index: 100000;">
-        <div class="modal-content" style="background: #1a1a2e; border: 3px solid #ff4444; text-align: center;">
-            <div class="modal-title" style="color: #ff4444; font-size: 24px;">🚫 ИГРА ЗАКРЫТА 🚫</div>
-            <div class="modal-text" style="margin: 20px 0; font-size: 16px; line-height: 1.5;">Игра закрыта или недоступна на данный момент. Пожалуйста, зайдите позже.</div>
-            <a href="https://t.me/+U5ZGVdBqTxZjNDEy" target="_blank" style="display: inline-block; padding: 10px 20px; background: #229ED9; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(34,158,217,0.6); margin-top: 10px;">💬 Наш Telegram</a>
-        </div>
-    </div>
-
-    <script type="module" src="script.js?v=16.7"></script>
+    <script type="module" src="script.js?v=17.0"></script>
 </body>
 </html>
