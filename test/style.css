@@ -760,3 +760,21 @@ body.animated-background { background-size:200% 200% !important; animation:neura
 #clickableObject.critical-hit { animation: criticalHitFlash .42s ease-out; }
 @keyframes criticalHitFlash { 0%{filter:brightness(1)} 35%{filter:brightness(1.8);box-shadow:0 0 45px #ffe66d,0 0 80px #ff8a32} 100%{filter:brightness(1)} }
 .click-particle-enhanced { width:9px!important;height:9px!important;border-radius:50%;background:radial-gradient(circle,#fff7ad,#ff9b42)!important;box-shadow:0 0 9px #ffd66b; }
+
+/* 18.4 — selectable global visual styles */
+.shop-orb-btn{position:absolute;z-index:30;top:12px;left:12px;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:900;cursor:pointer;border:2px solid rgba(255,255,255,.8);background:linear-gradient(145deg,#ffb347,#e87516);color:#fff;box-shadow:0 4px 14px #0007, inset 0 1px 3px #fff8;transition:transform .18s,filter .18s}
+.shop-orb-btn:active{transform:scale(.92)}
+#shopPanel.neurons-only .shop-tabs-row,#shopPanel.neurons-only #shopHelpers,#shopPanel.neurons-only #shopStars,#shopPanel.neurons-only #shopSkins,#shopPanel.neurons-only #buyAllBtn{display:none!important}
+#shopPanel.neurons-only #shopNeurons{display:block!important}
+#shopPanel.neurons-only{border-radius:24px}
+body.style-cosmic{--style-accent:#8b5cf6;--style-glow:#38bdf8}
+body.style-cosmic .menu-btn,body.style-cosmic .action-btn,body.style-cosmic .modal-btn,body.style-cosmic .shop-item{background:linear-gradient(135deg,#17134b,#263c83 55%,#522b91)!important;border:1px solid #8bd5ff!important;color:#eff8ff!important;box-shadow:0 0 12px #5b8cff88,inset 0 0 12px #9b7cff33}
+body.style-cosmic .shop-orb-btn{background:radial-gradient(circle at 35% 30%,#b7e7ff,#6546d7 55%,#17134b);border-color:#b8e7ff;box-shadow:0 0 18px #67c9ff}
+body.style-cosmic #shopPanel,body.style-cosmic .modal-content{background:linear-gradient(155deg,#090d2b,#17194b 60%,#28134d)!important;border:1px solid #7dd3fc;box-shadow:0 0 25px #536dfe66}
+body.style-cosmic #gameInterface{background-image:radial-gradient(1px 1px at 15% 20%,#fff 50%,transparent),radial-gradient(1px 1px at 80% 35%,#b8d9ff 50%,transparent),radial-gradient(2px 2px at 45% 75%,#fff 50%,transparent)}
+body.style-neural{--style-accent:#00e5a8;--style-glow:#00b8ff}
+body.style-neural .menu-btn,body.style-neural .action-btn,body.style-neural .modal-btn,body.style-neural .shop-item{background:linear-gradient(135deg,#062e35,#075b62 55%,#123c73)!important;border:1px solid #42f5d4!important;color:#e3fffb!important;box-shadow:0 0 12px #00e5c088,inset 0 0 12px #00b8ff22}
+body.style-neural .shop-orb-btn{background:radial-gradient(circle at 35% 30%,#b7fff1,#00a9a5 55%,#073c68);border-color:#8affeb;box-shadow:0 0 18px #00e5c0}
+body.style-neural #shopPanel,body.style-neural .modal-content{background:linear-gradient(155deg,#031f2a,#064b50 60%,#092d54)!important;border:1px solid #35f0d0;box-shadow:0 0 25px #00cbb466}
+body.style-neural .shop-item-purchased{border-color:#7dff9a!important;box-shadow:0 0 12px #36ff8a88!important}
+.style-switch-setting{gap:12px}
