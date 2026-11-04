@@ -750,3 +750,9 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
 .ai-chat-compose button { min-width: 48px; border: 0; border-radius: 12px; background: #527cff; color: white; font-size: 22px; font-weight: bold; }
 .ai-chat-compose button:disabled { opacity: .5; }
 .ai-chat-status { min-height: 18px; font-size: 11px; opacity: .65; margin-top: 7px; text-align: center; }
+
+/* Beta 18.3 animations */
+body.animated-background { background-size:200% 200% !important; animation:neuralBgFlow 16s ease-in-out infinite alternate; }
+@keyframes neuralBgFlow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+.modal-content { animation:modalPopIn .24s ease-out; }
+@keyframes modalPopIn { from{opacity:.3;transform:translateY(12px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
