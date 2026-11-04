@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "18.2 BETA";
+const GAME_VERSION = "18.3 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -673,68 +673,6 @@ window.addEventListener('load', () => {
 
 
 
-    // ===== ИИ-ПОМОЩНИК ИГРЫ =====
-    const aiModal = document.getElementById('aiAssistantModal');
-    const aiMessages = [];
-    const aiChatMessages = document.getElementById('aiChatMessages');
-    const aiChatInput = document.getElementById('aiChatInput');
-    const aiChatStatus = document.getElementById('aiChatStatus');
-    const aiSendBtn = document.getElementById('aiChatSendBtn');
-    function addAiChatMessage(role, text) {
-        const bubble = document.createElement('div');
-        bubble.className = 'ai-message ' + (role === 'assistant' ? 'ai-message-assistant' : 'ai-message-user');
-        bubble.textContent = String(text);
-        aiChatMessages?.appendChild(bubble);
-        if (aiChatMessages) aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-    }
-    function openAiAssistant() {
-        aiModal?.classList.add('show');
-        setTimeout(() => aiChatInput?.focus(), 100);
-    }
-    async function sendAiMessage() {
-        const text = String(aiChatInput?.value || '').trim();
-        if (!text || !aiSendBtn) return;
-        if (!supabaseClient) { if (aiChatStatus) aiChatStatus.textContent = 'Нет подключения к Supabase. Проверь интернет.'; return; }
-        aiMessages.push({ role: 'user', content: text });
-        addAiChatMessage('user', text);
-        aiChatInput.value = '';
-        aiSendBtn.disabled = true;
-        if (aiChatStatus) aiChatStatus.textContent = 'ИИ думает...';
-        const gameContext = {
-            points: Number(points) || 0,
-            clicks: Number(totalClicks) || 0,
-            power: Number(typeof getClickPower === 'function' ? getClickPower() : 1) || 1,
-            purchased: Number(purchasedCount) || 0,
-            prestige: Number(prestigeLevel) || 0
-        };
-        try {
-            const response = await fetch(SUPABASE_URL + '/functions/v1/game-ai-assistant', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY },
-                body: JSON.stringify({ playerId, messages: aiMessages.slice(-12), game: gameContext })
-            });
-            const result = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(result.error || 'Ошибка сервиса ИИ (' + response.status + ')');
-            const answer = String(result.reply || 'Не удалось получить ответ.');
-            aiMessages.push({ role: 'assistant', content: answer });
-            addAiChatMessage('assistant', answer);
-            if (aiChatStatus) aiChatStatus.textContent = 'Готов помочь ещё!';
-        } catch (error) {
-            aiMessages.pop();
-            addAiChatMessage('assistant', '⚠️ ' + (error.message || 'Не удалось отправить сообщение.'));
-            if (aiChatStatus) aiChatStatus.textContent = 'Проверь подключение и настройки ИИ.';
-        } finally {
-            aiSendBtn.disabled = false;
-            aiChatInput?.focus();
-        }
-    }
-    document.getElementById('aiAssistantBtn')?.addEventListener('click', openAiAssistant);
-    document.getElementById('closeAiAssistantBtn')?.addEventListener('click', () => aiModal?.classList.remove('show'));
-    aiSendBtn?.addEventListener('click', sendAiMessage);
-    aiChatInput?.addEventListener('keydown', event => {
-        if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendAiMessage(); }
-    });
-
     // ===== ПРОФИЛИ ИГРОКОВ =====
     const profileModal = document.getElementById('profileModal');
     const profileAvatars = ['🙂','😎','🐱','🐼','🦊','🐸','👾','⭐','🔥','🎮'];
@@ -1160,7 +1098,7 @@ window.addEventListener('load', () => {
     function calculateOfflineIncome() { const awaySec = Math.min((Date.now() - lastSaveTime) / 1000, OFFLINE_MAX_HOURS * 3600); if (awaySec < 60) return 0; return Math.floor(getClickPower() * awaySec * OFFLINE_RATE); }
     function showOfflineReward(amount) { document.getElementById('offlineReward').innerText = '+' + formatNumber(amount) + ' 🧠'; document.getElementById('offlineOverlay')?.classList.add('show'); }
 
-    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }];
+    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }, { name: "Ретро", freq: 520, type: "square" }, { name: "Мягкий", freq: 740, type: "triangle" }];
     let currentSoundProfile = 0, audioCtx = null, musicEnabled = localStorage.getItem('musicEnabled') === 'true';
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
     function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { try { const p = soundProfiles[currentSoundProfile]; const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = p.type; o.frequency.value = p.freq; g.gain.value = 0.08; g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.05); } catch(e) {} } }
