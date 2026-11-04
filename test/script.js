@@ -115,6 +115,21 @@ window.addEventListener('load', () => {
         }
         try {
             const { data, error } = await supabaseClient.functions.invoke('check-tester', { body: { player_id: playerId } });
+            if (!error && data?.is_closed) {
+                if (overlay) {
+                    overlay.classList.add('show');
+                    overlay.querySelector('.modal-title').textContent = '🔒 ВЕРСИЯ ОТКЛЮЧЕНА';
+                    overlay.querySelector('.modal-text').textContent = 'Скоро будут новые тесты!';
+                    const idBox = document.getElementById('testerPlayerId')?.parentElement;
+                    if (idBox) idBox.style.display = 'none';
+                    const backLink = overlay.querySelector('a');
+                    if (backLink) backLink.textContent = 'Вернуться в обычную игру';
+                }
+                document.getElementById('mainMenu')?.classList.add('hidden');
+                document.getElementById('gameInterface')?.classList.add('hidden');
+                document.getElementById('loadingScreen')?.classList.add('hidden');
+                return;
+            }
             if (error || !data?.is_tester) {
                 if (overlay) overlay.classList.add('show');
                 document.getElementById('mainMenu')?.classList.add('hidden');
