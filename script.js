@@ -11,6 +11,7 @@ import { isBirthday as isBirthdayTS } from './src/utils/isBirthday.js';
 import { isMarch8 as isMarch8TS } from './src/utils/isMarch8.js';
 import { getSkinMultiplier as getSkinMultiplierTS } from './src/utils/getSkinMultiplier.js';
 import { getPrestigeMultiplier as getPrestigeMultiplierTS } from './src/utils/getPrestigeMultiplier.js';
+import { isBoostActive as isBoostActiveTS } from './src/utils/isBoostActive.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -1077,7 +1078,7 @@ window.addEventListener('load', () => {
     }
     function showJackpot() { showToast(t('roulette_jackpot')); document.body.style.filter = 'brightness(1.5) contrast(1.2)'; setTimeout(() => document.body.style.filter = '', 400); playBuySound(); setTimeout(playBuySound, 150); setTimeout(playBuySound, 300); }
 
-    function isBoostActive() { return Date.now() < boostEndTime; } function getBoostRemaining() { return Math.max(0, boostEndTime - Date.now()); } function isBirthdayBoostActive() { return Date.now() < birthdayBoostEndTime; } function isMarch8BoostActive() { return Date.now() < march8BoostEndTime; } function isX10BoostActive() { return Date.now() < x10BoostEndTime; }
+    function isBoostActive() { return isBoostActiveTS(boostEndTime); } function getBoostRemaining() { return Math.max(0, boostEndTime - Date.now()); } function isBirthdayBoostActive() { return Date.now() < birthdayBoostEndTime; } function isMarch8BoostActive() { return Date.now() < march8BoostEndTime; } function isX10BoostActive() { return Date.now() < x10BoostEndTime; }
     function updateBoostUI() { const btn = document.getElementById('boostBtn'); if (!btn) return; if (isBoostActive()) { const ms = getBoostRemaining(); btn.innerText = `${t('boost_active')} ${Math.floor(ms / 60000)}:${Math.floor((ms % 60000) / 1000).toString().padStart(2, '0')}`; btn.classList.add('active'); } else { btn.innerText = t('boost'); btn.classList.remove('active'); } updateBoostTimersPanel(); }
     function updateBoostTimersPanel() {
         const panel = document.getElementById('boostTimerPanel'); if (!panel) return; let html = '';
