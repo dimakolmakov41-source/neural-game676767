@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=18.0">
+    <link rel="stylesheet" href="style.css?v=18.1">
 </head>
 <body class="bg-early-autumn">
 <div id="testerBadge" class="hidden" style="position:fixed;top:8px;left:8px;z-index:99999;background:#173e31;color:#aaffd6;border:1px solid #39c98a;border-radius:20px;padding:6px 10px;font-size:12px;font-weight:bold;">🧪 TESTER BETA</div>
@@ -12,7 +12,7 @@
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v18.0 BETA</div>
+        <div class="loading-sub">v18.1 BETA</div>
     </div>
 
     <div id="globalTicker" class="top-ticker hidden">
@@ -35,7 +35,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v18.0 BETA</div>
+            <div class="game-version" id="menuVersion">v18.1 BETA</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -54,6 +54,7 @@
             </div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="friendsBtn">👥 ДРУЗЬЯ</div>
+                <div class="menu-btn" id="myProfileBtn">👤 МОЙ ПРОФИЛЬ</div>
             </div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="testBtn3">3</div>
@@ -234,6 +235,44 @@
             <div style="font-weight:bold;margin:12px 0 6px;">⭐ Мои друзья</div>
             <div id="myFriendsList" style="max-height:180px;overflow-y:auto;text-align:left;">Загрузка...</div>
             <button id="closeFriendsBtn" class="modal-btn" style="width:100%;margin-top:12px;">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:430px;max-height:88vh;overflow-y:auto;">
+            <div class="modal-title">👤 ПРОФИЛЬ ИГРОКА</div>
+            <div id="profileView" style="text-align:center;padding:8px 0;">
+                <div id="profileAvatarView" style="font-size:64px;line-height:1.3;">🙂</div>
+                <div id="profileNameView" style="font-size:22px;font-weight:900;margin:6px 0;">Игрок</div>
+                <div id="profileIdView" style="font-size:11px;opacity:.65;overflow-wrap:anywhere;"></div>
+                <div id="profileBioView" style="margin:12px 0;padding:12px;border-radius:12px;background:rgba(255,255,255,.07);">Пока нет описания</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;">
+                    <div style="padding:10px;border-radius:10px;background:rgba(255,255,255,.07);">🧠<div id="profileScoreView" style="font-weight:bold;">0</div><small>Очки</small></div>
+                    <div style="padding:10px;border-radius:10px;background:rgba(255,255,255,.07);"><span id="profileOnlineView">⚪</span><div id="profileStatusView" style="font-weight:bold;">Не в сети</div><small>Статус</small></div>
+                </div>
+                <div id="profileJoinedView" style="font-size:11px;opacity:.65;"></div>
+            </div>
+            <div id="profileEditArea" style="display:none;text-align:left;border-top:1px solid #555;padding-top:12px;">
+                <div style="font-weight:bold;margin-bottom:8px;">🎭 Выбери аватар</div>
+                <div id="profileAvatarChoices" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                    <button type="button" class="profile-avatar-choice" data-avatar="🙂">🙂</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="😎">😎</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🐱">🐱</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🐼">🐼</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🦊">🦊</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🐸">🐸</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="👾">👾</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="⭐">⭐</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🔥">🔥</button>
+                    <button type="button" class="profile-avatar-choice" data-avatar="🎮">🎮</button>
+                </div>
+                <label for="profileBioInput" style="font-size:12px;font-weight:bold;">📝 Описание (до 120 символов)</label>
+                <textarea id="profileBioInput" class="modal-input" maxlength="120" rows="3" placeholder="Расскажи немного об игровых интересах..." style="width:100%;resize:vertical;"></textarea>
+                <div id="profileEditStatus" style="font-size:12px;min-height:18px;color:#ffd966;"></div>
+                <button id="saveProfileBtn" class="modal-btn" style="width:100%;">💾 СОХРАНИТЬ ПРОФИЛЬ</button>
+            </div>
+            <button id="editProfileBtn" class="modal-btn" style="width:100%;margin-top:10px;display:none;">✏️ РЕДАКТИРОВАТЬ</button>
+            <button id="closeProfileBtn" class="modal-btn" style="width:100%;margin-top:8px;">ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -471,6 +510,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=18.0"></script>
+    <script type="module" src="script.js?v=18.1"></script>
 </body>
 </html>
