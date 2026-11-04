@@ -593,7 +593,7 @@ window.addEventListener('load', () => {
     }
 
     function startStarRain() {
-        showToast('🌟 ЗВЕЗДНЫЙ ДОЖДЬ НАЧАЛСЯ!');
+        showToast('🌟 ЗВЕЗДНЫЙ ДОЖДЬ НАЧАСЯ!');
         if (starRainInterval) clearInterval(starRainInterval);
         let count = 0;
         starRainInterval = setInterval(() => {
