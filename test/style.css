@@ -597,3 +597,8 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
 .color-pink { background: linear-gradient(145deg,#ff75c8,#b82c82) !important; border-color:#ffc1e5 !important; }
 body.btn-cyan .menu-btn, body.btn-cyan .action-btn, body.btn-cyan .modal-btn { background: linear-gradient(145deg,#00d9ff,#007fbd); border-color:#8af0ff; color:#031b2a; }
 body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { background: linear-gradient(145deg,#ff75c8,#b82c82); border-color:#ffc1e5; color:#fff; }
+
+/* Prevent the brain's floating animation from flashing during taps */
+.brain { backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); }
+.brain:active { animation-play-state: paused; transform: translate3d(0,0,0) scale(.96); }
+.brain .skin-emoji, .brain .amethyst-diamond { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
