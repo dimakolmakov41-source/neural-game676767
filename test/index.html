@@ -4,42 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=16.5">
+    <link rel="stylesheet" href="style.css?v=16.8">
 </head>
 <body class="bg-early-autumn">
+<div id="testerBadge" class="hidden" style="position:fixed;top:8px;left:8px;z-index:99999;background:#173e31;color:#aaffd6;border:1px solid #39c98a;border-radius:20px;padding:6px 10px;font-size:12px;font-weight:bold;">🧪 TESTER BETA</div>
+<div id="testerAccessOverlay" class="modal-overlay" style="z-index:100001;"><div class="modal-content" style="background:#17243a;border:2px solid #4b9cff;text-align:center;"><div class="modal-title">🧪 ЗАКРЫТОЕ ТЕСТИРОВАНИЕ</div><div class="modal-text" style="margin:16px 0;line-height:1.5;">Эта версия доступна только одобренным тестерам. Отправь разработчику свой игровой ID, чтобы получить доступ.</div><a href="https://dimakolmakov41-source.github.io/neural-game676767/" style="display:inline-block;padding:10px 18px;background:#4b9cff;color:#061323;text-decoration:none;border-radius:24px;font-weight:bold;">Вернуться в обычную игру</a></div></div>
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v16.5</div>
+        <div class="loading-sub">v16.8 BETA</div>
     </div>
 
-    <!-- БЕГУЩАЯ СТРОКА -->
     <div id="globalTicker" class="top-ticker hidden">
         <span id="tickerText"></span>
     </div>
 
-    <!-- КРУГЛЫЕ ИКОНКИ В УГЛУ -->
     <div class="corner-news-btn" id="newsBtn">📢</div>
     <div class="corner-chat-btn hidden" id="chatBtn">💬</div>
     <div class="corner-tourney-btn hidden" id="tourneyBtn">⚔️</div>
     <div class="corner-pass-btn" id="passBtn">🧠</div>
-
-    <!-- ЗОЛОТОЙ НЕЙРОН (появляется случайно) -->
-    <div id="goldenNeuron" class="golden-neuron hidden">🧠</div>
 
     <div class="music-toggle" id="musicToggle">🔇</div>
     <div class="boost-timer-panel" id="boostTimerPanel"></div>
     <div id="pet" class="pet hidden">✨</div>
 
     <div class="game-container">
-        <!-- ГЛОБАЛЬНЫЙ БАННЕР БУСТА -->
         <div id="globalBoostBanner" class="global-boost-banner hidden">
             <span id="globalBoostText">🔥 ГЛОБАЛЬНЫЙ БУСТ!</span>
         </div>
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v16.5</div>
+            <div class="game-version" id="menuVersion">v16.8 BETA</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -56,6 +52,10 @@
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="prestigeBtn" data-i18n="prestige">🌟 ПЕРЕРОЖДЕНИЕ</div>
             </div>
+            <div class="menu-buttons-row">
+                <div class="menu-btn" id="testBtn3">3</div>
+                <div class="menu-btn" id="testButton">🔌 тест кнопка</div>
+            </div>
         </div>
 
         <div id="gameInterface" class="game-interface hidden">
@@ -69,11 +69,6 @@
             </div>
 
             <div class="timers" id="reloadTimer"><span data-i18n="reload">🔄 ПЕРЕЗАГРУЗКА:</span> <span id="reloadCountdown">5:00</span></div>
-
-            <!-- ПОЛОСКА КОМБО -->
-            <div id="comboBarContainer" class="combo-bar-container hidden">
-                <div id="comboBarFill" class="combo-bar-fill"></div>
-            </div>
 
             <div class="brain-container">
                 <div id="clickableObject" class="brain">
@@ -119,7 +114,6 @@
         </div>
     </div>
 
-    <!-- НОВОЕ ОКНО AI PASS (ПЕРЕРАБОТКА) -->
     <div id="passModal" class="pass-overlay hidden">
         <div class="pass-container">
             <div class="pass-header">
@@ -131,9 +125,7 @@
 
             <div id="passContent" class="pass-content">
                 <div class="pass-scroll-wrapper">
-                    <div id="passCardsContainer" class="pass-cards-scroll">
-                        <!-- Карточки будут генерироваться через JS -->
-                    </div>
+                    <div id="passCardsContainer" class="pass-cards-scroll"></div>
                 </div>
                 <button id="passScrollRight" class="pass-arrow-btn">➡️</button>
             </div>
@@ -145,7 +137,6 @@
         </div>
     </div>
 
-    <!-- ОКНО ТУРНИРА -->
     <div id="tournamentModal" class="tourney-overlay hidden">
         <div class="tourney-container">
             <div class="tourney-header">
@@ -211,7 +202,6 @@
         </div>
     </div>
 
-    <!-- Окно Глобального Чата -->
     <div id="chatModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px; height: 75vh; display: flex; flex-direction: column; padding: 15px;">
             <div class="modal-title" style="margin-bottom: 10px; flex-shrink: 0;">💬 ГЛОБАЛЬНЫЙ ЧАТ</div>
@@ -224,7 +214,6 @@
         </div>
     </div>
 
-    <!-- Окно Топ-10 -->
     <div id="leaderboardModal" class="modal-overlay" style="background: rgba(0,0,0,0.9);">
         <div class="modal-content" style="border: 3px solid #ffd700; background: #1a1a2e; max-width: 400px; padding: 20px;">
             <div class="modal-title" style="font-size: 24px; color: #ffd700; text-shadow: 0 0 10px #ffaa00; margin-bottom: 15px;">🏆 ТОП-10 ИГРОКОВ</div>
@@ -236,14 +225,14 @@
         </div>
     </div>
 
-    <!-- НОВОЕ ОКНО ГОЛОСОВАНИЯ -->
+    <!-- НОВОЕ ОКНО ГОЛОСОВАНИЯ (С ПОДВИЖНЫМИ ПОЛОСКАМИ) -->
     <div id="voteModal" class="modal-overlay" style="z-index: 999999; background: rgba(0,0,0,0.85);">
         <div class="vote-modal-box">
             <div class="vote-title" id="voteQuestion">*Название ивента*</div>
             
             <div class="vote-progress-bar-bg">
-                <div class="vote-progress-left" id="voteProgressYes">1%</div>
-                <div class="vote-progress-right" id="voteProgressNo">1%</div>
+                <div class="vote-progress-yes" id="voteProgressYes" style="width: 50%;">50%</div>
+                <div class="vote-progress-no" id="voteProgressNo" style="width: 50%;">50%</div>
             </div>
 
             <div class="vote-btn-row">
@@ -468,12 +457,8 @@
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
             <div class="modal-text" id="newsText" style="font-size: 14px; line-height: 1.5; text-align: left;">
-                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.5!</b><br><br>
-                🧠 <b>ПЕРЕРАБОТКА AI PASS:</b> Полностью новый дизайн! Теперь награды выдаются за время, проведенное в игре. Заходи в игру каждый день и забирай награды!<br><br>
-                👑 <b>ADMIN ABUSE TOOL:</b> Создатель игры получил безграничную власть!<br><br>
-                ⚔️ <b>ТУРНИР:</b> Вызывайте других игроков на дуэль в реальном времени!<br><br>
-                💬 <b>ГЛОБАЛЬНЫЙ ЧАТ:</b> Общайтесь с другими игроками прямо в игре!<br><br>
-                🏆 <b>ЛИДЕРБОРД:</b> Теперь в топ попадают ОЧКИ (🧠), а не клики.<br><br>
+                🚀 <b>ГЛОБАЛЬНОЕ ОБНОВЛЕНИЕ 16.7!</b><br><br>
+                🗳️ <b>НАСТОЯЩИЕ ГОЛОСОВАНИЯ:</b> Теперь шкала «Да/Нет» реально двигается и показывает проценты!<br><br>
                 Играйте и делитесь ссылкой с друзьями! 💙
             </div>
             <button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button>
@@ -496,6 +481,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=16.5"></script>
+    <script type="module" src="script.js?v=16.8"></script>
 </body>
 </html>
