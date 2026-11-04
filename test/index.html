@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=18.3">
+    <link rel="stylesheet" href="style.css?v=18.4">
 </head>
 <body class="bg-early-autumn">
 <div id="testerBadge" class="hidden" style="position:fixed;top:8px;left:8px;z-index:99999;background:#173e31;color:#aaffd6;border:1px solid #39c98a;border-radius:20px;padding:6px 10px;font-size:12px;font-weight:bold;">🧪 TESTER BETA</div>
@@ -12,7 +12,7 @@
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v18.3 BETA</div>
+        <div class="loading-sub">v18.4 BETA</div>
     </div>
 
     <div id="globalTicker" class="top-ticker hidden">
@@ -35,7 +35,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v18.3 BETA</div>
+            <div class="game-version" id="menuVersion">v18.4 BETA</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -67,6 +67,7 @@
 
         <div id="gameInterface" class="game-interface hidden">
             <div class="top-bar"><div>🧠 <span id="points">10</span></div><div>⚡ <span id="power">1</span></div></div>
+            <button id="shopOrbBtn" class="shop-orb-btn" type="button" aria-label="Открыть магазин нейросетей" title="Магазин нейросетей">🧠</button>
             <div class="diamond-bar"><div id="starLabel">⭐ <span id="stars">0</span></div><div>⏱️ <span id="playtime">0</span> <span data-i18n="min">мин</span></div></div>
 
             <div class="stats-panel-extended">
@@ -457,6 +458,10 @@
                 </div>
             </div>
 
+            <div class="setting-item style-switch-setting">
+                <span>🎨 Стиль игры</span>
+                <button class="modal-btn" id="styleSwitchBtn" type="button">Обычный</button>
+            </div>
             <div class="setting-item">
                 <span data-i18n="btn_color">🎨 Цвет кнопок</span>
                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
@@ -507,12 +512,12 @@
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
             <div class="modal-text" id="newsText" style="font-size: 14px; line-height: 1.5; text-align: left;">
-                🚀 <b>ТЕСТОВОЕ ОБНОВЛЕНИЕ 18.3 BETA!</b><br><br>Добавлены новые звуки, комбо, критические клики и анимации! Спасибо за тестирование! 💙
+                🚀 <b>ТЕСТОВОЕ ОБНОВЛЕНИЕ 18.4 BETA!</b><br><br>Добавлены новые звуки, комбо, критические клики и анимации! Спасибо за тестирование! 💙
             </div>
             <button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button>
         </div>
     </div>
 
-    <script type="module" src="script.js?v=18.3"></script>
+    <script type="module" src="script.js?v=18.4"></script>
 </body>
 </html>
