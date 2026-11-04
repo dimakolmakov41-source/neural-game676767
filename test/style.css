@@ -778,3 +778,74 @@ body.style-neural .shop-orb-btn{background:radial-gradient(circle at 35% 30%,#b7
 body.style-neural #shopPanel,body.style-neural .modal-content{background:linear-gradient(155deg,#031f2a,#064b50 60%,#092d54)!important;border:1px solid #35f0d0;box-shadow:0 0 25px #00cbb466}
 body.style-neural .shop-item-purchased{border-color:#7dff9a!important;box-shadow:0 0 12px #36ff8a88!important}
 .style-switch-setting{gap:12px}
+
+/* 18.4.1 — complete visual themes: page, menus, panels and controls */
+body.style-cosmic {
+  background: radial-gradient(ellipse at 18% 15%,#283b83 0,transparent 34%),
+              radial-gradient(ellipse at 82% 78%,#55217e 0,transparent 38%),
+              linear-gradient(145deg,#05091f,#10183d 52%,#090b25) !important;
+  background-attachment:fixed !important;
+  color:#f4f3ff !important;
+}
+body.style-neural {
+  background: radial-gradient(ellipse at 18% 15%,#087d78 0,transparent 34%),
+              radial-gradient(ellipse at 82% 78%,#07528b 0,transparent 38%),
+              linear-gradient(145deg,#031b25,#063b43 52%,#061b36) !important;
+  background-attachment:fixed !important;
+  color:#e7fffb !important;
+}
+body.style-cosmic .game-container {
+  background:linear-gradient(160deg,rgba(12,18,55,.97),rgba(30,24,77,.96)) !important;
+  border:2px solid #8b9cff !important; box-shadow:0 0 34px #687bff77, inset 0 0 24px #7b65ff22 !important;
+}
+body.style-neural .game-container {
+  background:linear-gradient(160deg,rgba(3,35,43,.98),rgba(5,58,70,.97)) !important;
+  border:2px solid #25e6ce !important; box-shadow:0 0 34px #00e5c077, inset 0 0 24px #00c9ff22 !important;
+}
+body.style-cosmic .game-title {color:#c9c5ff!important;text-shadow:0 0 12px #8b5cf6,0 0 28px #38bdf8!important}
+body.style-neural .game-title {color:#8affeb!important;text-shadow:0 0 12px #00e5a8,0 0 28px #00b8ff!important}
+body.style-cosmic .top-bar,body.style-cosmic .diamond-bar,body.style-cosmic .stats-panel-extended,
+body.style-cosmic .boost-timer-panel,body.style-cosmic .stat-card {
+  background:linear-gradient(135deg,rgba(28,34,91,.95),rgba(48,34,105,.94))!important;
+  border:1px solid #8297ff!important;box-shadow:0 0 12px #637bff44!important;color:#f3f2ff!important;
+}
+body.style-neural .top-bar,body.style-neural .diamond-bar,body.style-neural .stats-panel-extended,
+body.style-neural .boost-timer-panel,body.style-neural .stat-card {
+  background:linear-gradient(135deg,rgba(3,63,67,.97),rgba(5,52,88,.96))!important;
+  border:1px solid #28e4c9!important;box-shadow:0 0 12px #00d8c044!important;color:#eafffc!important;
+}
+body.style-cosmic .menu-btn,body.style-cosmic .action-btn,body.style-cosmic .modal-btn,
+body.style-cosmic .boost-btn,body.style-cosmic .autoclicker-btn,body.style-cosmic .roulette-btn,
+body.style-cosmic .achievements-btn,body.style-cosmic .leaderboard-btn,body.style-cosmic .shop-tab,
+body.style-cosmic .page-btn {
+  background:linear-gradient(135deg,#17134b,#263c83 55%,#522b91)!important;
+  border:1px solid #8bd5ff!important;color:#eff8ff!important;
+  box-shadow:0 0 13px #5b8cff88,inset 0 0 12px #9b7cff33!important;
+}
+body.style-neural .menu-btn,body.style-neural .action-btn,body.style-neural .modal-btn,
+body.style-neural .boost-btn,body.style-neural .autoclicker-btn,body.style-neural .roulette-btn,
+body.style-neural .achievements-btn,body.style-neural .leaderboard-btn,body.style-neural .shop-tab,
+body.style-neural .page-btn {
+  background:linear-gradient(135deg,#062e35,#075b62 55%,#123c73)!important;
+  border:1px solid #42f5d4!important;color:#e3fffb!important;
+  box-shadow:0 0 13px #00e5c088,inset 0 0 12px #00b8ff22!important;
+}
+body.style-cosmic .shop-panel,body.style-cosmic .modal-content {
+  background:linear-gradient(155deg,#090d2b,#17194b 60%,#28134d)!important;
+  border:1px solid #7dd3fc!important;box-shadow:0 0 25px #536dfe66!important;color:#f5f3ff!important;
+}
+body.style-neural .shop-panel,body.style-neural .modal-content {
+  background:linear-gradient(155deg,#031f2a,#064b50 60%,#092d54)!important;
+  border:1px solid #35f0d0!important;box-shadow:0 0 25px #00cbb466!important;color:#eafffc!important;
+}
+body.style-cosmic .shop-item {background:linear-gradient(120deg,#171b4b,#29235e)!important;border:1px solid #778cff!important;color:white!important}
+body.style-neural .shop-item {background:linear-gradient(120deg,#063d43,#07546a)!important;border:1px solid #28dcca!important;color:white!important}
+body.style-cosmic .shop-tab.active {background:linear-gradient(135deg,#a78bfa,#38bdf8)!important;color:#10102d!important}
+body.style-neural .shop-tab.active {background:linear-gradient(135deg,#5effd5,#36baff)!important;color:#032b32!important}
+body.style-cosmic .shop-orb-btn {background:radial-gradient(circle at 35% 30%,#e0d7ff,#6546d7 55%,#17134b)!important;border:2px solid #b8e7ff!important;box-shadow:0 0 22px #67c9ff!important}
+body.style-neural .shop-orb-btn {background:radial-gradient(circle at 35% 30%,#b7fff1,#00a9a5 55%,#073c68)!important;border:2px solid #8affeb!important;box-shadow:0 0 22px #00e5c0!important}
+body.style-cosmic .shop-item-purchased {background:linear-gradient(120deg,#145b55,#173c5b)!important;border-color:#75f5d5!important}
+body.style-neural .shop-item-purchased {background:linear-gradient(120deg,#075b46,#064b50)!important;border-color:#7dff9a!important}
+body.style-cosmic .menu-btn:hover,body.style-cosmic .action-btn:hover,
+body.style-neural .menu-btn:hover,body.style-neural .action-btn:hover {filter:brightness(1.25)!important;transform:translateY(-2px)}
+body.style-cosmic .setting-item,body.style-neural .setting-item {border-color:rgba(130,210,255,.28)!important}
