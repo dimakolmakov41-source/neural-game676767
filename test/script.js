@@ -553,6 +553,7 @@ window.addEventListener('load', () => {
         }, { onConflict: 'player_id' });
         if (error) throw error;
     }
+    let onlineFriendIds = new Set();
     function renderFriendRows(container, rows, mode) {
         if (!container) return;
         if (!rows.length) { container.textContent = mode === 'incoming' ? 'Новых запросов нет.' : 'Пока нет друзей.'; return; }
@@ -575,6 +576,8 @@ window.addEventListener('load', () => {
         if (friendsEl) friendsEl.textContent = 'Загрузка...';
         try {
             await ensureMyFriendProfile();
+            const { data: onlineRows } = await supabaseClient.from('online_players').select('player_id,last_seen').gte('last_seen', new Date(Date.now() - 30000).toISOString());
+            onlineFriendIds = new Set((onlineRows || []).map(p => p.player_id));
             const [{ data: incoming, error: incomingError }, { data: sent, error: sentError }, { data: acceptedA, error: acceptedAError }, { data: acceptedB, error: acceptedBError }] = await Promise.all([
                 supabaseClient.from('friends').select('*').eq('friend_id', playerId).eq('status', 'pending').order('created_at', { ascending: false }),
                 supabaseClient.from('friends').select('*').eq('player_id', playerId).eq('status', 'pending').order('created_at', { ascending: false }),
@@ -1110,9 +1113,9 @@ window.addEventListener('load', () => {
 
     function spawnFloatText(x, y, text) { const el = document.createElement('div'); el.className = 'float-text'; el.innerText = text; el.style.left = (x - 20) + 'px'; el.style.top = (y - 10) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
     function spawnParticles(x, y) {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 7; i++) {
             const p = document.createElement('div');
-            p.className = 'click-particle';
+            p.className = 'click-particle click-particle-enhanced';
             p.style.left = x + 'px';
             p.style.top = y + 'px';
             const angle = Math.random() * Math.PI * 2;
@@ -1250,13 +1253,22 @@ window.addEventListener('load', () => {
     const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
     const bgThemes = { early_autumn: "bg-early-autumn", golden: "bg-golden", rainy: "bg-rainy", late: "bg-late", forest: "bg-forest", park: "bg-park", mountains: "bg-mountains", village: "bg-village" };
-    function setBodyBg(theme) { if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); return; } document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); localStorage.setItem('selectedBg', theme); applySkin(); applyAbuseEffects(); }
+    function setBodyBg(theme) { if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); return; } document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); document.body.classList.add('animated-background'); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); localStorage.setItem('selectedBg', theme); applySkin(); applyAbuseEffects(); }
 
     function processSingleClick(gain, x, y) {
         hideSleepMsg(); comboCounter++; let finalGain = gain;
-        if (comboCounter % 5 === 0) { finalGain = gain * 2; const comboText = document.getElementById('comboText'); if (comboText) { comboText.innerText = phrasesData.combo || t('combo'); comboText.classList.add('show'); setTimeout(() => comboText.classList.remove('show'), 800); } spawnFloatText(x, y - 40, "🔥 x2!"); }
-        if (Math.random() < 0.02) { finalGain *= 3; spawnFloatText(x, y - 40, "⚡ x3!"); showToast(t('triple_click')); playBuySound(); }
-        if (Math.random() < 0.05) { finalGain *= 10; spawnFloatText(x, y - 60, phrasesData.crit || t('crit_click')); showToast(phrasesData.crit || t('crit_click')); playBuySound(); const brain = document.getElementById('clickableObject'); if(brain) { brain.style.boxShadow = '0 0 50px #ffd700'; setTimeout(() => brain.style.boxShadow = '', 300); } }
+        const comboMultiplier = comboCounter % 25 === 0 ? 5 : comboCounter % 10 === 0 ? 3 : comboCounter % 5 === 0 ? 2 : 1;
+        if (comboMultiplier > 1) {
+            finalGain *= comboMultiplier;
+            const comboText = document.getElementById('comboText');
+            if (comboText) { comboText.innerText = '🔥 x' + comboMultiplier + ' КОМБО!'; comboText.classList.add('show'); setTimeout(() => comboText.classList.remove('show'), 900); }
+            spawnFloatText(x, y - 40, '🔥 x' + comboMultiplier + '!');
+        }
+        const criticalRoll = Math.random();
+        if (criticalRoll < 0.015) { finalGain *= 5; spawnFloatText(x, y - 55, '💥 СУПЕР-КРИТ x5!'); showToast('💥 СУПЕР-КРИТИЧЕСКИЙ КЛИК x5!'); playBuySound(); }
+        else if (criticalRoll < 0.045) { finalGain *= 3; spawnFloatText(x, y - 45, '⚡ КРИТ x3!'); showToast('⚡ Критический клик x3!'); playBuySound(); }
+        else if (criticalRoll < 0.065) { finalGain *= 2; spawnFloatText(x, y - 40, '✨ КРИТ x2!'); }
+        if (criticalRoll < 0.065) { const brain = document.getElementById('clickableObject'); if (brain) { brain.classList.remove('critical-hit'); void brain.offsetWidth; brain.classList.add('critical-hit'); setTimeout(() => brain.classList.remove('critical-hit'), 450); } }
         points += finalGain; totalClicks++; sessionClicks++; playClickSound();
         spawnParticles(x, y);
         
