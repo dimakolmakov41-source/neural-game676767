@@ -10,6 +10,7 @@ import { isNewYear as isNewYearTS } from './src/utils/isNewYear.js';
 import { isBirthday as isBirthdayTS } from './src/utils/isBirthday.js';
 import { isMarch8 as isMarch8TS } from './src/utils/isMarch8.js';
 import { getSkinMultiplier as getSkinMultiplierTS } from './src/utils/getSkinMultiplier.js';
+import { getPrestigeMultiplier as getPrestigeMultiplierTS } from './src/utils/getPrestigeMultiplier.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -1106,7 +1107,7 @@ window.addEventListener('load', () => {
     let bossHp = 0, bossMaxHp = 0, bossActive = false;
     function spawnBoss() { if(bossActive) return; bossActive = true; bossMaxHp = 100 + totalClicks * 2; bossHp = bossMaxHp; const overlay = document.getElementById('bossOverlay'); const hpFill = document.getElementById('bossHpFill'); const emoji = document.getElementById('bossEmoji'); document.querySelector('.boss-title').innerText = t('boss_title'); document.querySelector('.boss-hint').innerText = t('boss_hint'); overlay.classList.add('show'); hpFill.style.width = '100%'; emoji.onclick = () => { if(!bossActive) return; bossHp--; hpFill.style.width = (bossHp/bossMaxHp*100) + '%'; playClickSound(); if(bossHp <= 0) { bossActive = false; overlay.classList.remove('show'); const reward = 50000; points += reward; stars += 100; totalStarsEarned += 100; updateUI(); saveGame(); showToast(`${t('boss_killed')} +${formatNumber(reward)}🧠 +100⭐`); playBuySound(); } }; setTimeout(() => { if(bossActive){ bossActive = false; overlay.classList.remove('show'); } }, 15000); }
 
-    function getPrestigeMultiplier() { return 1 + prestigeLevel * PRESTIGE_BONUS_PER_LEVEL; }
+    function getPrestigeMultiplier() { return getPrestigeMultiplierTS(prestigeLevel, PRESTIGE_BONUS_PER_LEVEL); }
     function updatePrestigeDisplay() { document.getElementById('prestigeLevelDisplay').innerText = prestigeLevel; document.getElementById('prestigeBonusDisplay').innerText = '+' + Math.round(prestigeLevel * PRESTIGE_BONUS_PER_LEVEL * 100) + '%'; document.getElementById('prestigeNeedDisplay').innerText = purchasedCount < upgrades.length ? 'Купи все сети' : 'ГОТОВО!'; }
     
     function doPrestige() { 
