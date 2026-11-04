@@ -588,3 +588,12 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
 #closedOverlay { z-index: 100000 !important; background: rgba(0, 0, 0, 0.95) !important; }
 #closedOverlay .modal-content { background: linear-gradient(145deg, #2a0a0a, #1a0000) !important; border: 3px solid #ff4444 !important; box-shadow: 0 0 40px rgba(255, 68, 68, 0.6) !important; }
 #closedOverlay .modal-title { color: #ff4444 !important; animation: updatePulse 1.5s ease-in-out infinite; }
+
+/* Beta 16.8 polish */
+.save-badge { display: none !important; }
+#boostTimerPanel { z-index: 99999; left: 12px; bottom: 12px; }
+#openShopBtn { transform: translateY(8px); }
+.color-cyan { background: linear-gradient(145deg,#00d9ff,#007fbd) !important; border-color:#8af0ff !important; }
+.color-pink { background: linear-gradient(145deg,#ff75c8,#b82c82) !important; border-color:#ffc1e5 !important; }
+body.btn-cyan .menu-btn, body.btn-cyan .action-btn, body.btn-cyan .modal-btn { background: linear-gradient(145deg,#00d9ff,#007fbd); border-color:#8af0ff; color:#031b2a; }
+body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { background: linear-gradient(145deg,#ff75c8,#b82c82); border-color:#ffc1e5; color:#fff; }
