@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.6 BETA";
+const GAME_VERSION = "17.7 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -134,8 +134,15 @@ window.addEventListener('load', () => {
             // В тестовой сборке проверка latest_version отключена:
             // тестеры могут запускать сборку независимо от версии основной игры.
 
-            const tickerActive = (data.ticker_active === true || data.ticker_active === 'true' || data.ticker_active === 1 || data.ticker_active === '1');
             const tickerMessage = String(data.ticker_text || '').trim();
+            // В текущей таблице game_settings колонка ticker_active отсутствует
+            // (или содержит NULL). В таком случае непустой ticker_text означает,
+            // что строку нужно показывать. Если переключатель существует и задан,
+            // его значение имеет приоритет.
+            const tickerFlag = data.ticker_active;
+            const tickerActive = tickerFlag === null || tickerFlag === undefined
+                ? tickerMessage.length > 0
+                : (tickerFlag === true || tickerFlag === 'true' || tickerFlag === 1 || tickerFlag === '1');
             if (tickerActive && tickerMessage) {
                 const ticker = document.getElementById('globalTicker');
                 const tickerText = document.getElementById('tickerText');
