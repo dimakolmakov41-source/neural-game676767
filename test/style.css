@@ -672,3 +672,29 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
     max-width: calc(100vw - 24px) !important;
     text-align: center !important;
 }
+
+
+/* Beta 17.3: make every bought network unmistakably visible */
+#shopNeurons .shop-item-purchased {
+    border: 2px solid #43e58b !important;
+    background: linear-gradient(135deg, #145b37, #082d1c) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(67, 229, 139, .35) !important;
+}
+#shopNeurons .shop-item-purchased span:last-child {
+    color: #9affbd !important;
+    font-weight: 900 !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.toast {
+    position: fixed !important;
+    left: 50% !important;
+    top: 18px !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    z-index: 2147483647 !important;
+    max-width: calc(100vw - 24px) !important;
+    white-space: normal !important;
+}
