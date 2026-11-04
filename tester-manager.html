@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Tester Manager — Кликер: Эволюция Нейросетей</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#141f31;--line:#26364e;--text:#edf4ff;--muted:#91a3bb;--blue:#4b9cff;--green:#39c98a;--red:#ff647c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172a45,var(--bg) 65%);color:var(--text);font:15px system-ui,Arial,sans-serif;min-height:100vh;padding:24px 14px}
+main{max-width:760px;margin:auto}.brand{display:flex;align-items:center;gap:12px;margin:12px 0 22px}.logo{width:48px;height:48px;border-radius:15px;background:#203a5d;display:grid;place-items:center;font-size:25px}.brand h1{font-size:21px;margin:0}.brand p{margin:3px 0;color:var(--muted);font-size:13px}
+.card{background:rgba(20,31,49,.96);border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 14px 40px #0003}.card h2{font-size:17px;margin:0 0 15px}.muted{color:var(--muted);font-size:13px;line-height:1.5}
+label{display:block;color:#bdcce0;font-size:13px;margin:12px 0 6px}input{width:100%;padding:13px 14px;border-radius:11px;border:1px solid #344862;background:#0d1726;color:white;font:inherit;outline:none}input:focus{border-color:var(--blue)}
+button{border:0;border-radius:11px;padding:12px 16px;font:600 14px system-ui;cursor:pointer;background:var(--blue);color:#061323}button:disabled{opacity:.5;cursor:wait}.secondary{background:#26364e;color:var(--text)}.danger{background:#4a2330;color:#ffdce2}.green{background:#1f684f;color:#eafff5}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.hidden{display:none!important}
+#status{padding:11px 13px;border-radius:10px;background:#0d1726;color:#b9c9df;margin-top:12px;font-size:13px;white-space:pre-wrap}.tester{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.tester:last-child{border:0}.tester-info{flex:1;min-width:0}.tester-name{font-weight:650;overflow-wrap:anywhere}.tester-id{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.tester time{font-size:11px;color:var(--muted)}.tester button{flex:0 0 auto;padding:9px 11px}
+.pill{display:inline-block;border:1px solid #276b55;color:#8cf0c2;border-radius:99px;padding:3px 8px;font-size:11px;margin-left:6px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+@media(max-width:480px){body{padding:15px 10px}.card{padding:16px}.brand h1{font-size:18px}.tester{align-items:flex-start}.tester button{font-size:12px}}
+</style>
+</head>
+<body>
+<main>
+<header class="brand"><div class="logo">🧪</div><div><h1>Tester Manager</h1><p>Кликер: Эволюция Нейросетей</p></div></header>
+<section class="card" id="loginCard">
+<h2>🔐 Вход администратора</h2>
+<p class="muted">Войди через учётную запись Supabase Auth, которую администратор заранее добавил в список разрешённых.</p>
+<label for="email">Email</label><input id="email" type="email" autocomplete="username" placeholder="admin@example.com">
+<label for="password">Пароль</label><input id="password" type="password" autocomplete="current-password" placeholder="Пароль Supabase Auth">
+<div class="row" style="margin-top:16px"><button id="loginBtn">Войти</button></div>
+<div id="loginStatus" role="status"></div>
+</section>
+<section class="hidden" id="manager">
+<div class="card">
+<div class="row"><h2 style="margin:0;flex:1">🧪 Управление тестерами</h2><button class="secondary" id="logoutBtn">Выйти</button></div>
+<p class="muted">Добавляй игрока по игровому ID из профиля. Ник нужен только для удобства отображения.</p>
+<label for="playerId">Игровой ID</label><input id="playerId" maxlength="128" placeholder="Например, player_...">
+<label for="playerName">Ник игрока</label><input id="playerName" maxlength="40" placeholder="Имя в игре">
+<button class="green" id="addBtn" style="width:100%;margin-top:14px">➕ Выдать статус тестера</button>
+<div id="actionStatus" role="status"></div>
+</div>
+<div class="card">
+<div class="row"><h2 style="margin:0;flex:1">Список тестеров <span class="pill" id="count">0</span></h2><button class="secondary" id="refreshBtn">↻ Обновить</button></div>
+<div id="testerList" class="muted" style="margin-top:12px">Загрузка...</div>
+</div>
+</section>
+<footer>Доступ к управлению проверяется на сервере Supabase. Не передавай пароль администратора другим.</footer>
+</main>
+<script>
+(() => {
+const SUPABASE_URL = "https://kbkmueilgjmintuwkfzv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+const loginCard = $("loginCard"), manager = $("manager");
+function message(id, text, error=false){const el=$(id);el.textContent=text;el.style.color=error?"#ff9aaa":"#9fe7c7";}
+function showManager(on){loginCard.classList.toggle("hidden",on);manager.classList.toggle("hidden",!on);}
+async function callManager(payload){
+ const {data,error}=await client.functions.invoke("tester-manager",{body:payload});
+ if(error) throw new Error(data?.error || error.message || "Ошибка запроса");
+ if(data?.error) throw new Error(data.error);
+ return data;
+}
+async function refresh(){
+ $("testerList").textContent="Загрузка...";
+ try{
+  const data=await callManager({action:"list"}), testers=data.testers||[];
+  $("count").textContent=String(testers.length);
+  $("testerList").innerHTML="";
+  if(!testers.length){$("testerList").textContent="Пока тестеров нет.";return;}
+  for(const tester of testers){
+   const row=document.createElement("div");row.className="tester";
+   const info=document.createElement("div");info.className="tester-info";
+   const name=document.createElement("div");name.className="tester-name";name.textContent=tester.player_name||"Игрок";
+   const id=document.createElement("div");id.className="tester-id";id.textContent=tester.player_id;
+   const date=document.createElement("time");date.textContent=tester.granted_at?new Date(tester.granted_at).toLocaleString("ru-RU"):"";
+   info.append(name,id,date);
+   const remove=document.createElement("button");remove.className="danger";remove.textContent="Снять";
+   remove.addEventListener("click",async()=>{if(!confirm("Снять статус тестера у "+(tester.player_name||tester.player_id)+"?"))return;remove.disabled=true;try{await callManager({action:"remove",player_id:tester.player_id});message("actionStatus","Статус тестера снят.");await refresh();}catch(e){message("actionStatus",e.message,true);remove.disabled=false;}});
+   row.append(info,remove);$("testerList").append(row);
+  }
+ }catch(e){$("testerList").textContent=e.message; if(/Нет прав администратора/.test(e.message))message("actionStatus","Аккаунт вошёл, но не добавлен в tester_admins.",true);}
+}
+$("loginBtn").addEventListener("click",async()=>{
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password){message("loginStatus","Введи email и пароль.",true);return;}
+ $("loginBtn").disabled=true;message("loginStatus","Проверяем вход...");
+ try{const {error}=await client.auth.signInWithPassword({email,password});if(error)throw error;showManager(true);await refresh();}
+ catch(e){message("loginStatus",e.message,true);}
+ finally{$("loginBtn").disabled=false;}
+});
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click();});
+$("addBtn").addEventListener("click",async()=>{
+ const player_id=$("playerId").value.trim(),player_name=$("playerName").value.trim()||"Игрок";
+ if(!player_id){message("actionStatus","Сначала введи игровой ID.",true);return;}
+ $("addBtn").disabled=true;
+ try{await callManager({action:"add",player_id,player_name});message("actionStatus","✅ Тестер добавлен!");$("playerId").value="";$("playerName").value="";await refresh();}
+ catch(e){message("actionStatus",e.message,true);}
+ finally{$("addBtn").disabled=false;}
+});
+$("refreshBtn").addEventListener("click",refresh);
+$("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();showManager(false);message("loginStatus","Ты вышел из аккаунта.");});
+client.auth.getSession().then(async({data})=>{if(data.session){showManager(true);await refresh();}});
+})();
+</script>
+</body>
+</html>
