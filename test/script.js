@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.3 BETA";
+const GAME_VERSION = "17.4 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -644,35 +644,26 @@ window.addEventListener('load', () => {
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn2">${t('first_page')}</button><button class="page-btn" id="prevPageBtn2">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">${t('next_page')}</button><button class="page-btn" id="lastPageBtn2">${t('last_page')}</button></div>`;
         const shopContainer = document.getElementById('shopNeurons');
         shopContainer.innerHTML = html;
-        // Один делегированный обработчик: работает и после каждой перерисовки магазина.
-        // Обработчик в capture-фазе: срабатывает даже если другой обработчик
-        // внутри магазина останавливает всплытие обычного click.
-        if (shopContainer._neuronPurchaseHandler) {
-            shopContainer.removeEventListener('click', shopContainer._neuronPurchaseHandler, true);
-        }
-        shopContainer._neuronPurchaseHandler = (event) => {
-            const target = event.target instanceof Element ? event.target : event.target?.parentElement;
-            const item = target?.closest('#shopNeurons .shop-item[data-index]');
-            if (!item || !shopContainer.contains(item)) return;
-            const index = Number(item.getAttribute('data-index'));
-            if (!Number.isInteger(index) || index < 0 || index >= upgrades.length) return;
-            event.preventDefault();
-            event.stopPropagation();
-            const upgrade = upgrades[index];
-            if (!upgrade) {
-                showToast('❌ Не удалось найти нейросеть. Обнови магазин.');
-                return;
-            }
-            if (upgrade.purchased === true) {
-                item.classList.add('shop-item-purchased');
-                const status = item.querySelector('span:last-child');
-                if (status) status.textContent = '✅ КУПЛЕНО';
-                showToast(`✅ Нейросеть уже куплена: ${upgrade.name}`);
-                return;
-            }
-            buyUpgrade(index);
-        };
-        shopContainer.addEventListener('click', shopContainer._neuronPurchaseHandler, true);
+        // Назначаем обработчик непосредственно каждой строке после её создания.
+        // Это исключает конфликты делегирования и неверную передачу id вместо индекса.
+        shopContainer.querySelectorAll('.shop-item[data-index]').forEach(item => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                const index = Number(item.getAttribute('data-index'));
+                const upgrade = upgrades[index];
+                if (!Number.isInteger(index) || !upgrade) {
+                    showToast('❌ Ошибка выбора нейросети');
+                    return;
+                }
+                if (upgrade.purchased === true) {
+                    item.classList.add('shop-item-purchased');
+                    item.querySelector('span:last-child').textContent = '✅ КУПЛЕНО';
+                    showToast(`✅ Нейросеть уже куплена: ${upgrade.name}`);
+                    return;
+                }
+                buyUpgrade(index);
+            });
+        });
         ['firstPageBtn', 'firstPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = 0; renderShopNeurons(); }));
         ['lastPageBtn', 'lastPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = totalPages - 1; renderShopNeurons(); }));
         ['prevPageBtn', 'prevPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
@@ -719,7 +710,6 @@ window.addEventListener('load', () => {
         points -= finalPrice;
         u.purchased = true;
         purchasedCount = upgrades.filter(item => item.purchased === true).length;
-        // Сначала сохраняем факт покупки, затем обновляем интерфейс.
         saveGame();
         updateUI();
         renderShopNeurons();
