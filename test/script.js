@@ -77,7 +77,8 @@ window.addEventListener('load', () => {
     try { supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.log('Ошибка Supabase:', e); }
     (async () => {
         const overlay = document.getElementById('testerAccessOverlay');
-        const playerId = localStorage.getItem('gamePlayerId');
+        let playerId = localStorage.getItem('gamePlayerId');
+        if (!playerId) { playerId = 'player-' + Math.floor(Math.random() * 1000000000); localStorage.setItem('gamePlayerId', playerId); }
         if (!playerId || !supabaseClient) {
             if (overlay) { overlay.classList.add('show'); overlay.querySelector('.modal-text').textContent = 'Не удалось проверить доступ. Проверь интернет и обнови страницу.'; }
             document.getElementById('loadingScreen')?.classList.add('hidden'); return;
