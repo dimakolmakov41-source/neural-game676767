@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d1c">
+<title>🛡️ Error Monitor — Neural Game</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#080d1c;--panel:#111b2d;--line:#263a55;--text:#eaf2ff;--muted:#91a4bf;--cyan:#48d9ed;--red:#ff647c;--green:#52dfa2}
+*{box-sizing:border-box}body{margin:0;padding:22px 14px;background:radial-gradient(ellipse at 50% -10%,#17385b 0,transparent 55%),var(--bg);color:var(--text);font:14px system-ui,Arial;min-height:100vh}
+main{max-width:1050px;margin:auto}.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 22px}.brand{display:flex;gap:12px;align-items:center}.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#163f59,#542b68);display:grid;place-items:center;font-size:25px;box-shadow:0 0 22px #36c9e755}.brand h1{font-size:21px;margin:0}.brand p{margin:3px 0;color:var(--muted)}.card{background:#111b2dee;border:1px solid var(--line);border-radius:18px;padding:18px;margin:13px 0;box-shadow:0 15px 40px #0004}
+h2{font-size:16px;margin:0 0 12px}label{display:block;color:#b8c9df;margin:12px 0 6px}input{width:100%;padding:12px;border:1px solid #344a67;border-radius:10px;background:#091426;color:white;font:inherit}button,select{border:1px solid #36516f;border-radius:10px;padding:10px 13px;background:#1d3857;color:#eff8ff;font:600 13px system-ui;cursor:pointer}button:disabled{opacity:.5}button.primary{background:#145a76;border-color:#3dd8ee}button.good{background:#14563f;border-color:#38ce91}button.danger{background:#572536;border-color:#a94460}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.hidden{display:none!important}#status{color:var(--muted);font-size:13px;margin-top:10px;white-space:pre-wrap}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{padding:13px;border:1px solid var(--line);border-radius:13px;background:#0b1628}.stat b{font-size:22px;display:block}.stat span{color:var(--muted);font-size:12px}.report{border:1px solid #2b3d57;background:#0b1526;border-radius:14px;padding:14px;margin:10px 0}.report.resolved{opacity:.65;border-color:#28694f}.report-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.tag{font-size:11px;padding:4px 8px;border-radius:30px;background:#542536;color:#ffb5c1}.tag.ok{background:#174735;color:#a1f4ce}.message{font-weight:700;margin:10px 0;overflow-wrap:anywhere}.meta{font-size:12px;color:var(--muted);line-height:1.6;overflow-wrap:anywhere}.report pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;background:#060d19;border-radius:9px;padding:10px;color:#b8d2f1;font-size:11px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.actions button{flex:0 0 auto}#login{max-width:460px;margin:50px auto}.empty{text-align:center;color:var(--muted);padding:35px 10px}footer{text-align:center;color:#60748f;padding:18px;font-size:12px}
+@media(max-width:520px){body{padding:14px 9px}.card{padding:14px}.stats{grid-template-columns:1fr 1fr}.brand h1{font-size:18px}}
+</style>
+</head>
+<body><main>
+<header class="head"><div class="brand"><div class="logo">🛡️</div><div><h1>Error Monitor</h1><p>Neural Game · Панель ошибок</p></div></div><a href="tester-manager.html" style="color:#83dff0;text-decoration:none">🧪 Tester Manager ↗</a></header>
+<section class="card" id="login">
+<h2>🔐 Вход администратора</h2><p class="meta">Используй ту же учётную запись Supabase Auth, что и в Tester Manager.</p>
+<label for="email">Email</label><input id="email" type="email" autocomplete="username">
+<label for="password">Пароль</label><input id="password" type="password" autocomplete="current-password">
+<div class="row" style="margin-top:14px"><button class="primary" id="loginBtn">Войти</button></div><div id="loginStatus"></div>
+</section>
+<section id="dashboard" class="hidden">
+<div class="card"><div class="row"><h2 style="flex:1">📊 Сводка ошибок</h2><button id="refreshBtn">↻ Обновить</button><button id="logoutBtn">Выйти</button></div>
+<div class="stats"><div class="stat"><b id="total">—</b><span>Всего загружено</span></div><div class="stat"><b id="open">—</b><span>Не исправлено</span></div><div class="stat"><b id="done">—</b><span>Исправлено</span></div></div>
+<div class="row" style="margin-top:14px"><select id="filter"><option value="open">Только неисправленные</option><option value="all">Все ошибки</option><option value="done">Исправленные</option></select><span class="meta" id="updated" style="text-align:right">Последние 100 записей</span></div><div id="status"></div></div>
+<div class="card"><h2>🧯 Журнал ошибок</h2><div id="reports"><div class="empty">Загрузка...</div></div></div>
+</section><footer>Neural Game · Developer Tools</footer></main>
+<script>
+(() => {
+const URL='https://kbkmueilgjmintuwkfzv.supabase.co',KEY='sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
+const client=window.supabase.createClient(URL,KEY),$=id=>document.getElementById(id);
+const login=$('login'),dashboard=$('dashboard');
+function status(id,msg,bad=false){const el=$(id);el.textContent=msg;el.style.color=bad?'#ff91a4':'#9ce9c5'}
+async function call(payload){const {data,error}=await client.functions.invoke('tester-manager',{body:payload});if(error)throw new Error(data?.error||error.message);if(data?.error)throw new Error(data.error);return data}
+function show(on){login.classList.toggle('hidden',on);dashboard.classList.toggle('hidden',!on)}
+function addText(parent,tag,cls,value){const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=value??'';parent.append(el);return el}
+function render(reports){
+$('total').textContent=reports.length;$('open').textContent=reports.filter(x=>!x.resolved).length;$('done').textContent=reports.filter(x=>x.resolved).length;
+const mode=$('filter').value,filtered=reports.filter(x=>mode==='all'||(mode==='open'?!x.resolved:x.resolved));const root=$('reports');root.replaceChildren();
+if(!filtered.length){addText(root,'div','empty','🎉 Ошибок в этой категории нет.');return}
+for(const r of filtered){
+const card=document.createElement('article');card.className='report'+(r.resolved?' resolved':'');
+const top=addText(card,'div','report-top','');const date=addText(top,'span','meta','#'+r.id+' · '+new Date(r.created_at).toLocaleString('ru-RU'));addText(top,'span','tag'+(r.resolved?' ok':''),r.resolved?'✅ Исправлено':r.level==='unhandledrejection'?'⚠️ Promise':'🔴 Ошибка');
+addText(card,'div','message',r.message);
+addText(card,'div','meta','Игрок: '+(r.player_name||'Аноним')+' · ID: '+(r.player_id||'—')+'\nВерсия: '+(r.game_version||'—')+' · '+(r.device||'—'));
+addText(card,'div','meta','Источник: '+(r.source||'—')+(r.line_number?':'+r.line_number+':'+(r.column_number||0):'')+'\nСтраница: '+(r.page_url||'—'));
+if(r.stack){const pre=addText(card,'pre','',r.stack);pre.title='Stack trace'}
+const actions=addText(card,'div','actions','');
+const toggle=addText(actions,'button',r.resolved?'':'good',r.resolved?'↩ Вернуть в работу':'✓ Отметить исправленной');
+toggle.addEventListener('click',async()=>{toggle.disabled=true;try{await call({action:'error_resolve',id:r.id,resolved:!r.resolved});await load()}catch(e){status('status',e.message,true);toggle.disabled=false}});
+const del=addText(actions,'button','danger','Удалить');del.addEventListener('click',async()=>{if(!confirm('Удалить запись #'+r.id+'?'))return;del.disabled=true;try{await call({action:'error_delete',id:r.id});await load()}catch(e){status('status',e.message,true);del.disabled=false}});
+root.append(card);
+}}
+let cache=[];
+async function load(){ $('refreshBtn').disabled=true;status('status','Загружаем журнал...');try{const data=await call({action:'error_list',limit:100});cache=data.reports||[];render(cache);status('status','Журнал обновлён. Показаны последние '+cache.length+' записей.');$('updated').textContent='Обновлено: '+new Date().toLocaleTimeString('ru-RU')}catch(e){status('status',e.message,true)}finally{$('refreshBtn').disabled=false}}
+$('filter').addEventListener('change',()=>render(cache));$('refreshBtn').addEventListener('click',load);
+$('loginBtn').addEventListener('click',async()=>{const email=$('email').value.trim(),password=$('password').value;if(!email||!password){status('loginStatus','Введи email и пароль.',true);return}$('loginBtn').disabled=true;status('loginStatus','Проверяем вход...');try{const {error}=await client.auth.signInWithPassword({email,password});if(error)throw error;show(true);await load()}catch(e){status('loginStatus',e.message,true)}finally{$('loginBtn').disabled=false}});
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
+$('logoutBtn').addEventListener('click',async()=>{await client.auth.signOut();show(false)});
+client.auth.getSession().then(async({data})=>{if(data.session){show(true);await load()}});
+})();
+</script></body></html>
