@@ -653,3 +653,22 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
     background: rgba(0, 0, 0, 0.92) !important;
     border: 2px solid #ffd966 !important;
 }
+
+/* Beta 17.2: purchased neural network state and confirmation toast */
+#shopNeurons .shop-item-purchased {
+    border: 2px solid #42df83 !important;
+    background: linear-gradient(135deg, rgba(17, 91, 53, .96), rgba(8, 48, 32, .98)) !important;
+    color: #eafff1 !important;
+    box-shadow: 0 0 10px rgba(66, 223, 131, .28) !important;
+}
+#shopNeurons .shop-item-purchased span:last-child {
+    color: #8dffb1 !important;
+    font-weight: 900 !important;
+}
+.toast {
+    z-index: 2147483647 !important;
+    pointer-events: none !important;
+    font-size: 14px !important;
+    max-width: calc(100vw - 24px) !important;
+    text-align: center !important;
+}
