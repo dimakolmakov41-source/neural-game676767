@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.1 BETA";
+const GAME_VERSION = "17.2 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -642,8 +642,22 @@ window.addEventListener('load', () => {
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn">${t('first_page')}</button><button class="page-btn" id="prevPageBtn">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn">${t('next_page')}</button><button class="page-btn" id="lastPageBtn">${t('last_page')}</button></div>`;
         for (let i = start; i < end; i++) { const u = upgrades[i]; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); html += `<div class="shop-item ${u.purchased ? 'shop-item-purchased' : ''}" data-index="${i}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅ КУПЛЕНО' : `💰 ${formatNumber(finalPrice)}`}</span></div>`; }
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn2">${t('first_page')}</button><button class="page-btn" id="prevPageBtn2">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">${t('next_page')}</button><button class="page-btn" id="lastPageBtn2">${t('last_page')}</button></div>`;
-        document.getElementById('shopNeurons').innerHTML = html;
-        document.querySelectorAll('#shopNeurons .shop-item').forEach(el => { const u = upgrades[parseInt(el.dataset.index)]; if (u && !u.purchased) el.addEventListener('click', () => buyUpgrade(u.id)); });
+        const shopContainer = document.getElementById('shopNeurons');
+        shopContainer.innerHTML = html;
+        // Один делегированный обработчик: работает и после каждой перерисовки магазина.
+        shopContainer.onclick = (event) => {
+            const item = event.target.closest('.shop-item[data-index]');
+            if (!item || !shopContainer.contains(item)) return;
+            const index = Number(item.dataset.index);
+            if (!Number.isInteger(index) || index < 0 || index >= upgrades.length) return;
+            const upgrade = upgrades[index];
+            if (!upgrade) return;
+            if (upgrade.purchased) {
+                showToast(`✅ Уже куплено: ${upgrade.name}`);
+                return;
+            }
+            buyUpgrade(index);
+        };
         ['firstPageBtn', 'firstPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = 0; renderShopNeurons(); }));
         ['lastPageBtn', 'lastPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = totalPages - 1; renderShopNeurons(); }));
         ['prevPageBtn', 'prevPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
@@ -680,7 +694,23 @@ window.addEventListener('load', () => {
     function buySkin(id) { const skin = SKINS.find(s => s.id === id); if (!skin) return; if (stars < skin.price) { showToast(`❌ ${t('need_stars')} ${skin.price}⭐`); return; } stars -= skin.price; purchasedSkins.push(id); localStorage.setItem('purchasedSkins', JSON.stringify(purchasedSkins)); currentSkin = id; localStorage.setItem('currentSkin', id); updateUI(); applySkin(); saveGame(); renderShopSkins(); showToast(`✅ ${t('skin_' + skin.id)} ${t('skin_bought')}`); playBuySound(); }
     function applySkin() { const brain = document.getElementById('clickableObject'); if (!brain) return; brain.classList.remove('skin-normal', 'skin-halloween', 'skin-amethyst'); brain.classList.add('skin-' + currentSkin); const emoji = document.getElementById('brainEmoji'); if (emoji) { if (currentSkin === 'normal') { emoji.innerText = '🧠'; emoji.style.display = 'block'; } else if (currentSkin === 'halloween') { emoji.innerText = '🎃'; emoji.style.display = 'block'; } else if (currentSkin === 'amethyst') { emoji.style.display = 'none'; } } updateBrainEvolution(); }
     function getSkinMultiplier() { return SKINS.find(s => s.id === currentSkin)?.mult || 1; }
-    function buyUpgrade(id) { const u = upgrades[id]; if (!u) return; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); if (!u.purchased && points >= finalPrice) { points -= finalPrice; u.purchased = true; purchasedCount++; updateUI(); renderShopNeurons(); saveGame(); showToast(`✅ ${u.name} ${t('bought')}`); playBuySound(); } else showToast(t('not_enough')); }
+    function buyUpgrade(index) {
+        const u = upgrades[index];
+        if (!u) return;
+        if (u.purchased) { showToast(`✅ Уже куплено: ${u.name}`); return; }
+        let finalPrice = u.price;
+        if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100));
+        if (points < finalPrice) { showToast(t('not_enough')); return; }
+        points -= finalPrice;
+        u.purchased = true;
+        purchasedCount = upgrades.filter(item => item.purchased === true).length;
+        updateUI();
+        saveGame();
+        renderShopNeurons();
+        updateBrainEvolution();
+        showToast(`✅ Нейросеть куплена: ${u.name}`);
+        playBuySound();
+    }
     function buyAllAvailable() { const list = upgrades.map((u, i) => ({ u, i })).filter(x => !x.u.purchased).sort((a, b) => a.u.price - b.u.price); let bought = 0; for (const item of list) { let finalPrice = item.u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); if (points >= finalPrice) { points -= finalPrice; item.u.purchased = true; bought++; } else break; } if (bought > 0) { purchasedCount = upgrades.filter(u => u.purchased).length; updateUI(); renderShopNeurons(); saveGame(); showToast(`💰 ${t('bought_count')}: ${bought}!`); playBuySound(); } else showToast(t('not_enough')); }
 
     const EXCHANGES = [{ id: 'exNew', type: 'pointsToStars', cost: 10, reward: 1, label: '10🧠 = 1⭐' },{ id: 'ex1', type: 'starsToPoints', cost: 500, reward: 10000000, label: '500⭐ = 10M🧠' },{ id: 'ex2', type: 'starsToPoints', cost: 450, reward: 1000000, label: '450⭐ = 1M🧠' },{ id: 'ex3', type: 'starsToPoints', cost: 250, reward: 100000, label: '250⭐ = 100K🧠' },{ id: 'ex4', type: 'pointsToStars', cost: 1000000, reward: 100, label: '1M🧠 = 100⭐' },{ id: 'soon', type: 'soon', label: 'soon', disabled: true }];
