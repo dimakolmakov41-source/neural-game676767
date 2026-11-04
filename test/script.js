@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "18.0 BETA";
+const GAME_VERSION = "18.1 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -564,7 +564,7 @@ window.addEventListener('load', () => {
                 ? '<button class="modal-btn friend-accept" data-id="' + Number(row.id) + '" style="margin:0;padding:5px 8px;background:#287b39;">Принять</button>'
                 : '<button class="modal-btn friend-remove" data-id="' + Number(row.id) + '" style="margin:0;padding:5px 8px;background:#8b3030;">Удалить</button>';
             return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 4px;border-bottom:1px solid #444;">' +
-                '<div style="min-width:0;overflow-wrap:anywhere;"><b>' + escapeHTML(name || 'Игрок') + '</b><div style="font-size:10px;opacity:.7;">' + escapeHTML(id || '') + '</div></div>' + action + '</div>';
+                '<div style="min-width:0;overflow-wrap:anywhere;"><button type="button" class="friend-profile" data-profile-id="' + escapeHTML(id || '') + '" style="border:0;background:none;color:inherit;padding:0;text-align:left;font-weight:bold;text-decoration:underline;cursor:pointer;">' + escapeHTML(name || 'Игрок') + '</button><div style="font-size:10px;opacity:.7;">' + escapeHTML(id || '') + '</div></div>' + action + '</div>';
         }).join('');
     }
     async function loadFriends() {
@@ -669,6 +669,112 @@ window.addEventListener('load', () => {
     document.getElementById('myFriendsList')?.addEventListener('click', e => {
         const btn = e.target.closest('.friend-remove');
         if (btn) handleFriendAction(Number(btn.dataset.id), false);
+    });
+
+
+    // ===== ПРОФИЛИ ИГРОКОВ =====
+    const profileModal = document.getElementById('profileModal');
+    const profileAvatars = ['🙂','😎','🐱','🐼','🦊','🐸','👾','⭐','🔥','🎮'];
+    let selectedProfileAvatar = '🙂';
+    let openedProfileId = null;
+    function setProfileEditStatus(message, bad = false) {
+        const el = document.getElementById('profileEditStatus');
+        if (el) { el.textContent = message; el.style.color = bad ? '#ff7777' : '#ffd966'; }
+    }
+    function selectProfileAvatar(avatar) {
+        if (!profileAvatars.includes(avatar)) return;
+        selectedProfileAvatar = avatar;
+        document.querySelectorAll('.profile-avatar-choice').forEach(btn => {
+            const active = btn.dataset.avatar === avatar;
+            btn.style.outline = active ? '2px solid #ffd966' : 'none';
+            btn.style.transform = active ? 'scale(1.12)' : 'scale(1)';
+        });
+    }
+    async function openPlayerProfile(targetId) {
+        if (!targetId || !supabaseClient) { showToast('❌ Профиль недоступен без интернета'); return; }
+        openedProfileId = targetId;
+        profileModal?.classList.add('show');
+        document.getElementById('profileNameView').textContent = 'Загрузка...';
+        document.getElementById('profileBioView').textContent = '';
+        document.getElementById('profileScoreView').textContent = '...';
+        document.getElementById('profileStatusView').textContent = 'Проверка...';
+        document.getElementById('profileEditArea').style.display = 'none';
+        document.getElementById('editProfileBtn').style.display = targetId === playerId ? 'block' : 'none';
+        try {
+            const [{ data: profile, error: profileError }, { data: scoreRows, error: scoreError }, { data: onlineRow, error: onlineError }] = await Promise.all([
+                supabaseClient.from('player_profiles').select('player_id,player_name,avatar,bio,created_at').eq('player_id', targetId).maybeSingle(),
+                supabaseClient.from('leaderboard').select('score').eq('player_id', targetId).maybeSingle(),
+                supabaseClient.from('online_players').select('last_seen').eq('player_id', targetId).maybeSingle()
+            ]);
+            if (profileError) throw profileError;
+            if (scoreError) throw scoreError;
+            if (onlineError) throw onlineError;
+            if (!profile) { document.getElementById('profileNameView').textContent = 'Игрок не найден'; return; }
+            const avatar = profile.avatar || '🙂';
+            const name = profile.player_name || 'Аноним';
+            const bio = profile.bio || '';
+            document.getElementById('profileAvatarView').textContent = avatar;
+            document.getElementById('profileNameView').textContent = name;
+            document.getElementById('profileIdView').textContent = 'ID: ' + profile.player_id;
+            document.getElementById('profileBioView').textContent = bio || 'Пока нет описания';
+            document.getElementById('profileScoreView').textContent = formatNumber(Number(scoreRows?.score || 0));
+            const isOnline = onlineRow?.last_seen && (Date.now() - new Date(onlineRow.last_seen).getTime()) < 120000;
+            document.getElementById('profileOnlineView').textContent = isOnline ? '🟢' : '⚪';
+            document.getElementById('profileStatusView').textContent = isOnline ? 'В сети' : 'Не в сети';
+            document.getElementById('profileJoinedView').textContent = 'В игре с ' + (profile.created_at ? new Date(profile.created_at).toLocaleDateString() : '—');
+            if (targetId === playerId) {
+                selectedProfileAvatar = profileAvatars.includes(avatar) ? avatar : '🙂';
+                document.getElementById('profileBioInput').value = bio;
+                selectProfileAvatar(selectedProfileAvatar);
+            }
+        } catch (error) {
+            console.error('Profile load error:', error);
+            document.getElementById('profileNameView').textContent = 'Ошибка загрузки профиля';
+        }
+    }
+    async function savePlayerProfile() {
+        if (openedProfileId !== playerId) return;
+        const bio = String(document.getElementById('profileBioInput')?.value || '').trim().slice(0,120);
+        const playerName = String(localStorage.getItem('gamePlayerName') || 'Аноним').slice(0,24);
+        const saveBtn = document.getElementById('saveProfileBtn');
+        if (saveBtn) saveBtn.disabled = true;
+        setProfileEditStatus('Сохранение...');
+        try {
+            const { error } = await supabaseClient.from('player_profiles').upsert({
+                player_id: playerId, player_name: playerName,
+                avatar: selectedProfileAvatar, bio, updated_at: new Date().toISOString()
+            }, { onConflict: 'player_id' });
+            if (error) throw error;
+            setProfileEditStatus('✅ Профиль сохранён!');
+            await openPlayerProfile(playerId);
+            document.getElementById('profileEditArea').style.display = 'none';
+        } catch (error) {
+            console.error('Profile save error:', error);
+            setProfileEditStatus('Не удалось сохранить профиль: ' + (error.message || 'ошибка'), true);
+        } finally {
+            if (saveBtn) saveBtn.disabled = false;
+        }
+    }
+    document.getElementById('myProfileBtn')?.addEventListener('click', () => openPlayerProfile(playerId));
+    document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+        if (openedProfileId !== playerId) return;
+        document.getElementById('profileEditArea').style.display = 'block';
+        document.getElementById('profileBioInput').value = document.getElementById('profileBioView').textContent === 'Пока нет описания' ? '' : document.getElementById('profileBioView').textContent;
+        setProfileEditStatus('');
+    });
+    document.getElementById('saveProfileBtn')?.addEventListener('click', savePlayerProfile);
+    document.getElementById('closeProfileBtn')?.addEventListener('click', () => profileModal?.classList.remove('show'));
+    document.getElementById('profileAvatarChoices')?.addEventListener('click', e => {
+        const btn = e.target.closest('.profile-avatar-choice');
+        if (btn) selectProfileAvatar(btn.dataset.avatar);
+    });
+    document.getElementById('myFriendsList')?.addEventListener('click', e => {
+        const btn = e.target.closest('.friend-profile');
+        if (btn) openPlayerProfile(btn.dataset.profileId);
+    });
+    document.getElementById('incomingFriendsList')?.addEventListener('click', e => {
+        const btn = e.target.closest('.friend-profile');
+        if (btn) openPlayerProfile(btn.dataset.profileId);
     });
 
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
