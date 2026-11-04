@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.4 BETA";
+const GAME_VERSION = "17.5 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -640,24 +640,22 @@ window.addEventListener('load', () => {
     function renderShopNeurons() {
         const start = currentPage * ITEMS_PER_PAGE, end = Math.min(start + ITEMS_PER_PAGE, upgrades.length); let html = '';
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn">${t('first_page')}</button><button class="page-btn" id="prevPageBtn">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn">${t('next_page')}</button><button class="page-btn" id="lastPageBtn">${t('last_page')}</button></div>`;
-        for (let i = start; i < end; i++) { const u = upgrades[i]; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); html += `<div class="shop-item ${u.purchased ? 'shop-item-purchased' : ''}" data-index="${i}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅ КУПЛЕНО' : `💰 ${formatNumber(finalPrice)}`}</span></div>`; }
+        for (let i = start; i < end; i++) {
+            const u = upgrades[i];
+            let finalPrice = u.price;
+            if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100));
+            html += `<button type="button" class="shop-item ${u.purchased ? 'shop-item-purchased' : ''}" data-index="${i}" aria-pressed="${u.purchased ? 'true' : 'false'}"><span>${escapeHTML(u.name)} +${u.power}</span><span>${u.purchased ? '✅ КУПЛЕНО' : `💰 ${formatNumber(finalPrice)}`}</span></button>`;
+        }
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn2">${t('first_page')}</button><button class="page-btn" id="prevPageBtn2">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">${t('next_page')}</button><button class="page-btn" id="lastPageBtn2">${t('last_page')}</button></div>`;
         const shopContainer = document.getElementById('shopNeurons');
         shopContainer.innerHTML = html;
-        // Назначаем обработчик непосредственно каждой строке после её создания.
-        // Это исключает конфликты делегирования и неверную передачу id вместо индекса.
-        shopContainer.querySelectorAll('.shop-item[data-index]').forEach(item => {
-            item.addEventListener('click', (event) => {
-                event.preventDefault();
-                const index = Number(item.getAttribute('data-index'));
+        // Кнопки имеют нативную поддержку касания и активации на Android/iOS.
+        shopContainer.querySelectorAll('button.shop-item[data-index]').forEach(button => {
+            button.addEventListener('click', () => {
+                const index = Number(button.dataset.index);
+                if (!Number.isInteger(index) || index < 0 || index >= upgrades.length) return;
                 const upgrade = upgrades[index];
-                if (!Number.isInteger(index) || !upgrade) {
-                    showToast('❌ Ошибка выбора нейросети');
-                    return;
-                }
-                if (upgrade.purchased === true) {
-                    item.classList.add('shop-item-purchased');
-                    item.querySelector('span:last-child').textContent = '✅ КУПЛЕНО';
+                if (upgrade.purchased) {
                     showToast(`✅ Нейросеть уже куплена: ${upgrade.name}`);
                     return;
                 }
@@ -710,7 +708,16 @@ window.addEventListener('load', () => {
         points -= finalPrice;
         u.purchased = true;
         purchasedCount = upgrades.filter(item => item.purchased === true).length;
-        saveGame();
+        try {
+            saveGame();
+        } catch (saveError) {
+            console.error('Не удалось сохранить покупку нейросети:', saveError);
+            points += finalPrice;
+            u.purchased = false;
+            purchasedCount = upgrades.filter(item => item.purchased === true).length;
+            showToast('❌ Не удалось сохранить покупку');
+            return;
+        }
         updateUI();
         renderShopNeurons();
         updateBrainEvolution();
