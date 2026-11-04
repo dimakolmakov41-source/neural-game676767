@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.8 BETA";
+const GAME_VERSION = "17.9 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -535,13 +535,13 @@ window.addEventListener('load', () => {
         const modal = document.getElementById('leaderboardModal'), list = document.getElementById('leaderboardList');
         modal.classList.add('show'); list.innerHTML = 'Загрузка...';
         if (!supabaseClient) return;
-        const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
+        const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(100);
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
         list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${escapeHTML(p.player_name)}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
     }
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
-    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-10!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
+    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-1000!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
 
     // ===== ADMIN ABUSE TOOL =====
     let activeAbuseEffects = [];
