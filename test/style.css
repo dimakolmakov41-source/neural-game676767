@@ -711,3 +711,28 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
   font-weight: 900 !important;
 }
 #shopNeurons .shop-item[data-index] { cursor: pointer; pointer-events: auto; }
+
+
+/* Beta 17.5: native neuron purchase buttons */
+#shopNeurons button.shop-item {
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    appearance: none;
+    -webkit-appearance: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    border: 1px solid rgba(255,255,255,.16);
+}
+#shopNeurons button.shop-item-purchased {
+    border: 2px solid #43e58b !important;
+    background: linear-gradient(135deg,#145b37,#082d1c) !important;
+    color: #fff !important;
+}
+#shopNeurons button.shop-item-purchased span:last-child {
+    color: #9affbd !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-weight: 900 !important;
+}
