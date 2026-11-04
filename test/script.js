@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.9 BETA";
+const GAME_VERSION = "18.0 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -539,6 +539,138 @@ window.addEventListener('load', () => {
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
         list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${escapeHTML(p.player_name)}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
     }
+
+    // ===== СИСТЕМА ДРУЗЕЙ (игровые ID, без регистрации аккаунта) =====
+    const friendsModal = document.getElementById('friendsModal');
+    const friendsStatus = document.getElementById('friendStatus');
+    const getMyFriendName = () => String(localStorage.getItem('gamePlayerName') || ('Игрок-' + String(playerId).slice(-4))).slice(0, 24);
+    const setFriendStatus = (message, bad = false) => {
+        if (friendsStatus) { friendsStatus.textContent = message; friendsStatus.style.color = bad ? '#ff7777' : '#ffd966'; }
+    };
+    async function ensureMyFriendProfile() {
+        const { error } = await supabaseClient.from('player_profiles').upsert({
+            player_id: playerId, player_name: getMyFriendName()
+        }, { onConflict: 'player_id' });
+        if (error) throw error;
+    }
+    function renderFriendRows(container, rows, mode) {
+        if (!container) return;
+        if (!rows.length) { container.textContent = mode === 'incoming' ? 'Новых запросов нет.' : 'Пока нет друзей.'; return; }
+        container.innerHTML = rows.map(row => {
+            const incoming = mode === 'incoming';
+            const name = incoming ? row.player_name : row.friend_name;
+            const id = incoming ? row.player_id : row.friend_id;
+            const action = incoming
+                ? '<button class="modal-btn friend-accept" data-id="' + Number(row.id) + '" style="margin:0;padding:5px 8px;background:#287b39;">Принять</button>'
+                : '<button class="modal-btn friend-remove" data-id="' + Number(row.id) + '" style="margin:0;padding:5px 8px;background:#8b3030;">Удалить</button>';
+            return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 4px;border-bottom:1px solid #444;">' +
+                '<div style="min-width:0;overflow-wrap:anywhere;"><b>' + escapeHTML(name || 'Игрок') + '</b><div style="font-size:10px;opacity:.7;">' + escapeHTML(id || '') + '</div></div>' + action + '</div>';
+        }).join('');
+    }
+    async function loadFriends() {
+        const incomingEl = document.getElementById('incomingFriendsList');
+        const friendsEl = document.getElementById('myFriendsList');
+        if (!supabaseClient) { setFriendStatus('Для друзей необходимо подключение к интернету.', true); return; }
+        if (incomingEl) incomingEl.textContent = 'Загрузка...';
+        if (friendsEl) friendsEl.textContent = 'Загрузка...';
+        try {
+            await ensureMyFriendProfile();
+            const [{ data: incoming, error: incomingError }, { data: sent, error: sentError }, { data: acceptedA, error: acceptedAError }, { data: acceptedB, error: acceptedBError }] = await Promise.all([
+                supabaseClient.from('friends').select('*').eq('friend_id', playerId).eq('status', 'pending').order('created_at', { ascending: false }),
+                supabaseClient.from('friends').select('*').eq('player_id', playerId).eq('status', 'pending').order('created_at', { ascending: false }),
+                supabaseClient.from('friends').select('*').eq('player_id', playerId).eq('status', 'accepted'),
+                supabaseClient.from('friends').select('*').eq('friend_id', playerId).eq('status', 'accepted')
+            ]);
+            const err = incomingError || sentError || acceptedAError || acceptedBError;
+            if (err) throw err;
+            renderFriendRows(incomingEl, incoming || [], 'incoming');
+            const accepted = [...(acceptedA || []), ...(acceptedB || []).map(r => ({
+                ...r, player_id: r.friend_id, friend_id: r.player_id,
+                player_name: r.friend_name, friend_name: r.player_name
+            }))];
+            renderFriendRows(friendsEl, accepted, 'friends');
+            if (sent?.length) setFriendStatus('Отправленных запросов: ' + sent.length);
+            else setFriendStatus('Можно добавить игрока по игровому ID или точному нику.');
+        } catch (error) {
+            console.error('Friends load error:', error);
+            if (incomingEl) incomingEl.textContent = 'Не удалось загрузить запросы.';
+            if (friendsEl) friendsEl.textContent = 'Не удалось загрузить друзей.';
+            setFriendStatus('Ошибка загрузки друзей: ' + (error.message || 'проверь Supabase'), true);
+        }
+    }
+    async function sendFriendRequest() {
+        const input = document.getElementById('friendSearchInput');
+        const query = String(input?.value || '').trim().slice(0, 60);
+        if (!query) { setFriendStatus('Введи игровой ID или ник.', true); return; }
+        if (!supabaseClient) { setFriendStatus('Нет подключения к интернету.', true); return; }
+        try {
+            await ensureMyFriendProfile();
+            let target = null;
+            const byId = await supabaseClient.from('player_profiles').select('player_id,player_name').eq('player_id', query).maybeSingle();
+            if (byId.error) throw byId.error;
+            target = byId.data;
+            if (!target) {
+                const byName = await supabaseClient.from('player_profiles').select('player_id,player_name').ilike('player_name', query).limit(2);
+                if (byName.error) throw byName.error;
+                if (byName.data?.length > 1) { setFriendStatus('Найдено несколько игроков. Используй игровой ID.', true); return; }
+                target = byName.data?.[0] || null;
+            }
+            if (!target) { setFriendStatus('Игрок не найден. Попроси его сначала сохранить ник в настройках.', true); return; }
+            if (target.player_id === playerId) { setFriendStatus('Нельзя добавить самого себя 🙂', true); return; }
+            const { data: existing, error: existingError } = await supabaseClient.from('friends').select('*')
+                .or('and(player_id.eq.' + playerId + ',friend_id.eq.' + target.player_id + '),and(player_id.eq.' + target.player_id + ',friend_id.eq.' + playerId + ')').limit(1);
+            if (existingError) throw existingError;
+            if (existing?.length) { setFriendStatus(existing[0].status === 'accepted' ? 'Вы уже друзья.' : 'Запрос уже существует.', true); return; }
+            const { error } = await supabaseClient.from('friends').insert({
+                player_id: playerId, friend_id: target.player_id,
+                player_name: getMyFriendName(), friend_name: target.player_name, status: 'pending'
+            });
+            if (error) throw error;
+            if (input) input.value = '';
+            setFriendStatus('✅ Запрос отправлен игроку ' + target.player_name);
+            await loadFriends();
+        } catch (error) {
+            console.error('Friend request error:', error);
+            setFriendStatus('Не удалось отправить запрос: ' + (error.message || 'ошибка Supabase'), true);
+        }
+    }
+    async function handleFriendAction(id, accept) {
+        try {
+            const query = supabaseClient.from('friends').update({ status: accept ? 'accepted' : 'pending' }).eq('id', id);
+            const { error } = accept
+                ? await query.eq('friend_id', playerId).eq('status', 'pending')
+                : await supabaseClient.from('friends').delete().eq('id', id).or('player_id.eq.' + playerId + ',friend_id.eq.' + playerId);
+            if (error) throw error;
+            if (!accept) setFriendStatus('Друг удалён или запрос отменён.');
+            else setFriendStatus('✅ Запрос принят!');
+            await loadFriends();
+        } catch (error) {
+            console.error('Friend action error:', error);
+            setFriendStatus('Не удалось выполнить действие.', true);
+        }
+    }
+    document.getElementById('friendsBtn')?.addEventListener('click', async () => {
+        friendsModal?.classList.add('show');
+        const idInput = document.getElementById('myFriendId');
+        if (idInput) idInput.value = playerId;
+        await loadFriends();
+    });
+    document.getElementById('closeFriendsBtn')?.addEventListener('click', () => friendsModal?.classList.remove('show'));
+    document.getElementById('copyMyFriendId')?.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(playerId); setFriendStatus('✅ Твой ID скопирован!'); }
+        catch (error) { const el = document.getElementById('myFriendId'); el?.select(); setFriendStatus('Выдели ID и скопируй вручную.'); }
+    });
+    document.getElementById('sendFriendRequestBtn')?.addEventListener('click', sendFriendRequest);
+    document.getElementById('friendSearchInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') sendFriendRequest(); });
+    document.getElementById('incomingFriendsList')?.addEventListener('click', e => {
+        const btn = e.target.closest('.friend-accept');
+        if (btn) handleFriendAction(Number(btn.dataset.id), true);
+    });
+    document.getElementById('myFriendsList')?.addEventListener('click', e => {
+        const btn = e.target.closest('.friend-remove');
+        if (btn) handleFriendAction(Number(btn.dataset.id), false);
+    });
+
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
     document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-100!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
