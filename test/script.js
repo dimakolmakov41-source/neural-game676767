@@ -129,14 +129,8 @@ window.addEventListener('load', () => {
                 document.getElementById('closedOverlay')?.classList.remove('show');
             }
 
-            if (data.latest_version && String(data.latest_version).trim() !== GAME_VERSION) {
-                document.getElementById('updateOverlay')?.classList.add('show');
-                document.getElementById('mainMenu')?.classList.add('hidden');
-                document.getElementById('gameInterface')?.classList.add('hidden');
-                return;
-            } else {
-                document.getElementById('updateOverlay')?.classList.remove('show');
-            }
+            // В тестовой сборке проверка latest_version отключена:
+            // тестеры могут запускать сборку независимо от версии основной игры.
 
             const tickerActive = (data.ticker_active === true || data.ticker_active === 'true');
             if (tickerActive && data.ticker_text) {
