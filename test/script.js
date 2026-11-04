@@ -541,7 +541,7 @@ window.addEventListener('load', () => {
     }
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
-    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-1000!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
+    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-100!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
 
     // ===== ADMIN ABUSE TOOL =====
     let activeAbuseEffects = [];
