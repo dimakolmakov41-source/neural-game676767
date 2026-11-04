@@ -79,6 +79,17 @@ window.addEventListener('load', () => {
         const overlay = document.getElementById('testerAccessOverlay');
         let playerId = localStorage.getItem('gamePlayerId');
         if (!playerId) { playerId = 'player-' + Math.floor(Math.random() * 1000000000); localStorage.setItem('gamePlayerId', playerId); }
+        const playerIdLabel = document.getElementById('testerPlayerId');
+        if (playerIdLabel) playerIdLabel.textContent = playerId;
+        document.getElementById('copyTesterId')?.addEventListener('click', async () => {
+            const status = document.getElementById('copyTesterIdStatus');
+            try {
+                await navigator.clipboard.writeText(playerId);
+                if (status) status.textContent = '✅ ID скопирован! Отправь его разработчику.';
+            } catch (e) {
+                if (status) status.textContent = 'Выдели ID выше и скопируй его вручную.';
+            }
+        });
         if (!playerId || !supabaseClient) {
             if (overlay) { overlay.classList.add('show'); overlay.querySelector('.modal-text').textContent = 'Не удалось проверить доступ. Проверь интернет и обнови страницу.'; }
             document.getElementById('loadingScreen')?.classList.add('hidden'); return;
