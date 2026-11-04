@@ -1,14 +1,15 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.7";
+const GAME_VERSION = "17.0";
+const SAVE_KEY = "neuralEvoSave";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
 let supabaseClient = null;
 
-let globalEventMultiplier = 1, saleData = { active: false, discount_percent: 0 }, rouletteCost = 250, autoclickerRateBonus = 0, customTheme = "normal", weatherData = { active: false, type: "none" }, phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" }, tickerData = { active: false, text: "" }, starsData = { chance: 0.0001, amount: 3 }, reloadTimeMinutes = 5;
+let globalEventMultiplier = 1, saleData = { active: false, discount_percent: 0 }, rouletteCost = 250, autoclickerRateBonus = 0, customTheme = "normal", weatherData = { active: false, type: "none" }, phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" }, tickerData = { active: false, text: "" }, starsData = { chance: 0.0001, amount: 3 }, reloadTimeMinutes = 3;
 
 let globalBoost = { active: false, type: 'points', multiplier: 1, text: '' };
 
@@ -48,7 +49,8 @@ const FACTS = { ru: ["Первый перцептрон создан в 1958 г�
 function getFactOfDay() { const now = new Date(); const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000); return FACTS[currentLang][dayOfYear % FACTS[currentLang].length]; }
 function checkDailyFact() { const today = new Date().toISOString().slice(0, 10); if (localStorage.getItem('factShownDate') !== today) { localStorage.setItem('factShownDate', today); const factText = document.getElementById('factText'); if (factText) factText.innerText = getFactOfDay(); setTimeout(() => document.getElementById('factOverlay')?.classList.add('show'), 2500); } }
 
-if (localStorage.getItem('gameVersion') !== GAME_VERSION) { localStorage.removeItem('neuralEvoSave'); localStorage.removeItem('banEnd'); localStorage.setItem('gameVersion', GAME_VERSION); }
+// Бета-версия не удаляет сохранение при смене номера сборки.
+localStorage.setItem('gameVersion', GAME_VERSION);
 
 function isHalloween() { if (customTheme === 'halloween') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return n.getMonth() === 9 && n.getDate() >= 5 && n.getDate() <= 31; }
 function isNewYear() { if (customTheme === 'newyear') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return (n.getMonth() === 11 && n.getDate() === 31) || (n.getMonth() === 0 && n.getDate() === 1); }
@@ -70,10 +72,30 @@ function applyTheme() {
     if (activeAbuseEffects.includes('rainbow')) body.classList.add('bg-rainbow'); else body.classList.remove('bg-rainbow');
 }
 
-function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold'); if (color && color !== 'blue') document.body.classList.add('btn-' + color); localStorage.setItem('btnColor', color || 'blue'); document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue'))); }
+const GAME_STYLES = ['normal', 'cosmic', 'neural'];
+const GAME_STYLE_LABELS = { normal: 'Обычный', cosmic: 'Космический', neural: 'Нейросетевой' };
+function applyGameStyle(style, save = true) {
+    const selected = GAME_STYLES.includes(style) ? style : 'normal';
+    document.body.classList.remove('style-normal', 'style-cosmic', 'style-neural');
+    document.body.classList.add('style-' + selected);
+    if (save) localStorage.setItem('gameVisualStyle', selected);
+    const button = document.getElementById('styleSwitchBtn');
+    if (button) button.textContent = GAME_STYLE_LABELS[selected] + '  ↻';
+    document.querySelectorAll('.shop-orb-btn').forEach(el => el.setAttribute('aria-label', 'Магазин нейросетей — ' + GAME_STYLE_LABELS[selected]));
+}
+function cycleGameStyle() {
+    const current = localStorage.getItem('gameVisualStyle') || 'normal';
+    const next = GAME_STYLES[(GAME_STYLES.indexOf(current) + 1) % GAME_STYLES.length];
+    applyGameStyle(next);
+    showToast('🎨 Стиль: ' + GAME_STYLE_LABELS[next]);
+}
+function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'btn-green', 'btn-red', 'btn-purple', 'btn-gold', 'btn-cyan', 'btn-pink'); if (color && color !== 'blue') document.body.classList.add('btn-' + color); localStorage.setItem('btnColor', color || 'blue'); document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === (color || 'blue'))); }
 
 // ===== ОСНОВНАЯ ЛОГИКА =====
 window.addEventListener('load', () => {
+    try { supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.log('Ошибка Supabase:', e); }
+
+
     try { supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.log('Ошибка Supabase:', e); }
 
     // ===== ПРОВЕРКА СТАТУСА СЕРВЕРА (game_settings) =====
@@ -94,25 +116,34 @@ window.addEventListener('load', () => {
                 document.getElementById('closedOverlay')?.classList.remove('show');
             }
 
-            if (data.latest_version && String(data.latest_version).trim() !== GAME_VERSION) {
-                document.getElementById('updateOverlay')?.classList.add('show');
-                document.getElementById('mainMenu')?.classList.add('hidden');
-                document.getElementById('gameInterface')?.classList.add('hidden');
-                return;
-            } else {
-                document.getElementById('updateOverlay')?.classList.remove('show');
-            }
+            // В тестовой сборке проверка latest_version отключена:
+            // тестеры могут запускать сборку независимо от версии основной игры.
 
-            const tickerActive = (data.ticker_active === true || data.ticker_active === 'true');
-            if (tickerActive && data.ticker_text) {
+            const tickerMessage = String(data.ticker_text || '').trim();
+            // В текущей таблице game_settings колонка ticker_active отсутствует
+            // (или содержит NULL). В таком случае непустой ticker_text означает,
+            // что строку нужно показывать. Если переключатель существует и задан,
+            // его значение имеет приоритет.
+            const tickerFlag = data.ticker_active;
+            const tickerActive = tickerFlag === null || tickerFlag === undefined
+                ? tickerMessage.length > 0
+                : (tickerFlag === true || tickerFlag === 'true' || tickerFlag === 1 || tickerFlag === '1');
+            if (tickerActive && tickerMessage) {
                 const ticker = document.getElementById('globalTicker');
                 const tickerText = document.getElementById('tickerText');
                 if (ticker && tickerText) {
-                    if (tickerText.innerText !== data.ticker_text) tickerText.innerText = data.ticker_text;
+                    if (tickerText.textContent !== tickerMessage) tickerText.textContent = tickerMessage;
                     ticker.classList.remove('hidden');
+                    ticker.style.setProperty('display', 'flex', 'important');
+                    ticker.style.setProperty('visibility', 'visible', 'important');
                 }
             } else {
-                document.getElementById('globalTicker')?.classList.add('hidden');
+                const ticker = document.getElementById('globalTicker');
+                if (ticker) {
+                    ticker.classList.add('hidden');
+                    ticker.style.setProperty('display', 'none', 'important');
+                    ticker.style.setProperty('visibility', 'hidden', 'important');
+                }
             }
 
             const boostActive = (data.boost_active === true || data.boost_active === 'true');
@@ -140,7 +171,7 @@ window.addEventListener('load', () => {
     }
 
     setTimeout(checkServerStatus, 800);
-    setInterval(checkServerStatus, 60000);
+    setInterval(checkServerStatus, 10000);
 
     setTimeout(() => document.getElementById('loadingScreen')?.classList.add('hidden'), 1500);
     document.getElementById('menuVersion').innerText = `v${GAME_VERSION}`;
@@ -489,13 +520,256 @@ window.addEventListener('load', () => {
         const modal = document.getElementById('leaderboardModal'), list = document.getElementById('leaderboardList');
         modal.classList.add('show'); list.innerHTML = 'Загрузка...';
         if (!supabaseClient) return;
-        const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(10);
+        const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(100);
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
         list.innerHTML = data.map((p, i) => `<div style="display:flex; justify-content:space-between; padding:10px 5px; border-bottom:1px solid #333; font-weight:bold; font-size:15px;"><span>${i+1}. ${escapeHTML(p.player_name)}</span> <span style="color:#ffd966;">🧠 ${formatNumber(p.score)}</span></div>`).join('');
     }
+
+    // ===== СИСТЕМА ДРУЗЕЙ (игровые ID, без регистрации аккаунта) =====
+    const friendsModal = document.getElementById('friendsModal');
+    const friendsStatus = document.getElementById('friendStatus');
+    const getMyFriendName = () => String(localStorage.getItem('gamePlayerName') || ('Игрок-' + String(playerId).slice(-4))).slice(0, 24);
+    const setFriendStatus = (message, bad = false) => {
+        if (friendsStatus) { friendsStatus.textContent = message; friendsStatus.style.color = bad ? '#ff7777' : '#ffd966'; }
+    };
+    async function ensureMyFriendProfile() {
+        const { error } = await supabaseClient.from('player_profiles').upsert({
+            player_id: playerId, player_name: getMyFriendName()
+        }, { onConflict: 'player_id' });
+        if (error) throw error;
+    }
+    let onlineFriendIds = new Set();
+    function renderFriendRows(container, rows, mode) {
+        if (!container) return;
+        if (!rows.length) { container.textContent = mode === 'incoming' ? 'Новых запросов нет.' : 'Пока нет друзей.'; return; }
+        container.innerHTML = rows.map(row => {
+            const incoming = mode === 'incoming';
+            const name = incoming ? row.player_name : row.friend_name;
+            const id = incoming ? row.player_id : row.friend_id;
+            const action = incoming
+                ? '<button class="modal-btn friend-accept" data-id="' + Number(row.id) + '" style="margin:0;padding:5px 8px;background:#287b39;">Принять</button>'
+                : '<button class="modal-btn friend-remove" data-id="' + Number(row.id) + '" style="margin:0;padding:5px 8px;background:#8b3030;">Удалить</button>';
+            return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 4px;border-bottom:1px solid #444;">' +
+                '<div style="min-width:0;overflow-wrap:anywhere;"><button type="button" class="friend-profile" data-profile-id="' + escapeHTML(id || '') + '" style="border:0;background:none;color:inherit;padding:0;text-align:left;font-weight:bold;text-decoration:underline;cursor:pointer;">' + escapeHTML(name || 'Игрок') + '</button><div style="font-size:10px;opacity:.7;">' + escapeHTML(id || '') + '</div></div>' + action + '</div>';
+        }).join('');
+    }
+    async function loadFriends() {
+        const incomingEl = document.getElementById('incomingFriendsList');
+        const friendsEl = document.getElementById('myFriendsList');
+        if (!supabaseClient) { setFriendStatus('Для друзей необходимо подключение к интернету.', true); return; }
+        if (incomingEl) incomingEl.textContent = 'Загрузка...';
+        if (friendsEl) friendsEl.textContent = 'Загрузка...';
+        try {
+            await ensureMyFriendProfile();
+            const { data: onlineRows } = await supabaseClient.from('online_players').select('player_id,last_seen').gte('last_seen', new Date(Date.now() - 30000).toISOString());
+            onlineFriendIds = new Set((onlineRows || []).map(p => p.player_id));
+            const [{ data: incoming, error: incomingError }, { data: sent, error: sentError }, { data: acceptedA, error: acceptedAError }, { data: acceptedB, error: acceptedBError }] = await Promise.all([
+                supabaseClient.from('friends').select('*').eq('friend_id', playerId).eq('status', 'pending').order('created_at', { ascending: false }),
+                supabaseClient.from('friends').select('*').eq('player_id', playerId).eq('status', 'pending').order('created_at', { ascending: false }),
+                supabaseClient.from('friends').select('*').eq('player_id', playerId).eq('status', 'accepted'),
+                supabaseClient.from('friends').select('*').eq('friend_id', playerId).eq('status', 'accepted')
+            ]);
+            const err = incomingError || sentError || acceptedAError || acceptedBError;
+            if (err) throw err;
+            renderFriendRows(incomingEl, incoming || [], 'incoming');
+            const accepted = [...(acceptedA || []), ...(acceptedB || []).map(r => ({
+                ...r, player_id: r.friend_id, friend_id: r.player_id,
+                player_name: r.friend_name, friend_name: r.player_name
+            }))];
+            renderFriendRows(friendsEl, accepted, 'friends');
+            if (sent?.length) setFriendStatus('Отправленных запросов: ' + sent.length);
+            else setFriendStatus('Можно добавить игрока по игровому ID или точному нику.');
+        } catch (error) {
+            console.error('Friends load error:', error);
+            if (incomingEl) incomingEl.textContent = 'Не удалось загрузить запросы.';
+            if (friendsEl) friendsEl.textContent = 'Не удалось загрузить друзей.';
+            setFriendStatus('Ошибка загрузки друзей: ' + (error.message || 'проверь Supabase'), true);
+        }
+    }
+    async function sendFriendRequest() {
+        const input = document.getElementById('friendSearchInput');
+        const query = String(input?.value || '').trim().slice(0, 60);
+        if (!query) { setFriendStatus('Введи игровой ID или ник.', true); return; }
+        if (!supabaseClient) { setFriendStatus('Нет подключения к интернету.', true); return; }
+        try {
+            await ensureMyFriendProfile();
+            let target = null;
+            const byId = await supabaseClient.from('player_profiles').select('player_id,player_name').eq('player_id', query).maybeSingle();
+            if (byId.error) throw byId.error;
+            target = byId.data;
+            if (!target) {
+                const byName = await supabaseClient.from('player_profiles').select('player_id,player_name').ilike('player_name', query).limit(2);
+                if (byName.error) throw byName.error;
+                if (byName.data?.length > 1) { setFriendStatus('Найдено несколько игроков. Используй игровой ID.', true); return; }
+                target = byName.data?.[0] || null;
+            }
+            if (!target) { setFriendStatus('Игрок не найден. Попроси его сначала сохранить ник в настройках.', true); return; }
+            if (target.player_id === playerId) { setFriendStatus('Нельзя добавить самого себя 🙂', true); return; }
+            const { data: existing, error: existingError } = await supabaseClient.from('friends').select('*')
+                .or('and(player_id.eq.' + playerId + ',friend_id.eq.' + target.player_id + '),and(player_id.eq.' + target.player_id + ',friend_id.eq.' + playerId + ')').limit(1);
+            if (existingError) throw existingError;
+            if (existing?.length) { setFriendStatus(existing[0].status === 'accepted' ? 'Вы уже друзья.' : 'Запрос уже существует.', true); return; }
+            const { error } = await supabaseClient.from('friends').insert({
+                player_id: playerId, friend_id: target.player_id,
+                player_name: getMyFriendName(), friend_name: target.player_name, status: 'pending'
+            });
+            if (error) throw error;
+            if (input) input.value = '';
+            setFriendStatus('✅ Запрос отправлен игроку ' + target.player_name);
+            await loadFriends();
+        } catch (error) {
+            console.error('Friend request error:', error);
+            setFriendStatus('Не удалось отправить запрос: ' + (error.message || 'ошибка Supabase'), true);
+        }
+    }
+    async function handleFriendAction(id, accept) {
+        try {
+            const query = supabaseClient.from('friends').update({ status: accept ? 'accepted' : 'pending' }).eq('id', id);
+            const { error } = accept
+                ? await query.eq('friend_id', playerId).eq('status', 'pending')
+                : await supabaseClient.from('friends').delete().eq('id', id).or('player_id.eq.' + playerId + ',friend_id.eq.' + playerId);
+            if (error) throw error;
+            if (!accept) setFriendStatus('Друг удалён или запрос отменён.');
+            else setFriendStatus('✅ Запрос принят!');
+            await loadFriends();
+        } catch (error) {
+            console.error('Friend action error:', error);
+            setFriendStatus('Не удалось выполнить действие.', true);
+        }
+    }
+    document.getElementById('friendsBtn')?.addEventListener('click', async () => {
+        friendsModal?.classList.add('show');
+        const idInput = document.getElementById('myFriendId');
+        if (idInput) idInput.value = playerId;
+        await loadFriends();
+    });
+    document.getElementById('closeFriendsBtn')?.addEventListener('click', () => friendsModal?.classList.remove('show'));
+    document.getElementById('copyMyFriendId')?.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(playerId); setFriendStatus('✅ Твой ID скопирован!'); }
+        catch (error) { const el = document.getElementById('myFriendId'); el?.select(); setFriendStatus('Выдели ID и скопируй вручную.'); }
+    });
+    document.getElementById('sendFriendRequestBtn')?.addEventListener('click', sendFriendRequest);
+    document.getElementById('friendSearchInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') sendFriendRequest(); });
+    document.getElementById('incomingFriendsList')?.addEventListener('click', e => {
+        const btn = e.target.closest('.friend-accept');
+        if (btn) handleFriendAction(Number(btn.dataset.id), true);
+    });
+    document.getElementById('myFriendsList')?.addEventListener('click', e => {
+        const btn = e.target.closest('.friend-remove');
+        if (btn) handleFriendAction(Number(btn.dataset.id), false);
+    });
+
+
+
+    // ===== ПРОФИЛИ ИГРОКОВ =====
+    const profileModal = document.getElementById('profileModal');
+    const profileAvatars = ['🙂','😎','🐱','🐼','🦊','🐸','👾','⭐','🔥','🎮'];
+    let selectedProfileAvatar = '🙂';
+    let openedProfileId = null;
+    function setProfileEditStatus(message, bad = false) {
+        const el = document.getElementById('profileEditStatus');
+        if (el) { el.textContent = message; el.style.color = bad ? '#ff7777' : '#ffd966'; }
+    }
+    function selectProfileAvatar(avatar) {
+        if (!profileAvatars.includes(avatar)) return;
+        selectedProfileAvatar = avatar;
+        document.querySelectorAll('.profile-avatar-choice').forEach(btn => {
+            const active = btn.dataset.avatar === avatar;
+            btn.style.outline = active ? '2px solid #ffd966' : 'none';
+            btn.style.transform = active ? 'scale(1.12)' : 'scale(1)';
+        });
+    }
+    async function openPlayerProfile(targetId) {
+        if (!targetId || !supabaseClient) { showToast('❌ Профиль недоступен без интернета'); return; }
+        openedProfileId = targetId;
+        profileModal?.classList.add('show');
+        document.getElementById('profileNameView').textContent = 'Загрузка...';
+        document.getElementById('profileBioView').textContent = '';
+        document.getElementById('profileScoreView').textContent = '...';
+        document.getElementById('profileStatusView').textContent = 'Проверка...';
+        document.getElementById('profileEditArea').style.display = 'none';
+        document.getElementById('editProfileBtn').style.display = targetId === playerId ? 'block' : 'none';
+        try {
+            const [{ data: profile, error: profileError }, { data: scoreRows, error: scoreError }, { data: onlineRow, error: onlineError }] = await Promise.all([
+                supabaseClient.from('player_profiles').select('player_id,player_name,avatar,bio,created_at').eq('player_id', targetId).maybeSingle(),
+                supabaseClient.from('leaderboard').select('score').eq('player_id', targetId).maybeSingle(),
+                supabaseClient.from('online_players').select('last_seen').eq('player_id', targetId).maybeSingle()
+            ]);
+            if (profileError) throw profileError;
+            if (scoreError) throw scoreError;
+            if (onlineError) throw onlineError;
+            if (!profile) { document.getElementById('profileNameView').textContent = 'Игрок не найден'; return; }
+            const avatar = profile.avatar || '🙂';
+            const name = profile.player_name || 'Аноним';
+            const bio = profile.bio || '';
+            document.getElementById('profileAvatarView').textContent = avatar;
+            document.getElementById('profileNameView').textContent = name;
+            document.getElementById('profileIdView').textContent = 'ID: ' + profile.player_id;
+            document.getElementById('profileBioView').textContent = bio || 'Пока нет описания';
+            document.getElementById('profileScoreView').textContent = formatNumber(Number(scoreRows?.score || 0));
+            const isOnline = onlineRow?.last_seen && (Date.now() - new Date(onlineRow.last_seen).getTime()) < 120000;
+            document.getElementById('profileOnlineView').textContent = isOnline ? '🟢' : '⚪';
+            document.getElementById('profileStatusView').textContent = isOnline ? 'В сети' : 'Не в сети';
+            document.getElementById('profileJoinedView').textContent = 'В игре с ' + (profile.created_at ? new Date(profile.created_at).toLocaleDateString() : '—');
+            if (targetId === playerId) {
+                selectedProfileAvatar = profileAvatars.includes(avatar) ? avatar : '🙂';
+                document.getElementById('profileBioInput').value = bio;
+                selectProfileAvatar(selectedProfileAvatar);
+            }
+        } catch (error) {
+            console.error('Profile load error:', error);
+            document.getElementById('profileNameView').textContent = 'Ошибка загрузки профиля';
+        }
+    }
+    async function savePlayerProfile() {
+        if (openedProfileId !== playerId) return;
+        const bio = String(document.getElementById('profileBioInput')?.value || '').trim().slice(0,120);
+        const playerName = String(localStorage.getItem('gamePlayerName') || 'Аноним').slice(0,24);
+        const saveBtn = document.getElementById('saveProfileBtn');
+        if (saveBtn) saveBtn.disabled = true;
+        setProfileEditStatus('Сохранение...');
+        try {
+            const { error } = await supabaseClient.from('player_profiles').upsert({
+                player_id: playerId, player_name: playerName,
+                avatar: selectedProfileAvatar, bio, updated_at: new Date().toISOString()
+            }, { onConflict: 'player_id' });
+            if (error) throw error;
+            setProfileEditStatus('✅ Профиль сохранён!');
+            showToast('✅ Профиль обновлён!');
+            await openPlayerProfile(playerId);
+            document.getElementById('profileEditArea').style.display = 'none';
+        } catch (error) {
+            console.error('Profile save error:', error);
+            setProfileEditStatus('Не удалось сохранить профиль: ' + (error.message || 'ошибка'), true);
+        } finally {
+            if (saveBtn) saveBtn.disabled = false;
+        }
+    }
+    document.getElementById('myProfileBtn')?.addEventListener('click', () => openPlayerProfile(playerId));
+    document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+        if (openedProfileId !== playerId) return;
+        document.getElementById('profileEditArea').style.display = 'block';
+        document.getElementById('profileBioInput').value = document.getElementById('profileBioView').textContent === 'Пока нет описания' ? '' : document.getElementById('profileBioView').textContent;
+        setProfileEditStatus('');
+    });
+    document.getElementById('saveProfileBtn')?.addEventListener('click', savePlayerProfile);
+    document.getElementById('closeProfileBtn')?.addEventListener('click', () => profileModal?.classList.remove('show'));
+    document.getElementById('profileAvatarChoices')?.addEventListener('click', e => {
+        const btn = e.target.closest('.profile-avatar-choice');
+        if (btn) selectProfileAvatar(btn.dataset.avatar);
+    });
+    document.getElementById('myFriendsList')?.addEventListener('click', e => {
+        const btn = e.target.closest('.friend-profile');
+        if (btn) openPlayerProfile(btn.dataset.profileId);
+    });
+    document.getElementById('incomingFriendsList')?.addEventListener('click', e => {
+        const btn = e.target.closest('.friend-profile');
+        if (btn) openPlayerProfile(btn.dataset.profileId);
+    });
+
     document.getElementById('leaderboardBtn')?.addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn')?.addEventListener('click', () => document.getElementById('leaderboardModal').classList.remove('show'));
-    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-10!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
+    document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-100!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
 
     // ===== ADMIN ABUSE TOOL =====
     let activeAbuseEffects = [];
@@ -549,7 +823,7 @@ window.addEventListener('load', () => {
                 if (cmd.command_type === 'give_stars') { stars += parseInt(cmd.payload); totalStarsEarned += parseInt(cmd.payload); updateUI(); showToast(`👑 Разработчик дал вам +${cmd.payload}⭐!`); }
                 if (cmd.command_type === 'star_rain') { startStarRain(); }
                 if (cmd.command_type === 'dialogue') { showBrainSpeech(cmd.payload); }
-                if (cmd.command_type === 'start_vote') { showVoteModal(cmd.payload); }
+                // Голосование отключено в тестовой сборке.
                 if (cmd.command_type === 'spawn_global_boss') { spawnBoss(); showToast('🌍 МИРОВОЙ БОСС ЗАСПАВНЕН!'); }
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'active_abuse' }, payload => {
@@ -564,7 +838,7 @@ window.addEventListener('load', () => {
     }
 
     function startStarRain() {
-        showToast('🌟 ЗВЕЗДНЫЙ ДОЖДЬ НАЧАЛСЯ!');
+        showToast('🌟 ЗВЕЗДНЫЙ ДОЖДЬ НАЧАСЯ!');
         if (starRainInterval) clearInterval(starRainInterval);
         let count = 0;
         starRainInterval = setInterval(() => {
@@ -579,87 +853,6 @@ window.addEventListener('load', () => {
             star.onclick = () => { stars += 1; totalStarsEarned += 1; updateUI(); saveGame(); playBuySound(); star.remove(); };
             setTimeout(() => { if (star.parentNode) star.remove(); }, duration);
         }, 200);
-    }
-
-    function showVoteModal(jsonStr) {
-        try {
-            const data = JSON.parse(jsonStr);
-            const pollId = data.q; // Используем текст вопроса как ID
-            document.getElementById('voteQuestion').innerText = pollId;
-            document.getElementById('voteModal').classList.add('show');
-            
-            const btnYes = document.getElementById('voteBtnYes');
-            const btnNo = document.getElementById('voteBtnNo');
-            const newBtnYes = btnYes.cloneNode(true);
-            const newBtnNo = btnNo.cloneNode(true);
-            btnYes.parentNode.replaceChild(newBtnYes, btnYes);
-            btnNo.parentNode.replaceChild(newBtnNo, btnNo);
-            
-            // Загружаем текущие результаты
-            updateVoteProgress(pollId);
-
-            // Подписываемся на обновления голосов
-            if (window.voteChannel) supabaseClient.removeChannel(window.voteChannel);
-            window.voteChannel = supabaseClient.channel('poll_'+pollId)
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes', filter: `poll_id=eq.${pollId}` }, () => {
-                    updateVoteProgress(pollId);
-                }).subscribe();
-
-            newBtnYes.onclick = async () => { 
-                await castVote(pollId, 'yes');
-            };
-            newBtnNo.onclick = async () => { 
-                await castVote(pollId, 'no');
-            };
-        } catch(e) { console.log('Ошибка парсинга голосования', e); }
-    }
-
-    async function castVote(pollId, voteValue) {
-        if (!supabaseClient) return;
-        try {
-            const { error } = await supabaseClient.from('poll_votes').insert([{ poll_id: pollId, player_id: playerId, vote_value: voteValue }]);
-            if (error && error.code === '23505') {
-                showToast('❌ Вы уже голосовали!');
-            } else if (error) {
-                showToast('❌ Ошибка голосования');
-            } else {
-                showToast('✅ Голос учтен!');
-            }
-        } catch(e) {}
-    }
-
-    async function updateVoteProgress(pollId) {
-        if (!supabaseClient) return;
-        try {
-            const { data, error } = await supabaseClient.from('poll_votes').select('vote_value').eq('poll_id', pollId);
-            if (error || !data) return;
-
-            let yesCount = 0, noCount = 0;
-            data.forEach(v => {
-                if (v.vote_value === 'yes') yesCount++;
-                if (v.vote_value === 'no') noCount++;
-            });
-
-            const total = yesCount + noCount;
-            let yesPercent = 0, noPercent = 0;
-
-            if (total > 0) {
-                yesPercent = Math.round((yesCount / total) * 100);
-                noPercent = 100 - yesPercent;
-            } else {
-                yesPercent = 50;
-                noPercent = 50;
-            }
-
-            const yesEl = document.getElementById('voteProgressYes');
-            const noEl = document.getElementById('voteProgressNo');
-            if (yesEl && noEl) {
-                yesEl.style.width = yesPercent + '%';
-                yesEl.innerText = yesPercent + '%';
-                noEl.style.width = noPercent + '%';
-                noEl.innerText = noPercent + '%';
-            }
-        } catch(e) {}
     }
 
     // ===== ОСТАЛЬНАЯ ЛОГИКА ИГРЫ =====
@@ -682,10 +875,36 @@ window.addEventListener('load', () => {
     function renderShopNeurons() {
         const start = currentPage * ITEMS_PER_PAGE, end = Math.min(start + ITEMS_PER_PAGE, upgrades.length); let html = '';
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn">${t('first_page')}</button><button class="page-btn" id="prevPageBtn">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn">${t('next_page')}</button><button class="page-btn" id="lastPageBtn">${t('last_page')}</button></div>`;
-        for (let i = start; i < end; i++) { const u = upgrades[i]; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); html += `<div class="shop-item" data-id="${u.id}"><span>${u.name} +${u.power}</span><span>${u.purchased ? '✅' : `💰 ${formatNumber(finalPrice)}`}</span></div>`; }
+        for (let i = start; i < end; i++) {
+            const u = upgrades[i];
+            let finalPrice = u.price;
+            if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100));
+            html += `<button type="button" class="shop-item ${u.purchased ? 'shop-item-purchased' : ''}" data-index="${i}" aria-pressed="${u.purchased ? 'true' : 'false'}"><span>${escapeHTML(u.name)} +${u.power}</span><span>${u.purchased ? '✅ КУПЛЕНО' : `💰 ${formatNumber(finalPrice)}`}</span></button>`;
+        }
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn2">${t('first_page')}</button><button class="page-btn" id="prevPageBtn2">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">${t('next_page')}</button><button class="page-btn" id="lastPageBtn2">${t('last_page')}</button></div>`;
-        document.getElementById('shopNeurons').innerHTML = html;
-        document.querySelectorAll('#shopNeurons .shop-item').forEach(el => { const u = upgrades[parseInt(el.dataset.id)]; if (!u.purchased) el.addEventListener('click', () => buyUpgrade(u.id)); });
+        const shopContainer = document.getElementById('shopNeurons');
+        shopContainer.innerHTML = html;
+        // Единая обработка кликов на уровне document в capture-фазе.
+        // Срабатывает даже если обработчики промежуточных элементов блокируют событие.
+        if (!document._neuronShopClickHandlerInstalled) {
+            document._neuronShopClickHandlerInstalled = true;
+            document.addEventListener('click', function neuronShopClickHandler(event) {
+                const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+                const button = target?.closest('#shopNeurons button.shop-item[data-index]');
+                if (!button) return;
+                const index = Number(button.getAttribute('data-index'));
+                if (!Number.isInteger(index) || index < 0 || index >= upgrades.length) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                const upgrade = upgrades[index];
+                if (!upgrade) return;
+                if (upgrade.purchased === true) {
+                    showToast(`✅ Нейросеть уже куплена: ${upgrade.name}`);
+                    return;
+                }
+                buyUpgrade(index);
+            }, true);
+        }
         ['firstPageBtn', 'firstPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = 0; renderShopNeurons(); }));
         ['lastPageBtn', 'lastPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = totalPages - 1; renderShopNeurons(); }));
         ['prevPageBtn', 'prevPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
@@ -722,7 +941,32 @@ window.addEventListener('load', () => {
     function buySkin(id) { const skin = SKINS.find(s => s.id === id); if (!skin) return; if (stars < skin.price) { showToast(`❌ ${t('need_stars')} ${skin.price}⭐`); return; } stars -= skin.price; purchasedSkins.push(id); localStorage.setItem('purchasedSkins', JSON.stringify(purchasedSkins)); currentSkin = id; localStorage.setItem('currentSkin', id); updateUI(); applySkin(); saveGame(); renderShopSkins(); showToast(`✅ ${t('skin_' + skin.id)} ${t('skin_bought')}`); playBuySound(); }
     function applySkin() { const brain = document.getElementById('clickableObject'); if (!brain) return; brain.classList.remove('skin-normal', 'skin-halloween', 'skin-amethyst'); brain.classList.add('skin-' + currentSkin); const emoji = document.getElementById('brainEmoji'); if (emoji) { if (currentSkin === 'normal') { emoji.innerText = '🧠'; emoji.style.display = 'block'; } else if (currentSkin === 'halloween') { emoji.innerText = '🎃'; emoji.style.display = 'block'; } else if (currentSkin === 'amethyst') { emoji.style.display = 'none'; } } updateBrainEvolution(); }
     function getSkinMultiplier() { return SKINS.find(s => s.id === currentSkin)?.mult || 1; }
-    function buyUpgrade(id) { const u = upgrades[id]; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); if (!u.purchased && points >= finalPrice) { points -= finalPrice; u.purchased = true; purchasedCount++; updateUI(); renderShopNeurons(); saveGame(); showToast(`✅ ${u.name} ${t('bought')}`); playBuySound(); } else showToast(t('not_enough')); }
+    function buyUpgrade(index) {
+        const u = upgrades[index];
+        if (!u) return;
+        if (u.purchased) { showToast(`✅ Уже куплено: ${u.name}`); return; }
+        let finalPrice = u.price;
+        if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100));
+        if (points < finalPrice) { showToast(t('not_enough')); return; }
+        points -= finalPrice;
+        u.purchased = true;
+        purchasedCount = upgrades.filter(item => item.purchased === true).length;
+        try {
+            saveGame();
+        } catch (saveError) {
+            console.error('Не удалось сохранить покупку нейросети:', saveError);
+            points += finalPrice;
+            u.purchased = false;
+            purchasedCount = upgrades.filter(item => item.purchased === true).length;
+            showToast('❌ Не удалось сохранить покупку');
+            return;
+        }
+        updateUI();
+        renderShopNeurons();
+        updateBrainEvolution();
+        showToast(`✅ Нейросеть куплена: ${u.name}`);
+        playBuySound();
+    }
     function buyAllAvailable() { const list = upgrades.map((u, i) => ({ u, i })).filter(x => !x.u.purchased).sort((a, b) => a.u.price - b.u.price); let bought = 0; for (const item of list) { let finalPrice = item.u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); if (points >= finalPrice) { points -= finalPrice; item.u.purchased = true; bought++; } else break; } if (bought > 0) { purchasedCount = upgrades.filter(u => u.purchased).length; updateUI(); renderShopNeurons(); saveGame(); showToast(`💰 ${t('bought_count')}: ${bought}!`); playBuySound(); } else showToast(t('not_enough')); }
 
     const EXCHANGES = [{ id: 'exNew', type: 'pointsToStars', cost: 10, reward: 1, label: '10🧠 = 1⭐' },{ id: 'ex1', type: 'starsToPoints', cost: 500, reward: 10000000, label: '500⭐ = 10M🧠' },{ id: 'ex2', type: 'starsToPoints', cost: 450, reward: 1000000, label: '450⭐ = 1M🧠' },{ id: 'ex3', type: 'starsToPoints', cost: 250, reward: 100000, label: '250⭐ = 100K🧠' },{ id: 'ex4', type: 'pointsToStars', cost: 1000000, reward: 100, label: '1M🧠 = 100⭐' },{ id: 'soon', type: 'soon', label: 'soon', disabled: true }];
@@ -742,22 +986,41 @@ window.addEventListener('load', () => {
     const ROULETTE_PRIZES = [{ emoji: '💰', type: 'points', min: 100000, max: 1000000 },{ emoji: '⭐', type: 'stars', min: 50, max: 200 },{ emoji: '🧠', type: 'points', min: 5000000, max: 25000000 },{ emoji: '🌟', type: 'stars', min: 10, max: 50 },{ emoji: '⚡', type: 'boost', duration: 15 * 60 * 1000 },{ emoji: '🎁', type: 'nothing' },{ emoji: '💥', type: 'points', min: 100000000, max: 500000000 },{ emoji: '👑', type: 'stars', min: 2000, max: 5000 }];
     function openRoulette() { document.getElementById('rouletteOverlay')?.classList.add('show'); }
     function spinRoulette() {
-        if (rouletteSpinning) return; if (stars < rouletteCost) { showToast(t('roulette_no_stars')); return; }
-        stars -= rouletteCost; updateUI(); saveGame(); rouletteSpinning = true;
-        const btn = document.getElementById('rouletteSpinBtn'); if (btn) { btn.disabled = true; btn.innerText = t('roulette_spinning'); }
-        const slots = document.querySelectorAll('#rouletteWheel .roulette-slot'); slots.forEach(s => s.classList.remove('win'));
-        let c = 0; const total = 30; const finalIdx = Math.floor(Math.random() * slots.length);
-        const int = setInterval(() => {
-            slots.forEach(s => s.classList.remove('win')); slots[c % slots.length].classList.add('win'); c++; playClickSound();
-            if (c >= total + finalIdx) { clearInterval(int); slots.forEach(s => s.classList.remove('win')); slots[finalIdx].classList.add('win'); giveRoulettePrize(finalIdx); rouletteSpinning = false; if (btn) { btn.disabled = false; btn.innerText = t('roulette_spin'); } }
-        }, 70);
+        if (rouletteSpinning) return;
+        const wheel = document.getElementById('rouletteWheel');
+        const slots = wheel ? Array.from(wheel.querySelectorAll('.roulette-slot')) : [];
+        const btn = document.getElementById('rouletteSpinBtn');
+        if (slots.length !== ROULETTE_PRIZES.length) { showToast('❌ Ошибка рулетки: проверьте призы.'); return; }
+        if (stars < rouletteCost) { showToast(t('roulette_no_stars')); return; }
+        rouletteSpinning = true;
+        stars -= rouletteCost;
+        if (btn) { btn.disabled = true; btn.innerText = t('roulette_spinning'); }
+        slots.forEach(slot => slot.classList.remove('win'));
+        updateUI(); saveGame();
+        let step = 0;
+        const finalIdx = Math.floor(Math.random() * slots.length);
+        const totalSteps = 30 + finalIdx;
+        const timer = setInterval(() => {
+            slots.forEach(slot => slot.classList.remove('win'));
+            slots[step % slots.length].classList.add('win');
+            step++;
+            playClickSound();
+            if (step >= totalSteps) {
+                clearInterval(timer);
+                slots.forEach(slot => slot.classList.remove('win'));
+                slots[finalIdx].classList.add('win');
+                giveRoulettePrize(finalIdx);
+                rouletteSpinning = false;
+                if (btn) { btn.disabled = false; btn.innerText = t('roulette_spin'); }
+            }
+        }, 90);
     }
     function giveRoulettePrize(idx) {
         const emoji = document.querySelectorAll('#rouletteWheel .roulette-slot')[idx]?.innerText || '🎁'; let p = ROULETTE_PRIZES.find(x => x.emoji === emoji) || ROULETTE_PRIZES[0]; let msg = '';
         if (p.type === 'points') { const a = Math.floor(p.min + Math.random() * (p.max - p.min)); points += a; msg = `+${formatNumber(a)}🧠`; if (emoji === '💥') showJackpot(); }
         else if (p.type === 'stars') { const a = Math.floor(p.min + Math.random() * (p.max - p.min)); stars += a; totalStarsEarned += a; msg = `+${formatNumber(a)}⭐`; if (emoji === '👑') showJackpot(); }
         else if (p.type === 'nothing') { msg = t('roulette_nothing'); }
-        else if (p.type === 'boost') { boostEndTime = Date.now() + p.duration; updateBoostUI(); msg = `⚡ Буст X5 (15 мин)!`; }
+        else if (p.type === 'boost') { boostEndTime = Date.now() + p.duration; updateBoostUI(); updateBoostTimersPanel(); msg = `⚡ Буст X5 (15 мин)!`; }
         updateUI(); saveGame(); if (p.type !== 'nothing') showToast(`${t('roulette_win')}: ${emoji} ${msg}`); else showToast(msg); playBuySound();
     }
     function showJackpot() { showToast(t('roulette_jackpot')); document.body.style.filter = 'brightness(1.5) contrast(1.2)'; setTimeout(() => document.body.style.filter = '', 400); playBuySound(); setTimeout(playBuySound, 150); setTimeout(playBuySound, 300); }
@@ -765,15 +1028,34 @@ window.addEventListener('load', () => {
     function isBoostActive() { return Date.now() < boostEndTime; } function getBoostRemaining() { return Math.max(0, boostEndTime - Date.now()); } function isBirthdayBoostActive() { return Date.now() < birthdayBoostEndTime; } function isMarch8BoostActive() { return Date.now() < march8BoostEndTime; } function isX10BoostActive() { return Date.now() < x10BoostEndTime; }
     function updateBoostUI() { const btn = document.getElementById('boostBtn'); if (!btn) return; if (isBoostActive()) { const ms = getBoostRemaining(); btn.innerText = `${t('boost_active')} ${Math.floor(ms / 60000)}:${Math.floor((ms % 60000) / 1000).toString().padStart(2, '0')}`; btn.classList.add('active'); } else { btn.innerText = t('boost'); btn.classList.remove('active'); } updateBoostTimersPanel(); }
     function updateBoostTimersPanel() {
-        const panel = document.getElementById('boostTimerPanel'); if (!panel) return; let html = '';
-        if (isBoostActive()) { const ms = getBoostRemaining(); html += `<div class="boost-timer-item">⚡×5: ${Math.floor(ms/3600000)}:${Math.floor((ms%3600000)/60000).toString().padStart(2,'0')}:${Math.floor((ms%60000)/1000).toString().padStart(2,'0')}</div>`; }
-        if (isBirthdayBoostActive()) { const ms = birthdayBoostEndTime - Date.now(); html += `<div class="boost-timer-item">🎂×10: ${Math.floor(ms/3600000)}:${Math.floor((ms%3600000)/60000).toString().padStart(2,'0')}:${Math.floor((ms%60000)/1000).toString().padStart(2,'0')}</div>`; }
-        if (isMarch8BoostActive()) { const ms = march8BoostEndTime - Date.now(); html += `<div class="boost-timer-item">🌷×15: ${Math.floor(ms/3600000)}:${Math.floor((ms%3600000)/60000).toString().padStart(2,'0')}:${Math.floor((ms%60000)/1000).toString().padStart(2,'0')}</div>`; }
-        if (isX10BoostActive()) { const ms = x10BoostEndTime - Date.now(); html += `<div class="boost-timer-item">🧠×10: ${Math.floor(ms/3600000)}:${Math.floor((ms%3600000)/60000).toString().padStart(2,'0')}:${Math.floor((ms%60000)/1000).toString().padStart(2,'0')}</div>`; }
+        const panel = document.getElementById('boostTimerPanel');
+        if (!panel) return;
+        let html = '';
+        const formatBoostTime = (ms) => {
+            const totalSeconds = Math.ceil(Math.max(0, ms) / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return hours > 0
+                ? `${hours}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`
+                : `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+        };
+        if (isBoostActive()) html += `<div class="boost-timer-item">⚡ БУСТ ×5 · ${formatBoostTime(getBoostRemaining())}</div>`;
+        if (isBirthdayBoostActive()) html += `<div class="boost-timer-item">🎂 ×10 · ${formatBoostTime(birthdayBoostEndTime - Date.now())}</div>`;
+        if (isMarch8BoostActive()) html += `<div class="boost-timer-item">🌷 ×15 · ${formatBoostTime(march8BoostEndTime - Date.now())}</div>`;
+        if (isX10BoostActive()) html += `<div class="boost-timer-item">🧠 ×10 · ${formatBoostTime(x10BoostEndTime - Date.now())}</div>`;
         panel.innerHTML = html;
+        panel.classList.toggle('hidden', !html);
+        panel.style.setProperty('position', 'fixed', 'important');
+        panel.style.setProperty('left', '12px', 'important');
+        panel.style.setProperty('bottom', '12px', 'important');
+        panel.style.setProperty('z-index', '2147483647', 'important');
+        panel.style.setProperty('display', html ? 'flex' : 'none', 'important');
+        panel.style.setProperty('visibility', html ? 'visible' : 'hidden', 'important');
+        panel.style.setProperty('opacity', html ? '1' : '0', 'important');
     }
     function startBoostTimer() { if (boostInterval) clearInterval(boostInterval); updateBoostUI(); boostInterval = setInterval(() => { if (isBoostActive() || isBirthdayBoostActive() || isMarch8BoostActive() || isX10BoostActive()) updateBoostTimersPanel(); if (isBoostActive()) updateBoostUI(); else if (boostEndTime > 0) { boostEndTime = 0; showToast(t('boost_ended')); updateUI(); } }, 1000); }
-    function buyBoost() { if (isBoostActive()) { showToast(t('boost_already')); return; } if (stars < BOOST_PRICE) { showToast(`❌ ${t('need_stars')} ${BOOST_PRICE}⭐`); return; } stars -= BOOST_PRICE; boostEndTime = Date.now() + BOOST_DURATION; updateUI(); updateBoostUI(); saveGame(); showToast(t('boost_activated')); playBuySound(); }
+    function buyBoost() { if (isBoostActive()) { showToast(t('boost_already')); return; } if (stars < BOOST_PRICE) { showToast(`❌ ${t('need_stars')} ${BOOST_PRICE}⭐`); return; } stars -= BOOST_PRICE; boostEndTime = Date.now() + BOOST_DURATION; updateUI(); updateBoostUI(); updateBoostTimersPanel(); saveGame(); showToast(t('boost_activated')); playBuySound(); }
     function updateAutoClickerUI() { const btn = document.getElementById('autoclickerBtn'); if (!btn) return; if (autoclickerBought) { btn.innerText = t('autoclicker_active'); btn.classList.add('active'); btn.style.background = 'linear-gradient(145deg, #2e7d32, #1a5a20)'; btn.style.borderColor = '#66cc66'; } else { btn.innerText = t('autoclicker'); btn.classList.remove('active'); btn.style.background = ''; btn.style.borderColor = ''; } }
     function buyAutoclicker() { if (autoclickerBought) { showToast(t('autoclicker_bought')); return; } if (stars < AUTOCLICKER_PRICE) { showToast(t('autoclicker_no_stars')); return; } stars -= AUTOCLICKER_PRICE; autoclickerBought = true; startAutoclicker(); updateAutoClickerUI(); updateUI(); saveGame(); showToast(t('autoclicker_bought')); playBuySound(); }
     function startAutoclicker() { if (autoclickerInterval) clearInterval(autoclickerInterval); if (!autoclickerBought) return; let rate = 10; if (autoclickerRateBonus > 0) rate = autoclickerRateBonus; autoclickerInterval = setInterval(() => { points += getClickPower(); totalClicks++; sessionClicks++; updateUI(); }, 1000 / rate); }
@@ -804,7 +1086,7 @@ window.addEventListener('load', () => {
     function calculateOfflineIncome() { const awaySec = Math.min((Date.now() - lastSaveTime) / 1000, OFFLINE_MAX_HOURS * 3600); if (awaySec < 60) return 0; return Math.floor(getClickPower() * awaySec * OFFLINE_RATE); }
     function showOfflineReward(amount) { document.getElementById('offlineReward').innerText = '+' + formatNumber(amount) + ' 🧠'; document.getElementById('offlineOverlay')?.classList.add('show'); }
 
-    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }];
+    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }, { name: "Ретро", freq: 520, type: "square" }, { name: "Мягкий", freq: 740, type: "triangle" }];
     let currentSoundProfile = 0, audioCtx = null, musicEnabled = localStorage.getItem('musicEnabled') === 'true';
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
     function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { try { const p = soundProfiles[currentSoundProfile]; const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = p.type; o.frequency.value = p.freq; g.gain.value = 0.08; g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.05); } catch(e) {} } }
@@ -816,9 +1098,9 @@ window.addEventListener('load', () => {
 
     function spawnFloatText(x, y, text) { const el = document.createElement('div'); el.className = 'float-text'; el.innerText = text; el.style.left = (x - 20) + 'px'; el.style.top = (y - 10) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
     function spawnParticles(x, y) {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 7; i++) {
             const p = document.createElement('div');
-            p.className = 'click-particle';
+            p.className = 'click-particle click-particle-enhanced';
             p.style.left = x + 'px';
             p.style.top = y + 'px';
             const angle = Math.random() * Math.PI * 2;
@@ -852,17 +1134,96 @@ window.addEventListener('load', () => {
     }
 
     function updateUI() { document.getElementById('points').innerText = formatNumber(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${formatNumber(getClickPower())} (БОГ)` : `+${formatNumber(getClickPower())}`; document.getElementById('stars').innerText = formatNumber(stars); updateStatsUI(); updatePlaytime(); document.getElementById('comboText')?.classList.remove('show'); updateBrainEvolution(); checkPassProgress(); checkAchievements(); }
-    function showToast(msg) { const t2 = document.createElement('div'); t2.className = 'toast'; t2.innerText = msg; document.body.appendChild(t2); setTimeout(() => t2.remove(), 2500); }
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = String(msg);
+        toast.style.cssText = 'position:fixed!important;left:50%!important;top:18px!important;bottom:auto!important;transform:translateX(-50%)!important;z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:none!important;max-width:calc(100vw - 24px)!important;width:max-content!important;text-align:center!important;';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
 
     function saveGame() {
         lastSaveTime = Date.now();
-        localStorage.setItem('neuralEvoSave', JSON.stringify({ points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode, comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements, helpers: helpers.map(h => ({ bought: h.bought, level: h.level })), currentSkin, purchasedSkins, upgrades: upgrades.map(u => ({ purchased: u.purchased })), passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime }));
+        const saveData = {
+            points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode,
+            comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime,
+            x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements,
+            helpers: helpers.map(h => ({ bought: h.bought, level: h.level })),
+            currentSkin, purchasedSkins,
+            upgrades: upgrades.map(u => ({ purchased: u.purchased })),
+            passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime,
+            currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime,
+            saveFormat: 2, savedAt: Date.now()
+        };
+        const serialized = JSON.stringify(saveData);
+        try {
+            // Основной файл сохранения игры.
+            localStorage.setItem(SAVE_KEY, serialized);
+            // Резервная копия обновляется только после успешной записи основного файла.
+            localStorage.setItem(SAVE_KEY + '_backup', serialized);
+            return true;
+        } catch (error) {
+            console.error('Ошибка сохранения прогресса:', error);
+            // Если основное хранилище недоступно, пробуем хотя бы резервную копию.
+            try {
+                localStorage.setItem(SAVE_KEY + '_backup', serialized);
+                showToast('⚠️ Основное сохранение недоступно. Создана резервная копия.');
+                return true;
+            } catch (backupError) {
+                console.error('Не удалось создать резервную копию:', backupError);
+                showToast('❌ Не удалось сохранить прогресс! Освободи память браузера.');
+                return false;
+            }
+        }
     }
 
     function loadGame() {
-        const saved = localStorage.getItem('neuralEvoSave');
-        if (saved) { try { const d = JSON.parse(saved); points = d.points || 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks || 0; purchasedCount = d.purchasedCount || 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (d.passPlayTimeSeconds !== undefined) passPlayTimeSeconds = d.passPlayTimeSeconds; if (d.passClaimedRewards) passClaimedRewards = d.passClaimedRewards; if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) {} }
-        updateUI(); renderShopNeurons(); updateStatsUI(); renderAchievements(); startBoostTimer(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
+        let saved = null;
+        const primarySave = localStorage.getItem(SAVE_KEY);
+        const backupSave = localStorage.getItem(SAVE_KEY + '_backup');
+        // Выбираем наиболее свежее корректное сохранение из основного и резервного.
+        const validSave = (raw) => {
+            if (!raw) return null;
+            try {
+                const data = JSON.parse(raw);
+                if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+                if (!Number.isFinite(Number(data.points)) || !Array.isArray(data.upgrades)) return null;
+                return data;
+            } catch (error) {
+                console.warn('Повреждён файл сохранения:', error);
+                return null;
+            }
+        };
+        const primaryData = validSave(primarySave);
+        const backupData = validSave(backupSave);
+        if (primaryData && backupData) {
+            saved = Number(backupData.savedAt || 0) > Number(primaryData.savedAt || 0) ? backupSave : primarySave;
+        } else {
+            saved = primaryData ? primarySave : (backupData ? backupSave : null);
+        }
+        // Если основная копия повреждена или устарела, восстанавливаем её из резервной.
+        if (saved && saved === backupSave && saved !== primarySave) {
+            try { localStorage.setItem(SAVE_KEY, saved); }
+            catch (restoreError) { console.warn('Не удалось восстановить основную копию:', restoreError); }
+        }
+        // Однократный перенос старого сохранения в отдельное хранилище игры.
+        if (!saved) {
+            const legacySave = localStorage.getItem('neuralEvoSave');
+            if (legacySave) {
+                try {
+                    const legacyData = JSON.parse(legacySave);
+                    if (legacyData && typeof legacyData === 'object' && Array.isArray(legacyData.upgrades)) {
+                        saved = legacySave;
+                        localStorage.setItem(SAVE_KEY, legacySave);
+                    }
+                } catch (migrationError) {
+                    console.warn('Старое сохранение игры не удалось перенести:', migrationError);
+                }
+            }
+        }
+        if (saved) { try { const d = JSON.parse(saved); points = d.points !== undefined ? Number(d.points) : 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks ?? 0; purchasedCount = d.purchasedCount ?? 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (d.passPlayTimeSeconds !== undefined) passPlayTimeSeconds = d.passPlayTimeSeconds; if (d.passClaimedRewards) passClaimedRewards = d.passClaimedRewards; if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) { console.error('Ошибка чтения сохранения:', e); showToast('⚠️ Ошибка чтения сохранения. Проверяю резервную копию.'); } }
+        updateUI(); renderShopNeurons(); renderShopHelpers(); renderShopSkins(); updateStatsUI(); renderAchievements(); startBoostTimer(); updateBoostTimersPanel(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
         const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) { birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION; localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('birthday_boost')), 3000); saveGame(); }
         if (isMarch8() && !isMarch8BoostActive() && !localStorage.getItem('march8BoostUsed_' + new Date().toDateString())) { march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION; localStorage.setItem('march8BoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('march8_boost')), 3000); saveGame(); }
@@ -872,18 +1233,27 @@ window.addEventListener('load', () => {
     document.getElementById('diamondRemovalOk')?.addEventListener('click', () => document.getElementById('diamondRemovalOverlay')?.classList.remove('show'));
     document.getElementById('offlineOkBtn')?.addEventListener('click', () => document.getElementById('offlineOverlay')?.classList.remove('show'));
 
-    function exportProgress() { saveGame(); const saved = localStorage.getItem('neuralEvoSave'); let data = {}; if (saved) try { data = JSON.parse(saved); } catch(e) {} data.gameVersion = GAME_VERSION; data.exportDate = new Date().toISOString(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "neural_evolution_save.json"; a.click(); showToast(t('saved')); }
-    function importProgress(file) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); data.gameVersion = GAME_VERSION; localStorage.setItem('neuralEvoSave', JSON.stringify(data)); showToast(t('loaded')); setTimeout(() => location.reload(), 1000); } catch { showToast(t('load_error')); } }; reader.readAsText(file); }
+    function exportProgress() { saveGame(); const saved = localStorage.getItem(SAVE_KEY); let data = {}; if (saved) try { data = JSON.parse(saved); } catch(e) {} data.gameVersion = GAME_VERSION; data.exportDate = new Date().toISOString(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "neural_evolution_save.json"; a.click(); showToast(t('saved')); }
+    function importProgress(file) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); data.gameVersion = GAME_VERSION; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); showToast(t('loaded')); setTimeout(() => location.reload(), 1000); } catch { showToast(t('load_error')); } }; reader.readAsText(file); }
     const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
     const bgThemes = { early_autumn: "bg-early-autumn", golden: "bg-golden", rainy: "bg-rainy", late: "bg-late", forest: "bg-forest", park: "bg-park", mountains: "bg-mountains", village: "bg-village" };
-    function setBodyBg(theme) { if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); return; } document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); localStorage.setItem('selectedBg', theme); applySkin(); applyAbuseEffects(); }
+    function setBodyBg(theme) { if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); applyGameStyle(localStorage.getItem('gameVisualStyle') || 'normal', false); return; } document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); document.body.classList.add('animated-background'); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); applyGameStyle(localStorage.getItem('gameVisualStyle') || 'normal', false); localStorage.setItem('selectedBg', theme); applySkin(); applyAbuseEffects(); }
 
     function processSingleClick(gain, x, y) {
         hideSleepMsg(); comboCounter++; let finalGain = gain;
-        if (comboCounter % 5 === 0) { finalGain = gain * 2; const comboText = document.getElementById('comboText'); if (comboText) { comboText.innerText = phrasesData.combo || t('combo'); comboText.classList.add('show'); setTimeout(() => comboText.classList.remove('show'), 800); } spawnFloatText(x, y - 40, "🔥 x2!"); }
-        if (Math.random() < 0.02) { finalGain *= 3; spawnFloatText(x, y - 40, "⚡ x3!"); showToast(t('triple_click')); playBuySound(); }
-        if (Math.random() < 0.05) { finalGain *= 10; spawnFloatText(x, y - 60, phrasesData.crit || t('crit_click')); showToast(phrasesData.crit || t('crit_click')); playBuySound(); const brain = document.getElementById('clickableObject'); if(brain) { brain.style.boxShadow = '0 0 50px #ffd700'; setTimeout(() => brain.style.boxShadow = '', 300); } }
+        const comboMultiplier = comboCounter % 25 === 0 ? 5 : comboCounter % 10 === 0 ? 3 : comboCounter % 5 === 0 ? 2 : 1;
+        if (comboMultiplier > 1) {
+            finalGain *= comboMultiplier;
+            const comboText = document.getElementById('comboText');
+            if (comboText) { comboText.innerText = '🔥 x' + comboMultiplier + ' КОМБО!'; comboText.classList.add('show'); setTimeout(() => comboText.classList.remove('show'), 900); }
+            spawnFloatText(x, y - 40, '🔥 x' + comboMultiplier + '!');
+        }
+        const criticalRoll = Math.random();
+        if (criticalRoll < 0.015) { finalGain *= 5; spawnFloatText(x, y - 55, '💥 СУПЕР-КРИТ x5!'); showToast('💥 СУПЕР-КРИТИЧЕСКИЙ КЛИК x5!'); playBuySound(); }
+        else if (criticalRoll < 0.045) { finalGain *= 3; spawnFloatText(x, y - 45, '⚡ КРИТ x3!'); showToast('⚡ Критический клик x3!'); playBuySound(); }
+        else if (criticalRoll < 0.065) { finalGain *= 2; spawnFloatText(x, y - 40, '✨ КРИТ x2!'); }
+        if (criticalRoll < 0.065) { const brain = document.getElementById('clickableObject'); if (brain) { brain.classList.remove('critical-hit'); void brain.offsetWidth; brain.classList.add('critical-hit'); setTimeout(() => brain.classList.remove('critical-hit'), 450); } }
         points += finalGain; totalClicks++; sessionClicks++; playClickSound();
         spawnParticles(x, y);
         
@@ -936,7 +1306,8 @@ window.addEventListener('load', () => {
     });
 
     document.getElementById('openShopBtn')?.addEventListener('click', () => { document.getElementById('shopPanel').classList.add('show'); switchShopTab('neurons'); });
-    document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show'));
+    document.getElementById('shopOrbBtn')?.addEventListener('click', () => { const panel = document.getElementById('shopPanel'); panel.classList.add('show', 'neurons-only'); switchShopTab('neurons'); });
+    document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show', 'neurons-only'));
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
     document.getElementById('boostBtn')?.addEventListener('click', buyBoost);
     document.getElementById('autoclickerBtn')?.addEventListener('click', buyAutoclicker);
@@ -948,6 +1319,8 @@ window.addEventListener('load', () => {
     document.getElementById('achCloseBtn')?.addEventListener('click', () => document.getElementById('achOverlay')?.classList.remove('show'));
     document.getElementById('factCloseBtn')?.addEventListener('click', () => document.getElementById('factOverlay')?.classList.remove('show'));
     document.getElementById('settingsBtn')?.addEventListener('click', () => document.getElementById('settingsModal').classList.add('show'));
+    document.getElementById('styleSwitchBtn')?.addEventListener('click', cycleGameStyle);
+    applyGameStyle(localStorage.getItem('gameVisualStyle') || 'normal', false);
     document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
     document.getElementById('resetGameBtn')?.addEventListener('click', () => { if (confirm("Сбросить всё? / Reset all?")) { localStorage.clear(); location.reload(); } });
     
@@ -972,7 +1345,7 @@ window.addEventListener('load', () => {
     if (fullscreenBtn) { fullscreenBtn.addEventListener('click', () => { const el = document.documentElement; const isFull = document.fullscreenElement || document.webkitFullscreenElement; if (!isFull) { if (el.requestFullscreen) el.requestFullscreen(); else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); fullscreenBtn.innerText = t('off'); showToast("⛶ " + t('fullscreen')); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); fullscreenBtn.innerText = t('on'); showToast("⛶ " + t('fullscreen')); } }); }
 
     const promoCodes = {}; for (let i = 1; i <= 100; i++) promoCodes[`code${i}`] = { points: 100 + i * 5, stars: 1 + Math.floor(i / 10) };
-    promoCodes['dima'] = { points: 500, stars: 10 }; promoCodes['dima god'] = { points: 5000, stars: 100 }; promoCodes['start'] = { points: 100, stars: 5 }; promoCodes['neural'] = { points: 1000, stars: 50 }; promoCodes['evolution'] = { points: 2000, stars: 100 }; promoCodes['prestige'] = { points: 10000, stars: 200 }; promoCodes['legend'] = { points: 20000, stars: 500 }; promoCodes['pass8'] = { points: 8000, stars: 80 }; promoCodes['pass9'] = { points: 10000, stars: 100 }; promoCodes['halloween'] = { points: 6666, stars: 66 }; promoCodes['newyear'] = { points: 7777, stars: 77 }; promoCodes['robot'] = { points: 9999, stars: 99 }; promoCodes['hacker'] = { points: 11111, stars: 111 }; promoCodes['pumpkin'] = { points: 8888, stars: 88 }; promoCodes['birthday'] = { points: 17000, stars: 170 }; promoCodes['march8'] = { points: 8000, stars: 80 };
+    promoCodes['dima'] = { points: 500, stars: 10 }; promoCodes['dima god'] = { points: 5000, stars: 100 }; promoCodes['start'] = { points: 100, stars: 5 }; promoCodes['neural'] = { points: 1000, stars: 50 }; promoCodes['evolution'] = { points: 2000, stars: 100 }; promoCodes['prestige'] = { points: 10000, stars: 200 }; promoCodes['legend'] = { points: 20000, stars: 500 }; promoCodes['pass8'] = { points: 8000, stars: 80 }; promoCodes['pass9'] = { points: 10000, stars: 100 }; promoCodes['halloween'] = { points: 6666, stars: 66 }; promoCodes['newyear'] = { points: 7777, stars: 77 }; promoCodes['robot'] = { points: 9999, stars: 99 }; promoCodes['hacker'] = { points: 11111, stars: 111 }; promoCodes['pumpkin'] = { points: 8888, stars: 88 }; promoCodes['birthday'] = { points: 17000, stars: 170 }; promoCodes['march8'] = { points: 8000, stars: 80 }; promoCodes['beta16'] = { points: 2500, stars: 25 }; promoCodes['neural2026'] = { points: 5000, stars: 50 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => { const code = document.getElementById('promoInput').value.toLowerCase().trim(); if (promoCodes[code]) { const promo = promoCodes[code]; points += promo.points; stars += promo.stars; totalStarsEarned += promo.stars; updateUI(); saveGame(); showToast(t('promo_ok')); document.getElementById('promoInput').value = ''; document.getElementById('promoModal').classList.remove('show'); } else showToast(t('promo_bad')); });
     document.getElementById('soundToggleBtn')?.addEventListener('click', () => { currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length; document.getElementById('soundToggleBtn').innerText = `${t('sound_toggle')} (${soundProfiles[currentSoundProfile].name})`; saveGame(); showToast(`🔊 ${soundProfiles[currentSoundProfile].name}`); });
@@ -981,8 +1354,10 @@ window.addEventListener('load', () => {
     document.addEventListener('mousemove', moveEyes); document.addEventListener('touchmove', moveEyes);
 
     let reloadSeconds = reloadTimeMinutes * 60;
-    setInterval(() => { if (reloadSeconds > 0) { reloadSeconds--; const el = document.getElementById('reloadCountdown'); if (el) el.innerText = `${Math.floor(reloadSeconds / 60)}:${(reloadSeconds % 60).toString().padStart(2, '0')}`; if (reloadSeconds === 0) { showToast(t('reload_toast')); setTimeout(() => location.reload(), 2000); } } }, 1000);
+    setInterval(() => { if (reloadSeconds > 0) { reloadSeconds--; const el = document.getElementById('reloadCountdown'); if (el) el.innerText = `${Math.floor(reloadSeconds / 60)}:${(reloadSeconds % 60).toString().padStart(2, '0')}`; if (reloadSeconds === 0) { showToast(t('reload_toast')); saveGame(); setTimeout(() => location.reload(), 2000); } } }, 1000);
     setInterval(saveGame, 5000);
+    window.addEventListener('pagehide', saveGame);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveGame(); });
 
     let adminPasswordBuffer = '';
     function openAdminPasswordPanel() { adminPasswordBuffer = ''; document.getElementById('adminPasswordInput').value = ''; document.getElementById('adminPasswordOverlay')?.classList.add('show'); }
@@ -1032,11 +1407,6 @@ window.addEventListener('load', () => {
                     <button id="admBrainSay" style="background:#888;">Начать</button>
                 </div>
                 <div class="admin-item">
-                    <span>Запустить голосование</span>
-                    <input type="text" id="admVoteTitle" class="admin-input" style="width:100px;" placeholder="Вопрос...">
-                    <button id="admStartVote" style="background:#888;">Начать</button>
-                </div>
-                <div class="admin-item">
                     <span>Запустить босса</span>
                     <button id="admGlobalBoss" style="background:#888;">Начать</button>
                 </div>
@@ -1068,7 +1438,6 @@ window.addEventListener('load', () => {
             };
             document.getElementById('admStarRain').onclick = () => { sendAdminCommand('star_rain'); showToast('Звездный дождь запущен!'); };
             document.getElementById('admBrainSay').onclick = () => { const v = document.getElementById('admBrainText').value; if (v) sendAdminCommand('dialogue', v); };
-            document.getElementById('admStartVote').onclick = () => { const q = document.getElementById('admVoteTitle').value || "Голосование"; const payload = JSON.stringify({ q: q, o: ['Да', 'Нет'] }); sendAdminCommand('start_vote', payload); };
             document.getElementById('admGlobalBoss').onclick = () => sendAdminCommand('spawn_global_boss');
         }
     }
