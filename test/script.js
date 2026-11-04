@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "16.9 BETA";
+const GAME_VERSION = "17.0 BETA";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
@@ -671,8 +671,8 @@ window.addEventListener('load', () => {
     function buySkin(id) { const skin = SKINS.find(s => s.id === id); if (!skin) return; if (stars < skin.price) { showToast(`❌ ${t('need_stars')} ${skin.price}⭐`); return; } stars -= skin.price; purchasedSkins.push(id); localStorage.setItem('purchasedSkins', JSON.stringify(purchasedSkins)); currentSkin = id; localStorage.setItem('currentSkin', id); updateUI(); applySkin(); saveGame(); renderShopSkins(); showToast(`✅ ${t('skin_' + skin.id)} ${t('skin_bought')}`); playBuySound(); }
     function applySkin() { const brain = document.getElementById('clickableObject'); if (!brain) return; brain.classList.remove('skin-normal', 'skin-halloween', 'skin-amethyst'); brain.classList.add('skin-' + currentSkin); const emoji = document.getElementById('brainEmoji'); if (emoji) { if (currentSkin === 'normal') { emoji.innerText = '🧠'; emoji.style.display = 'block'; } else if (currentSkin === 'halloween') { emoji.innerText = '🎃'; emoji.style.display = 'block'; } else if (currentSkin === 'amethyst') { emoji.style.display = 'none'; } } updateBrainEvolution(); }
     function getSkinMultiplier() { return SKINS.find(s => s.id === currentSkin)?.mult || 1; }
-    function buyUpgrade(id) { const u = upgrades[id]; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); if (!u.purchased && points >= finalPrice) { points -= finalPrice; u.purchased = true; purchasedCount++; updateUI(); renderShopNeurons(); saveGame(); showToast(`✅ ${u.name} ${t('bought')}`); playBuySound(); } else showToast(t('not_enough')); }
-    function buyAllAvailable() { const list = upgrades.map((u, i) => ({ u, i })).filter(x => !x.u.purchased).sort((a, b) => a.u.price - b.u.price); let bought = 0; for (const item of list) { let finalPrice = item.u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); if (points >= finalPrice) { points -= finalPrice; item.u.purchased = true; bought++; } else break; } if (bought > 0) { purchasedCount = Math.max(Number(d.purchasedCount) || 1, upgrades.filter(u => u.purchased).length); updateUI(); renderShopNeurons(); saveGame(); showToast(`💰 ${t('bought_count')}: ${bought}!`); playBuySound(); } else showToast(t('not_enough')); }
+    function buyUpgrade(id) { const u = upgrades[id]; if (!u) return; let finalPrice = u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); if (!u.purchased && points >= finalPrice) { points -= finalPrice; u.purchased = true; purchasedCount++; updateUI(); renderShopNeurons(); saveGame(); showToast(`✅ ${u.name} ${t('bought')}`); playBuySound(); } else showToast(t('not_enough')); }
+    function buyAllAvailable() { const list = upgrades.map((u, i) => ({ u, i })).filter(x => !x.u.purchased).sort((a, b) => a.u.price - b.u.price); let bought = 0; for (const item of list) { let finalPrice = item.u.price; if (saleData.active) finalPrice = Math.floor(finalPrice * (1 - saleData.discount_percent / 100)); if (points >= finalPrice) { points -= finalPrice; item.u.purchased = true; bought++; } else break; } if (bought > 0) { purchasedCount = upgrades.filter(u => u.purchased).length; updateUI(); renderShopNeurons(); saveGame(); showToast(`💰 ${t('bought_count')}: ${bought}!`); playBuySound(); } else showToast(t('not_enough')); }
 
     const EXCHANGES = [{ id: 'exNew', type: 'pointsToStars', cost: 10, reward: 1, label: '10🧠 = 1⭐' },{ id: 'ex1', type: 'starsToPoints', cost: 500, reward: 10000000, label: '500⭐ = 10M🧠' },{ id: 'ex2', type: 'starsToPoints', cost: 450, reward: 1000000, label: '450⭐ = 1M🧠' },{ id: 'ex3', type: 'starsToPoints', cost: 250, reward: 100000, label: '250⭐ = 100K🧠' },{ id: 'ex4', type: 'pointsToStars', cost: 1000000, reward: 100, label: '1M🧠 = 100⭐' },{ id: 'soon', type: 'soon', label: 'soon', disabled: true }];
     function renderShopStars() { const container = document.getElementById('shopStars'); if (!container) return; let html = ''; EXCHANGES.forEach(ex => { html += `<div class="${ex.disabled ? 'exchange-item disabled' : 'exchange-item'}" data-ex="${ex.id}">${ex.disabled ? t('soon') : ex.label}</div>`; }); container.innerHTML = html; document.querySelectorAll('#shopStars .exchange-item').forEach(el => { const ex = EXCHANGES.find(e => e.id === el.dataset.ex); if (ex && !ex.disabled) el.addEventListener('click', () => doExchange(ex)); else el.addEventListener('click', () => showToast(t('soon_feature'))); }); }
@@ -691,22 +691,41 @@ window.addEventListener('load', () => {
     const ROULETTE_PRIZES = [{ emoji: '💰', type: 'points', min: 100000, max: 1000000 },{ emoji: '⭐', type: 'stars', min: 50, max: 200 },{ emoji: '🧠', type: 'points', min: 5000000, max: 25000000 },{ emoji: '🌟', type: 'stars', min: 10, max: 50 },{ emoji: '⚡', type: 'boost', duration: 15 * 60 * 1000 },{ emoji: '🎁', type: 'nothing' },{ emoji: '💥', type: 'points', min: 100000000, max: 500000000 },{ emoji: '👑', type: 'stars', min: 2000, max: 5000 }];
     function openRoulette() { document.getElementById('rouletteOverlay')?.classList.add('show'); }
     function spinRoulette() {
-        if (rouletteSpinning) return; if (stars < rouletteCost) { showToast(t('roulette_no_stars')); return; }
-        stars -= rouletteCost; updateUI(); saveGame(); rouletteSpinning = true;
-        const btn = document.getElementById('rouletteSpinBtn'); if (btn) { btn.disabled = true; btn.innerText = t('roulette_spinning'); }
-        const slots = document.querySelectorAll('#rouletteWheel .roulette-slot'); slots.forEach(s => s.classList.remove('win'));
-        let c = 0; const total = 30; const finalIdx = Math.floor(Math.random() * slots.length);
-        const int = setInterval(() => {
-            slots.forEach(s => s.classList.remove('win')); slots[c % slots.length].classList.add('win'); c++; playClickSound();
-            if (c >= total + finalIdx) { clearInterval(int); slots.forEach(s => s.classList.remove('win')); slots[finalIdx].classList.add('win'); giveRoulettePrize(finalIdx); rouletteSpinning = false; if (btn) { btn.disabled = false; btn.innerText = t('roulette_spin'); } }
-        }, 70);
+        if (rouletteSpinning) return;
+        const wheel = document.getElementById('rouletteWheel');
+        const slots = wheel ? Array.from(wheel.querySelectorAll('.roulette-slot')) : [];
+        const btn = document.getElementById('rouletteSpinBtn');
+        if (slots.length !== ROULETTE_PRIZES.length) { showToast('❌ Ошибка рулетки: проверьте призы.'); return; }
+        if (stars < rouletteCost) { showToast(t('roulette_no_stars')); return; }
+        rouletteSpinning = true;
+        stars -= rouletteCost;
+        if (btn) { btn.disabled = true; btn.innerText = t('roulette_spinning'); }
+        slots.forEach(slot => slot.classList.remove('win'));
+        updateUI(); saveGame();
+        let step = 0;
+        const finalIdx = Math.floor(Math.random() * slots.length);
+        const totalSteps = 30 + finalIdx;
+        const timer = setInterval(() => {
+            slots.forEach(slot => slot.classList.remove('win'));
+            slots[step % slots.length].classList.add('win');
+            step++;
+            playClickSound();
+            if (step >= totalSteps) {
+                clearInterval(timer);
+                slots.forEach(slot => slot.classList.remove('win'));
+                slots[finalIdx].classList.add('win');
+                giveRoulettePrize(finalIdx);
+                rouletteSpinning = false;
+                if (btn) { btn.disabled = false; btn.innerText = t('roulette_spin'); }
+            }
+        }, 90);
     }
     function giveRoulettePrize(idx) {
         const emoji = document.querySelectorAll('#rouletteWheel .roulette-slot')[idx]?.innerText || '🎁'; let p = ROULETTE_PRIZES.find(x => x.emoji === emoji) || ROULETTE_PRIZES[0]; let msg = '';
         if (p.type === 'points') { const a = Math.floor(p.min + Math.random() * (p.max - p.min)); points += a; msg = `+${formatNumber(a)}🧠`; if (emoji === '💥') showJackpot(); }
         else if (p.type === 'stars') { const a = Math.floor(p.min + Math.random() * (p.max - p.min)); stars += a; totalStarsEarned += a; msg = `+${formatNumber(a)}⭐`; if (emoji === '👑') showJackpot(); }
         else if (p.type === 'nothing') { msg = t('roulette_nothing'); }
-        else if (p.type === 'boost') { boostEndTime = Date.now() + p.duration; updateBoostUI(); msg = `⚡ Буст X5 (15 мин)!`; }
+        else if (p.type === 'boost') { boostEndTime = Date.now() + p.duration; updateBoostUI(); updateBoostTimersPanel(); msg = `⚡ Буст X5 (15 мин)!`; }
         updateUI(); saveGame(); if (p.type !== 'nothing') showToast(`${t('roulette_win')}: ${emoji} ${msg}`); else showToast(msg); playBuySound();
     }
     function showJackpot() { showToast(t('roulette_jackpot')); document.body.style.filter = 'brightness(1.5) contrast(1.2)'; setTimeout(() => document.body.style.filter = '', 400); playBuySound(); setTimeout(playBuySound, 150); setTimeout(playBuySound, 300); }
@@ -811,7 +830,7 @@ window.addEventListener('load', () => {
     function loadGame() {
         const saved = localStorage.getItem('neuralEvoSave');
         if (saved) { try { const d = JSON.parse(saved); points = d.points !== undefined ? Number(d.points) : 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks ?? 0; purchasedCount = d.purchasedCount ?? 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (d.passPlayTimeSeconds !== undefined) passPlayTimeSeconds = d.passPlayTimeSeconds; if (d.passClaimedRewards) passClaimedRewards = d.passClaimedRewards; if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) {} }
-        updateUI(); renderShopNeurons(); updateStatsUI(); renderAchievements(); startBoostTimer(); updateBoostTimersPanel(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
+        updateUI(); renderShopNeurons(); renderShopHelpers(); renderShopSkins(); updateStatsUI(); renderAchievements(); startBoostTimer(); updateBoostTimersPanel(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
         const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) { birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION; localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('birthday_boost')), 3000); saveGame(); }
         if (isMarch8() && !isMarch8BoostActive() && !localStorage.getItem('march8BoostUsed_' + new Date().toDateString())) { march8BoostEndTime = Date.now() + MARCH8_BOOST_DURATION; localStorage.setItem('march8BoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('march8_boost')), 3000); saveGame(); }
