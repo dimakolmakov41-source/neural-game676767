@@ -605,3 +605,15 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
 
 .boost-timer-panel:not(.hidden) { display:flex !important; visibility:visible !important; opacity:1 !important; }
 #boostTimerPanel .boost-timer-item { position:relative; z-index:2147483000; }
+
+/* Mobile tap polish: remove the blue browser selection flash on the brain */
+#clickableObject, #clickableObject * {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#clickableObject { touch-action: manipulation; cursor: pointer; }
+#rouletteSpinBtn { position: relative; z-index: 5; pointer-events: auto; touch-action: manipulation; }
+#rouletteOverlay.show { display: flex !important; visibility: visible; pointer-events: auto; }
+#rouletteWheel .roulette-slot { min-width: 0; }
