@@ -1270,7 +1270,7 @@ window.addEventListener('load', () => {
     const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json'; importInput.onchange = (e) => { if (e.target.files[0]) importProgress(e.target.files[0]); };
 
     const bgThemes = { early_autumn: "bg-early-autumn", golden: "bg-golden", rainy: "bg-rainy", late: "bg-late", forest: "bg-forest", park: "bg-park", mountains: "bg-mountains", village: "bg-village" };
-    function setBodyBg(theme) { if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); return; } document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); document.body.classList.add('animated-background'); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); localStorage.setItem('selectedBg', theme); applySkin(); applyAbuseEffects(); }
+    function setBodyBg(theme) { if (isHalloween() || isNewYear() || isHackerMode() || isBirthday() || isMarch8()) { applyTheme(); applyGameStyle(localStorage.getItem('gameVisualStyle') || 'normal', false); return; } document.body.className = ''; document.body.classList.add(bgThemes[theme] || 'bg-early-autumn'); document.body.classList.add('animated-background'); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); applyGameStyle(localStorage.getItem('gameVisualStyle') || 'normal', false); localStorage.setItem('selectedBg', theme); applySkin(); applyAbuseEffects(); }
 
     function processSingleClick(gain, x, y) {
         hideSleepMsg(); comboCounter++; let finalGain = gain;
