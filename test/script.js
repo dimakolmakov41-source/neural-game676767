@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.7 BETA";
+const GAME_VERSION = "17.8 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -917,11 +917,63 @@ window.addEventListener('load', () => {
 
     function saveGame() {
         lastSaveTime = Date.now();
-        localStorage.setItem(SAVE_KEY, JSON.stringify({ points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode, comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime, x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements, helpers: helpers.map(h => ({ bought: h.bought, level: h.level })), currentSkin, purchasedSkins, upgrades: upgrades.map(u => ({ purchased: u.purchased })), passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime, currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime }));
+        const saveData = {
+            points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode,
+            comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime,
+            x10BoostEndTime, autoclickerBought, autoclickerLevel, unlockedAchievements,
+            helpers: helpers.map(h => ({ bought: h.bought, level: h.level })),
+            currentSkin, purchasedSkins,
+            upgrades: upgrades.map(u => ({ purchased: u.purchased })),
+            passPlayTimeSeconds, passClaimedRewards, boostEndTime, gameStartTime,
+            currentSoundProfile, gameVersion: GAME_VERSION, lastSaveTime,
+            saveFormat: 2, savedAt: Date.now()
+        };
+        const serialized = JSON.stringify(saveData);
+        try {
+            // Основной файл сохранения тестовой версии.
+            localStorage.setItem(SAVE_KEY, serialized);
+            // Резервная копия обновляется только после успешной записи основного файла.
+            localStorage.setItem(SAVE_KEY + '_backup', serialized);
+            return true;
+        } catch (error) {
+            console.error('Ошибка сохранения прогресса:', error);
+            // Если основное хранилище недоступно, пробуем хотя бы резервную копию.
+            try {
+                localStorage.setItem(SAVE_KEY + '_backup', serialized);
+                showToast('⚠️ Основное сохранение недоступно. Создана резервная копия.');
+                return true;
+            } catch (backupError) {
+                console.error('Не удалось создать резервную копию:', backupError);
+                showToast('❌ Не удалось сохранить прогресс! Освободи память браузера.');
+                return false;
+            }
+        }
     }
 
     function loadGame() {
-        let saved = localStorage.getItem(SAVE_KEY);
+        let saved = null;
+        const primarySave = localStorage.getItem(SAVE_KEY);
+        const backupSave = localStorage.getItem(SAVE_KEY + '_backup');
+        // Выбираем наиболее свежее корректное сохранение из основного и резервного.
+        const validSave = (raw) => {
+            if (!raw) return null;
+            try {
+                const data = JSON.parse(raw);
+                if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+                if (!Number.isFinite(Number(data.points)) || !Array.isArray(data.upgrades)) return null;
+                return data;
+            } catch (error) {
+                console.warn('Повреждён файл сохранения:', error);
+                return null;
+            }
+        };
+        const primaryData = validSave(primarySave);
+        const backupData = validSave(backupSave);
+        if (primaryData && backupData) {
+            saved = Number(backupData.savedAt || 0) > Number(primaryData.savedAt || 0) ? backupSave : primarySave;
+        } else {
+            saved = primaryData ? primarySave : (backupData ? backupSave : null);
+        }
         // Однократный перенос старого сохранения в отдельное хранилище тестовой версии.
         if (!saved) {
             const legacySave = localStorage.getItem('neuralEvoSave');
@@ -937,7 +989,7 @@ window.addEventListener('load', () => {
                 }
             }
         }
-        if (saved) { try { const d = JSON.parse(saved); points = d.points !== undefined ? Number(d.points) : 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks ?? 0; purchasedCount = d.purchasedCount ?? 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (d.passPlayTimeSeconds !== undefined) passPlayTimeSeconds = d.passPlayTimeSeconds; if (d.passClaimedRewards) passClaimedRewards = d.passClaimedRewards; if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) {} }
+        if (saved) { try { const d = JSON.parse(saved); points = d.points !== undefined ? Number(d.points) : 10; if (d.stars !== undefined) stars = d.stars; else if (d.diamonds !== undefined) stars = Math.floor(d.diamonds / 10); else stars = 0; totalClicks = d.totalClicks ?? 0; purchasedCount = d.purchasedCount ?? 1; totalStarsEarned = d.totalStarsEarned || d.totalDiamondsEarned || 0; godMode = d.godMode || false; comboCounter = d.comboCounter || 0; prestigeLevel = d.prestigeLevel || 0; boostEndTime = d.boostEndTime || 0; birthdayBoostEndTime = d.birthdayBoostEndTime || 0; march8BoostEndTime = d.march8BoostEndTime || 0; x10BoostEndTime = d.x10BoostEndTime || 0; autoclickerBought = d.autoclickerBought || false; if (d.autoclickerLevel) autoclickerLevel = d.autoclickerLevel; if (d.helpers) d.helpers.forEach((hData, i) => { if(helpers[i]) { helpers[i].bought = hData.bought; helpers[i].level = hData.level; } }); if (d.lastSaveTime) lastSaveTime = d.lastSaveTime; if (d.currentSkin) currentSkin = d.currentSkin; if (d.purchasedSkins) purchasedSkins = d.purchasedSkins; if (d.upgrades) d.upgrades.forEach((data, i) => { if (upgrades[i]) upgrades[i].purchased = data.purchased; }); if (d.passPlayTimeSeconds !== undefined) passPlayTimeSeconds = d.passPlayTimeSeconds; if (d.passClaimedRewards) passClaimedRewards = d.passClaimedRewards; if (d.gameStartTime) gameStartTime = d.gameStartTime; if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile; purchasedCount = upgrades.filter(u => u.purchased).length; } catch(e) { console.error('Ошибка чтения сохранения:', e); showToast('⚠️ Ошибка чтения сохранения. Проверяю резервную копию.'); } }
         updateUI(); renderShopNeurons(); renderShopHelpers(); renderShopSkins(); updateStatsUI(); renderAchievements(); startBoostTimer(); updateBoostTimersPanel(); if (playtimeInterval) clearInterval(playtimeInterval); playtimeInterval = setInterval(() => updatePlaytime(), 60000); startSleepMsgTimer(); updateAutoClickerUI(); updateDailyGiftUI(); applyTheme(); applySkin(); applyButtonColor(localStorage.getItem('btnColor') || 'blue'); updatePrestigeDisplay();
         const offlineIncome = calculateOfflineIncome(); if (offlineIncome > 0) { points += offlineIncome; setTimeout(() => showOfflineReward(offlineIncome), 2600); saveGame(); updateUI(); }
         if (isBirthday() && !isBirthdayBoostActive() && !localStorage.getItem('birthdayBoostUsed_' + new Date().toDateString())) { birthdayBoostEndTime = Date.now() + BIRTHDAY_BOOST_DURATION; localStorage.setItem('birthdayBoostUsed_' + new Date().toDateString(), 'true'); setTimeout(() => showToast(t('birthday_boost')), 3000); saveGame(); }
