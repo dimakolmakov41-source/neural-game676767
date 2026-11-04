@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.5 BETA";
+const GAME_VERSION = "17.6 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -649,19 +649,27 @@ window.addEventListener('load', () => {
         if (totalPages > 1) html += `<div class="pagination"><button class="page-btn" id="firstPageBtn2">${t('first_page')}</button><button class="page-btn" id="prevPageBtn2">${t('prev_page')}</button><span>${currentPage+1}/${totalPages}</span><button class="page-btn" id="nextPageBtn2">${t('next_page')}</button><button class="page-btn" id="lastPageBtn2">${t('last_page')}</button></div>`;
         const shopContainer = document.getElementById('shopNeurons');
         shopContainer.innerHTML = html;
-        // Кнопки имеют нативную поддержку касания и активации на Android/iOS.
-        shopContainer.querySelectorAll('button.shop-item[data-index]').forEach(button => {
-            button.addEventListener('click', () => {
-                const index = Number(button.dataset.index);
+        // Единая обработка кликов на уровне document в capture-фазе.
+        // Срабатывает даже если обработчики промежуточных элементов блокируют событие.
+        if (!document._neuronShopClickHandlerInstalled) {
+            document._neuronShopClickHandlerInstalled = true;
+            document.addEventListener('click', function neuronShopClickHandler(event) {
+                const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+                const button = target?.closest('#shopNeurons button.shop-item[data-index]');
+                if (!button) return;
+                const index = Number(button.getAttribute('data-index'));
                 if (!Number.isInteger(index) || index < 0 || index >= upgrades.length) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
                 const upgrade = upgrades[index];
-                if (upgrade.purchased) {
+                if (!upgrade) return;
+                if (upgrade.purchased === true) {
                     showToast(`✅ Нейросеть уже куплена: ${upgrade.name}`);
                     return;
                 }
                 buyUpgrade(index);
-            });
-        });
+            }, true);
+        }
         ['firstPageBtn', 'firstPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = 0; renderShopNeurons(); }));
         ['lastPageBtn', 'lastPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = totalPages - 1; renderShopNeurons(); }));
         ['prevPageBtn', 'prevPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
