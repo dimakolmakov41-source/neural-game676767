@@ -974,6 +974,11 @@ window.addEventListener('load', () => {
         } else {
             saved = primaryData ? primarySave : (backupData ? backupSave : null);
         }
+        // Если основная копия повреждена или устарела, восстанавливаем её из резервной.
+        if (saved && saved === backupSave && saved !== primarySave) {
+            try { localStorage.setItem(SAVE_KEY, saved); }
+            catch (restoreError) { console.warn('Не удалось восстановить основную копию:', restoreError); }
+        }
         // Однократный перенос старого сохранения в отдельное хранилище тестовой версии.
         if (!saved) {
             const legacySave = localStorage.getItem('neuralEvoSave');
