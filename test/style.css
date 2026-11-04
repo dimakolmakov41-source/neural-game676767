@@ -736,3 +736,17 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
     opacity: 1 !important;
     font-weight: 900 !important;
 }
+
+
+/* Beta 18.2: in-game AI helper */
+.ai-assistant-modal { max-width: 460px; width: min(460px, 94vw); display: flex; flex-direction: column; max-height: 86vh; }
+.ai-assistant-subtitle { font-size: 12px; opacity: .75; line-height: 1.45; margin: -4px 0 12px; }
+.ai-chat-messages { min-height: 180px; max-height: 48vh; overflow-y: auto; display: flex; flex-direction: column; gap: 9px; padding: 10px; border-radius: 14px; background: rgba(0,0,0,.2); }
+.ai-message { max-width: 88%; padding: 10px 12px; border-radius: 14px; font-size: 13px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ai-message-assistant { align-self: flex-start; background: rgba(91,125,255,.2); border: 1px solid rgba(125,155,255,.3); }
+.ai-message-user { align-self: flex-end; background: rgba(37,160,105,.22); border: 1px solid rgba(75,220,150,.28); }
+.ai-chat-compose { display: flex; gap: 8px; margin-top: 10px; align-items: stretch; }
+.ai-chat-compose textarea { flex: 1; min-width: 0; resize: none; border: 1px solid rgba(255,255,255,.2); border-radius: 12px; background: rgba(0,0,0,.25); color: inherit; padding: 10px; font: inherit; font-size: 14px; }
+.ai-chat-compose button { min-width: 48px; border: 0; border-radius: 12px; background: #527cff; color: white; font-size: 22px; font-weight: bold; }
+.ai-chat-compose button:disabled { opacity: .5; }
+.ai-chat-status { min-height: 18px; font-size: 11px; opacity: .65; margin-top: 7px; text-align: center; }
