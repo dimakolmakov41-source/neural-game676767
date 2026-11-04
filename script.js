@@ -12,6 +12,7 @@ import { isMarch8 as isMarch8TS } from './src/utils/isMarch8.js';
 import { getSkinMultiplier as getSkinMultiplierTS } from './src/utils/getSkinMultiplier.js';
 import { getPrestigeMultiplier as getPrestigeMultiplierTS } from './src/utils/getPrestigeMultiplier.js';
 import { isBoostActive as isBoostActiveTS } from './src/utils/isBoostActive.js';
+import { isHackerMode as isHackerModeTS } from './src/utils/isHackerMode.js';
 
 const GAME_VERSION = "17.0";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
@@ -54,7 +55,7 @@ if (storedGameVersion !== GAME_VERSION) {
 
 function isHalloween() { return isHalloweenTS(customTheme); }
 function isNewYear() { return isNewYearTS(customTheme); }
-function isHackerMode() { const n = Date.now(); return n >= new Date(2026, 8, 29).getTime() && n <= new Date(2026, 9, 5).getTime(); }
+function isHackerMode() { return isHackerModeTS(); }
 function isBirthday() { return isBirthdayTS(); }
 function isMarch8() { return isMarch8TS(); }
 
