@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "17.2 BETA";
+const GAME_VERSION = "17.3 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -645,19 +645,34 @@ window.addEventListener('load', () => {
         const shopContainer = document.getElementById('shopNeurons');
         shopContainer.innerHTML = html;
         // Один делегированный обработчик: работает и после каждой перерисовки магазина.
-        shopContainer.onclick = (event) => {
-            const item = event.target.closest('.shop-item[data-index]');
+        // Обработчик в capture-фазе: срабатывает даже если другой обработчик
+        // внутри магазина останавливает всплытие обычного click.
+        if (shopContainer._neuronPurchaseHandler) {
+            shopContainer.removeEventListener('click', shopContainer._neuronPurchaseHandler, true);
+        }
+        shopContainer._neuronPurchaseHandler = (event) => {
+            const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+            const item = target?.closest('#shopNeurons .shop-item[data-index]');
             if (!item || !shopContainer.contains(item)) return;
-            const index = Number(item.dataset.index);
+            const index = Number(item.getAttribute('data-index'));
             if (!Number.isInteger(index) || index < 0 || index >= upgrades.length) return;
+            event.preventDefault();
+            event.stopPropagation();
             const upgrade = upgrades[index];
-            if (!upgrade) return;
-            if (upgrade.purchased) {
-                showToast(`✅ Уже куплено: ${upgrade.name}`);
+            if (!upgrade) {
+                showToast('❌ Не удалось найти нейросеть. Обнови магазин.');
+                return;
+            }
+            if (upgrade.purchased === true) {
+                item.classList.add('shop-item-purchased');
+                const status = item.querySelector('span:last-child');
+                if (status) status.textContent = '✅ КУПЛЕНО';
+                showToast(`✅ Нейросеть уже куплена: ${upgrade.name}`);
                 return;
             }
             buyUpgrade(index);
         };
+        shopContainer.addEventListener('click', shopContainer._neuronPurchaseHandler, true);
         ['firstPageBtn', 'firstPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = 0; renderShopNeurons(); }));
         ['lastPageBtn', 'lastPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { currentPage = totalPages - 1; renderShopNeurons(); }));
         ['prevPageBtn', 'prevPageBtn2'].forEach(id => document.getElementById(id)?.addEventListener('click', () => { if (currentPage > 0) { currentPage--; renderShopNeurons(); } }));
@@ -704,8 +719,9 @@ window.addEventListener('load', () => {
         points -= finalPrice;
         u.purchased = true;
         purchasedCount = upgrades.filter(item => item.purchased === true).length;
-        updateUI();
+        // Сначала сохраняем факт покупки, затем обновляем интерфейс.
         saveGame();
+        updateUI();
         renderShopNeurons();
         updateBrainEvolution();
         showToast(`✅ Нейросеть куплена: ${u.name}`);
@@ -878,7 +894,14 @@ window.addEventListener('load', () => {
     }
 
     function updateUI() { document.getElementById('points').innerText = formatNumber(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${formatNumber(getClickPower())} (БОГ)` : `+${formatNumber(getClickPower())}`; document.getElementById('stars').innerText = formatNumber(stars); updateStatsUI(); updatePlaytime(); document.getElementById('comboText')?.classList.remove('show'); updateBrainEvolution(); checkPassProgress(); checkAchievements(); }
-    function showToast(msg) { const t2 = document.createElement('div'); t2.className = 'toast'; t2.innerText = msg; document.body.appendChild(t2); setTimeout(() => t2.remove(), 2500); }
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = String(msg);
+        toast.style.cssText = 'position:fixed!important;left:50%!important;top:18px!important;bottom:auto!important;transform:translateX(-50%)!important;z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:none!important;max-width:calc(100vw - 24px)!important;width:max-content!important;text-align:center!important;';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
 
     function saveGame() {
         lastSaveTime = Date.now();
