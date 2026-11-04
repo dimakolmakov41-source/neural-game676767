@@ -1,7 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { TRANSLATIONS } from './translations.js';
 
-const GAME_VERSION = "18.1 BETA";
+const GAME_VERSION = "18.2 BETA";
 const SAVE_KEY = "neuralEvoSave_test17";
 const ENABLE_HTML_PROTECTION = true; // <--- TRUE / FALSE (Включить / Выключить защиту)
 const ADMIN_PASSWORD = "6769";
@@ -671,6 +671,69 @@ window.addEventListener('load', () => {
         if (btn) handleFriendAction(Number(btn.dataset.id), false);
     });
 
+
+
+    // ===== ИИ-ПОМОЩНИК ИГРЫ =====
+    const aiModal = document.getElementById('aiAssistantModal');
+    const aiMessages = [];
+    const aiChatMessages = document.getElementById('aiChatMessages');
+    const aiChatInput = document.getElementById('aiChatInput');
+    const aiChatStatus = document.getElementById('aiChatStatus');
+    const aiSendBtn = document.getElementById('aiChatSendBtn');
+    function addAiChatMessage(role, text) {
+        const bubble = document.createElement('div');
+        bubble.className = 'ai-message ' + (role === 'assistant' ? 'ai-message-assistant' : 'ai-message-user');
+        bubble.textContent = String(text);
+        aiChatMessages?.appendChild(bubble);
+        if (aiChatMessages) aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+    function openAiAssistant() {
+        aiModal?.classList.add('show');
+        setTimeout(() => aiChatInput?.focus(), 100);
+    }
+    async function sendAiMessage() {
+        const text = String(aiChatInput?.value || '').trim();
+        if (!text || !aiSendBtn) return;
+        if (!supabaseClient) { if (aiChatStatus) aiChatStatus.textContent = 'Нет подключения к Supabase. Проверь интернет.'; return; }
+        aiMessages.push({ role: 'user', content: text });
+        addAiChatMessage('user', text);
+        aiChatInput.value = '';
+        aiSendBtn.disabled = true;
+        if (aiChatStatus) aiChatStatus.textContent = 'ИИ думает...';
+        const gameContext = {
+            points: Number(points) || 0,
+            clicks: Number(totalClicks) || 0,
+            power: Number(typeof getClickPower === 'function' ? getClickPower() : 1) || 1,
+            purchased: Number(purchasedCount) || 0,
+            prestige: Number(prestigeLevel) || 0
+        };
+        try {
+            const response = await fetch(SUPABASE_URL + '/functions/v1/game-ai-assistant', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY },
+                body: JSON.stringify({ playerId, messages: aiMessages.slice(-12), game: gameContext })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.error || 'Ошибка сервиса ИИ (' + response.status + ')');
+            const answer = String(result.reply || 'Не удалось получить ответ.');
+            aiMessages.push({ role: 'assistant', content: answer });
+            addAiChatMessage('assistant', answer);
+            if (aiChatStatus) aiChatStatus.textContent = 'Готов помочь ещё!';
+        } catch (error) {
+            aiMessages.pop();
+            addAiChatMessage('assistant', '⚠️ ' + (error.message || 'Не удалось отправить сообщение.'));
+            if (aiChatStatus) aiChatStatus.textContent = 'Проверь подключение и настройки ИИ.';
+        } finally {
+            aiSendBtn.disabled = false;
+            aiChatInput?.focus();
+        }
+    }
+    document.getElementById('aiAssistantBtn')?.addEventListener('click', openAiAssistant);
+    document.getElementById('closeAiAssistantBtn')?.addEventListener('click', () => aiModal?.classList.remove('show'));
+    aiSendBtn?.addEventListener('click', sendAiMessage);
+    aiChatInput?.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendAiMessage(); }
+    });
 
     // ===== ПРОФИЛИ ИГРОКОВ =====
     const profileModal = document.getElementById('profileModal');
