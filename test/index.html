@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🧠 Кликер: Эволюция Нейросетей</title>
-    <link rel="stylesheet" href="style.css?v=18.2">
+    <link rel="stylesheet" href="style.css?v=18.3">
 </head>
 <body class="bg-early-autumn">
 <div id="testerBadge" class="hidden" style="position:fixed;top:8px;left:8px;z-index:99999;background:#173e31;color:#aaffd6;border:1px solid #39c98a;border-radius:20px;padding:6px 10px;font-size:12px;font-weight:bold;">🧪 TESTER BETA</div>
@@ -12,7 +12,7 @@
     <div id="loadingScreen">
         <div class="loader"></div>
         <div class="loading-text" data-i18n="loading">ЗАГРУЗКА...</div>
-        <div class="loading-sub">v18.2 BETA</div>
+        <div class="loading-sub">v18.3 BETA</div>
     </div>
 
     <div id="globalTicker" class="top-ticker hidden">
@@ -35,7 +35,7 @@
 
         <div id="mainMenu" class="main-menu">
             <div class="game-title" id="gameTitle" data-i18n="title">🧠 КЛИКЕР: ЭВОЛЮЦИЯ НЕЙРОСЕТЕЙ</div>
-            <div class="game-version" id="menuVersion">v18.2 BETA</div>
+            <div class="game-version" id="menuVersion">v18.3 BETA</div>
             
             <div style="text-align: center; font-size: 14px; font-weight: bold; color: #00ff41; margin-bottom: 15px; text-shadow: 0 0 5px black;">
                 🟢 Игроков в сети: <span id="onlinePlayersNum">0</span>
@@ -57,7 +57,7 @@
                 <div class="menu-btn" id="myProfileBtn">👤 МОЙ ПРОФИЛЬ</div>
             </div>
             <div class="menu-buttons-row">
-                <div class="menu-btn" id="aiAssistantBtn">🤖 ИИ ПОМОЩНИК</div>
+                
             </div>
             <div class="menu-buttons-row">
                 <div class="menu-btn" id="testBtn3">3</div>
@@ -241,23 +241,7 @@
         </div>
     </div>
 
-        <div id="aiAssistantModal" class="modal-overlay">
-        <div class="modal-content ai-assistant-modal">
-            <div class="modal-title">🤖 ИИ ПОМОЩНИК</div>
-            <div class="ai-assistant-subtitle">Спросите о механиках игры или попросите совет по своему прогрессу</div>
-            <div id="aiChatMessages" class="ai-chat-messages" aria-live="polite">
-                <div class="ai-message ai-message-assistant">Привет! Я помощник игры. Могу объяснить функции, подсказать стратегию и разобрать твою статистику. Что хочешь узнать? 💙</div>
-            </div>
-            <div class="ai-chat-compose">
-                <textarea id="aiChatInput" maxlength="1200" rows="2" placeholder="Напиши вопрос..."></textarea>
-                <button id="aiChatSendBtn" type="button">➤</button>
-            </div>
-            <div id="aiChatStatus" class="ai-chat-status">История чата хранится только до закрытия окна.</div>
-            <button class="modal-btn" id="closeAiAssistantBtn" style="width:100%;margin-top:8px;">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div id="profileModal" class="modal-overlay">
+        <div id="profileModal" class="modal-overlay">
         <div class="modal-content" style="max-width:430px;max-height:88vh;overflow-y:auto;">
             <div class="modal-title">👤 ПРОФИЛЬ ИГРОКА</div>
             <div id="profileView" style="text-align:center;padding:8px 0;">
@@ -523,12 +507,12 @@
         <div class="modal-content">
             <div class="modal-title" id="newsTitle" data-i18n="news_title">📢 НОВОСТИ</div>
             <div class="modal-text" id="newsText" style="font-size: 14px; line-height: 1.5; text-align: left;">
-                🚀 <b>ТЕСТОВОЕ ОБНОВЛЕНИЕ 18.1 BETA!</b><br><br>Добавлен ИИ-помощник: чат, игровые советы и анализ статистики. Спасибо за тестирование! 💙
+                🚀 <b>ТЕСТОВОЕ ОБНОВЛЕНИЕ 18.3 BETA!</b><br><br>Добавлены новые звуки, комбо, критические клики и анимации! Спасибо за тестирование! 💙
             </div>
             <button class="modal-btn" id="closeNewsBtn" data-i18n="close">ЗАКРЫТЬ</button>
         </div>
     </div>
 
-    <script type="module" src="script.js?v=18.2"></script>
+    <script type="module" src="script.js?v=18.3"></script>
 </body>
 </html>
