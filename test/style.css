@@ -698,3 +698,16 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
     max-width: calc(100vw - 24px) !important;
     white-space: normal !important;
 }
+
+/* 17.4: visible state for every purchased neural network */
+#shopNeurons .shop-item-purchased {
+  background: linear-gradient(135deg,#145b37,#082d1c) !important;
+  border: 2px solid #43e58b !important;
+  color: #fff !important;
+}
+#shopNeurons .shop-item-purchased span:last-child {
+  display: inline-block !important;
+  color: #9affbd !important;
+  font-weight: 900 !important;
+}
+#shopNeurons .shop-item[data-index] { cursor: pointer; pointer-events: auto; }
