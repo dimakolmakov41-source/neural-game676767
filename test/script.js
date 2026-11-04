@@ -746,6 +746,7 @@ window.addEventListener('load', () => {
             }, { onConflict: 'player_id' });
             if (error) throw error;
             setProfileEditStatus('✅ Профиль сохранён!');
+            showToast('✅ Профиль обновлён!');
             await openPlayerProfile(playerId);
             document.getElementById('profileEditArea').style.display = 'none';
         } catch (error) {
