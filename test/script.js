@@ -98,6 +98,42 @@ window.addEventListener('load', () => {
         const overlay = document.getElementById('testerAccessOverlay');
         let playerId = localStorage.getItem('gamePlayerId');
         if (!playerId) { playerId = 'player-' + Math.floor(Math.random() * 1000000000); localStorage.setItem('gamePlayerId', playerId); }
+
+        // ===== ERROR MONITOR: отправка ошибок тестовой сборки =====
+        const errorCooldown = new Map();
+        async function sendGameError(level, message, source = '', line = 0, column = 0, stack = '') {
+            if (!supabaseClient) return;
+            const cleanMessage = String(message || 'Unknown error').slice(0, 1200);
+            const fingerprint = level + ':' + cleanMessage + ':' + source + ':' + line;
+            const now = Date.now();
+            if (errorCooldown.has(fingerprint) && now - errorCooldown.get(fingerprint) < 30000) return;
+            errorCooldown.set(fingerprint, now);
+            try {
+                await supabaseClient.from('game_error_reports').insert({
+                    level,
+                    message: cleanMessage,
+                    source: String(source || '').slice(0, 500),
+                    line_number: Number.isFinite(Number(line)) ? Number(line) || null : null,
+                    column_number: Number.isFinite(Number(column)) ? Number(column) || null : null,
+                    stack: String(stack || '').slice(0, 5000),
+                    page_url: location.href.slice(0, 500),
+                    player_id: String(playerId || '').slice(0, 128),
+                    player_name: String(localStorage.getItem('gamePlayerName') || 'Аноним').slice(0, 40),
+                    game_version: GAME_VERSION,
+                    device: String(navigator.userAgent || '').slice(0, 300)
+                });
+            } catch (reportError) {
+                console.warn('Не удалось отправить ошибку в Error Monitor:', reportError);
+            }
+        }
+        window.addEventListener('error', event => {
+            sendGameError('error', event.message || 'Script error', event.filename || '', event.lineno || 0, event.colno || 0, event.error?.stack || '');
+        });
+        window.addEventListener('unhandledrejection', event => {
+            const reason = event.reason;
+            sendGameError('unhandledrejection', reason?.message || String(reason || 'Unhandled promise rejection'), '', 0, 0, reason?.stack || '');
+        });
+
         const playerIdLabel = document.getElementById('testerPlayerId');
         if (playerIdLabel) playerIdLabel.textContent = playerId;
         document.getElementById('copyTesterId')?.addEventListener('click', async () => {
