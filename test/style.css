@@ -591,7 +591,7 @@ body.bg-hacker .exchange-item.disabled { color: #00aa22; opacity: 0.5; }
 
 /* Beta 16.8 polish */
 .save-badge { display: none !important; }
-#boostTimerPanel { z-index: 99999; left: 12px; bottom: 12px; }
+#boostTimerPanel { z-index: 2147483000 !important; left: 12px; bottom: 12px; position: fixed !important; pointer-events: none; }
 #openShopBtn { transform: translateY(8px); }
 .color-cyan { background: linear-gradient(145deg,#00d9ff,#007fbd) !important; border-color:#8af0ff !important; }
 .color-pink { background: linear-gradient(145deg,#ff75c8,#b82c82) !important; border-color:#ffc1e5 !important; }
@@ -602,3 +602,6 @@ body.btn-pink .menu-btn, body.btn-pink .action-btn, body.btn-pink .modal-btn { b
 .brain { backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0); }
 .brain:active { animation-play-state: paused; transform: translate3d(0,0,0) scale(.96); }
 .brain .skin-emoji, .brain .amethyst-diamond { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+
+.boost-timer-panel:not(.hidden) { display:flex !important; visibility:visible !important; opacity:1 !important; }
+#boostTimerPanel .boost-timer-item { position:relative; z-index:2147483000; }
