@@ -106,17 +106,26 @@
             </div>
 
             <div id="neuralShopModal" class="neural-shop-overlay" aria-hidden="true">
-                <section class="neural-shop-window" role="dialog" aria-modal="true" aria-labelledby="neuralShopTitle">
-                    <header class="neural-shop-header">
-                        <div><div class="neural-shop-kicker">NEURAL GAME</div><h2 id="neuralShopTitle">🧠 Магазин нейросетей</h2><p>Открывай новые нейросети и усиливай мозг</p></div>
-                        <button id="closeShopBtn" class="neural-shop-close" type="button" aria-label="Закрыть магазин">✕</button>
-                    </header>
-                    <div class="neural-shop-balance">🧠 Твои очки: <strong id="neuralShopPoints">10</strong></div>
-                    <div id="shopNeurons" class="shop-list neural-shop-list"></div>
-                    <footer class="neural-shop-footer"><button class="neural-shop-buyall" id="buyAllBtn" type="button" data-i18n="buy_all">💰 КУПИТЬ ВСЁ ДОСТУПНОЕ</button></footer>
-                </section>
-            </div>
-
+<section class="neural-shop-window" role="dialog" aria-modal="true" aria-labelledby="neuralShopTitle">
+<header class="neural-shop-header">
+<div class="neural-shop-brand"><div class="neural-shop-brain">🧠</div><div><h2 id="neuralShopTitle">МАГАЗИН</h2><p>Улучшай игру — стань сильнее!</p></div></div>
+<div class="neural-shop-balances"><div class="neural-balance"><span>🧠</span><div>ТВОИ ОЧКИ<strong id="neuralShopPoints">0</strong></div></div><div class="neural-balance"><span>💎</span><div>ТВОИ ЗВЁЗДЫ<strong id="neuralShopStars">0</strong></div></div></div>
+<button id="closeShopBtn" class="neural-shop-close" type="button" aria-label="Закрыть магазин">✕</button>
+</header>
+<div class="neural-shop-body">
+<nav class="neural-shop-nav">
+<button class="neural-category active" data-shop-category="best">⭐ Лучшее</button>
+<button class="neural-category" data-shop-category="premium">👑 Премиум</button>
+<button class="neural-category" data-shop-category="skins">🎨 Скины</button>
+<button class="neural-category" data-shop-category="backgrounds">🖼️ Фоны</button>
+<button class="neural-category" data-shop-category="boosts">⚡ Бустеры</button>
+<button class="neural-category" data-shop-category="special">🎁 Особое</button>
+<div class="neural-shop-note">👑 Покупки помогают развивать игру! 💗</div>
+</nav>
+<div class="neural-shop-content">
+<div class="neural-shop-grid" id="neuralShopGrid"></div>
+<div id="neuralShopDetail" class="neural-shop-detail" aria-live="polite"></div>
+</div></div></section></div>
             <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div></div>
             
         </div>
@@ -518,6 +527,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=17.1.0"></script>
+    <script type="module" src="script.js?v=17.2.0"></script>
 </body>
 </html>
