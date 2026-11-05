@@ -52,7 +52,7 @@ function getFactOfDay() { const now = new Date(); const dayOfYear = Math.floor((
 function checkDailyFact() { const today = new Date().toISOString().slice(0, 10); if (localStorage.getItem('factShownDate') !== today) { localStorage.setItem('factShownDate', today); const factText = document.getElementById('factText'); if (factText) factText.innerText = getFactOfDay(); setTimeout(() => document.getElementById('factOverlay')?.classList.add('show'), 2500); } }
 
 // Бета-версия не удаляет сохранение при смене номера сборки.
-localStorage.setItem('gameVersion', GAME_VERSION);
+try { localStorage.setItem('gameVersion', GAME_VERSION); } catch (e) { console.warn('[SAVE] Не удалось записать gameVersion:', e); }
 
 function isHalloween() { if (customTheme === 'halloween') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return n.getMonth() === 9 && n.getDate() >= 5 && n.getDate() <= 31; }
 function isNewYear() { if (customTheme === 'newyear') return true; if (customTheme !== 'normal' && customTheme !== '') return false; const n = new Date(); return (n.getMonth() === 11 && n.getDate() === 31) || (n.getMonth() === 0 && n.getDate() === 1); }
@@ -96,6 +96,38 @@ function applyButtonColor(color) { document.body.classList.remove('btn-blue', 'b
 // ===== ОСНОВНАЯ ЛОГИКА =====
 window.addEventListener('load', () => {
     try { supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.log('Ошибка Supabase:', e); }
+    // ===== ERROR MONITOR: обычная версия =====
+    const errorCooldown = new Map();
+    async function sendGameError(level, message, source = '', line = 0, column = 0, stack = '') {
+        if (!supabaseClient) return;
+        const cleanMessage = String(message || 'Unknown error').slice(0, 1200);
+        const fingerprint = level + ':' + cleanMessage + ':' + source + ':' + line;
+        const now = Date.now();
+        if (errorCooldown.has(fingerprint) && now - errorCooldown.get(fingerprint) < 30000) return;
+        errorCooldown.set(fingerprint, now);
+        try {
+            const { error } = await supabaseClient.from('game_error_reports').insert({
+                level, message: cleanMessage,
+                source: String(source || '').slice(0, 500),
+                line_number: Number(line) || null, column_number: Number(column) || null,
+                stack: String(stack || '').slice(0, 5000),
+                page_url: location.href.slice(0, 500),
+                player_id: String(playerId || 'unknown').slice(0, 128),
+                player_name: String(localStorage.getItem('gamePlayerName') || 'Аноним').slice(0, 40),
+                game_version: GAME_VERSION,
+                device: String(navigator.userAgent || '').slice(0, 300)
+            });
+            if (error) console.error('[ERROR MONITOR] Supabase insert:', error.message);
+        } catch (reportError) { console.warn('[ERROR MONITOR] Не удалось отправить ошибку:', reportError); }
+    }
+    window.addEventListener('error', event => {
+        sendGameError('error', event.message || 'Script error', event.filename || '', event.lineno || 0, event.colno || 0, event.error?.stack || '');
+    });
+    window.addEventListener('unhandledrejection', event => {
+        const reason = event.reason;
+        sendGameError('unhandledrejection', reason?.message || String(reason || 'Unhandled promise rejection'), '', 0, 0, reason?.stack || '');
+    });
+
 
 
     try { supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.log('Ошибка Supabase:', e); }
@@ -1186,7 +1218,9 @@ window.addEventListener('load', () => {
 
     function saveGame() {
         console.log('[SAVE] saveGame запущена. Очки:', points, 'Куплено нейросетей:', purchasedCount);
+        console.log('[SAVE] saveGame()', { points, key: SAVE_KEY, version: GAME_VERSION });
         lastSaveTime = Date.now();
+        try {
         const saveData = {
             points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode,
             comboCounter, prestigeLevel, birthdayBoostEndTime, march8BoostEndTime,
@@ -1199,7 +1233,6 @@ window.addEventListener('load', () => {
             saveFormat: 3, savedAt: Date.now()
         };
         const serialized = JSON.stringify(saveData);
-        try {
             localStorage.setItem(SAVE_KEY, serialized);
             if (localStorage.getItem(SAVE_KEY) !== serialized) throw new Error('Проверка записи основного сохранения не пройдена');
             console.log('[SAVE] Основное сохранение записано и проверено. Размер:', serialized.length);
@@ -1216,6 +1249,7 @@ window.addEventListener('load', () => {
                 }
             } catch (backupError) { console.error('Не удалось записать резервную копию:', backupError); }
             showToast('❌ Браузер не смог сохранить прогресс. Не очищай данные сайта!');
+            sendGameError('save_error', error.message || String(error), 'script.js:saveGame', 0, 0, error.stack || '');
             return false;
         }
     }
@@ -1421,7 +1455,10 @@ window.addEventListener('load', () => {
 
     let reloadSeconds = reloadTimeMinutes * 60;
     setInterval(() => { if (reloadSeconds > 0) { reloadSeconds--; const el = document.getElementById('reloadCountdown'); if (el) el.innerText = `${Math.floor(reloadSeconds / 60)}:${(reloadSeconds % 60).toString().padStart(2, '0')}`; if (reloadSeconds === 0) { showToast(t('reload_toast')); saveGame(); setTimeout(() => location.reload(), 2000); } } }, 1000);
-    setInterval(saveGame, 5000);
+    setInterval(() => {
+        const ok = saveGame();
+        if (!ok) console.error('[SAVE] Автосохранение не удалось');
+    }, 5000);
     window.addEventListener('pagehide', saveGame);
     window.addEventListener('beforeunload', saveGame);
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveGame(); });
