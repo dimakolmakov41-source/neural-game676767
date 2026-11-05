@@ -1406,9 +1406,24 @@ window.addEventListener('load', () => {
         showToast('✅ тест кнопка работает');
     });
 
-    document.getElementById('openShopBtn')?.addEventListener('click', () => { document.getElementById('shopPanel').classList.add('show'); switchShopTab('neurons'); });
-    document.getElementById('shopOrbBtn')?.addEventListener('click', () => { const panel = document.getElementById('shopPanel'); panel.classList.add('show', 'neurons-only'); switchShopTab('neurons'); });
-    document.getElementById('closeShopBtn')?.addEventListener('click', () => document.getElementById('shopPanel').classList.remove('show', 'neurons-only'));
+    const neuralShopModal = document.getElementById('neuralShopModal');
+    function openNeuralShop() {
+        if (!neuralShopModal) return;
+        neuralShopModal.classList.add('show');
+        neuralShopModal.setAttribute('aria-hidden', 'false');
+        const balance = document.getElementById('neuralShopPoints');
+        if (balance) balance.textContent = Number(points || 0).toLocaleString('ru-RU');
+        renderShopNeurons();
+    }
+    function closeNeuralShop() {
+        if (!neuralShopModal) return;
+        neuralShopModal.classList.remove('show');
+        neuralShopModal.setAttribute('aria-hidden', 'true');
+    }
+    document.getElementById('shopOrbBtn')?.addEventListener('click', openNeuralShop);
+    document.getElementById('closeShopBtn')?.addEventListener('click', closeNeuralShop);
+    neuralShopModal?.addEventListener('click', event => { if (event.target === neuralShopModal) closeNeuralShop(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeNeuralShop(); });
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
     document.getElementById('boostBtn')?.addEventListener('click', buyBoost);
     document.getElementById('autoclickerBtn')?.addEventListener('click', buyAutoclicker);
