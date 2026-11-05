@@ -907,3 +907,21 @@ body.style-cosmic .shop-orb-btn{background:radial-gradient(circle at 35% 30%,#ee
 body.style-neural .shop-orb-btn{background:radial-gradient(circle at 35% 30%,#c9fff4,#00bfa8 55%,#073c68)!important;border:2px solid #9bffeb!important;box-shadow:0 0 22px #00e5c0!important}
 body.style-cosmic .shop-item,body.style-cosmic .shop-item-purchased{background:linear-gradient(120deg,#171b4b,#29235e)!important;color:#fff!important;border-color:#899cff!important}
 body.style-neural .shop-item,body.style-neural .shop-item-purchased{background:linear-gradient(120deg,#063d43,#07546a)!important;color:#fff!important;border-color:#45efd7!important}
+
+
+/* Redesigned standalone neural-network shop */
+.neural-shop-overlay{display:none;position:fixed;inset:0;z-index:10050;background:rgba(3,7,20,.82);backdrop-filter:blur(9px);align-items:center;justify-content:center;padding:16px}
+.neural-shop-overlay.show{display:flex}
+.neural-shop-window{width:min(100%,480px);max-height:min(88dvh,760px);display:flex;flex-direction:column;overflow:hidden;border-radius:26px;background:linear-gradient(155deg,#111b36,#172b4b 55%,#10182e);border:1px solid rgba(117,190,255,.55);box-shadow:0 24px 80px #000b,0 0 28px #38aaff33;color:#fff;text-shadow:none}
+.neural-shop-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 18px 14px;background:linear-gradient(110deg,#1c4c75,#24265c)}
+.neural-shop-kicker{font-size:10px;letter-spacing:3px;font-weight:900;color:#9bdcff}
+.neural-shop-header h2{font-size:21px;margin:5px 0;color:#fff}
+.neural-shop-header p{font-size:12px;margin:0;color:#c6dcf5}
+.neural-shop-close{flex:0 0 38px;width:38px;height:38px;border:1px solid #ffffff55;border-radius:50%;background:#ffffff18;color:#fff;font-size:19px;font-weight:900}
+.neural-shop-balance{margin:12px 16px 4px;padding:11px 14px;border-radius:14px;background:#ffffff0d;border:1px solid #ffffff1c;color:#dcecff;font-size:14px}
+.neural-shop-balance strong{color:#fff}
+.neural-shop-list{max-height:none;min-height:120px;flex:1;overflow-y:auto;padding:8px 14px 14px}
+.neural-shop-list .shop-item{border:1px solid #8acbff33;background:linear-gradient(110deg,#1b3150,#1a2440);border-radius:16px;padding:12px}
+.neural-shop-footer{padding:10px 16px 16px;border-top:1px solid #ffffff18}
+.neural-shop-buyall{width:100%;padding:13px;border:1px solid #75e6a0;border-radius:14px;background:linear-gradient(120deg,#16834b,#176b79);color:white;font-weight:900;font-size:14px}
+@media(max-width:420px){.neural-shop-overlay{padding:10px}.neural-shop-window{max-height:92dvh;border-radius:21px}.neural-shop-header{padding:16px 14px 12px}.neural-shop-header h2{font-size:18px}}
