@@ -94,22 +94,30 @@
             <div class="achievements-btn" id="achBtn" data-i18n="achievements">🏆 ДОСТИЖЕНИЯ</div>
             <div class="leaderboard-btn" id="leaderboardBtn">🏆 ТОП-10</div>
 
-            <div class="shop-panel" id="shopPanel">
+            <div class="shop-panel" id="shopPanel" aria-hidden="true">
                 <div class="shop-tabs-row">
-                    <div class="shop-tab active" data-tab="neurons" data-i18n="shop_neurons">🧠 НЕЙРОСЕТИ</div>
                     <div class="shop-tab" data-tab="helpers" data-i18n="shop_helpers">👷 ПОМОЩНИКИ</div>
                     <div class="shop-tab" data-tab="stars" data-i18n="shop_stars">⭐ ЗВЁЗДЫ</div>
                     <div class="shop-tab" data-tab="skins" data-i18n="shop_skins">💎 СКИНЫ</div>
                 </div>
-                <div id="shopNeurons" class="shop-list"></div>
                 <div id="shopHelpers" class="shop-list" style="display:none;"></div>
                 <div id="shopStars" class="shop-list" style="display:none;"></div>
                 <div id="shopSkins" class="shop-list" style="display:none;"></div>
-                <div class="action-btn" id="buyAllBtn" style="background: linear-gradient(145deg, #2e7d32, #1a5a20); border-color: #66cc66; margin-bottom: 6px;" data-i18n="buy_all">💰 КУПИТЬ ВСЁ ДОСТУПНОЕ</div>
-                <div class="action-btn" id="closeShopBtn" data-i18n="close">ЗАКРЫТЬ</div>
             </div>
 
-            <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div><div class="action-btn" id="openShopBtn" data-i18n="shop">🛒 МАГАЗИН</div></div>
+            <div id="neuralShopModal" class="neural-shop-overlay" aria-hidden="true">
+                <section class="neural-shop-window" role="dialog" aria-modal="true" aria-labelledby="neuralShopTitle">
+                    <header class="neural-shop-header">
+                        <div><div class="neural-shop-kicker">NEURAL GAME</div><h2 id="neuralShopTitle">🧠 Магазин нейросетей</h2><p>Открывай новые нейросети и усиливай мозг</p></div>
+                        <button id="closeShopBtn" class="neural-shop-close" type="button" aria-label="Закрыть магазин">✕</button>
+                    </header>
+                    <div class="neural-shop-balance">🧠 Твои очки: <strong id="neuralShopPoints">10</strong></div>
+                    <div id="shopNeurons" class="shop-list neural-shop-list"></div>
+                    <footer class="neural-shop-footer"><button class="neural-shop-buyall" id="buyAllBtn" type="button" data-i18n="buy_all">💰 КУПИТЬ ВСЁ ДОСТУПНОЕ</button></footer>
+                </section>
+            </div>
+
+            <div class="action-buttons"><div class="action-btn" id="backToMenu" data-i18n="back_menu">◀ МЕНЮ</div></div>
             
         </div>
     </div>
@@ -510,6 +518,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=17.0.5"></script>
+    <script type="module" src="script.js?v=17.1.0"></script>
 </body>
 </html>
