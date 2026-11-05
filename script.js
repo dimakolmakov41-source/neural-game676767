@@ -13,7 +13,9 @@ let globalEventMultiplier = 1, saleData = { active: false, discount_percent: 0 }
 
 let globalBoost = { active: false, type: 'points', multiplier: 1, text: '' };
 
-let currentLang = localStorage.getItem('gameLang') || 'ru';
+let currentLang = 'ru';
+try { currentLang = localStorage.getItem('gameLang') || 'ru'; }
+catch (storageInitError) { console.warn('[SAVE] LocalStorage недоступен при запуске:', storageInitError); }
 function t(key) { return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.ru[key] || key; }
 
 // ===== ЗАЩИТА ОТ HTML (XSS) =====
@@ -1146,17 +1148,44 @@ window.addEventListener('load', () => {
     // ===== НАДЁЖНОЕ ЛОКАЛЬНОЕ СОХРАНЕНИЕ v3 =====
     const SAVE_MIGRATION_KEYS = ['neuralEvoSave_test17','neuralEvoSave_test17_backup','neuralEvoSave_test','neuralEvoSave_test_backup'];
 
+    function checkLocalStorageAvailability() {
+        try {
+            const testKey = '__neural_game_storage_test__';
+            localStorage.setItem(testKey, 'ok');
+            const works = localStorage.getItem(testKey) === 'ok';
+            localStorage.removeItem(testKey);
+            console.log('[SAVE] LocalStorage доступен:', works);
+            if (!works) showToast('⚠️ Браузер не подтвердил сохранение. Проверь режим инкогнито и настройки сайта.');
+            return works;
+        } catch (error) {
+            console.error('[SAVE] LocalStorage недоступен:', error);
+            showToast('⚠️ Браузер блокирует LocalStorage. Прогресс может не сохраняться. Открой игру в обычном режиме Chrome.');
+            return false;
+        }
+    }
+
     function readValidSave(raw) {
-        if (!raw) return null;
+        if (!raw) {
+            console.log('[SAVE] readValidSave: сохранение пустое');
+            return null;
+        }
         try {
             const data = JSON.parse(raw);
-            if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
-            if (!Number.isFinite(Number(data.points)) || Number(data.points) < 0 || !Array.isArray(data.upgrades)) return null;
+            // Старые сохранения могут не содержать новые поля. Проверяем только базовую структуру.
+            if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                console.warn('[SAVE] Сохранение имеет неверный формат');
+                return null;
+            }
+            console.log('[SAVE] Сохранение прочитано; поля:', Object.keys(data), 'версия:', data.gameVersion || 'старая');
             return data;
-        } catch (error) { console.warn('Повреждённое сохранение:', error); return null; }
+        } catch (error) {
+            console.error('[SAVE] Не удалось разобрать сохранение:', error);
+            return null;
+        }
     }
 
     function saveGame() {
+        console.log('[SAVE] saveGame запущена. Очки:', points, 'Куплено нейросетей:', purchasedCount);
         lastSaveTime = Date.now();
         const saveData = {
             points, stars, totalClicks, purchasedCount, totalStarsEarned, godMode,
@@ -1173,11 +1202,12 @@ window.addEventListener('load', () => {
         try {
             localStorage.setItem(SAVE_KEY, serialized);
             if (localStorage.getItem(SAVE_KEY) !== serialized) throw new Error('Проверка записи основного сохранения не пройдена');
+            console.log('[SAVE] Основное сохранение записано и проверено. Размер:', serialized.length);
             localStorage.setItem(SAVE_KEY + '_backup', serialized);
             localStorage.setItem(SAVE_KEY + '_backup2', serialized);
             return true;
         } catch (error) {
-            console.error('Не удалось надёжно сохранить игру:', error);
+            console.error('[SAVE] Не удалось надёжно сохранить игру:', error);
             try {
                 localStorage.setItem(SAVE_KEY + '_backup2', serialized);
                 if (localStorage.getItem(SAVE_KEY + '_backup2') === serialized) {
@@ -1191,6 +1221,8 @@ window.addEventListener('load', () => {
     }
 
     function loadGame() {
+        console.log('[SAVE] loadGame запущена. Ключ:', SAVE_KEY);
+        checkLocalStorageAvailability();
         let selectedData = null;
         try {
             const candidates = [
@@ -1199,25 +1231,31 @@ window.addEventListener('load', () => {
                 { key: SAVE_KEY + '_backup2', raw: localStorage.getItem(SAVE_KEY + '_backup2') },
                 ...SAVE_MIGRATION_KEYS.map(key => ({ key, raw: localStorage.getItem(key) }))
             ];
+            console.log('[SAVE] Найдены ключи сохранений:', candidates.map(item => ({key:item.key,exists:!!item.raw,bytes:item.raw?.length || 0})));
             const valid = candidates.map(item => ({ ...item, data: readValidSave(item.raw) })).filter(item => item.data);
             valid.sort((a,b) => Number(b.data.savedAt || b.data.lastSaveTime || 0) - Number(a.data.savedAt || a.data.lastSaveTime || 0));
             if (valid.length) {
                 selectedData = valid[0].data;
+                console.log('[SAVE] Загружаю сохранение из ключа:', valid[0].key, 'Очки:', selectedData.points, 'Версия:', selectedData.gameVersion || 'старая');
+
                 if (valid[0].key !== SAVE_KEY) {
                     try {
                         localStorage.setItem(SAVE_KEY, valid[0].raw);
                         localStorage.setItem(SAVE_KEY + '_backup', valid[0].raw);
                     } catch (restoreError) { console.warn('Не удалось восстановить основное сохранение:', restoreError); }
                 }
+            } else {
+                console.warn('[SAVE] Не найдено ни одного корректного сохранения. Будет новая игра.');
             }
         } catch (storageError) {
-            console.error('Браузер запретил доступ к LocalStorage:', storageError);
+            console.error('[SAVE] Ошибка чтения LocalStorage:', storageError);
             showToast('❌ Нет доступа к памяти браузера. Проверь настройки сайта.');
         }
 
         if (selectedData) {
             try {
                 const d = selectedData;
+                console.log('[SAVE] Восстановление прогресса началось.');
                 points = d.points !== undefined ? Number(d.points) : 10;
                 stars = d.stars !== undefined ? Number(d.stars) : (d.diamonds !== undefined ? Math.floor(d.diamonds / 10) : 0);
                 totalClicks = d.totalClicks ?? 0;
@@ -1241,7 +1279,8 @@ window.addEventListener('load', () => {
                 if (Array.isArray(d.passClaimedRewards)) passClaimedRewards = d.passClaimedRewards;
                 if (d.gameStartTime) gameStartTime = d.gameStartTime;
                 if (d.currentSoundProfile !== undefined) currentSoundProfile = d.currentSoundProfile;
-                purchasedCount = upgrades.filter(u => u.purchased).length;
+                if (Array.isArray(d.upgrades)) purchasedCount = upgrades.filter(u => u.purchased).length;
+                console.log('[SAVE] Прогресс восстановлен. Очки:', points, 'Нейросетей куплено:', purchasedCount);
                 if (!String(d.gameVersion || '').startsWith('17.0')) saveGame();
             } catch (loadError) {
                 console.error('Ошибка восстановления прогресса:', loadError);
