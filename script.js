@@ -1434,7 +1434,7 @@ window.addEventListener('load', () => {
             ],
             backgrounds: [
                 neuralProduct('Обычный стиль','🌈','Стандартное оформление игры','ПРИМЕНИТЬ','blue',()=>{applyGameStyle('normal');showToast('Обычный стиль включён');}),
-                neuralProduct('Космический стиль','🌌','Космические кнопки и фон','ПРИМЕНИТЬ','purple',()=>{applyGameStyle('space');showToast('Космический стиль включён');}),
+                neuralProduct('Космический стиль','🌌','Космические кнопки и фон','ПРИМЕНИТЬ','purple',()=>{applyGameStyle('cosmic');showToast('Космический стиль включён');}),
                 neuralProduct('Нейросетевой стиль','🧬','Неоновое оформление игры','ПРИМЕНИТЬ','green',()=>{applyGameStyle('neural');showToast('Нейросетевой стиль включён');})
             ],
             boosts: [
