@@ -925,3 +925,35 @@ body.style-neural .shop-item,body.style-neural .shop-item-purchased{background:l
 .neural-shop-footer{padding:10px 16px 16px;border-top:1px solid #ffffff18}
 .neural-shop-buyall{width:100%;padding:13px;border:1px solid #75e6a0;border-radius:14px;background:linear-gradient(120deg,#16834b,#176b79);color:white;font-weight:900;font-size:14px}
 @media(max-width:420px){.neural-shop-overlay{padding:10px}.neural-shop-window{max-height:92dvh;border-radius:21px}.neural-shop-header{padding:16px 14px 12px}.neural-shop-header h2{font-size:18px}}
+
+
+/* Full redesigned catalog shop */
+.neural-shop-overlay{display:none;position:fixed;inset:0;z-index:10050;background:rgba(4,4,22,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:12px}
+.neural-shop-overlay.show{display:flex}
+.neural-shop-window{width:min(100%,1050px);height:min(90dvh,780px);display:flex;flex-direction:column;overflow:hidden;border:3px solid #536dff;border-radius:27px;background:linear-gradient(145deg,#080d2b,#100b35 55%,#080d25);box-shadow:0 0 0 2px #20d9ff55,0 0 35px #8b32ff99;color:#fff;text-shadow:none}
+.neural-shop-header{position:relative;display:flex;align-items:center;gap:14px;padding:15px 64px 15px 18px;background:linear-gradient(100deg,#111746,#20104a 65%,#0b2250);border-bottom:2px solid #3939a8}
+.neural-shop-brand{display:flex;align-items:center;gap:12px;min-width:210px}.neural-shop-brain{font-size:62px;filter:drop-shadow(0 0 12px #e44bff)}
+.neural-shop-header h2{font-size:clamp(25px,4vw,42px);font-weight:1000;font-style:italic;letter-spacing:1px;margin:0;color:#fff;text-shadow:0 0 14px #a24dff}
+.neural-shop-header p{font-size:13px;color:#cbd5ff;margin:2px 0 0;font-weight:800}
+.neural-shop-balances{display:flex;gap:8px;margin-left:auto}.neural-balance{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid #833cff;border-radius:17px;background:#090d2bd9;min-width:135px}.neural-balance>span{font-size:32px}.neural-balance div{font-size:10px;color:#aabfff;font-weight:900}.neural-balance strong{display:block;font-size:21px;color:#ffe34f}
+.neural-balance:nth-child(2){border-color:#13bfff}.neural-balance:nth-child(2) strong{color:#22e5ff}
+.neural-shop-close{position:absolute;right:12px;top:12px;width:43px;height:43px;border:2px solid #ff8888;border-radius:12px;background:linear-gradient(#ff5555,#a90025);color:#fff;font-size:26px;font-weight:1000;box-shadow:0 0 13px #ff3355}
+.neural-shop-body{display:flex;min-height:0;flex:1}.neural-shop-nav{width:205px;flex:0 0 205px;padding:13px 10px;display:flex;flex-direction:column;gap:7px;background:#090d2c;border-right:1px solid #38347c}
+.neural-category{min-height:57px;text-align:left;padding:10px 12px;border:1px solid #4b328d;border-radius:14px;background:linear-gradient(100deg,#15123e,#111b42);color:white;font-size:16px;font-weight:900}
+.neural-category.active{background:linear-gradient(110deg,#821bd7,#3d1b9d);border:2px solid #d58aff;box-shadow:0 0 16px #a52cff;color:#fff}
+.neural-shop-note{margin-top:auto;padding:12px;border:1px solid #9b42ff;border-radius:13px;background:#30106a;color:#f5d9ff;font-size:12px;font-weight:800;line-height:1.5}
+.neural-shop-content{display:flex;flex-direction:column;min-width:0;flex:1;padding:14px;overflow:auto}
+.neural-shop-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.neural-product{min-width:0;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px;border:2px solid #16c9ff;border-radius:18px;background:radial-gradient(circle at 50% 30%,#164d8c,#091333 72%);box-shadow:inset 0 0 20px #148aff44,0 0 9px #16c9ff55;text-align:center}
+.neural-product.gold{border-color:#ffc928;background:radial-gradient(circle at 50% 30%,#79500c,#20102b 75%);box-shadow:inset 0 0 20px #ffb52e44,0 0 9px #ffc92855}
+.neural-product.green{border-color:#20f078;background:radial-gradient(circle at 50% 30%,#075d38,#071b26 75%);box-shadow:inset 0 0 20px #20f07844,0 0 9px #20f07855}
+.neural-product.purple{border-color:#bb57ff;background:radial-gradient(circle at 50% 30%,#4d1680,#130c32 75%);box-shadow:inset 0 0 20px #bb57ff44,0 0 9px #bb57ff55}
+.neural-product h3{font-size:clamp(14px,2vw,19px);margin:0;color:white}.neural-product .product-icon{font-size:clamp(42px,7vw,70px);line-height:1.1;filter:drop-shadow(0 0 10px #5bcfff)}
+.neural-product p{font-size:12px;color:#d4e6ff;margin:3px 0;min-height:30px}
+.neural-product button{width:100%;padding:10px 5px;border:1px solid #78e8ff;border-radius:12px;background:linear-gradient(100deg,#008eea,#13caff);color:white;font-weight:1000;font-size:14px}
+.neural-product.gold button{background:linear-gradient(100deg,#c87900,#ffd52e);color:#281300;border-color:#fff08b}
+.neural-product.green button{background:linear-gradient(100deg,#07833d,#4dff55);color:#05240f;border-color:#a8ffad}
+.neural-product.purple button{background:linear-gradient(100deg,#7021d9,#c35cff);border-color:#e4b5ff}
+.neural-product button:disabled{opacity:.65;filter:grayscale(.5)}
+.neural-shop-detail{font-size:12px;color:#aebfff;padding:8px 2px 0}
+@media(max-width:650px){.neural-shop-window{height:94dvh;width:100%;border-radius:17px}.neural-shop-header{padding:10px 53px 10px 10px;gap:5px;flex-wrap:wrap}.neural-shop-brand{min-width:0;flex:1}.neural-shop-brain{font-size:39px}.neural-shop-header h2{font-size:25px}.neural-shop-header p{font-size:10px}.neural-shop-balances{width:100%;margin:0}.neural-balance{flex:1;min-width:0;padding:5px 8px}.neural-balance>span{font-size:24px}.neural-balance strong{font-size:16px}.neural-shop-close{width:37px;height:37px;right:8px;top:8px}.neural-shop-nav{width:112px;flex-basis:112px;padding:8px 6px;gap:6px}.neural-category{min-height:49px;padding:7px 6px;font-size:12px}.neural-shop-note{font-size:9px;padding:7px}.neural-shop-content{padding:8px}.neural-shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.neural-product{min-height:174px;padding:8px;border-radius:13px}.neural-product .product-icon{font-size:43px}.neural-product h3{font-size:13px}.neural-product p{font-size:10px;min-height:25px}.neural-product button{font-size:11px;padding:8px 3px}}
