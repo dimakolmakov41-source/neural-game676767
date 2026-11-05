@@ -8,6 +8,8 @@ const ADMIN_PASSWORD = "6769";
 const SUPABASE_URL = 'https://kbkmueilgjmintuwkfzv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS';
 let supabaseClient = null;
+// Global state: applyTheme() runs before the window load handler.
+let activeAbuseEffects = [];
 
 let globalEventMultiplier = 1, saleData = { active: false, discount_percent: 0 }, rouletteCost = 250, autoclickerRateBonus = 0, customTheme = "normal", weatherData = { active: false, type: "none" }, phrasesData = { sleep: "😴 Спишь?", combo: "🔥 x2 КОМБО!", crit: "💥 КРИТИЧЕСКИЙ КЛИК! x10!" }, tickerData = { active: false, text: "" }, starsData = { chance: 0.0001, amount: 3 }, reloadTimeMinutes = 3;
 
@@ -806,7 +808,6 @@ window.addEventListener('load', () => {
     document.getElementById('submitLeaderboardBtn')?.addEventListener('click', async () => { const success = await syncLeaderboard(); if (success) { showToast('✅ Твои очки добавлены в Топ-100!'); showLeaderboard(); } else { showToast('❌ Ошибка отправки'); } });
 
     // ===== ADMIN ABUSE TOOL =====
-    let activeAbuseEffects = [];
     let starRainInterval = null;
 
     async function loadActiveAbuse() {
