@@ -1168,7 +1168,7 @@ window.addEventListener('load', () => {
         base *= getPrestigeMultiplier(); base *= getSkinMultiplier(); return Math.floor(base);
     }
 
-    function updateUI() { document.getElementById('points').innerText = formatNumber(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${formatNumber(getClickPower())} (БОГ)` : `+${formatNumber(getClickPower())}`; document.getElementById('stars').innerText = formatNumber(stars); updateStatsUI(); updatePlaytime(); document.getElementById('comboText')?.classList.remove('show'); updateBrainEvolution(); checkPassProgress(); checkAchievements(); }
+    function updateUI() { refreshNeuralShopBalances(); document.getElementById('points').innerText = formatNumber(points); document.getElementById('power').innerText = getClickPower(); document.getElementById('clickHint').innerHTML = godMode ? `+${formatNumber(getClickPower())} (БОГ)` : `+${formatNumber(getClickPower())}`; document.getElementById('stars').innerText = formatNumber(stars); updateStatsUI(); updatePlaytime(); document.getElementById('comboText')?.classList.remove('show'); updateBrainEvolution(); checkPassProgress(); checkAchievements(); }
     function showToast(msg) {
         const toast = document.createElement('div');
         toast.className = 'toast';
@@ -1406,24 +1406,63 @@ window.addEventListener('load', () => {
         showToast('✅ тест кнопка работает');
     });
 
+
     const neuralShopModal = document.getElementById('neuralShopModal');
-    function openNeuralShop() {
-        if (!neuralShopModal) return;
-        neuralShopModal.classList.add('show');
-        neuralShopModal.setAttribute('aria-hidden', 'false');
-        const balance = document.getElementById('neuralShopPoints');
-        if (balance) balance.textContent = Number(points || 0).toLocaleString('ru-RU');
-        renderShopNeurons();
+    let neuralShopCategory = 'best';
+    function refreshNeuralShopBalances() {
+        const p = document.getElementById('neuralShopPoints'), st = document.getElementById('neuralShopStars');
+        if (p) p.textContent = formatNumber(points);
+        if (st) st.textContent = formatNumber(stars);
     }
-    function closeNeuralShop() {
-        if (!neuralShopModal) return;
-        neuralShopModal.classList.remove('show');
-        neuralShopModal.setAttribute('aria-hidden', 'true');
+    function neuralProduct(title, icon, desc, price, color, action, disabled=false) {
+        return {title,icon,desc,price,color,action,disabled};
     }
-    document.getElementById('shopOrbBtn')?.addEventListener('click', openNeuralShop);
-    document.getElementById('closeShopBtn')?.addEventListener('click', closeNeuralShop);
-    neuralShopModal?.addEventListener('click', event => { if (event.target === neuralShopModal) closeNeuralShop(); });
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeNeuralShop(); });
+    function neuralShopProducts(category) {
+        const products = {
+            best: [
+                neuralProduct('Нейросети','🧠','Открывай новые нейросети и увеличивай силу клика','ОТКРЫТЬ','blue',()=>{closeNeuralShop();document.getElementById('shopPanel')?.classList.add('show','neurons-only');switchShopTab('neurons');}),
+                neuralProduct('Буст ×5','⚡','Временное усиление кликов за звёзды',formatNumber(BOOST_PRICE)+' ⭐','green',()=>buyBoost(),isBoostActive()),
+                neuralProduct('Автокликер','🤖','Автоматически нажимает за тебя',formatNumber(AUTOCLICKER_PRICE)+' ⭐','purple',()=>buyAutoclicker(),autoclickerBought),
+                neuralProduct('Помощники','👷','Пассивный доход каждую секунду','ОТКРЫТЬ','gold',()=>{closeNeuralShop();document.getElementById('shopPanel')?.classList.add('show');switchShopTab('helpers');})
+            ],
+            premium: [
+                neuralProduct('AI Pass','🎟️','Открой сезонный пропуск и его награды','ОТКРЫТЬ','blue',()=>{closeNeuralShop();document.getElementById('passModal')?.classList.add('show');}),
+                neuralProduct('Автокликер','🤖','Постоянная автоматическая помощь',formatNumber(AUTOCLICKER_PRICE)+' ⭐','purple',()=>buyAutoclicker(),autoclickerBought)
+            ],
+            skins: [
+                ...SKINS.map(skin=>{const owned=purchasedSkins.includes(skin.id)||skin.id==='normal';return neuralProduct(t('skin_'+skin.id),skin.id==='halloween'?'🎃':skin.id==='amethyst'?'💎':'🧠','Множитель скина ×'+skin.mult,owned?(currentSkin===skin.id?'ЭКИПИРОВАН':'ВЫБРАТЬ'):skin.price+' ⭐', 'gold',()=>{if(owned){currentSkin=skin.id;localStorage.setItem('currentSkin',skin.id);applySkin();saveGame();renderNeuralShop();}else buySkin(skin.id);},currentSkin===skin.id);})
+            ],
+            backgrounds: [
+                neuralProduct('Обычный стиль','🌈','Стандартное оформление игры','ПРИМЕНИТЬ','blue',()=>{applyGameStyle('normal');showToast('Обычный стиль включён');}),
+                neuralProduct('Космический стиль','🌌','Космические кнопки и фон','ПРИМЕНИТЬ','purple',()=>{applyGameStyle('space');showToast('Космический стиль включён');}),
+                neuralProduct('Нейросетевой стиль','🧬','Неоновое оформление игры','ПРИМЕНИТЬ','green',()=>{applyGameStyle('neural');showToast('Нейросетевой стиль включён');})
+            ],
+            boosts: [
+                neuralProduct('Буст ×5','⚡','Временное усиление кликов',formatNumber(BOOST_PRICE)+' ⭐','green',()=>buyBoost(),isBoostActive()),
+                neuralProduct('Автокликер','🤖','Автоматические нажатия',formatNumber(AUTOCLICKER_PRICE)+' ⭐','purple',()=>buyAutoclicker(),autoclickerBought)
+            ],
+            special: [
+                neuralProduct('Обмен валюты','💱','Обменивай очки и звёзды','ОТКРЫТЬ','blue',()=>{closeNeuralShop();document.getElementById('shopPanel')?.classList.add('show');switchShopTab('stars');}),
+                neuralProduct('Ежедневный подарок','🎁','Забери ежедневную награду','ЗАБРАТЬ','gold',()=>claimDailyGift(),!canGetDailyGift())
+            ]
+        };
+        return products[category] || products.best;
+    }
+    function renderNeuralShop() {
+        refreshNeuralShopBalances();
+        document.querySelectorAll('.neural-category').forEach(b=>b.classList.toggle('active',b.dataset.shopCategory===neuralShopCategory));
+        const grid=document.getElementById('neuralShopGrid'); if(!grid)return;
+        grid.innerHTML=neuralShopProducts(neuralShopCategory).map((p,i)=>'<article class="neural-product '+p.color+'"><h3>'+escapeHTML(p.title)+'</h3><div class="product-icon">'+p.icon+'</div><p>'+escapeHTML(p.desc)+'</p><button type="button" data-product-index="'+i+'" '+(p.disabled?'disabled':'')+'>'+escapeHTML(String(p.price))+'</button></article>').join('');
+        grid.querySelectorAll('button[data-product-index]').forEach(btn=>btn.addEventListener('click',()=>{const product=neuralShopProducts(neuralShopCategory)[Number(btn.dataset.productIndex)];if(product&&!product.disabled){product.action();refreshNeuralShopBalances();if(neuralShopModal?.classList.contains('show'))renderNeuralShop();}}));
+    }
+    function openNeuralShop(){if(!neuralShopModal)return;neuralShopModal.classList.add('show');neuralShopModal.setAttribute('aria-hidden','false');neuralShopCategory='best';renderNeuralShop();}
+    function closeNeuralShop(){if(!neuralShopModal)return;neuralShopModal.classList.remove('show');neuralShopModal.setAttribute('aria-hidden','true');}
+    document.getElementById('shopOrbBtn')?.addEventListener('click',openNeuralShop);
+    document.getElementById('closeShopBtn')?.addEventListener('click',closeNeuralShop);
+    neuralShopModal?.addEventListener('click',event=>{if(event.target===neuralShopModal)closeNeuralShop();});
+    document.addEventListener('keydown',event=>{if(event.key==='Escape')closeNeuralShop();});
+    document.querySelectorAll('.neural-category').forEach(button=>button.addEventListener('click',()=>{neuralShopCategory=button.dataset.shopCategory;renderNeuralShop();}));
+
     document.getElementById('buyAllBtn')?.addEventListener('click', buyAllAvailable);
     document.getElementById('boostBtn')?.addEventListener('click', buyBoost);
     document.getElementById('autoclickerBtn')?.addEventListener('click', buyAutoclicker);
