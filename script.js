@@ -463,7 +463,7 @@ window.addEventListener('load', () => {
         const myName = escapeHTML(localStorage.getItem('gamePlayerName') || 'Аноним');
         if (!supabaseClient) return;
         const { data, error } = await supabaseClient.from('duels').insert([{ player1_id: playerId, player1_name: myName, player2_id: targetId, player2_name: targetName, status: 'waiting' }]).select();
-        if (error || !data) { showToast('Ошибка создания дуэли'); return; }
+        if (error || !data) { showToast(t('duel_error')); return; }
         currentDuelId = data[0].id; myDuelRole = 'player1';
         document.getElementById('tourneyTargetNameWait').innerText = targetName;
         showTourneyScreen('tourneyWaitScreen'); subscribeToDuel();
@@ -475,8 +475,8 @@ window.addEventListener('load', () => {
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'duels', filter: `id=eq.${currentDuelId}` }, payload => {
                 const duel = payload.new;
                 if (duel.status === 'accepted') { startCountdown(duel); }
-                else if (duel.status === 'declined') { showToast('❌ Игрок отклонил вызов'); closeTourney(); }
-                else if (duel.status === 'cancelled') { showToast('❌ Игрок отменил дуэль'); closeTourney(); }
+                else if (duel.status === 'declined') { showToast(t('duel_declined')); closeTourney(); }
+                else if (duel.status === 'cancelled') { showToast(t('duel_cancelled')); closeTourney(); }
                 else if (duel.status === 'playing') {
                     showTourneyScreen('tourneyBattleScreen');
                     document.getElementById('tourneyP1Name').innerText = duel.player1_name;
@@ -536,13 +536,13 @@ window.addEventListener('load', () => {
         if (myDuelRole === 'player1' && p1Score > p2Score) iWon = true;
         if (myDuelRole === 'player2' && p2Score > p1Score) iWon = true;
         const resText = document.getElementById('tourneyResultText'), resReward = document.getElementById('tourneyResultReward');
-        if (iWon) { resText.innerText = 'Победа!'; resText.style.color = '#00ff00'; resReward.innerText = '+10⭐ +200 000🧠'; stars += 10; points += 200000; updateUI(); saveGame(); }
-        else if (p1Score === p2Score) { resText.innerText = 'Ничья!'; resText.style.color = '#ffffff'; resReward.innerText = 'Без награды'; }
-        else { resText.innerText = 'Поражение...'; resText.style.color = '#ff0000'; resReward.innerText = 'В следующий раз повезет'; }
+        if (iWon) { resText.innerText = t('duel_win'); resText.style.color = '#00ff00'; resReward.innerText = '+10⭐ +200 000🧠'; stars += 10; points += 200000; updateUI(); saveGame(); }
+        else if (p1Score === p2Score) { resText.innerText = t('duel_draw'); resText.style.color = '#ffffff'; resReward.innerText = t('duel_no_reward'); }
+        else { resText.innerText = t('duel_lose'); resText.style.color = '#ff0000'; resReward.innerText = 'В следующий раз повезет'; }
     }
 
-    document.getElementById('tourneyBtn')?.addEventListener('click', () => { const myName = localStorage.getItem('gamePlayerName'); if (!myName) { showToast('Сначала задайте ник в настройках!'); return; } document.getElementById('tournamentModal').classList.remove('hidden'); showTourneyScreen('tourneySearchScreen'); loadTourneyList(); });
-    document.getElementById('tourneyExitBtn')?.addEventListener('click', () => { if (isDuelActive) { showToast('Нельзя выйти во время боя!'); return; } closeTourney(); });
+    document.getElementById('tourneyBtn')?.addEventListener('click', () => { const myName = localStorage.getItem('gamePlayerName'); if (!myName) { showToast(t('nickname_required')); return; } document.getElementById('tournamentModal').classList.remove('hidden'); showTourneyScreen('tourneySearchScreen'); loadTourneyList(); });
+    document.getElementById('tourneyExitBtn')?.addEventListener('click', () => { if (isDuelActive) { showToast(t('cannot_leave_duel')); return; } closeTourney(); });
     document.getElementById('tourneyAcceptBtn')?.addEventListener('click', () => { if (currentDuelId) supabaseClient.from('duels').update({ status: 'accepted' }).eq('id', currentDuelId).then(); });
     document.getElementById('tourneyDeclineBtn')?.addEventListener('click', () => { if (currentDuelId) supabaseClient.from('duels').update({ status: 'declined' }).eq('id', currentDuelId).then(); closeTourney(); });
 
@@ -554,7 +554,7 @@ window.addEventListener('load', () => {
     }
     async function showLeaderboard() {
         const modal = document.getElementById('leaderboardModal'), list = document.getElementById('leaderboardList');
-        modal.classList.add('show'); list.innerHTML = 'Загрузка...';
+        modal.classList.add('show'); list.innerHTML = t('duel_loading');
         if (!supabaseClient) return;
         const { data, error } = await supabaseClient.from('leaderboard').select('*').order('score', { ascending: false }).limit(100);
         if (error || !data) { list.innerHTML = 'Ошибка загрузки'; return; }
@@ -577,7 +577,7 @@ window.addEventListener('load', () => {
     let onlineFriendIds = new Set();
     function renderFriendRows(container, rows, mode) {
         if (!container) return;
-        if (!rows.length) { container.textContent = mode === 'incoming' ? 'Новых запросов нет.' : 'Пока нет друзей.'; return; }
+        if (!rows.length) { container.textContent = mode === 'incoming' ? t('no_requests') : t('no_friends'); return; }
         container.innerHTML = rows.map(row => {
             const incoming = mode === 'incoming';
             const name = incoming ? row.player_name : row.friend_name;
@@ -593,8 +593,8 @@ window.addEventListener('load', () => {
         const incomingEl = document.getElementById('incomingFriendsList');
         const friendsEl = document.getElementById('myFriendsList');
         if (!supabaseClient) { setFriendStatus('Для друзей необходимо подключение к интернету.', true); return; }
-        if (incomingEl) incomingEl.textContent = 'Загрузка...';
-        if (friendsEl) friendsEl.textContent = 'Загрузка...';
+        if (incomingEl) incomingEl.textContent = t('duel_loading');
+        if (friendsEl) friendsEl.textContent = t('duel_loading');
         try {
             await ensureMyFriendProfile();
             const { data: onlineRows } = await supabaseClient.from('online_players').select('player_id,last_seen').gte('last_seen', new Date(Date.now() - 30000).toISOString());
@@ -626,7 +626,7 @@ window.addEventListener('load', () => {
         const input = document.getElementById('friendSearchInput');
         const query = String(input?.value || '').trim().slice(0, 60);
         if (!query) { setFriendStatus('Введи игровой ID или ник.', true); return; }
-        if (!supabaseClient) { setFriendStatus('Нет подключения к интернету.', true); return; }
+        if (!supabaseClient) { setFriendStatus(t('no_internet'), true); return; }
         try {
             await ensureMyFriendProfile();
             let target = null;
@@ -636,7 +636,7 @@ window.addEventListener('load', () => {
             if (!target) {
                 const byName = await supabaseClient.from('player_profiles').select('player_id,player_name').ilike('player_name', query).limit(2);
                 if (byName.error) throw byName.error;
-                if (byName.data?.length > 1) { setFriendStatus('Найдено несколько игроков. Используй игровой ID.', true); return; }
+                if (byName.data?.length > 1) { setFriendStatus(t('multiple_players'), true); return; }
                 target = byName.data?.[0] || null;
             }
             if (!target) { setFriendStatus('Игрок не найден. Попроси его сначала сохранить ник в настройках.', true); return; }
@@ -681,7 +681,7 @@ window.addEventListener('load', () => {
     });
     document.getElementById('closeFriendsBtn')?.addEventListener('click', () => friendsModal?.classList.remove('show'));
     document.getElementById('copyMyFriendId')?.addEventListener('click', async () => {
-        try { await navigator.clipboard.writeText(playerId); setFriendStatus('✅ Твой ID скопирован!'); }
+        try { await navigator.clipboard.writeText(playerId); setFriendStatus(t('copy_id_success')); }
         catch (error) { const el = document.getElementById('myFriendId'); el?.select(); setFriendStatus('Выдели ID и скопируй вручную.'); }
     });
     document.getElementById('sendFriendRequestBtn')?.addEventListener('click', sendFriendRequest);
@@ -716,10 +716,10 @@ window.addEventListener('load', () => {
         });
     }
     async function openPlayerProfile(targetId) {
-        if (!targetId || !supabaseClient) { showToast('❌ Профиль недоступен без интернета'); return; }
+        if (!targetId || !supabaseClient) { showToast(t('profile_offline')); return; }
         openedProfileId = targetId;
         profileModal?.classList.add('show');
-        document.getElementById('profileNameView').textContent = 'Загрузка...';
+        document.getElementById('profileNameView').textContent = t('duel_loading');
         document.getElementById('profileBioView').textContent = '';
         document.getElementById('profileScoreView').textContent = '...';
         document.getElementById('profileStatusView').textContent = 'Проверка...';
@@ -734,18 +734,18 @@ window.addEventListener('load', () => {
             if (profileError) throw profileError;
             if (scoreError) throw scoreError;
             if (onlineError) throw onlineError;
-            if (!profile) { document.getElementById('profileNameView').textContent = 'Игрок не найден'; return; }
+            if (!profile) { document.getElementById('profileNameView').textContent = t('player_not_found'); return; }
             const avatar = profile.avatar || '🙂';
             const name = profile.player_name || 'Аноним';
             const bio = profile.bio || '';
             document.getElementById('profileAvatarView').textContent = avatar;
             document.getElementById('profileNameView').textContent = name;
             document.getElementById('profileIdView').textContent = 'ID: ' + profile.player_id;
-            document.getElementById('profileBioView').textContent = bio || 'Пока нет описания';
+            document.getElementById('profileBioView').textContent = bio || t('profile_no_description');
             document.getElementById('profileScoreView').textContent = formatNumber(Number(scoreRows?.score || 0));
             const isOnline = onlineRow?.last_seen && (Date.now() - new Date(onlineRow.last_seen).getTime()) < 120000;
             document.getElementById('profileOnlineView').textContent = isOnline ? '🟢' : '⚪';
-            document.getElementById('profileStatusView').textContent = isOnline ? 'В сети' : 'Не в сети';
+            document.getElementById('profileStatusView').textContent = isOnline ? t('online') : t('offline');
             document.getElementById('profileJoinedView').textContent = 'В игре с ' + (profile.created_at ? new Date(profile.created_at).toLocaleDateString() : '—');
             if (targetId === playerId) {
                 selectedProfileAvatar = profileAvatars.includes(avatar) ? avatar : '🙂';
@@ -763,15 +763,15 @@ window.addEventListener('load', () => {
         const playerName = String(localStorage.getItem('gamePlayerName') || 'Аноним').slice(0,24);
         const saveBtn = document.getElementById('saveProfileBtn');
         if (saveBtn) saveBtn.disabled = true;
-        setProfileEditStatus('Сохранение...');
+        setProfileEditStatus(t('profile_saving'));
         try {
             const { error } = await supabaseClient.from('player_profiles').upsert({
                 player_id: playerId, player_name: playerName,
                 avatar: selectedProfileAvatar, bio, updated_at: new Date().toISOString()
             }, { onConflict: 'player_id' });
             if (error) throw error;
-            setProfileEditStatus('✅ Профиль сохранён!');
-            showToast('✅ Профиль обновлён!');
+            setProfileEditStatus(t('profile_saved'));
+            showToast(t('profile_updated'));
             await openPlayerProfile(playerId);
             document.getElementById('profileEditArea').style.display = 'none';
         } catch (error) {
@@ -785,7 +785,7 @@ window.addEventListener('load', () => {
     document.getElementById('editProfileBtn')?.addEventListener('click', () => {
         if (openedProfileId !== playerId) return;
         document.getElementById('profileEditArea').style.display = 'block';
-        document.getElementById('profileBioInput').value = document.getElementById('profileBioView').textContent === 'Пока нет описания' ? '' : document.getElementById('profileBioView').textContent;
+        document.getElementById('profileBioInput').value = document.getElementById('profileBioView').textContent === t('profile_no_description') ? '' : document.getElementById('profileBioView').textContent;
         setProfileEditStatus('');
     });
     document.getElementById('saveProfileBtn')?.addEventListener('click', savePlayerProfile);
@@ -859,7 +859,7 @@ window.addEventListener('load', () => {
                 if (cmd.command_type === 'star_rain') { startStarRain(); }
                 if (cmd.command_type === 'dialogue') { showBrainSpeech(cmd.payload); }
                 // Голосование отключено в тестовой сборке.
-                if (cmd.command_type === 'spawn_global_boss') { spawnBoss(); showToast('🌍 МИРОВОЙ БОСС ЗАСПАВНЕН!'); }
+                if (cmd.command_type === 'spawn_global_boss') { spawnBoss(); showToast(t('global_boss_spawned')); }
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'active_abuse' }, payload => {
                 if (!activeAbuseEffects.includes(payload.new.feature)) activeAbuseEffects.push(payload.new.feature);
