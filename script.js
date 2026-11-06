@@ -41,6 +41,9 @@ function formatNumber(num) {
 
 function applyTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(el => { el.innerText = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel)); });
     const r1 = document.getElementById('robotText1'); if (r1) r1.innerHTML = t('robot1'); const r2 = document.getElementById('robotText2'); if (r2) r2.innerHTML = t('robot2'); const tt = document.getElementById('tutorialText'); if (tt) tt.innerHTML = t('tutorial_text');
     if (typeof updateBoostUI === 'function') updateBoostUI(); if (typeof applyPassStyle === 'function') applyPassStyle(); if (typeof applyTheme === 'function') applyTheme(); if (typeof updatePassEndTimer === 'function') updatePassEndTimer(); if (typeof updateAutoClickerUI === 'function') updateAutoClickerUI();
     document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
