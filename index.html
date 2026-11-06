@@ -59,7 +59,7 @@
 
         <div id="gameInterface" class="game-interface hidden">
             <div class="top-bar"><div>🧠 <span id="points">10</span></div><div>⚡ <span id="power">1</span></div></div>
-            <button id="shopOrbBtn" class="shop-orb-btn" type="button" aria-label="Открыть магазин нейросетей" title="Магазин нейросетей">🧠</button>
+            <button id="shopOrbBtn" class="shop-orb-btn" type="button" aria-label="Открыть магазин нейросетей" data-i18n-aria-label="open_neural_shop" title="Магазин нейросетей" data-i18n-title="neural_shop_title">🧠</button>
             <div class="diamond-bar"><div id="starLabel">⭐ <span id="stars">0</span></div><div>⏱️ <span id="playtime">0</span> <span data-i18n="min">мин</span></div></div>
 
             <div class="stats-panel-extended">
@@ -107,7 +107,7 @@
 <header class="neural-shop-header">
 <div class="neural-shop-brand"><div class="neural-shop-brain">🧠</div><div><h2 id="neuralShopTitle">МАГАЗИН</h2><p>Улучшай игру — стань сильнее!</p></div></div>
 <div class="neural-shop-balances"><div class="neural-balance"><span>🧠</span><div>ТВОИ ОЧКИ<strong id="neuralShopPoints">0</strong></div></div><div class="neural-balance"><span>💎</span><div>ТВОИ ЗВЁЗДЫ<strong id="neuralShopStars">0</strong></div></div></div>
-<button id="closeShopBtn" class="neural-shop-close" type="button" aria-label="Закрыть магазин">✕</button>
+<button id="closeShopBtn" class="neural-shop-close" type="button" aria-label="Закрыть магазин" data-i18n-aria-label="close_neural_shop">✕</button>
 </header>
 <div class="neural-shop-body">
 <nav class="neural-shop-nav">
@@ -222,7 +222,7 @@
             <div class="modal-title" style="margin-bottom: 10px; flex-shrink: 0;">💬 ГЛОБАЛЬНЫЙ ЧАТ</div>
             <div id="chatMessages" style="flex: 1; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; word-break: break-word;"></div>
             <div style="display: flex; gap: 5px; flex-shrink: 0;">
-                <input type="text" id="chatInput" class="modal-input" style="margin: 0; flex: 1; padding: 10px;" placeholder="Написать..." maxlength="200">
+                <input type="text" id="chatInput" class="modal-input" style="margin: 0; flex: 1; padding: 10px;" placeholder="Написать..." data-i18n-placeholder="write_message" maxlength="200">
                 <button class="modal-btn" id="sendChatBtn" style="margin: 0; padding: 10px 15px; background: #2e7d32; font-size: 16px;">➤</button>
             </div>
             <button class="modal-btn" id="closeChatBtn" style="margin-top: 10px; width: 100%; flex-shrink: 0;">ЗАКРЫТЬ</button>
@@ -238,7 +238,7 @@
                 <button id="copyMyFriendId" class="modal-btn" style="margin:0;padding:8px 10px;">КОПИРОВАТЬ</button>
             </div>
             <div style="font-weight:bold;margin:10px 0 5px;">Добавить игрока</div>
-            <input id="friendSearchInput" class="modal-input" maxlength="60" placeholder="Введи игровой ID или точный ник">
+            <input id="friendSearchInput" class="modal-input" maxlength="60" placeholder="Введи игровой ID или точный ник" data-i18n-placeholder="enter_player_id">
             <button id="sendFriendRequestBtn" class="modal-btn" style="width:100%;">➕ ОТПРАВИТЬ ЗАПРОС</button>
             <div id="friendStatus" style="font-size:12px;min-height:18px;margin:6px 0;color:#ffd966;"></div>
             <div style="font-weight:bold;margin:12px 0 6px;">📨 Входящие запросы</div>
@@ -460,7 +460,7 @@
             <div class="setting-item">
                 <span data-i18n="nickname">👤 Никнейм</span>
                 <div style="display:flex; gap:5px; align-items:center;">
-                    <input type="text" id="nicknameInput" class="modal-input" style="width:100px; margin:0; padding:5px; font-size:12px;" placeholder="Аноним">
+                    <input type="text" id="nicknameInput" class="modal-input" style="width:100px; margin:0; padding:5px; font-size:12px;" placeholder="Аноним" data-i18n-placeholder="anonymous">
                     <button class="modal-btn" id="saveNicknameBtn" style="padding:5px 10px; margin:0; font-size:12px;">ОК</button>
                 </div>
             </div><div class="setting-item">
