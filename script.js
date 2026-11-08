@@ -1132,10 +1132,23 @@ window.addEventListener('load', () => {
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
     function syncMenuMusic() {
         const menu = document.getElementById('mainMenu');
-        const visible = menu && !menu.classList.contains('hidden');
-        if (musicEnabled && visible) { const p = menuMusic.play(); if (p?.catch) p.catch(() => {}); }
-        else { menuMusic.pause(); if (!visible) menuMusic.currentTime = 0; }
+        const game = document.getElementById('gameInterface');
+        const menuVisible = menu && !menu.classList.contains('hidden');
+        const gameVisible = game && !game.classList.contains('hidden');
+        const shouldPlay = musicEnabled && menuVisible && !gameVisible;
+        if (shouldPlay) {
+            const p = menuMusic.play();
+            if (p?.catch) p.catch(() => {});
+        } else {
+            menuMusic.pause();
+            menuMusic.currentTime = 0;
+        }
     }
+    const menuMusicStateObserver = new MutationObserver(() => syncMenuMusic());
+    ['mainMenu', 'gameInterface'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) menuMusicStateObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
     function playModalSound() { try { modalSound.currentTime = 0; const p = modalSound.play(); if (p?.catch) p.catch(() => {}); } catch(e) {} }
     function playClickSound() {
         if (soundProfiles[currentSoundProfile]?.src) { try { clickAudio.currentTime = 0; const p = clickAudio.play(); if (p?.catch) p.catch(() => {}); } catch(e) {} return; }
