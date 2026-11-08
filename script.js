@@ -1126,28 +1126,28 @@ window.addEventListener('load', () => {
 
     const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }, { name: "Ретро", freq: 520, type: "square" }, { name: "Мягкий", freq: 740, type: "triangle" }, { name: "Новый звук", src: "assets/clicksoundeffect.mp3" }];
     let currentSoundProfile = Math.max(0, Math.min(soundProfiles.length - 1, Number(localStorage.getItem('currentSoundProfile') || 0))), audioCtx = null, musicEnabled = localStorage.getItem('musicEnabled') === 'true';
-    const menuMusic = new Audio('assets/menu_music.mp3'); menuMusic.loop = true; menuMusic.preload = 'auto';
+    // Музыка меню отключена. Отдельный трек играет только во время игры.
+    const gameMusic = new Audio('assets/musicgame1.mp3');
+    gameMusic.loop = true;
+    gameMusic.preload = 'auto';
     const modalSound = new Audio('assets/modal.mp3'); modalSound.preload = 'auto';
     const clickAudio = new Audio('assets/clicksoundeffect.mp3'); clickAudio.preload = 'auto';
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
-    function syncMenuMusic() {
-        const menu = document.getElementById('mainMenu');
+    function syncGameMusic() {
         const game = document.getElementById('gameInterface');
-        const menuVisible = menu && !menu.classList.contains('hidden');
         const gameVisible = game && !game.classList.contains('hidden');
-        const shouldPlay = musicEnabled && menuVisible && !gameVisible;
-        if (shouldPlay) {
-            const p = menuMusic.play();
+        if (musicEnabled && gameVisible) {
+            const p = gameMusic.play();
             if (p?.catch) p.catch(() => {});
         } else {
-            menuMusic.pause();
-            menuMusic.currentTime = 0;
+            gameMusic.pause();
+            if (!gameVisible) gameMusic.currentTime = 0;
         }
     }
-    const menuMusicStateObserver = new MutationObserver(() => syncMenuMusic());
+    const gameMusicStateObserver = new MutationObserver(() => syncGameMusic());
     ['mainMenu', 'gameInterface'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) menuMusicStateObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+        if (el) gameMusicStateObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
     });
     function playModalSound() { try { modalSound.currentTime = 0; const p = modalSound.play(); if (p?.catch) p.catch(() => {}); } catch(e) {} }
     function playClickSound() {
@@ -1162,8 +1162,8 @@ window.addEventListener('load', () => {
     function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { try { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = "triangle"; o.frequency.value = 523.25; g.gain.value = 0.08; g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.1); } catch(e) {} } }
 
     const musicBtn = document.getElementById('musicToggle');
-    if (musicBtn) { musicBtn.innerText = musicEnabled ? '🔊' : '🔇'; musicBtn.onclick = () => { musicEnabled = !musicEnabled; localStorage.setItem('musicEnabled', musicEnabled); musicBtn.innerText = musicEnabled ? '🔊' : '🔇'; syncMenuMusic(); }; }
-    document.addEventListener('pointerdown', () => { if (musicEnabled) syncMenuMusic(); }, { once: true });
+    if (musicBtn) { musicBtn.innerText = musicEnabled ? '🔊' : '🔇'; musicBtn.onclick = () => { musicEnabled = !musicEnabled; localStorage.setItem('musicEnabled', musicEnabled); musicBtn.innerText = musicEnabled ? '🔊' : '🔇'; syncGameMusic(); }; }
+    document.addEventListener('pointerdown', () => { if (musicEnabled) syncGameMusic(); }, { once: true });
     document.querySelectorAll('.menu-btn').forEach((btn,i)=>{ btn.style.animationDelay=`${i*0.05}s`; });
 
     function spawnFloatText(x, y, text) { const el = document.createElement('div'); el.className = 'float-text'; el.innerText = text; el.style.left = (x - 20) + 'px'; el.style.top = (y - 10) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
@@ -1412,8 +1412,7 @@ window.addEventListener('load', () => {
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
     function showTutorial() { tutorialStep1?.classList.remove('hidden'); tutorialStep2?.classList.add('hidden'); tutorialOverlay?.classList.add('show'); }
     function goToGame() { 
-        menuMusic.pause();
-        menuMusic.currentTime = 0;
+        syncGameMusic();
         document.getElementById('mainMenu').classList.add('hidden'); 
         document.getElementById('gameInterface').classList.remove('hidden'); 
         document.getElementById('newsBtn')?.classList.add('hidden'); 
@@ -1433,7 +1432,7 @@ window.addEventListener('load', () => {
         document.getElementById('newsBtn')?.classList.remove('hidden'); 
         document.getElementById('chatBtn')?.classList.add('hidden'); 
         document.getElementById('tourneyBtn')?.classList.add('hidden'); 
-        syncMenuMusic();
+        syncGameMusic();
     });
 
     document.getElementById('testBtn3')?.addEventListener('click', () => {
