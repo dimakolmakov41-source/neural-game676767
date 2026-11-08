@@ -1399,6 +1399,8 @@ window.addEventListener('load', () => {
     const tutorialOverlay = document.getElementById('tutorialOverlay'), tutorialStep1 = document.getElementById('tutorialStep1'), tutorialStep2 = document.getElementById('tutorialStep2');
     function showTutorial() { tutorialStep1?.classList.remove('hidden'); tutorialStep2?.classList.add('hidden'); tutorialOverlay?.classList.add('show'); }
     function goToGame() { 
+        menuMusic.pause();
+        menuMusic.currentTime = 0;
         document.getElementById('mainMenu').classList.add('hidden'); 
         document.getElementById('gameInterface').classList.remove('hidden'); 
         document.getElementById('newsBtn')?.classList.add('hidden'); 
@@ -1418,6 +1420,7 @@ window.addEventListener('load', () => {
         document.getElementById('newsBtn')?.classList.remove('hidden'); 
         document.getElementById('chatBtn')?.classList.add('hidden'); 
         document.getElementById('tourneyBtn')?.classList.add('hidden'); 
+        syncMenuMusic();
     });
 
     document.getElementById('testBtn3')?.addEventListener('click', () => {
