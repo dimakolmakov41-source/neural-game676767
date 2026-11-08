@@ -1124,14 +1124,33 @@ window.addEventListener('load', () => {
     function calculateOfflineIncome() { const awaySec = Math.min((Date.now() - lastSaveTime) / 1000, OFFLINE_MAX_HOURS * 3600); if (awaySec < 60) return 0; return Math.floor(getClickPower() * awaySec * OFFLINE_RATE); }
     function showOfflineReward(amount) { document.getElementById('offlineReward').innerText = '+' + formatNumber(amount) + ' 🧠'; document.getElementById('offlineOverlay')?.classList.add('show'); }
 
-    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }, { name: "Ретро", freq: 520, type: "square" }, { name: "Мягкий", freq: 740, type: "triangle" }];
-    let currentSoundProfile = 0, audioCtx = null, musicEnabled = localStorage.getItem('musicEnabled') === 'true';
+    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }, { name: "Ретро", freq: 520, type: "square" }, { name: "Мягкий", freq: 740, type: "triangle" }, { name: "Новый звук", src: "assets/clicksoundeffect.mp3" }];
+    let currentSoundProfile = Math.max(0, Math.min(soundProfiles.length - 1, Number(localStorage.getItem('currentSoundProfile') || 0))), audioCtx = null, musicEnabled = localStorage.getItem('musicEnabled') === 'true';
+    const menuMusic = new Audio('assets/menu_music.mp3'); menuMusic.loop = true; menuMusic.preload = 'auto';
+    const modalSound = new Audio('assets/modal.mp3'); modalSound.preload = 'auto';
+    const clickAudio = new Audio('assets/clicksoundeffect.mp3'); clickAudio.preload = 'auto';
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
-    function playClickSound() { if (!audioCtx) initMusic(); if (audioCtx) { try { const p = soundProfiles[currentSoundProfile]; const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = p.type; o.frequency.value = p.freq; g.gain.value = 0.08; g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.05); } catch(e) {} } }
+    function syncMenuMusic() {
+        const menu = document.getElementById('mainMenu');
+        const visible = menu && !menu.classList.contains('hidden');
+        if (musicEnabled && visible) { const p = menuMusic.play(); if (p?.catch) p.catch(() => {}); }
+        else { menuMusic.pause(); if (!visible) menuMusic.currentTime = 0; }
+    }
+    function playModalSound() { try { modalSound.currentTime = 0; const p = modalSound.play(); if (p?.catch) p.catch(() => {}); } catch(e) {} }
+    function playClickSound() {
+        if (soundProfiles[currentSoundProfile]?.src) { try { clickAudio.currentTime = 0; const p = clickAudio.play(); if (p?.catch) p.catch(() => {}); } catch(e) {} return; }
+        if (!audioCtx) initMusic();
+        if (audioCtx) { try { const p = soundProfiles[currentSoundProfile]; const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = p.type; o.frequency.value = p.freq; g.gain.value = 0.08; g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.05); } catch(e) {} }
+    }
+    const modalSoundObserver = new MutationObserver(mutations => {
+        for (const m of mutations) if (m.attributeName === 'class' && m.target.classList?.contains('show') && !m.oldValue?.split(/\\s+/).includes('show')) playModalSound();
+    });
+    document.querySelectorAll('.modal-overlay, .neural-shop-overlay, .pass-overlay, .tourney-overlay, [id$="Overlay"], [id$="Modal"]').forEach(el => modalSoundObserver.observe(el, { attributes: true, attributeFilter: ['class'], attributeOldValue: true }));
     function playBuySound() { if (!audioCtx) initMusic(); if (audioCtx) { try { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = "triangle"; o.frequency.value = 523.25; g.gain.value = 0.08; g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.1); } catch(e) {} } }
 
     const musicBtn = document.getElementById('musicToggle');
-    if (musicBtn) { musicBtn.innerText = musicEnabled ? '🔊' : '🔇'; musicBtn.onclick = () => { musicEnabled = !musicEnabled; localStorage.setItem('musicEnabled', musicEnabled); musicBtn.innerText = musicEnabled ? '🔊' : '🔇'; }; }
+    if (musicBtn) { musicBtn.innerText = musicEnabled ? '🔊' : '🔇'; musicBtn.onclick = () => { musicEnabled = !musicEnabled; localStorage.setItem('musicEnabled', musicEnabled); musicBtn.innerText = musicEnabled ? '🔊' : '🔇'; syncMenuMusic(); }; }
+    document.addEventListener('pointerdown', () => { if (musicEnabled) syncMenuMusic(); }, { once: true });
     document.querySelectorAll('.menu-btn').forEach((btn,i)=>{ btn.style.animationDelay=`${i*0.05}s`; });
 
     function spawnFloatText(x, y, text) { const el = document.createElement('div'); el.className = 'float-text'; el.innerText = text; el.style.left = (x - 20) + 'px'; el.style.top = (y - 10) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
@@ -1511,7 +1530,9 @@ window.addEventListener('load', () => {
     promoCodes['dima'] = { points: 500, stars: 10 }; promoCodes['dima god'] = { points: 5000, stars: 100 }; promoCodes['start'] = { points: 100, stars: 5 }; promoCodes['neural'] = { points: 1000, stars: 50 }; promoCodes['evolution'] = { points: 2000, stars: 100 }; promoCodes['prestige'] = { points: 10000, stars: 200 }; promoCodes['legend'] = { points: 20000, stars: 500 }; promoCodes['pass8'] = { points: 8000, stars: 80 }; promoCodes['pass9'] = { points: 10000, stars: 100 }; promoCodes['halloween'] = { points: 6666, stars: 66 }; promoCodes['newyear'] = { points: 7777, stars: 77 }; promoCodes['robot'] = { points: 9999, stars: 99 }; promoCodes['hacker'] = { points: 11111, stars: 111 }; promoCodes['pumpkin'] = { points: 8888, stars: 88 }; promoCodes['birthday'] = { points: 17000, stars: 170 }; promoCodes['march8'] = { points: 8000, stars: 80 }; promoCodes['beta16'] = { points: 2500, stars: 25 }; promoCodes['neural2026'] = { points: 5000, stars: 50 };
 
     document.getElementById('activatePromoBtn')?.addEventListener('click', () => { const code = document.getElementById('promoInput').value.toLowerCase().trim(); if (promoCodes[code]) { const promo = promoCodes[code]; points += promo.points; stars += promo.stars; totalStarsEarned += promo.stars; updateUI(); saveGame(); showToast(t('promo_ok')); document.getElementById('promoInput').value = ''; document.getElementById('promoModal').classList.remove('show'); } else showToast(t('promo_bad')); });
-    document.getElementById('soundToggleBtn')?.addEventListener('click', () => { currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length; document.getElementById('soundToggleBtn').innerText = `${t('sound_toggle')} (${soundProfiles[currentSoundProfile].name})`; saveGame(); showToast(`🔊 ${soundProfiles[currentSoundProfile].name}`); });
+    document.getElementById('soundToggleBtn')?.addEventListener('click', () => { currentSoundProfile = (currentSoundProfile + 1) % soundProfiles.length; localStorage.setItem('currentSoundProfile', currentSoundProfile); document.getElementById('soundToggleBtn').innerText = `${t('sound_toggle')} (${soundProfiles[currentSoundProfile].name})`; playClickSound(); saveGame(); showToast(`🔊 ${soundProfiles[currentSoundProfile].name}`); });
+    const soundButton = document.getElementById('soundToggleBtn');
+    if (soundButton) soundButton.innerText = `${t('sound_toggle')} (${soundProfiles[currentSoundProfile].name})`;
 
     function moveEyes(e) { const x = e.touches ? e.touches[0].clientX : e.clientX, y = e.touches ? e.touches[0].clientY : e.clientY; document.querySelectorAll('.pupil').forEach(p => { const rect = p.parentElement.parentElement.getBoundingClientRect(); const dx = x - (rect.left + rect.width / 2), dy = y - (rect.top + rect.height / 2); const ang = Math.atan2(dy, dx), dist = Math.min(4, Math.hypot(dx, dy) / 20); p.style.transform = `translate(${Math.cos(ang) * dist}px, ${Math.sin(ang) * dist}px)`; }); }
     document.addEventListener('mousemove', moveEyes); document.addEventListener('touchmove', moveEyes);
