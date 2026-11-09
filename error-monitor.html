@@ -15,24 +15,27 @@ h2{font-size:16px;margin:0 0 12px}label{display:block;color:#b8c9df;margin:12px 
 </style>
 
 <!-- DIMA_STUDIO_CLOSEALL_START -->
-<style id="dimaStudioCloseAllGuard">html{visibility:hidden}</style>
 <script>
 (function(){
   var CONFIG_URL="https://raw.githubusercontent.com/dimakolmakov41-source/neural-game676767/main/closeall.json";
-  function reveal(){document.documentElement.style.visibility="visible";}
   function showClosed(message){
-    document.body.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:radial-gradient(circle at top,#243b63,#080d18 65%);color:white;font-family:system-ui,Arial;text-align:center"><section style="max-width:620px;padding:34px 26px;border:1px solid #526b91;border-radius:22px;background:#101b2e"><div style="font-size:48px">🔒</div><h1 style="font-size:clamp(22px,5vw,34px)"></h1><p style="color:#a9bbd4">Dima Studio</p></section></main>';
-    document.body.querySelector("h1").textContent=message||"Все проекты Dima studio были закрыты";
+    var root=document.createElement("div");
+    root.id="dimaStudioClosedScreen";
+    root.style.cssText="position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:radial-gradient(circle at top,#243b63,#080d18 65%);color:#fff;font-family:system-ui,Arial;text-align:center";
+    var card=document.createElement("section");
+    card.style.cssText="max-width:620px;padding:34px 26px;border:1px solid #526b91;border-radius:22px;background:#101b2e;box-shadow:0 20px 70px #0008";
+    var icon=document.createElement("div");icon.textContent="🔒";icon.style.fontSize="48px";
+    var title=document.createElement("h1");title.textContent=message||"Все проекты Dima studio были закрыты";
+    title.style.cssText="font-size:clamp(22px,5vw,34px);line-height:1.35";
+    var brand=document.createElement("p");brand.textContent="Dima Studio";brand.style.color="#a9bbd4";
+    card.append(icon,title,brand);root.append(card);document.body.append(root);
   }
-  document.addEventListener("DOMContentLoaded",function(){
-    fetch(CONFIG_URL+"?v="+Date.now(),{cache:"no-store",headers:{"Cache-Control":"no-cache","Pragma":"no-cache"}})
-      .then(function(response){if(!response.ok)throw new Error("closeall config unavailable");return response.json();})
-      .then(function(config){
-        if(config && config.closeAll === true){showClosed(config.message);}
-      })
-      .catch(function(error){console.warn("Dima Studio closeall check failed:",error);})
-      .finally(reveal);
-  });
+  fetch(CONFIG_URL+"?check="+Date.now(),{cache:"no-store"})
+    .then(function(response){if(!response.ok)throw new Error("HTTP "+response.status);return response.json();})
+    .then(function(config){
+      if(config && config.closeAll === true){showClosed(config.message);}
+    })
+    .catch(function(error){console.warn("Dima Studio closeall check:",error);});
 })();
 </script>
 <!-- DIMA_STUDIO_CLOSEALL_END -->
