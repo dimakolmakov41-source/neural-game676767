@@ -14,15 +14,7 @@ h2{font-size:16px;margin:0 0 12px}label{display:block;color:#b8c9df;margin:12px 
 @media(max-width:520px){body{padding:14px 9px}.card{padding:14px}.stats{grid-template-columns:1fr 1fr}.brand h1{font-size:18px}}
 </style>
 
-<!-- DIMA_STUDIO_CLOSEALL_START -->
-<script>
-(function(){
- var url="https://raw.githubusercontent.com/dimakolmakov41-source/neural-game676767/main/closeall.json";
- function closed(message){var box=document.createElement("div");box.id="dimaStudioClosedScreen";box.style.cssText="position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;background:#080d18;color:white;font:16px system-ui;text-align:center";var h=document.createElement("h1");h.textContent=message||"Все проекты Dima studio были закрыты";box.appendChild(h);document.body.appendChild(box)}
- fetch(url+"?v="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(c=>{if(c&&c.closeAll===true)closed(c.message)}).catch(e=>console.warn("closeall:",e));
-})();
-</script>
-<!-- DIMA_STUDIO_CLOSEALL_END -->
+
 </head>
 <body><main>
 <header class="head"><div class="brand"><div class="logo">🛡️</div><div><h1>Error Monitor</h1><p>Neural Game · Панель ошибок</p></div></div><a href="tester-manager.html" style="color:#83dff0;text-decoration:none">🧪 Tester Manager ↗</a></header>
