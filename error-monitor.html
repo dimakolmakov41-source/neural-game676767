@@ -17,25 +17,9 @@ h2{font-size:16px;margin:0 0 12px}label{display:block;color:#b8c9df;margin:12px 
 <!-- DIMA_STUDIO_CLOSEALL_START -->
 <script>
 (function(){
-  var CONFIG_URL="https://raw.githubusercontent.com/dimakolmakov41-source/neural-game676767/main/closeall.json";
-  function showClosed(message){
-    var root=document.createElement("div");
-    root.id="dimaStudioClosedScreen";
-    root.style.cssText="position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:radial-gradient(circle at top,#243b63,#080d18 65%);color:#fff;font-family:system-ui,Arial;text-align:center";
-    var card=document.createElement("section");
-    card.style.cssText="max-width:620px;padding:34px 26px;border:1px solid #526b91;border-radius:22px;background:#101b2e;box-shadow:0 20px 70px #0008";
-    var icon=document.createElement("div");icon.textContent="🔒";icon.style.fontSize="48px";
-    var title=document.createElement("h1");title.textContent=message||"Все проекты Dima studio были закрыты";
-    title.style.cssText="font-size:clamp(22px,5vw,34px);line-height:1.35";
-    var brand=document.createElement("p");brand.textContent="Dima Studio";brand.style.color="#a9bbd4";
-    card.append(icon,title,brand);root.append(card);document.body.append(root);
-  }
-  fetch(CONFIG_URL+"?check="+Date.now(),{cache:"no-store"})
-    .then(function(response){if(!response.ok)throw new Error("HTTP "+response.status);return response.json();})
-    .then(function(config){
-      if(config && config.closeAll === true){showClosed(config.message);}
-    })
-    .catch(function(error){console.warn("Dima Studio closeall check:",error);});
+ var url="https://raw.githubusercontent.com/dimakolmakov41-source/neural-game676767/main/closeall.json";
+ function closed(message){var box=document.createElement("div");box.id="dimaStudioClosedScreen";box.style.cssText="position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;background:#080d18;color:white;font:16px system-ui;text-align:center";var h=document.createElement("h1");h.textContent=message||"Все проекты Dima studio были закрыты";box.appendChild(h);document.body.appendChild(box)}
+ fetch(url+"?v="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(c=>{if(c&&c.closeAll===true)closed(c.message)}).catch(e=>console.warn("closeall:",e));
 })();
 </script>
 <!-- DIMA_STUDIO_CLOSEALL_END -->
