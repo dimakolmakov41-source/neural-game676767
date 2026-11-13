@@ -1124,14 +1124,14 @@ window.addEventListener('load', () => {
     function calculateOfflineIncome() { const awaySec = Math.min((Date.now() - lastSaveTime) / 1000, OFFLINE_MAX_HOURS * 3600); if (awaySec < 60) return 0; return Math.floor(getClickPower() * awaySec * OFFLINE_RATE); }
     function showOfflineReward(amount) { document.getElementById('offlineReward').innerText = '+' + formatNumber(amount) + ' 🧠'; document.getElementById('offlineOverlay')?.classList.add('show'); }
 
-    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }, { name: "Ретро", freq: 520, type: "square" }, { name: "Мягкий", freq: 740, type: "triangle" }, { name: "Новый звук", src: "assets/clicksoundeffect.mp3" }];
+    const soundProfiles = [{ name: "Обычный", freq: 880, type: "sine" }, { name: "Пиксельный", freq: 1200, type: "square" }, { name: "Глубокий", freq: 440, type: "sawtooth" }, { name: "Аркадный", freq: 660, type: "triangle" }, { name: "Космический", freq: 1046, type: "sine" }, { name: "Ретро", freq: 520, type: "square" }, { name: "Мягкий", freq: 740, type: "triangle" }, { name: "Новый звук", src: "assets/sounds/clicksoundeffect.mp3" }];
     let currentSoundProfile = Math.max(0, Math.min(soundProfiles.length - 1, Number(localStorage.getItem('currentSoundProfile') || 0))), audioCtx = null, musicEnabled = localStorage.getItem('musicEnabled') === 'true';
     // Музыка меню отключена. Отдельный трек играет только во время игры.
-    const gameMusic = new Audio('assets/musicgame1.mp3');
+    const gameMusic = new Audio('assets/sounds/musicgame1.mp3');
     gameMusic.loop = true;
     gameMusic.preload = 'auto';
-    const modalSound = new Audio('assets/modal.mp3'); modalSound.preload = 'auto';
-    const clickAudio = new Audio('assets/clicksoundeffect.mp3'); clickAudio.preload = 'auto';
+    const modalSound = new Audio('assets/sounds/modal.mp3'); modalSound.preload = 'auto';
+    const clickAudio = new Audio('assets/sounds/clicksoundeffect.mp3'); clickAudio.preload = 'auto';
     function initMusic() { if (audioCtx) return; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
     function syncGameMusic() {
         const game = document.getElementById('gameInterface');
