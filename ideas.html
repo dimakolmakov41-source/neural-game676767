@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Идеи обновлений — Эволюция Нейросетей</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#090d18;--card:#141c2d;--line:#26344d;--accent:#7c8cff;--text:#eef2ff;--muted:#9aa8c3}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#1b2850,var(--bg) 55%);color:var(--text);font:16px Arial,sans-serif;padding:24px}
+main{max-width:760px;margin:30px auto}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin:16px 0;box-shadow:0 12px 40px #0005}
+h1{text-align:center;font-size:28px}h2{margin-top:0}.muted{color:var(--muted);line-height:1.5}
+button,input,textarea{font:inherit;border-radius:10px}button{border:0;padding:12px 16px;background:var(--accent);color:white;font-weight:700;cursor:pointer;margin:5px 5px 5px 0}button:disabled{opacity:.5;cursor:wait}
+input,textarea{width:100%;padding:13px;background:#0c1322;color:var(--text);border:1px solid var(--line);margin:7px 0 14px}textarea{min-height:140px;resize:vertical}
+.hidden{display:none}.idea{padding:15px;border:1px solid var(--line);border-radius:12px;margin:12px 0;background:#0c1322;white-space:pre-wrap;overflow-wrap:anywhere}.date{font-size:12px;color:var(--muted);margin-top:9px}
+.status{min-height:22px;color:#a9edc5}.error{color:#ff9aab}.top{text-align:center}
+</style>
+</head>
+<body><main>
+<div class="top"><h1>💡 Идеи обновлений</h1><p class="muted">Предложи, что добавить в «Кликер: Эволюция Нейросетей».</p></div>
+<section class="card" id="choice">
+<h2>Как продолжить?</h2>
+<button id="playerMode">Войти как игрок</button>
+<button id="adminMode">Войти как администратор</button>
+<p class="muted">Игрок может отправить идею без регистрации. Администратор входит через аккаунт Supabase Auth.</p>
+</section>
+<section class="card hidden" id="player">
+<h2>Предложить идею</h2>
+<label for="ideaText">Твоя идея обновления</label>
+<textarea id="ideaText" maxlength="1200" minlength="5" placeholder="Например: добавить новый режим..."></textarea>
+<button id="sendIdea">Отправить идею</button><p class="status" id="playerStatus" aria-live="polite"></p>
+<button class="back">Назад</button>
+</section>
+<section class="card hidden" id="login">
+<h2>Вход администратора</h2>
+<label for="email">Email Supabase</label><input id="email" type="email" autocomplete="username" placeholder="admin@example.com">
+<label for="password">Пароль</label><input id="password" type="password" autocomplete="current-password" placeholder="Пароль">
+<button id="loginBtn">Войти</button><p class="status" id="loginStatus" aria-live="polite"></p>
+<button class="back">Назад</button>
+</section>
+<section class="card hidden" id="admin">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2>Идеи игроков</h2><button id="logout">Выйти</button></div>
+<button id="refresh">Обновить список</button><p class="status" id="adminStatus" aria-live="polite"></p><div id="ideasList"></div>
+</section>
+</main>
+<script>
+(()=>{
+const URL="https://kbkmueilgjmintuwkfzv.supabase.co";
+const KEY="sb_publishable_udGOtMD_z1cu44xJvg9wLQ_0LtfzdOS";
+const db=window.supabase.createClient(URL,KEY);
+const $=id=>document.getElementById(id);
+const panels=["choice","player","login","admin"];
+function show(id){panels.forEach(x=>$(x).classList.toggle("hidden",x!==id));}
+function status(id,msg,error=false){$(id).textContent=msg;$(id).classList.toggle("error",error);}
+$("playerMode").onclick=()=>show("player");
+$("adminMode").onclick=()=>show("login");
+document.querySelectorAll(".back").forEach(b=>b.onclick=()=>show("choice"));
+$("sendIdea").onclick=async()=>{
+ const idea=$("ideaText").value.trim();
+ if(idea.length<5){status("playerStatus","Напиши идею минимум из 5 символов.",true);return;}
+ $("sendIdea").disabled=true;status("playerStatus","Отправляем...");
+ try{const {error}=await db.from("update_ideas").insert({idea});if(error)throw error;
+ $("ideaText").value="";status("playerStatus","Спасибо! Идея отправлена.");
+ }catch(e){status("playerStatus","Не удалось отправить: "+e.message,true);}
+ finally{$("sendIdea").disabled=false;}
+};
+async function loadIdeas(){
+ $("refresh").disabled=true;status("adminStatus","Загружаем идеи...");
+ try{
+  const {data,error}=await db.from("update_ideas").select("id,idea,created_at").order("created_at",{ascending:false}).limit(300);
+  if(error)throw error;
+  const list=$("ideasList");list.replaceChildren();
+  if(!data.length){list.textContent="Пока идей нет.";status("adminStatus","");return;}
+  data.forEach(item=>{
+   const box=document.createElement("article");box.className="idea";
+   const body=document.createElement("div");body.textContent=item.idea;
+   const date=document.createElement("div");date.className="date";date.textContent=new Date(item.created_at).toLocaleString("ru-RU");
+   box.append(body,date);list.append(box);
+  });
+  status("adminStatus","Загружено идей: "+data.length);
+ }catch(e){status("adminStatus",e.message,true);}
+ finally{$("refresh").disabled=false;}
+}
+async function checkAdmin(){
+ const {data:{user},error}=await db.auth.getUser();if(error||!user)throw new Error("Сначала войди в аккаунт.");
+ const {data,error:checkError}=await db.from("update_ideas").select("id").limit(1);
+ if(checkError)throw new Error("Нет прав администратора. Аккаунт должен быть добавлен в tester_admins.");
+}
+$("loginBtn").onclick=async()=>{
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password){status("loginStatus","Введи email и пароль.",true);return;}
+ $("loginBtn").disabled=true;status("loginStatus","Проверяем аккаунт...");
+ try{
+  const {error}=await db.auth.signInWithPassword({email,password});if(error)throw error;
+  await checkAdmin();show("admin");await loadIdeas();
+ }catch(e){await db.auth.signOut();status("loginStatus",e.message,true);}
+ finally{$("loginBtn").disabled=false;}
+};
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click();});
+$("refresh").onclick=loadIdeas;
+$("logout").onclick=async()=>{await db.auth.signOut();show("choice");};
+db.auth.getSession().then(async({data})=>{if(data.session){try{await checkAdmin();show("admin");await loadIdeas();}catch(e){await db.auth.signOut();}}});
+})();
+</script>
+</body></html>
